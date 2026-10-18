@@ -1,0 +1,7 @@
+#!/bin/sh
+# Regenerate everything derived from the upstream snapshot: the Kotlin under
+# qeetrix/src/main/kotlin/.../tokens/generated and .../icons/generated, and
+# Documentation/Foundations/{TOKEN_COVERAGE.md,token-values.json}. Offline and deterministic.
+set -eu
+root=$(cd "$(dirname "$0")/.." && pwd)
+exec "$root/gradlew" -p "$root" --quiet --console=plain :qeetrix-gen:run --args="generate --root $root"

@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  schedule:
+    # Weekly: confirm the pinned upstream artifacts still match the lock.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      instrumented:
+        description: Also run the instrumented tests on an emulator
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The SDK packages Phase 1 was verified with (AGP 9.4's maximum API level and default build tools).
+  ANDROID_PLATFORM: "platforms;android-37.0"
+  ANDROID_BUILD_TOOLS: "build-tools;36.0.0"
+
+jobs:
+  build:
+    name: Generator, drift, lint, unit tests, AAR, sample, docs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Android SDK packages
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$ANDROID_PLATFORM" "$ANDROID_BUILD_TOOLS" platform-tools > /dev/null
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          # Pull requests read the cache; only main writes it.
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+      - name: Generator tests and drift check; lint, ktlint and unit tests of the library and sample
+        run: ./gradlew check
+      - name: Library AAR, sample APK, instrumented-test APK and API reference
+        run: ./gradlew :qeetrix:assembleRelease :sample:assembleDebug :qeetrix:assembleDebugAndroidTest :qeetrix:dokkaGenerate
+      - name: The AAR carries only the qx_ fonts, their licences and no manifest entries
+        run: Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
+      - name: Reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/build/reports/
+            **/build/test-results/
+      - name: Library AAR and API reference
+        uses: actions/upload-artifact@v4
+        with:
+          name: qeetrix
+          path: |
+            qeetrix/build/outputs/aar/qeetrix-release.aar
+            qeetrix/build/dokka/html/
+
+  upstream:
+    name: Pinned upstream still matches the lock
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+      - name: Re-fetch the pinned artifacts and compare them with the lock (network)
+        run: ./gradlew -p Tools/QeetrixGen run --args="sync --root $GITHUB_WORKSPACE --check"
+
+  instrumented:
+    name: Instrumented tests on an emulator
+    if: github.event_name == 'workflow_dispatch' && inputs.instrumented
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Android SDK packages
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$ANDROID_PLATFORM" "$ANDROID_BUILD_TOOLS" platform-tools > /dev/null
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+      - name: connectedDebugAndroidTest on API 35
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          script: ./gradlew :qeetrix:connectedDebugAndroidTest

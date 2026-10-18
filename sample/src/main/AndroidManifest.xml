@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        allowBackup="false": the sample stores no user data, so there is nothing to back up or transfer.
+        No icon: Qeet logos are not in the native pipeline yet (deferred on Android and iOS alike), and a
+        developer sample does not need one.
+    -->
+    <application
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.QeetrixSample"
+        tools:ignore="DataExtractionRules,MissingApplicationIcon">
+        <!-- wideColorGamut: the few Qeetrix colours outside sRGB draw in Display P3 on a P3 screen. -->
+        <activity
+            android:name=".MainActivity"
+            android:colorMode="wideColorGamut"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

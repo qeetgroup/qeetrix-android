@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Check what a built Qeetrix AAR ships: the two qx_-prefixed font resources and no other resources,
+# the three licence texts beside them, compiled classes, and a manifest with no permissions or
+# components. Fails if anything else appears (an unprefixed resource, a test asset, a permission).
+#
+#   Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
+set -eu
+aar=${1:?usage: Scripts/verify-aar <path-to.aar>}
+[ -f "$aar" ] || { echo "error: $aar does not exist — build it with ./gradlew :qeetrix:assembleRelease" >&2; exit 1; }
+
+entries=$(unzip -Z1 "$aar" | grep -v '/$' | sort)
+expected=$(sort <<'LIST'
+AndroidManifest.xml
+META-INF/com/android/build/gradle/aar-metadata.properties
+R.txt
+assets/qeetrix/licenses/CalSans-OFL.txt
+assets/qeetrix/licenses/FiraCode-OFL.txt
+assets/qeetrix/licenses/qeetrix-icons-LICENSE.txt
+classes.jar
+res/font/qx_cal_sans_vf.ttf
+res/font/qx_fira_code_vf.ttf
+LIST
+)
+# Release builds may add a proguard.txt or lint.jar only if the library ever declares them; it does not.
+if [ "$entries" != "$expected" ]; then
+    echo "error: unexpected AAR contents" >&2
+    diff <(echo "$expected") <(echo "$entries") >&2 || true
+    exit 1
+fi
+manifest=$(unzip -p "$aar" AndroidManifest.xml)
+if echo "$manifest" | grep -q -E '<(uses-permission|application|activity|service|receiver|provider)'; then
+    echo "error: the library manifest declares permissions or components:" >&2
+    echo "$manifest" >&2
+    exit 1
+fi
+if unzip -p "$aar" R.txt | grep -v -q ' qx_'; then
+    echo "error: a resource without the qx_ prefix:" >&2
+    unzip -p "$aar" R.txt | grep -v ' qx_' >&2
+    exit 1
+fi
+echo "✓ $aar: qx_ fonts, licences, classes; no permissions or components"
