@@ -1,9 +1,11 @@
 # Module qeetrix
 
-Qeetrix for Android: the Qeet Group design system in Kotlin and Jetpack Compose. Phase 1 provides the
-foundations — semantic colours, typography, spacing, corners, sizing, elevation, motion, icons and
-accessibility helpers — generated from the published `@qeetrix/ui` tokens. Components arrive in
-Phase 2.
+Qeetrix for Android: the Qeet Group design system in Kotlin and Jetpack Compose. The foundations —
+semantic colours, typography, spacing, corners, sizing, elevation, motion, icons and accessibility
+helpers — are generated from the published `@qeetrix/ui` tokens, and the components in
+`com.qeetgroup.qeetrix.components.*` are built on them: Button, Icon button, Text field, Switch, Avatar,
+Badge, Text, Progress, Spinner, Card and Separator; and the form inputs — Field and field set, Textarea,
+Password input, OTP input, Checkbox, Radio group, Select, Number field — with the form patterns.
 
 Wrap your content in [com.qeetgroup.qeetrix.theme.QeetrixTheme] and read the theme's values from the
 `QeetrixTheme` object:
@@ -113,8 +115,8 @@ needs testing on a device.
 # Package com.qeetgroup.qeetrix.icons
 
 [com.qeetgroup.qeetrix.icons.QeetrixIcon] draws a Qeetrix icon from vector paths in the inherited content
-colour. Phase 1 carries a representative set ([com.qeetgroup.qeetrix.icons.QeetrixIconName]) in round
-and sharp shapes, outline and filled where qeetrix-icons draws them.
+colour. The library carries the icons its components use ([com.qeetgroup.qeetrix.icons.QeetrixIconName]) in
+round and sharp shapes, outline and filled where qeetrix-icons draws them.
 
 Pass a `contentDescription` when the icon means something on its own; pass `null` when it is
 decorative and the text beside it carries the meaning. Icons whose meaning has a direction, such as
@@ -125,3 +127,103 @@ decorative and the text beside it carries the meaning. Icons whose meaning has a
 [com.qeetgroup.qeetrix.tokens.QeetrixProvenance] names the exact upstream releases this build was
 generated from — useful on an about screen or in a bug report, and for checking that web, iOS and
 Android ship the same design-system release.
+
+# Package com.qeetgroup.qeetrix.components.button
+
+Actions. [com.qeetgroup.qeetrix.components.button.QeetrixButton] is the Qeet action control — one
+default (primary) button per view, with outline, secondary, ghost, destructive and link variants, four
+sizes, and a loading state that keeps focus and ignores taps.
+[com.qeetgroup.qeetrix.components.button.QeetrixIconButton] is its icon-only form and requires a
+`contentDescription` that names the action. Every size reserves a 48 dp touch target.
+
+# Package com.qeetgroup.qeetrix.components.input
+
+The field every Qeetrix input is built on, and the text inputs.
+[com.qeetgroup.qeetrix.components.input.QeetrixTextField] is a single-line field and
+[com.qeetgroup.qeetrix.components.input.QeetrixTextarea] a multi-line one, each with its label, help text
+and a [com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage] (error, warning or success), built on
+Compose's `BasicTextField` and a caller-owned `TextFieldState`.
+[com.qeetgroup.qeetrix.components.input.QeetrixField] gives any other control the same label,
+description, message and accessibility; [com.qeetgroup.qeetrix.components.input.QeetrixFieldSet] groups
+fields or choices under a legend. [com.qeetgroup.qeetrix.components.input.QeetrixOption] is a typed
+choice for the radio group and the select.
+
+# Package com.qeetgroup.qeetrix.components.passwordinput
+
+[com.qeetgroup.qeetrix.components.passwordinput.QeetrixPasswordInput]: a password field on Compose's
+`BasicSecureTextField`, with a reveal button and AutoFill for a current or a new password. The password
+stays in the caller's `TextFieldState`; Qeetrix keeps, logs and describes none of it.
+
+# Package com.qeetgroup.qeetrix.components.otpinput
+
+[com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPInput]: a one-time code in one native field, drawn
+as cells, with SMS one-time-code AutoFill. It never reads messages or asks for permissions.
+
+# Package com.qeetgroup.qeetrix.components.checkbox
+
+[com.qeetgroup.qeetrix.components.checkbox.QeetrixCheckbox] and
+[com.qeetgroup.qeetrix.components.checkbox.QeetrixTriStateCheckbox]: checked, unchecked and mixed, as a
+labelled row that is one 48 dp control or as a bare box.
+
+# Package com.qeetgroup.qeetrix.components.radiogroup
+
+[com.qeetgroup.qeetrix.components.radiogroup.QeetrixRadioGroup]: one typed choice from a short, visible
+list of options.
+
+# Package com.qeetgroup.qeetrix.components.select
+
+[com.qeetgroup.qeetrix.components.select.QeetrixSelect]: one typed choice from a list in a popup, with a
+trigger drawn as a field.
+
+# Package com.qeetgroup.qeetrix.components.numberfield
+
+[com.qeetgroup.qeetrix.components.numberfield.QeetrixNumberField]: an exact `Int` or `BigDecimal` with
+locale-aware typing, a range, a step and stepper buttons.
+
+# Package com.qeetgroup.qeetrix.components.form
+
+Form patterns: [com.qeetgroup.qeetrix.components.form.QeetrixFormActions] places a form's buttons and
+[com.qeetgroup.qeetrix.components.form.QeetrixFormErrorSummary] lists its problems after a failed submit.
+Values, validation and submission stay with the app.
+
+# Package com.qeetgroup.qeetrix.components.switchcontrol
+
+[com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch]: an on/off control with switch semantics,
+alone or as a labelled row that toggles as one control. The package is `switchcontrol` because
+`switch` is a Java keyword.
+
+# Package com.qeetgroup.qeetrix.components.avatar
+
+[com.qeetgroup.qeetrix.components.avatar.QeetrixAvatar]: a person's or an organisation's picture
+(any `Painter` the app has loaded), their initials, or a neutral icon, with an optional status badge.
+
+# Package com.qeetgroup.qeetrix.components.badge
+
+[com.qeetgroup.qeetrix.components.badge.QeetrixBadge]: a small label for a count, a status or a
+category, whose text always carries the meaning.
+
+# Package com.qeetgroup.qeetrix.components.typography
+
+[com.qeetgroup.qeetrix.components.typography.QeetrixText]: copy in the web Typography component's
+variants — headings h1–h4 (with heading semantics), paragraph, lead, large, small, muted, blockquote and
+inline code — over Compose's `BasicText`.
+
+# Package com.qeetgroup.qeetrix.components.progress
+
+[com.qeetgroup.qeetrix.components.progress.QeetrixProgress]: determinate or indeterminate task progress
+with Compose's progress semantics and a still form when animations are off.
+
+# Package com.qeetgroup.qeetrix.components.spinner
+
+[com.qeetgroup.qeetrix.components.spinner.QeetrixSpinner]: an indeterminate busy indicator, announced as
+"Loading" or a label of your own.
+
+# Package com.qeetgroup.qeetrix.components.card
+
+[com.qeetgroup.qeetrix.components.card.QeetrixCard]: a surface with optional header, content and footer,
+static or as one clickable control, in default, outline and elevated styles.
+
+# Package com.qeetgroup.qeetrix.components.separator
+
+[com.qeetgroup.qeetrix.components.separator.QeetrixSeparator]: a decorative 1 dp rule, horizontal or
+vertical.

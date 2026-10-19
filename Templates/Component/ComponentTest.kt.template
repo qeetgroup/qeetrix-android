@@ -1,0 +1,26 @@
+package com.qeetgroup.qeetrix.components.{{package}}
+
+import androidx.compose.ui.test.junit4.createComposeRule
+import com.qeetgroup.qeetrix.components.setQeetrix
+import org.junit.Assert.fail
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+/**
+ * What a user and TalkBack observe of [Qeetrix{{Component}}]: its role, name and state, activation, the
+ * disabled and loading states it has, right to left and a large font scale. Assert through semantics,
+ * not layout internals.
+ */
+@RunWith(RobolectricTestRunner::class)
+class Qeetrix{{Component}}Test {
+    @get:Rule
+    val compose = createComposeRule()
+
+    @Test
+    fun followsTheWebContract() {
+        compose.setQeetrix { Qeetrix{{Component}}() }
+        fail("Write the behaviour tests for Qeetrix{{Component}} (Documentation/Standards/COMPONENT_CONTRACT.md), then delete this test.")
+    }
+}

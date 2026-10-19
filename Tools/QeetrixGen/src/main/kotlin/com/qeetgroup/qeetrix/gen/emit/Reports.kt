@@ -63,6 +63,11 @@ class Reports(
             val count = model.tokensUnder(*prefix.toTypedArray()).size
             if (count > 0) out.appendLine("| `${prefix.joinToString(".")}` | $count | $api |")
         }
+        for (group in model.adoptedComponents.sorted()) {
+            val count = model.tokensUnder("component", group).size
+            val name = ComponentTokenEmitter.objectName(group)
+            out.appendLine("| `component.$group` | $count | internal `$name`, read by the $group components |")
+        }
         out.appendLine()
         out.appendLine("## Not generated")
         out.appendLine()
@@ -169,6 +174,22 @@ class Reports(
 
             is TokenValue.FontFamily -> {
                 JsonPrimitive(value.name)
+            }
+
+            is TokenValue.ColorRef -> {
+                JsonObject(linkedMapOf("ref" to JsonPrimitive(value.path), "resolved" to color(value.resolved)))
+            }
+
+            is TokenValue.ElevationRef -> {
+                JsonObject(linkedMapOf("ref" to JsonPrimitive(value.path)))
+            }
+
+            is TokenValue.DensityRef -> {
+                JsonObject(linkedMapOf("density" to JsonPrimitive(value.metric)))
+            }
+
+            is TokenValue.Percent -> {
+                JsonObject(linkedMapOf("fraction" to number(value.fraction)))
             }
 
             is TokenValue.Shadow -> {

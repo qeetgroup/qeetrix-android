@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Check what a built Qeetrix AAR ships: the two qx_-prefixed font resources and no other resources,
-# the three licence texts beside them, compiled classes, and a manifest with no permissions or
-# components. Fails if anything else appears (an unprefixed resource, a test asset, a permission).
+# Check what a built Qeetrix AAR ships: the two qx_-prefixed font resources, the qx_-prefixed strings
+# (merged into res/values/values.xml) and no other resources, the three licence texts beside them,
+# compiled classes, and a manifest with no permissions or components. Fails if anything else appears
+# (an unprefixed resource, a test asset, a permission).
 #
 #   Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
 set -eu
@@ -19,6 +20,7 @@ assets/qeetrix/licenses/qeetrix-icons-LICENSE.txt
 classes.jar
 res/font/qx_cal_sans_vf.ttf
 res/font/qx_fira_code_vf.ttf
+res/values/values.xml
 LIST
 )
 # Release builds may add a proguard.txt or lint.jar only if the library ever declares them; it does not.
@@ -38,4 +40,4 @@ if unzip -p "$aar" R.txt | grep -v -q ' qx_'; then
     unzip -p "$aar" R.txt | grep -v ' qx_' >&2
     exit 1
 fi
-echo "✓ $aar: qx_ fonts, licences, classes; no permissions or components"
+echo "✓ $aar: qx_ fonts and strings, licences, classes; no permissions or components"

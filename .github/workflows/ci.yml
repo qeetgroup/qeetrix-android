@@ -28,7 +28,7 @@ env:
 
 jobs:
   build:
-    name: Generator, drift, lint, unit tests, AAR, sample, docs
+    name: Generator, drift, lint, tests, API, AAR, sample, docs
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
@@ -45,11 +45,17 @@ jobs:
         with:
           # Pull requests read the cache; only main writes it.
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-      - name: Generator tests and drift check; lint, ktlint and unit tests of the library and sample
+      # check: generator and new-component tests, the token and icon drift check, Android Lint, ktlint,
+      # the library's and the sample's JVM tests (behaviour, accessibility semantics and Compose UI
+      # interaction on Robolectric) and the public API check against Documentation/API/qeetrix.api.
+      # Screenshot baselines are not committed (.gitignore), so visual regression is verified locally with
+      # ./gradlew :qeetrix:verifyRoborazziDebug, not here; the screenshot tests run but neither record nor
+      # compare.
+      - name: Generator, drift, lint, ktlint, unit and Compose UI tests, public API
         run: ./gradlew check
       - name: Library AAR, sample APK, instrumented-test APK and API reference
         run: ./gradlew :qeetrix:assembleRelease :sample:assembleDebug :qeetrix:assembleDebugAndroidTest :qeetrix:dokkaGenerate
-      - name: The AAR carries only the qx_ fonts, their licences and no manifest entries
+      - name: The AAR carries only qx_ resources, the font licences and no manifest entries
         run: Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
       - name: Reports
         if: failure()

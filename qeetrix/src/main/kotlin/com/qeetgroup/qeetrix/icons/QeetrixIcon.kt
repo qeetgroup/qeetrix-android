@@ -24,21 +24,31 @@ import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
 /**
- * The Qeetrix icons available natively. Names are qeetrix-icons' (Lucide's); Phase 1 carries a
- * representative set, not the full catalogue. Adding one is a pin in `Upstream/manifest.json`.
+ * The Qeetrix icons available natively. Names are qeetrix-icons' (Lucide's): the representative set
+ * Phase 1 pinned plus those the components draw — not the full catalogue, and the same set as qeetrix-ios.
+ * Adding one is a pin in `Upstream/manifest.json`.
  */
 public enum class QeetrixIconName {
     Bell,
     Check,
+    ChevronDown,
+    CircleAlert,
+    CircleCheck,
     Database,
     Eye,
+    EyeOff,
     Inbox,
     Info,
+    LoaderCircle,
     Lock,
+    Minus,
     Navigation,
+    Plus,
     Search,
     Send,
     Server,
+    TriangleAlert,
+    UserRound,
     X,
     ;
 

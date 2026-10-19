@@ -16,7 +16,9 @@ class SnapshotTest {
 
     private fun upstream(name: String) = File(root, "Upstream/qeetrix-ui/$name").readText()
 
-    private val model by lazy { TokenModel(TokenSource(upstream("tokens.json"), upstream("tokens.css"), upstream("index.css"))) }
+    private val adopted = setOf("avatar", "badge", "button", "card", "input", "progress", "switch", "typography")
+    private val source by lazy { TokenSource(upstream("tokens.json"), upstream("tokens.css"), upstream("index.css")) }
+    private val model by lazy { TokenModel(source, adopted) }
 
     @Test
     fun generationIsDeterministic() {
@@ -32,9 +34,13 @@ class SnapshotTest {
 
     @Test
     fun everyUpstreamTokenIsDecided() {
-        // 217 generated + 666 excluded = every leaf of tokens.json; the same split as qeetrix-ios.
-        assertEquals(217, model.included.size)
-        assertEquals(666, model.excluded.size)
+        // Every leaf of tokens.json is decided. Foundations alone: 217 generated, 666 excluded; with the
+        // eight Phase 2 component groups adopted: 279 and 604 — the same splits as qeetrix-ios.
+        val foundations = TokenModel(source)
+        assertEquals(217, foundations.included.size)
+        assertEquals(666, foundations.excluded.size)
+        assertEquals(279, model.included.size)
+        assertEquals(604, model.excluded.size)
         assertEquals(listOf("light", "dark"), model.themes)
     }
 
@@ -52,6 +58,32 @@ class SnapshotTest {
     }
 
     @Test
+    fun componentTokensKeepTheReferencesUpstreamWrites() {
+        fun token(path: String) = model.included.single { it.dotted == path }
+        // A semantic colour named in both themes stays that colour.
+        assertEquals(TokenValue.ColorRef::class, token("component.button.primary.background").values.getValue("dark")::class)
+        assertEquals(
+            "color.action.primary",
+            (token("component.button.primary.background").values.getValue("light") as TokenValue.ColorRef).path,
+        )
+        // A reference in one theme and a mix in the other is a value per theme.
+        assertEquals(TokenValue.Color::class, token("component.input.background").values.getValue("dark")::class)
+        // Density, elevation, percentage and em keep their meaning.
+        assertEquals(TokenValue.DensityRef("control-height"), token("component.input.height").values.getValue("light"))
+        assertEquals(TokenValue.ElevationRef("elevation.raised"), token("component.card.elevation").values.getValue("light"))
+        assertEquals(TokenValue.Percent(0.25), token("component.avatar.corner-square").values.getValue("light"))
+        assertEquals(TokenValue.Em(0.875), token("component.typography.code-font-size").values.getValue("light"))
+        // The radius scale resolves: button.corner-xs = min(var(--radius-md), 10px) = 5.76.
+        assertEquals(5.76, (token("component.button.corner-xs").values.getValue("light") as TokenValue.Dimension).dp, 1e-9)
+    }
+
+    @Test
+    fun adoptingAGroupUpstreamDoesNotDefineFails() {
+        val error = assertThrows(GeneratorError::class.java) { TokenModel(source, setOf("button", "hologram")) }
+        assertTrue(error.message!!.contains("hologram"))
+    }
+
+    @Test
     fun lightAndDarkHaveTheSameTokens() {
         for (token in model.included) assertEquals(token.dotted, model.themes, token.values.keys.toList())
         val varying =
@@ -59,7 +91,7 @@ class SnapshotTest {
                 .filter { !it.isThemeInvariant }
                 .map { it.path.first() }
                 .toSet()
-        assertEquals(setOf("color", "elevation"), varying)
+        assertEquals(setOf("color", "elevation", "component"), varying)
     }
 
     @Test

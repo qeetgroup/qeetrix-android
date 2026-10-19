@@ -1,5 +1,6 @@
 package com.qeetgroup.qeetrix.gen
 
+import com.qeetgroup.qeetrix.gen.emit.ComponentTokenEmitter
 import com.qeetgroup.qeetrix.gen.emit.FontSpec
 import com.qeetgroup.qeetrix.gen.emit.IconEmitter
 import com.qeetgroup.qeetrix.gen.emit.IconSource
@@ -57,7 +58,11 @@ class Generator(
                 iconsCommit = lock.iconsCommit,
             )
 
-        val model = TokenModel(TokenSource(uiFile("tokens.json"), uiFile("tokens.css"), uiFile("index.css")))
+        val model =
+            TokenModel(
+                TokenSource(uiFile("tokens.json"), uiFile("tokens.css"), uiFile("index.css")),
+                adoptedComponents = manifest.componentTokens.toSet(),
+            )
         val fonts =
             manifest.fonts.map { pin ->
                 val file = File(root, pin.destination)
@@ -107,6 +112,7 @@ class Generator(
 
         val outputs = sortedMapOf<String, String>()
         outputs += TokenEmitter(model, provenance, fonts).files()
+        outputs += ComponentTokenEmitter(model, provenance).files()
         outputs += IconEmitter(icons, provenance).files()
         outputs += Reports(model, provenance).files()
         log("Generated ${model.included.size} tokens (${model.excluded.size} excluded), ${icons.size} icons, ${fonts.size} fonts.")

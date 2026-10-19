@@ -1,0 +1,29 @@
+# {{title}}
+
+`Qeetrix{{Component}}` · `components.{{package}}` · web: [{{name}}](https://ui.qeet.in/docs/components/{{slug}}) ·
+sample: {{category}} → {{title}}
+
+{{description}}
+
+```kotlin
+Qeetrix{{Component}}()
+```
+
+## Usage
+
+When to use it, and what to use instead.
+
+## Variants, sizes and states
+
+## Accessibility
+
+What TalkBack reads (role, name, state), the touch target, font scaling, right to left and reduced
+motion.
+
+## Theme and tokens
+
+{{tokensDoc}}
+
+## Platform differences
+
+Where Android differs from the web and from iOS, and why. Write "None." when it does not.

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Built-in strings, from @qeetrix/ui's message catalogue (src/lib/messages.ts at 7d7f651). Every component
+     that shows one also takes a parameter that replaces it; apps translate these by overriding them. -->
+<resources>
+    <!-- spinnerMessages.label: the accessible name of a spinner and of a busy button. -->
+    <string name="qx_loading">Loading</string>
+    <!-- labelMessages.optional: the marker after an optional field's label. -->
+    <string name="qx_optional">(optional)</string>
+    <!-- What accessibility services read for a required field's asterisk, after its label ("Email, required").
+         The web leaves this to the screen reader's announcement of the native `required` attribute, which
+         Android has no counterpart for; qeetrix-ios adds "Required" to the label the same way. -->
+    <string name="qx_required">required</string>
+    <!-- passwordInputMessages.show / .hide: the reveal button's name for its current action. -->
+    <string name="qx_show_password">Show password</string>
+    <string name="qx_hide_password">Hide password</string>
+    <!-- otpInputMessages.label: the name of a code input that has no label of its own. -->
+    <string name="qx_one_time_code">One-time code</string>
+    <!-- numberFieldMessages.decrease / .increase: the stepper buttons' names. -->
+    <string name="qx_decrease">Decrease</string>
+    <string name="qx_increase">Increase</string>
+    <!-- formMessages.errorSummaryTitle: the heading of a form's error summary. -->
+    <string name="qx_error_summary_title">There is a problem</string>
+</resources>

@@ -3,7 +3,7 @@ package com.qeetgroup.qeetrix.theme
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import com.qeetgroup.qeetrix.foundation.color.QeetrixColors
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import com.qeetgroup.qeetrix.foundation.typography.QeetrixTypography
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixLightColors
 
@@ -23,3 +23,14 @@ internal val LocalQeetrixReduceMotion = staticCompositionLocalOf { false }
  */
 public val LocalQeetrixContentColor: androidx.compose.runtime.ProvidableCompositionLocal<Color> =
     compositionLocalOf { Color.Unspecified }
+
+/**
+ * The control density of a subtree — the web's `DensityProvider`. Components that follow density
+ * (button and field heights) read it; everything else is density-independent.
+ *
+ * ```
+ * CompositionLocalProvider(LocalQeetrixDensity provides QeetrixDensity.Compact) { DataTable() }
+ * ```
+ */
+public val LocalQeetrixDensity: androidx.compose.runtime.ProvidableCompositionLocal<QeetrixDensity> =
+    compositionLocalOf { QeetrixDensity.Default }

@@ -14,8 +14,18 @@ components, stores nothing and reads no user data. The security-relevant parts a
 - **Dependencies.** The library's release classpaths are locked in `qeetrix/gradle.lockfile`
   (strict mode), so a transitive change is a reviewed diff. The Gradle wrapper's distribution is
   pinned by sha256 and validated in CI.
-- **Bundled resources.** Two font files and three licence texts, loaded only from the app's own
-  resources and assets.
+- **Bundled resources.** Two font files, three licence texts and nine `qx_` strings, loaded only from
+  the app's own resources and assets.
+- **Text input.** Every input keeps what is typed only in the state the app owns (`TextFieldState`, or
+  the value the app passes); the library never logs, stores or sends it.
+- **Passwords and one-time codes.** `QeetrixPasswordInput` is Compose's `BasicSecureTextField`: masked,
+  copy and cut disabled, suggestions off. Neither it nor `QeetrixOTPInput` copies the text, saves it
+  across configuration changes (only the reveal flag is saved) or puts it in any label, description or
+  accessibility text; a test scans every semantics node for it. Like every Android password field, the
+  text is exposed to accessibility services marked as a password; that is the platform's behaviour.
+  Qeetrix reads no SMS, requests no permissions, uses no Play services, stores no credentials and adds
+  no encryption of its own. AutoFill types are set so the user's password manager works, never
+  disabled. See [Documentation/Standards/FORMS.md](Documentation/Standards/FORMS.md).
 
 ## Supported versions
 

@@ -1,8 +1,25 @@
+import kotlinx.validation.api.dump
+import kotlinx.validation.api.filterOutNonPublic
+import kotlinx.validation.api.loadApiFromJvmClasses
+import java.util.jar.JarFile
+import java.util.zip.ZipFile
+
+buildscript {
+    dependencies {
+        // The public API dump (bottom of this file) uses the Binary Compatibility Validator's
+        // signature engine as a library: its Gradle plugin does not configure AGP 9 built-in Kotlin.
+        classpath(libs.binary.compatibility.validator)
+        classpath(libs.asm.tree)
+        classpath(libs.kotlin.metadata.jvm)
+    }
+}
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.dokka)
+    alias(libs.plugins.roborazzi)
 }
 
 // Coordinates an app resolves through a Gradle composite build (README › Using Qeetrix in an app). Nothing
@@ -88,6 +105,8 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(libs.kotlin.reflect)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
     debugImplementation(composeBom)
     debugImplementation(libs.compose.ui.test.manifest)
 
@@ -114,3 +133,77 @@ dokka {
         includes.from("Module.md")
     }
 }
+
+// Screenshot baselines (Roborazzi, Documentation/Decisions/0012-screenshot-testing.md).
+roborazzi {
+    outputDir.set(file("src/test/screenshots"))
+}
+
+// The public API baseline (Documentation/Decisions/0013-public-api-baseline.md).
+abstract class QeetrixApiTask : DefaultTask() {
+    @get:InputFile
+    abstract val aar: RegularFileProperty
+
+    @get:Internal
+    abstract val baseline: RegularFileProperty
+
+    @get:Input
+    abstract val update: Property<Boolean>
+
+    @TaskAction
+    fun run() {
+        val classes = File(temporaryDir, "classes.jar")
+        ZipFile(aar.get().asFile).use { zip ->
+            zip.getInputStream(zip.getEntry("classes.jar")).use { input -> classes.outputStream().use { input.copyTo(it) } }
+        }
+        val dump =
+            JarFile(classes).use { jar ->
+                // ComposableSingletons$… classes hold the Compose compiler's shared lambdas: public in bytecode,
+                // never API, and with members named by a hash that changes with unrelated edits.
+                val generated =
+                    jar
+                        .entries()
+                        .asSequence()
+                        .map { it.name }
+                        .filter { it.endsWith(".class") && "/ComposableSingletons$" in it }
+                        .map { it.removeSuffix(".class") }
+                        .toList()
+                buildString {
+                    jar.loadApiFromJvmClasses { true }.filterOutNonPublic(nonPublicClasses = generated).dump(this)
+                }
+            }
+        val file = baseline.get().asFile
+        if (update.get()) {
+            file.parentFile.mkdirs()
+            file.writeText(dump)
+            logger.lifecycle("Wrote ${file.path}")
+        } else if (!file.exists() || file.readText() != dump) {
+            File(temporaryDir, "current.api").writeText(dump)
+            throw GradleException(
+                "The public API differs from ${file.name}. If the change is intended, run ./gradlew :qeetrix:apiDump, " +
+                    "note it in CHANGELOG.md and review the diff. Current API: ${File(temporaryDir, "current.api")}",
+            )
+        }
+    }
+}
+
+val releaseAar = layout.buildDirectory.file("outputs/aar/qeetrix-release.aar")
+val apiBaseline = rootProject.layout.projectDirectory.file("Documentation/API/qeetrix.api")
+tasks.register<QeetrixApiTask>("apiDump") {
+    group = "verification"
+    description = "Writes the public API to Documentation/API/qeetrix.api."
+    dependsOn("bundleReleaseAar")
+    aar.set(releaseAar)
+    baseline.set(apiBaseline)
+    update.set(true)
+}
+val apiCheck =
+    tasks.register<QeetrixApiTask>("apiCheck") {
+        group = "verification"
+        description = "Fails if the public API differs from Documentation/API/qeetrix.api."
+        dependsOn("bundleReleaseAar")
+        aar.set(releaseAar)
+        baseline.set(apiBaseline)
+        update.set(false)
+    }
+tasks.named("check") { dependsOn(apiCheck) }

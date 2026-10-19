@@ -1,0 +1,31 @@
+package com.qeetgroup.qeetrix.sample.components.{{categoryPackage}}
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.qeetgroup.qeetrix.components.{{package}}.Qeetrix{{Component}}
+import com.qeetgroup.qeetrix.sample.SamplePage
+import com.qeetgroup.qeetrix.sample.SamplePreview
+import com.qeetgroup.qeetrix.sample.SampleSection
+
+@Deprecated(
+    "{{Component}}Sample is a scaffold: show every variant and state of Qeetrix{{Component}}, then delete scaffold().",
+    level = DeprecationLevel.ERROR,
+)
+private fun scaffold() = Unit
+
+/** {{title}}: every variant and state of [Qeetrix{{Component}}], with live state where it is interactive. */
+@Composable
+fun {{Component}}Sample() {
+    scaffold()
+    SamplePage {
+        SampleSection("Variants") {
+            Qeetrix{{Component}}()
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun {{Component}}SamplePreview() {
+    SamplePreview { {{Component}}Sample() }
+}

@@ -13,6 +13,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.URI
 import java.net.http.HttpClient
+import java.net.http.HttpConnectTimeoutException
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.security.MessageDigest
@@ -42,7 +43,7 @@ class UpstreamSync(
         HttpClient
             .newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
-            .connectTimeout(Duration.ofSeconds(30))
+            .connectTimeout(Duration.ofSeconds(10))
             .build()
 
     fun run(check: Boolean) {
@@ -188,9 +189,22 @@ class UpstreamSync(
                 .timeout(Duration.ofSeconds(120))
                 .GET()
                 .build()
-        val response = http.send(request, HttpResponse.BodyHandlers.ofByteArray())
-        if (response.statusCode() != 200) throw GeneratorError("GET $address failed (${response.statusCode()}).")
-        return response.body()
+        // A connection that never opens is retried (ReachableFirstResolver already steers clear of a CDN
+        // address this network cannot reach). What arrives is still checked against the integrity hashes and
+        // the lock, so a retry cannot let a different file through.
+        var attempt = 1
+        while (true) {
+            val response =
+                try {
+                    http.send(request, HttpResponse.BodyHandlers.ofByteArray())
+                } catch (timeout: HttpConnectTimeoutException) {
+                    if (attempt == CONNECT_ATTEMPTS) throw GeneratorError("GET $address: no connection after $attempt attempts.")
+                    attempt++
+                    continue
+                }
+            if (response.statusCode() != 200) throw GeneratorError("GET $address failed (${response.statusCode()}).")
+            return response.body()
+        }
     }
 
     /** The regular files of a gzipped ustar/pax archive (npm's format), by path. */
@@ -249,5 +263,10 @@ class UpstreamSync(
             }
         }
         return files
+    }
+
+    private companion object {
+        /** Attempts to open a connection before a fetch fails; each waits up to the 10 s connect timeout. */
+        const val CONNECT_ATTEMPTS = 3
     }
 }

@@ -3,7 +3,23 @@ package com.qeetgroup.qeetrix.gen.tokens
 import com.qeetgroup.qeetrix.gen.GeneratorError
 
 /** What a generated token's value is. */
-enum class TokenKind { COLOR, DIMENSION, EM, NUMBER, DURATION, EASING, SHADOW, FONT_FAMILY }
+enum class TokenKind {
+    COLOR,
+    DIMENSION,
+    EM,
+    NUMBER,
+    DURATION,
+    EASING,
+    SHADOW,
+    FONT_FAMILY,
+
+    /**
+     * A `component.<group>.*` token of an adopted group: a reference to a semantic colour, an
+     * elevation or a density metric where upstream writes one, otherwise a resolved colour, length,
+     * percentage, em or number.
+     */
+    COMPONENT,
+}
 
 sealed interface ScopeDecision {
     data class Include(
@@ -74,7 +90,7 @@ object Scope {
                         "so a global scale has no meaning.",
             ),
             exclude("gradient", "**", reason = "Not in the Phase 1 foundation set."),
-            exclude("component", "**", reason = "Component layer — arrives in Phase 2 with the components that consume it."),
+            exclude("component", "**", reason = UNADOPTED_COMPONENT_REASON),
         )
 
     private val primitiveAllowList =
@@ -90,10 +106,21 @@ object Scope {
     const val PRIMITIVE_REASON =
         "Primitive — not exposed. Semantic tokens carry the decision; product code never reads a raw scale or palette value."
 
+    const val UNADOPTED_COMPONENT_REASON =
+        "Component tokens for a component Android does not implement yet. Adopted groups are listed in Upstream/manifest.json."
+
+    /**
+     * @param adoptedComponents the `component.<group>` names Android implements
+     *   (`qeetrixUI.componentTokens` in Upstream/manifest.json) — the same groups as qeetrix-ios.
+     */
     fun decide(
         path: List<String>,
         consumable: Boolean,
+        adoptedComponents: Set<String> = emptySet(),
     ): ScopeDecision {
+        if (consumable && path.first() == "component" && path.size > 2 && path[1] in adoptedComponents) {
+            return ScopeDecision.Include(TokenKind.COMPONENT)
+        }
         val rules = if (consumable) consumableRules else primitiveAllowList
         rules.firstOrNull { matches(it.pattern, path) }?.let { return it.decision }
         if (consumable) {

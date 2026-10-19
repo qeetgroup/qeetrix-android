@@ -17,7 +17,11 @@ Open the repository root in Android Studio, or use the command line:
 
 | Command | What it does |
 |:--|:--|
-| `./gradlew check` | Generator tests and drift verification; Android Lint, ktlint and unit tests of the library and sample |
+| `./gradlew check` | Generator and new-component tests, drift verification; Android Lint, ktlint, the library's and sample's JVM tests (behaviour, semantics, Compose UI); the public API check |
+| `./gradlew :qeetrix:verifyRoborazziDebug` | Compare every screenshot with your local, reviewed baselines; fails on any difference or a missing baseline |
+| `./gradlew :qeetrix:recordRoborazziDebug` | Record the baselines into `qeetrix/src/test/screenshots/` (git-ignored); review every image before relying on it |
+| `./gradlew :qeetrix:apiDump` / `apiCheck` | Update / check `Documentation/API/qeetrix.api` |
+| `Scripts/new-component <Family> <Component> --category "<group>" [--dry-run]` | Scaffold a component ([Templates/Component](Templates/Component/README.md)) |
 | `./gradlew ktlintFormat` | Fix formatting (ktlint, `ktlint_official` style, `.editorconfig`) |
 | `./gradlew :qeetrix:assembleRelease` | Build the AAR |
 | `Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar` | Check the AAR ships only what it should |
@@ -39,7 +43,8 @@ Nothing visual is decided in this repository. To change a colour, size, font or 
 4. If the build now fails to compile, upstream added, removed or renamed a token: update the public type in
    `foundation/` or `theme/` deliberately, and note it in `CHANGELOG.md`.
 5. If generation fails on a new token group, decide whether Android consumes it and add a rule to
-   `Tools/QeetrixGen/.../tokens/Scope.kt` (mirroring qeetrix-ios).
+   `Tools/QeetrixGen/.../tokens/Scope.kt` (mirroring qeetrix-ios). A component-token group is adopted by
+   adding it to `qeetrixUI.componentTokens` in `Upstream/manifest.json` (`new-component` does this).
 6. Review the diff of `Upstream/`, the generated files and `Documentation/Foundations/`.
 
 To add an icon, add its name to `qeetrixIcons.icons` in `Upstream/manifest.json`, sync, generate, and add
@@ -61,6 +66,16 @@ only if the pinned release changed (see the script header in `Tools/QeetrixGen/v
   dependencies without a decision record.
 - Resource names start with `qx_` (enforced by `resourcePrefix`).
 
+## Components
+
+Start every component with `Scripts/new-component` (try `--dry-run` first): it validates the name
+against the pinned web manifest, never overwrites, and creates the source, tests, sample page and
+documentation page in the right places. The scaffold deliberately does not build until you implement it.
+Follow [COMPONENT_CONTRACT.md](Documentation/Standards/COMPONENT_CONTRACT.md) — the web's variants and
+states, theme and component tokens only, 48 dp targets, semantics — and finish with
+`./gradlew :qeetrix:apiDump`, recorded and reviewed screenshots, and its page in
+`Documentation/Components/`.
+
 ## Tests
 
 - New behaviour comes with a test that would fail without it. Check values against an independent source
@@ -69,6 +84,11 @@ only if the pinned release changed (see the script header in `Tools/QeetrixGen/v
   `@GraphicsMode(GraphicsMode.Mode.NATIVE)` when real text layout or pixels matter.
 - What only a device proves goes in `qeetrix/src/androidTest`. Say in the pull request whether you ran
   it; never report it as passing otherwise.
+- **Screenshots** stay on your machine: `qeetrix/src/test/screenshots/` is git-ignored and never
+  committed, and CI does not compare images
+  ([0012](Documentation/Decisions/0012-visual-regression-testing.md)). Before a pull request that changes
+  how a component draws, run `verifyRoborazziDebug`; when a difference is intended, record, review each
+  changed image, and say in the pull request that you did.
 
 ## Accessibility
 
