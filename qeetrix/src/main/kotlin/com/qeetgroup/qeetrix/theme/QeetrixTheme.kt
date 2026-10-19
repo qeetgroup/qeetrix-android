@@ -11,6 +11,7 @@ import com.qeetgroup.qeetrix.foundation.color.QeetrixColors
 import com.qeetgroup.qeetrix.foundation.elevation.QeetrixElevation
 import com.qeetgroup.qeetrix.foundation.elevation.QeetrixShadowLayer
 import com.qeetgroup.qeetrix.foundation.motion.rememberSystemReduceMotion
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import com.qeetgroup.qeetrix.foundation.typography.QeetrixTypography
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixDarkColors
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixLightColors
@@ -83,6 +84,11 @@ public object QeetrixTheme {
     public val reduceMotion: Boolean
         @Composable @ReadOnlyComposable
         get() = LocalQeetrixReduceMotion.current
+
+    /** The control density of this subtree ([LocalQeetrixDensity]); `default` unless a parent sets one. */
+    public val density: QeetrixDensity
+        @Composable @ReadOnlyComposable
+        get() = LocalQeetrixDensity.current
 
     /** An elevation's shadow layers in the current theme, in CSS order (the first is drawn on top). */
     @Composable

@@ -15,6 +15,14 @@ class ScopeAndNamesTest {
         assertEquals(ScopeDecision.Include(TokenKind.EM), Scope.decide(listOf("typography", "body", "letter-spacing"), consumable = true))
         assertTrue(Scope.decide(listOf("corner", "circle"), consumable = true) is ScopeDecision.Exclude)
         assertTrue(Scope.decide(listOf("component", "button", "height"), consumable = true) is ScopeDecision.Exclude)
+        assertEquals(
+            ScopeDecision.Include(TokenKind.COMPONENT),
+            Scope.decide(listOf("component", "button", "height"), consumable = true, adoptedComponents = setOf("button")),
+        )
+        assertEquals(
+            ScopeDecision.Exclude(Scope.UNADOPTED_COMPONENT_REASON),
+            Scope.decide(listOf("component", "tour", "offset"), consumable = true, adoptedComponents = setOf("button")),
+        )
         assertTrue(Scope.decide(listOf("z", "modal"), consumable = true) is ScopeDecision.Exclude)
     }
 

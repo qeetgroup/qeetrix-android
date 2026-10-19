@@ -17,6 +17,9 @@ Every Qeet Group Android app will compile against this library, so its public AP
   - Values stored or compared across platforms carry the upstream string in `value` (`light`,
     `label-compact`, `send`) or `token` (`elevation.raised`).
   - Composables are PascalCase nouns (`QeetrixTheme`, `QeetrixIcon`); modifiers are `Modifier.qeetrix…`.
+  - Components are `Qeetrix<Component>`, their options top-level enums `Qeetrix<Component><Axis>` with the
+    web's names (`QeetrixButtonVariant.Outline`, `value = "outline"`)
+    ([0010](../Decisions/0010-component-api-conventions.md)).
 - **Types.** Compose's own: `Color`, `Dp`, `TextUnit`, `TextStyle`, `Shape`, `Easing`. Durations are `Int`
   milliseconds, as Compose's animation specs take them.
 - **Classes.** No `data class` in the public API (its `copy` and `componentN` are binary-compatibility
@@ -38,9 +41,17 @@ After the first release (semantic versioning):
 An upstream token rename reaches Kotlin as a compile error in the generated code until the public API
 is updated deliberately, so no rename slips through silently.
 
-## Automated checking — not yet in place
+## Automated checking
 
-qeetrix-ios checks its API against a committed baseline. Kotlin 2.4's built-in ABI validation was tried
-here and produced an empty dump for a library built with AGP 9's built-in Kotlin, so it would have
-checked nothing; it was not adopted. Before the first release, re-evaluate it (or the Binary
-Compatibility Validator) and commit a baseline to `Documentation/API/`.
+`Documentation/API/qeetrix.api` is the accepted public API, dumped from the release AAR with the
+binary-compatibility-validator library ([0013](../Decisions/0013-public-api-baseline.md)).
+
+- `./gradlew :qeetrix:apiCheck` (part of `check`, so CI runs it) fails when the API differs from the
+  baseline.
+- After an intended change, run `./gradlew :qeetrix:apiDump` and commit the updated file with the change
+  and its `CHANGELOG.md` entry; the reviewer reads the surface change as a diff.
+- The dump leaves out the Compose compiler's `ComposableSingletons$…` classes: they are public on the JVM
+  so composables can share lambdas, but no app can name them, and they change whenever a lambda does.
+- Adding a defaulted parameter keeps callers compiling but replaces the composable's JVM signature in the
+  dump (one line removed, one added). Before the first release that is allowed and noted in the
+  CHANGELOG; after it, add an overload instead and deprecate the old one.

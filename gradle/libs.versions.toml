@@ -16,6 +16,9 @@ androidx-test-runner = "1.7.0"
 ktlint-gradle = "14.2.0"
 ktlint-engine = "1.8.0"
 dokka = "2.2.0"
+roborazzi = "1.76.0"
+binary-compatibility-validator = "0.18.2"
+asm = "9.11.1"
 
 [libraries]
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
@@ -34,6 +37,12 @@ junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidx-test-runner" }
+roborazzi = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
+# Build-time only: the public API dump (Documentation/Decisions/0013-public-api-baseline.md).
+binary-compatibility-validator = { group = "org.jetbrains.kotlinx", name = "binary-compatibility-validator", version.ref = "binary-compatibility-validator" }
+asm-tree = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
+kotlin-metadata-jvm = { group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlin" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "agp" }
@@ -42,3 +51,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }

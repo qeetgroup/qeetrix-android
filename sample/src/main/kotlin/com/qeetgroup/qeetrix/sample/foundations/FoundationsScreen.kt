@@ -1,4 +1,4 @@
-package com.qeetgroup.qeetrix.sample.screens
+package com.qeetgroup.qeetrix.sample.foundations
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,29 +10,19 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -40,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.qeetgroup.qeetrix.foundation.accessibility.qeetrixMinimumTouchTarget
 import com.qeetgroup.qeetrix.foundation.color.QeetrixColors
 import com.qeetgroup.qeetrix.foundation.elevation.QeetrixElevation
 import com.qeetgroup.qeetrix.foundation.elevation.qeetrixElevation
@@ -57,92 +46,35 @@ import com.qeetgroup.qeetrix.icons.QeetrixIconVariant
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import com.qeetgroup.qeetrix.theme.QeetrixThemeMode
-import com.qeetgroup.qeetrix.tokens.QeetrixProvenance
 
 /**
- * The Phase 1 foundations on one screen: theme modes, semantic colours, typography, spacing and
- * corners, elevation and icons. Everything is drawn from Qeetrix tokens through the public API; the
- * controls are plain foundation layouts, not Qeetrix components (those arrive in Phase 2).
+ * The foundations on one screen: theme modes, semantic colours, typography roles, spacing and corners,
+ * elevation and icons. Everything is drawn from Qeetrix tokens through the public API, with plain
+ * foundation layouts rather than components, so the screen shows the tokens themselves.
  */
 @Composable
-fun FoundationsScreen(
-    mode: QeetrixThemeMode,
-    onModeChange: (QeetrixThemeMode) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = QeetrixTheme.colors
-    BoxWithConstraints(
-        modifier
-            .fillMaxSize()
-            .background(colors.surfaceCanvas)
-            .windowInsetsPadding(WindowInsets.safeDrawing),
-    ) {
+fun FoundationsScreen(modifier: Modifier = Modifier) {
+    BoxWithConstraints(modifier.fillMaxWidth()) {
         // Responsive: one column on phones, two from 600 dp (a typical tablet or unfolded foldable).
-        val twoColumns = maxWidth >= 600.dp
-        Column(
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(QeetrixSpacing.L),
-            verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xl),
-        ) {
-            Header()
-            ThemeModePicker(mode, onModeChange)
-            if (twoColumns) {
-                Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xl)) {
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xl)) {
-                        ColorSection()
-                        SpacingAndShapeSection()
-                    }
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xl)) {
-                        TypographySection()
-                        ElevationSection()
-                        IconSection()
-                    }
+        if (maxWidth >= 600.dp) {
+            Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xl)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xl)) {
+                    ColorSection()
+                    SpacingAndShapeSection()
                 }
-            } else {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xl)) {
+                    TypographySection()
+                    ElevationSection()
+                    IconSection()
+                }
+            }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xl)) {
                 ColorSection()
                 TypographySection()
                 SpacingAndShapeSection()
                 ElevationSection()
                 IconSection()
-            }
-        }
-    }
-}
-
-@Composable
-private fun Header() {
-    val fontScale = LocalDensity.current.fontScale
-    Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xs)) {
-        Text("Qeetrix foundations", QeetrixTheme.typography.title, Modifier.semantics { heading() })
-        Text(
-            "${QeetrixProvenance.tokensPackage} ${QeetrixProvenance.tokensVersion} · font scale ${"%.2f".format(fontScale)}",
-            QeetrixTheme.typography.caption,
-            color = QeetrixTheme.colors.textSecondary,
-        )
-    }
-}
-
-@Composable
-private fun ThemeModePicker(
-    mode: QeetrixThemeMode,
-    onModeChange: (QeetrixThemeMode) -> Unit,
-) {
-    val colors = QeetrixTheme.colors
-    Row(Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.S)) {
-        for (option in QeetrixThemeMode.entries) {
-            val selected = option == mode
-            Box(
-                Modifier
-                    .selectable(selected = selected, role = Role.RadioButton, onClick = { onModeChange(option) })
-                    .qeetrixMinimumTouchTarget()
-                    .background(if (selected) colors.surfaceBrandSubtle else colors.surfaceInteractive, QeetrixShapes.Control)
-                    .border(QeetrixStroke.Hairline, if (selected) colors.borderBrand else colors.borderDefault, QeetrixShapes.Control)
-                    .padding(horizontal = QeetrixSpacing.M, vertical = QeetrixSpacing.S),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(option.value, QeetrixTheme.typography.label, color = if (selected) colors.textOnSubtle else colors.textPrimary)
             }
         }
     }
@@ -349,14 +281,19 @@ private fun Text(
     BasicText(text, modifier, style = style.copy(color = color))
 }
 
-@Preview(widthDp = 400, heightDp = 1600)
+@Preview(widthDp = 400, heightDp = 1800)
 @Composable
 private fun FoundationsScreenLightPreview() {
-    QeetrixTheme(QeetrixThemeMode.Light) { FoundationsScreen(QeetrixThemeMode.Light, onModeChange = {}) }
+    QeetrixTheme(QeetrixThemeMode.Light) { SampleCanvas { FoundationsScreen() } }
 }
 
 @Preview(widthDp = 800, heightDp = 1200)
 @Composable
 private fun FoundationsScreenDarkWidePreview() {
-    QeetrixTheme(QeetrixThemeMode.Dark) { FoundationsScreen(QeetrixThemeMode.Dark, onModeChange = {}) }
+    QeetrixTheme(QeetrixThemeMode.Dark) { SampleCanvas { FoundationsScreen() } }
+}
+
+@Composable
+private fun SampleCanvas(content: @Composable () -> Unit) {
+    Box(Modifier.background(QeetrixTheme.colors.surfaceCanvas).padding(QeetrixSpacing.L)) { content() }
 }

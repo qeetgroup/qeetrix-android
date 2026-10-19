@@ -26,6 +26,17 @@ android {
         buildConfig = false
     }
 
+    testOptions {
+        unitTests {
+            // Robolectric renders the sample's pages on the JVM, with its resources (the Qeet fonts).
+            isIncludeAndroidResources = true
+            all {
+                // As in :qeetrix — Robolectric's Android 16 runtime needs jdk.internal.access on JDK 17+.
+                it.jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED")
+            }
+        }
+    }
+
     lint {
         warningsAsErrors = true
         abortOnError = true
@@ -52,4 +63,10 @@ dependencies {
     implementation(libs.compose.foundation)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
+
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }

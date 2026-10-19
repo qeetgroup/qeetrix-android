@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.dokka) apply false
+    alias(libs.plugins.roborazzi) apply false
 }
 
 // The generator's own tests and its drift check (upstream snapshot vs lock, generated files vs a fresh

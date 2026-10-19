@@ -4,7 +4,7 @@
 
 Source: `@qeetrix/ui@2.1.6` (git `7d7f651`), themes `light`, `dark`.
 
-217 tokens are generated as Kotlin; 666 are not. The rule is in
+279 tokens are generated as Kotlin; 604 are not. The rule is in
 [`Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt`](../../Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt).
 
 ## Generated
@@ -25,6 +25,14 @@ Source: `@qeetrix/ui@2.1.6` (git `7d7f651`), themes `light`, `dark`.
 | `icon.stroke` | 2 | `QeetrixIconStroke` |
 | `density` | 12 | `QeetrixDensity` |
 | `motion` | 12 | `QeetrixDuration`, `QeetrixEasing`, `QeetrixMotion` |
+| `component.avatar` | 6 | internal `QeetrixAvatarComponentTokens`, read by the avatar components |
+| `component.badge` | 8 | internal `QeetrixBadgeComponentTokens`, read by the badge components |
+| `component.button` | 11 | internal `QeetrixButtonComponentTokens`, read by the button components |
+| `component.card` | 11 | internal `QeetrixCardComponentTokens`, read by the card components |
+| `component.input` | 13 | internal `QeetrixInputComponentTokens`, read by the input components |
+| `component.progress` | 2 | internal `QeetrixProgressComponentTokens`, read by the progress components |
+| `component.switch` | 6 | internal `QeetrixSwitchComponentTokens`, read by the switch components |
+| `component.typography` | 5 | internal `QeetrixTypographyComponentTokens`, read by the typography components |
 
 ## Not generated
 
@@ -36,7 +44,7 @@ Source: `@qeetrix/ui@2.1.6` (git `7d7f651`), themes `light`, `dark`.
 | 50% is a shape, not a length — use CircleShape. | 1 | `corner.circle` |
 | A CSS border-style keyword; Compose strokes are solid unless a path effect is set. | 1 | `focus.ring-style` |
 | Web stacking order. Compose zIndex only orders siblings and overlays are separate windows, so a global scale has no meaning. | 15 | `z.base`, `z.dropdown`, `z.sticky`, … |
-| Component layer — arrives in Phase 2 with the components that consume it. | 216 | `component.accordion.trigger-padding-block`, `component.accordion.divider`, `component.accordion.focus-bleed`, … |
+| Component tokens for a component Android does not implement yet. Adopted groups are listed in Upstream/manifest.json. | 154 | `component.accordion.trigger-padding-block`, `component.accordion.divider`, `component.accordion.focus-bleed`, … |
 
 ## Colours outside sRGB
 

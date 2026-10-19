@@ -10,8 +10,18 @@ captures/
 .externalNativeBuild/
 .cxx/
 
+# VS Code's Java language server (Eclipse JDT) compiles into bin/ beside each Gradle project
+bin/
+.classpath
+.project
+.settings/
+
 # Machine-specific: the Android SDK location
 local.properties
 
 # macOS
 .DS_Store
+
+# Screenshot baselines (Roborazzi) stay on the machine that recorded and reviewed them; they are never
+# committed. Verify locally with ./gradlew :qeetrix:verifyRoborazziDebug.
+**/src/test/screenshots/

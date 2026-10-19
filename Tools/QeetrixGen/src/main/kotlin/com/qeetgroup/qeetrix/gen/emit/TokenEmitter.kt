@@ -8,6 +8,7 @@ import com.qeetgroup.qeetrix.gen.kotlinString
 import com.qeetgroup.qeetrix.gen.numberText
 import com.qeetgroup.qeetrix.gen.tokens.CssValues
 import com.qeetgroup.qeetrix.gen.tokens.ResolvedToken
+import com.qeetgroup.qeetrix.gen.tokens.TokenKind
 import com.qeetgroup.qeetrix.gen.tokens.TokenModel
 import com.qeetgroup.qeetrix.gen.tokens.TokenValue
 
@@ -118,7 +119,7 @@ class TokenEmitter(
                 "QeetrixScaleTokens.kt" to scales().also { scaleGroups.forEach { claim(model.tokensUnder(*it.prefix.toTypedArray())) } },
                 "QeetrixProvenanceTokens.kt" to provenanceFile(),
             )
-        val unclaimed = model.included.filter { it.dotted !in claimed }
+        val unclaimed = model.included.filter { it.dotted !in claimed && it.kind != TokenKind.COMPONENT }
         if (unclaimed.isNotEmpty()) {
             throw GeneratorError("No Kotlin home for ${unclaimed.joinToString { it.dotted }}. Map the group in TokenEmitter.")
         }

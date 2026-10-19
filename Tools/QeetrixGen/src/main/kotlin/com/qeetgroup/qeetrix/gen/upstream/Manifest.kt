@@ -20,6 +20,8 @@ data class Manifest(
     val uiVersion: String,
     /** Package-relative source path → repository-relative destination. */
     val uiFiles: Map<String, String>,
+    /** The `component.<group>` token groups Android implements — the same groups as qeetrix-ios. */
+    val componentTokens: List<String>,
     val fonts: List<FontPin>,
     val icons: IconPins,
 ) {
@@ -72,6 +74,7 @@ data class Manifest(
                 uiFiles =
                     (ui["files"] as? JsonObject ?: throw GeneratorError("$PATH: qeetrixUI needs files."))
                         .mapValues { it.value.jsonPrimitive.content },
+                componentTokens = ui["componentTokens"]?.jsonArray?.map { it.jsonPrimitive.content }.orEmpty(),
                 fonts =
                     fonts.map { element ->
                         val font = element.jsonObject

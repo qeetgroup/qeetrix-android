@@ -1,0 +1,28 @@
+package com.qeetgroup.qeetrix.components.{{package}}
+
+import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
+import com.qeetgroup.qeetrix.screenshot.ScreenshotStack
+import com.qeetgroup.qeetrix.screenshot.captureStates
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+
+/**
+ * Baselines for [Qeetrix{{Component}}] in `src/test/screenshots/{{component}}/`, one image per screenshot
+ * configuration: lay out every variant and the states that change the drawing. Record with
+ * `./gradlew :qeetrix:recordRoborazziDebug`, review every image, then verify with `verifyRoborazziDebug`.
+ */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(qualifiers = SCREENSHOT_QUALIFIERS)
+class Qeetrix{{Component}}ScreenshotTest {
+    @Test
+    fun states() =
+        captureStates("{{component}}") {
+            ScreenshotStack {
+                Qeetrix{{Component}}()
+            }
+        }
+}

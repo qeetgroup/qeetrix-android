@@ -8,8 +8,11 @@ Qeetrix is the one design language of every Qeet product. On the web it is
 same tokens, fonts and icons to Compose — generated from the published web release, so a colour, a size
 or a type role is the same value on every platform.
 
-**Status: Phase 1 — foundations.** Colours, theming, typography, spacing, corners, sizing, elevation,
-motion, icons and accessibility helpers. Components arrive in Phase 2 ([PHASES.md](PHASES.md)).
+**Status: Phase 3 — advanced inputs and forms.** The Phase 1 foundations (colours, theming, typography,
+spacing, corners, sizing, elevation, motion, icons, accessibility helpers); Phase 2's Button, Icon button,
+Text field, Switch, Avatar, Badge, Text, Progress, Spinner, Card and Separator; and Phase 3's Field and
+field set, Textarea, Password input, OTP input, Checkbox, Radio group, Select, Number field and the form
+patterns ([PHASES.md](PHASES.md), [Documentation/Components](Documentation/Components/README.md)).
 
 ## Requirements
 
@@ -59,6 +62,34 @@ setContent {
 theme. Store a user's choice as `QeetrixThemeMode.value` (`light`, `dark`, `system`) — the same string
 the web and iOS store.
 
+### Components
+
+```kotlin
+val email = rememberTextFieldState()
+QeetrixCard(title = "Sign-in email", description = "Where receipts are sent") {
+    QeetrixTextField(email, label = "Work email", placeholder = "you@company.com")
+    QeetrixSwitch(alerts, { alerts = it }, label = "Email alerts")
+    QeetrixButton("Save changes", onClick = ::save, loading = saving, loadingLabel = "Saving…")
+}
+```
+
+Forms are the inputs in a column; the app owns the values and the validation, Qeetrix presents them:
+
+```kotlin
+Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.fieldGap)) {
+    QeetrixTextField(email, label = "Work email", required = true, message = emailError,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next))
+    QeetrixPasswordInput(password, label = "Password", purpose = QeetrixPasswordPurpose.Current)
+    QeetrixFormActions { QeetrixButton("Sign in", onClick = ::signIn, loading = signingIn) }
+}
+```
+
+Each component's page in [Documentation/Components](Documentation/Components/README.md) covers its use,
+states, accessibility and where it differs from the web and iOS; the KDoc is the API reference.
+[Standards/FORMS.md](Documentation/Standards/FORMS.md) covers validation, focus, secure input and
+AutoFill. The sample app has a page per component, grouped as on ui.qeet.in, and an account-preferences
+screen that combines them.
+
 ### Typography
 
 Nine roles, as `TextStyle`s: `display`, `heading`, `title`, `body`, `label`, `labelCompact`, `caption`,
@@ -72,7 +103,7 @@ BasicText("Signed in on 3 devices", style = QeetrixTheme.typography.caption)
 
 ### Icons
 
-A representative set of 12 [qeetrix-icons](https://github.com/qeetgroup/qeetrix-icons) icons, in round
+The 17 [qeetrix-icons](https://github.com/qeetgroup/qeetrix-icons) icons the components use, in round
 and sharp shapes, outline and filled. They draw in the inherited content colour and mirror in
 right-to-left layouts when their meaning has a direction.
 
@@ -92,12 +123,14 @@ QeetrixIcon(QeetrixIconName.Lock, contentDescription = "Locked", size = QeetrixI
 ## Repository
 
 ```text
-qeetrix/          the library (AAR)        — src/main/kotlin/com/qeetgroup/qeetrix/{theme,foundation,icons,tokens,internal}
-sample/           a sample app using the library's public API
-Tools/QeetrixGen/ the generator (tokens, fonts, icons), an included Gradle build apps never resolve
+qeetrix/          the library (AAR)        — src/main/kotlin/com/qeetgroup/qeetrix/{theme,foundation,icons,components,tokens,internal}
+sample/           a sample app using the library's public API, a page per component
+Tools/QeetrixGen/ the generator (tokens, fonts, icons, new-component), an included build apps never resolve
 Upstream/         the pinned upstream inputs and their lock
-Scripts/          sync-tokens, generate-tokens, verify-tokens, verify-aar
-Documentation/    decisions, standards, the cross-platform contract, notices, generated reports
+Templates/        the component template new-component renders
+Scripts/          sync-tokens, generate-tokens, verify-tokens, verify-aar, new-component
+Documentation/    components, decisions, standards, the cross-platform contract, the API baseline, notices,
+                  website handoffs
 ```
 
 [ARCHITECTURE.md](ARCHITECTURE.md) explains how it fits together; [CONTRIBUTING.md](CONTRIBUTING.md)
@@ -106,23 +139,28 @@ how to work on it.
 ## Building and testing
 
 ```sh
-./gradlew check                       # generator tests + drift check, Lint, ktlint, unit tests
+./gradlew check                       # generator tests + drift check, Lint, ktlint, unit and Compose UI tests, API check
+./gradlew :qeetrix:verifyRoborazziDebug   # screenshots against your local, reviewed baselines
+./gradlew :qeetrix:recordRoborazziDebug   # (re)record them — then review every image
+./gradlew :qeetrix:apiDump            # update Documentation/API/qeetrix.api after an intended API change
 ./gradlew :qeetrix:assembleRelease    # the AAR → qeetrix/build/outputs/aar/
 ./gradlew :sample:installDebug        # the sample, on a connected device or emulator
 ./gradlew :qeetrix:connectedDebugAndroidTest   # device tests (needs a device or emulator)
 ./gradlew :qeetrix:dokkaGenerate      # API reference
 ```
 
-Point Gradle at an Android SDK with platform 37 (`ANDROID_HOME` or `local.properties`).
+Point Gradle at an Android SDK with platform 37 (`ANDROID_HOME` or `local.properties`). Start a new
+component with `Scripts/new-component` ([Templates/Component](Templates/Component/README.md)).
 
 ## Current limitations
 
-- **No components.** Phase 1 is foundations only.
+- **Phase 3's components.** Navigation, overlays, feedback and data display come in later phases.
 - **Not published.** Consume it as a composite build until releases exist.
-- **12 icons**, no Qeet logos yet.
-- **Device-only checks pending.** The instrumented tests, TalkBack, Bold Text, Indic glyph fallback and
-  Display P3 rendering have not been run on a device ([PHASES.md](PHASES.md)).
-- **No public API baseline check** yet ([Documentation/Standards/PUBLIC_API.md](Documentation/Standards/PUBLIC_API.md)).
+- **21 icons**, no Qeet logos yet.
+- **Screenshot baselines are local.** They are not committed, so CI does not run visual regression
+  ([0012](Documentation/Decisions/0012-visual-regression-testing.md)).
+- **Device-only checks pending.** The instrumented tests, TalkBack, AutoFill offers, Bold Text, Indic
+  glyph fallback and Display P3 rendering have not been run on a device ([PHASES.md](PHASES.md)).
 
 ## Licences
 

@@ -15,6 +15,8 @@ qeetrix-icons @ 331cd85 (SVG + manifest) ─────────────
                      qeetrix/…/tokens/generated, icons/generated (internal Kotlin) + Documentation/Foundations
                                                                                               │
                                     foundation/* (public types) ◀── theme/ (QeetrixTheme) ── icons/ (QeetrixIcon)
+                                                                                              │
+                                                                     components/* (QeetrixButton, …)
                                                                                               ▼
                                                                                    apps (and :sample)
 ```
@@ -38,7 +40,7 @@ One library module, one sample, one tool ([0001](Documentation/Decisions/0001-si
 | Unit | Depends on | Never depends on |
 |:--|:--|:--|
 | `:qeetrix` | Compose runtime, UI, foundation, animation-core | Material, AndroidX Core, the generator |
-| `:sample` | `:qeetrix` (public API only), activity-compose | `:qeetrix` internals (Kotlin `internal` makes them unreachable) |
+| `:sample` | `:qeetrix` (public API only), activity-compose; Robolectric and Compose UI Test for its tests | `:qeetrix` internals (Kotlin `internal` makes them unreachable) |
 | `Tools/QeetrixGen` | kotlinx-serialization-json, the JDK | Android; it is a separate Gradle build |
 
 Inside `:qeetrix`:
@@ -49,8 +51,9 @@ Inside `:qeetrix`:
 | `tokens.generated` | Internal generated data, expressed in foundation types | `foundation.*` types, `internal`, `R` |
 | `theme` | `QeetrixTheme`, `QeetrixThemeMode`, the composition locals | `foundation.*`, `tokens.generated` |
 | `icons`, `icons.generated` | `QeetrixIcon`, `QeetrixIconName`; the drawings | `foundation`, `theme`, `internal` |
+| `components.<family>` | One file per component (`QeetrixButton`, …) and its option enums | `foundation`, `theme`, `icons`, `internal`, `tokens.generated` (component tokens); inputs also `components.input`'s internal field parts |
 | `tokens` | `QeetrixProvenance` | `tokens.generated` |
-| `internal` | Spec types the generated files are written in | Compose only |
+| `internal` | Spec types the generated files are written in; the components' shared helpers (`QeetrixWebScale`, focus ring, busy indicator) | Compose, `foundation`, `theme` |
 
 Generated code is never public. The public API is hand-written, and the generated code is written in
 terms of it: `QeetrixLightColors = QeetrixColors(textPrimary = …, …)` names every parameter, and
@@ -70,16 +73,18 @@ The generator is a Kotlin port of qeetrix-ios's, so both read the same inputs th
 - **Resolution.** `var()` with fallbacks and cycle detection; `calc()`, `min()`, `max()`;
   `color-mix(in oklab, …)`; `oklch()`/`rgb()` with alpha; `box-shadow` lists; `cubic-bezier()`;
   font stacks. Anything else fails generation by name rather than producing a guess.
-- **Scope.** A rule decides every token: the semantic layer and the scales qeetrix-ui gives code are
-  generated (217 in 2.1.6); primitives, component tokens (Phase 2), z-index and gradients are excluded
-  with a reason (666). An unmatched consumable group fails generation.
+- **Scope.** A rule decides every token: the semantic layer, the scales qeetrix-ui gives code, and the
+  component-token groups adopted in `Upstream/manifest.json` are generated (279 in 2.1.6); primitives, the
+  other component groups, z-index and gradients are excluded with a reason (604). An unmatched
+  consumable group fails generation ([0011](Documentation/Decisions/0011-component-tokens-and-web-metrics.md)).
 - **Units.** 1 CSS px = 1 dp; 1 rem = 16 dp; font sizes in sp; letter spacing and line height in em;
   durations in ms.
 - **Colour** ([0005](Documentation/Decisions/0005-colour-conversion-per-css-color-4.md)). CSS Color 4
   conversion; sRGB as packed 8-bit `Color(0xFF…)` when inside sRGB, else Display P3; six-decimal rounding.
   Checked against qeetrix-ios (identical) and culori, the web's converter (identical in 8-bit).
 - **Outputs.** `tokens/generated/{QeetrixColorTokens, QeetrixElevationTokens, QeetrixTypographyTokens,
-  QeetrixScaleTokens, QeetrixProvenanceTokens}.kt`, `icons/generated/QeetrixIconDrawings.kt`,
+  QeetrixScaleTokens, QeetrixProvenanceTokens}.kt`, one `Qeetrix<Group>ComponentTokens.kt` per adopted
+  group (internal; semantic references stay theme reads), `icons/generated/QeetrixIconDrawings.kt`,
   `Documentation/Foundations/TOKEN_COVERAGE.md` and `token-values.json` (every token's input expression
   and value, for cross-platform comparison).
 
@@ -132,12 +137,30 @@ change policy are in [Documentation/Standards/PUBLIC_API.md](Documentation/Stand
   verified parity and the deliberate differences are in
   [Documentation/CROSS_PLATFORM_CONTRACT.md](Documentation/CROSS_PLATFORM_CONTRACT.md).
 
-## Building components (Phase 2)
+## Components
 
-Components will live in `qeetrix/src/main/kotlin/com/qeetgroup/qeetrix/components/<category>/<component>/`,
-by qeetrix-ui's component categories (families), and follow
-[Documentation/Standards/COMPONENT_CONTRACT.md](Documentation/Standards/COMPONENT_CONTRACT.md): a
-`Qeetrix<Component>` composable with Compose's parameter conventions, the web's variants and states,
-semantic tokens (component tokens only where qeetrix-ui defines them, added through a scope rule),
-accessibility per [ACCESSIBILITY.md](Documentation/Standards/ACCESSIBILITY.md), behaviour and screenshot
-tests, KDoc and a sample page.
+Each component is one file in its web family's package, `components.<family>`
+([0010](Documentation/Decisions/0010-component-api-conventions.md)), and follows
+[COMPONENT_CONTRACT.md](Documentation/Standards/COMPONENT_CONTRACT.md):
+
+- **Built from foundation primitives**, not Material: `BasicText`, `BasicTextField` and
+  `BasicSecureTextField` with a `TextFieldState`, `clickable` / `toggleable` / `triStateToggleable` /
+  `selectable` with `indication = null` and the web's colour steps, `Popup` for the select's list,
+  `progressSemantics`, `Canvas` for the busy indicator and progress hatch.
+- **Inputs share one field.** Every input is built on the internal field parts in
+  `components/input/QeetrixFieldParts.kt` — the label inside the control, the boundary (`FieldBox`) per
+  state and tone, description and message — and reads the enclosing field set through
+  `LocalFieldGroup` ([0014](Documentation/Decisions/0014-form-components.md),
+  [FORMS.md](Documentation/Standards/FORMS.md)).
+- **Values** from the theme (`QeetrixTheme.colors`, `.density`), the generated component tokens and
+  `QeetrixWebScale` for the web's Tailwind geometry, with the web class beside each use
+  ([0011](Documentation/Decisions/0011-component-tokens-and-web-metrics.md)).
+- **Tests** beside it: behaviour and semantics with Compose UI Test on Robolectric, and one Roborazzi
+  screenshot test across light, dark, 200% text and right to left, verified against local, reviewed
+  baselines ([0012](Documentation/Decisions/0012-visual-regression-testing.md)).
+- **Documentation** in KDoc (Dokka) and `Documentation/Components/<Component>.md`; a sample page with
+  previews under the component's ui.qeet.in group.
+- **API** held by `Documentation/API/qeetrix.api` ([0013](Documentation/Decisions/0013-public-api-baseline.md)).
+
+`Scripts/new-component` scaffolds all of these from `Templates/Component/`, validated against the pinned
+`component-manifest.json`; the scaffold does not build until it is implemented.

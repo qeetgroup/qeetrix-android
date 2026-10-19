@@ -1,0 +1,16 @@
+#!/bin/sh
+# Scaffold a component from Templates/Component, at the paths in Documentation/Standards/COMPONENT_CONTRACT.md.
+#
+#   Scripts/new-component <Family> <Component> --category "<ui.qeet.in group>" [--slug <web slug>] [--dry-run] [--root <repository>]
+#
+#   Scripts/new-component Checkbox Checkbox --category "Forms & inputs" --dry-run
+#   Scripts/new-component Input TextArea --category "Forms & inputs" --slug textarea
+#
+# <Family> is the family in the pinned component-manifest.json ("category"); --slug defaults to the
+# component name in kebab case. It never overwrites: an existing component stops the run with the
+# reasons and changes nothing. --root runs it against another copy of the repository, for a trial.
+# Templates/Component/README.md describes the output.
+set -eu
+root=$(cd "$(dirname "$0")/.." && pwd)
+"$root/gradlew" -p "$root" --quiet --console=plain :qeetrix-gen:installDist
+exec "$root/Tools/QeetrixGen/build/install/qeetrix-gen/bin/qeetrix-gen" new-component "$@" --root "$root"

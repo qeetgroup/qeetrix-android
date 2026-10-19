@@ -11,8 +11,8 @@ internal object QeetrixProvenanceTokens {
     const val TOKENS_GIT_HEAD: String = "7d7f65133316aa62b03676e63f9bef6e2728b071"
     const val TOKENS_INTEGRITY: String = "sha512-7Xxnh9KZuemEh8nmhcN0Vg6TFC1aJvJKyvQNZbo2yDzDhI88scUdJaZRprQNLnRhiakVjX3wfkfD5s3KXq+KRA=="
     val THEMES: List<String> = listOf("light", "dark")
-    const val GENERATED_TOKENS: Int = 217
-    const val EXCLUDED_TOKENS: Int = 666
+    const val GENERATED_TOKENS: Int = 279
+    const val EXCLUDED_TOKENS: Int = 604
     const val ICONS_PACKAGE: String = "@qeetrix/icons"
     const val ICONS_VERSION: String = "1.0.11"
     const val ICONS_REPOSITORY: String = "qeetgroup/qeetrix-icons"

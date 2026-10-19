@@ -1,0 +1,28 @@
+package com.qeetgroup.qeetrix.components.{{package}}
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+
+// Scaffolded by Scripts/new-component from Templates/Component. Implement the component from its web
+// contract and Documentation/Standards/COMPONENT_CONTRACT.md, then delete scaffold() and its call.
+// An input is built on the field parts in components/input/QeetrixFieldParts.kt (Standards/FORMS.md).
+// Component tokens: {{tokens}}.
+@Deprecated(
+    "Qeetrix{{Component}} is a scaffold: implement it from https://ui.qeet.in/docs/components/{{slug}}, then delete scaffold().",
+    level = DeprecationLevel.ERROR,
+)
+private fun scaffold() = Unit
+
+/**
+ * {{description}}
+ *
+ * ```
+ * Qeetrix{{Component}}()
+ * ```
+ */
+@Composable
+public fun Qeetrix{{Component}}(modifier: Modifier = Modifier) {
+    scaffold()
+    Box(modifier)
+}

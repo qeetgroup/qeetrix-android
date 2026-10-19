@@ -18,15 +18,24 @@ internal val QeetrixIconName.upstreamName: String
         when (this) {
             QeetrixIconName.Bell -> "bell"
             QeetrixIconName.Check -> "check"
+            QeetrixIconName.ChevronDown -> "chevron-down"
+            QeetrixIconName.CircleAlert -> "circle-alert"
+            QeetrixIconName.CircleCheck -> "circle-check"
             QeetrixIconName.Database -> "database"
             QeetrixIconName.Eye -> "eye"
+            QeetrixIconName.EyeOff -> "eye-off"
             QeetrixIconName.Inbox -> "inbox"
             QeetrixIconName.Info -> "info"
+            QeetrixIconName.LoaderCircle -> "loader-circle"
             QeetrixIconName.Lock -> "lock"
+            QeetrixIconName.Minus -> "minus"
             QeetrixIconName.Navigation -> "navigation"
+            QeetrixIconName.Plus -> "plus"
             QeetrixIconName.Search -> "search"
             QeetrixIconName.Send -> "send"
             QeetrixIconName.Server -> "server"
+            QeetrixIconName.TriangleAlert -> "triangle-alert"
+            QeetrixIconName.UserRound -> "user-round"
             QeetrixIconName.X -> "x"
         }
 
@@ -36,15 +45,24 @@ internal val QeetrixIconName.mirrorsInRtl: Boolean
         when (this) {
             QeetrixIconName.Bell -> false
             QeetrixIconName.Check -> false
+            QeetrixIconName.ChevronDown -> false
+            QeetrixIconName.CircleAlert -> false
+            QeetrixIconName.CircleCheck -> false
             QeetrixIconName.Database -> false
             QeetrixIconName.Eye -> false
+            QeetrixIconName.EyeOff -> false
             QeetrixIconName.Inbox -> false
             QeetrixIconName.Info -> false
+            QeetrixIconName.LoaderCircle -> false
             QeetrixIconName.Lock -> false
+            QeetrixIconName.Minus -> false
             QeetrixIconName.Navigation -> false
+            QeetrixIconName.Plus -> false
             QeetrixIconName.Search -> false
             QeetrixIconName.Send -> true
             QeetrixIconName.Server -> false
+            QeetrixIconName.TriangleAlert -> false
+            QeetrixIconName.UserRound -> false
             QeetrixIconName.X -> false
         }
 
@@ -77,6 +95,45 @@ internal fun QeetrixIconName.drawing(shape: QeetrixIconShape, variant: QeetrixIc
                         QeetrixIconVariant.Filled -> null
                     }
             }
+        QeetrixIconName.ChevronDown ->
+            when (shape) {
+                QeetrixIconShape.Round ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> ChevronDownRoundOutline
+                        QeetrixIconVariant.Filled -> null
+                    }
+                QeetrixIconShape.Sharp ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> ChevronDownSharpOutline
+                        QeetrixIconVariant.Filled -> null
+                    }
+            }
+        QeetrixIconName.CircleAlert ->
+            when (shape) {
+                QeetrixIconShape.Round ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> CircleAlertRoundOutline
+                        QeetrixIconVariant.Filled -> CircleAlertRoundFilled
+                    }
+                QeetrixIconShape.Sharp ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> CircleAlertSharpOutline
+                        QeetrixIconVariant.Filled -> CircleAlertSharpFilled
+                    }
+            }
+        QeetrixIconName.CircleCheck ->
+            when (shape) {
+                QeetrixIconShape.Round ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> CircleCheckRoundOutline
+                        QeetrixIconVariant.Filled -> CircleCheckRoundFilled
+                    }
+                QeetrixIconShape.Sharp ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> CircleCheckSharpOutline
+                        QeetrixIconVariant.Filled -> CircleCheckSharpFilled
+                    }
+            }
         QeetrixIconName.Database ->
             when (shape) {
                 QeetrixIconShape.Round ->
@@ -101,6 +158,19 @@ internal fun QeetrixIconName.drawing(shape: QeetrixIconShape, variant: QeetrixIc
                     when (variant) {
                         QeetrixIconVariant.Outline -> EyeSharpOutline
                         QeetrixIconVariant.Filled -> EyeSharpFilled
+                    }
+            }
+        QeetrixIconName.EyeOff ->
+            when (shape) {
+                QeetrixIconShape.Round ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> EyeOffRoundOutline
+                        QeetrixIconVariant.Filled -> EyeOffRoundFilled
+                    }
+                QeetrixIconShape.Sharp ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> EyeOffSharpOutline
+                        QeetrixIconVariant.Filled -> EyeOffSharpFilled
                     }
             }
         QeetrixIconName.Inbox ->
@@ -129,6 +199,19 @@ internal fun QeetrixIconName.drawing(shape: QeetrixIconShape, variant: QeetrixIc
                         QeetrixIconVariant.Filled -> InfoSharpFilled
                     }
             }
+        QeetrixIconName.LoaderCircle ->
+            when (shape) {
+                QeetrixIconShape.Round ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> LoaderCircleRoundOutline
+                        QeetrixIconVariant.Filled -> null
+                    }
+                QeetrixIconShape.Sharp ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> LoaderCircleSharpOutline
+                        QeetrixIconVariant.Filled -> null
+                    }
+            }
         QeetrixIconName.Lock ->
             when (shape) {
                 QeetrixIconShape.Round ->
@@ -142,6 +225,19 @@ internal fun QeetrixIconName.drawing(shape: QeetrixIconShape, variant: QeetrixIc
                         QeetrixIconVariant.Filled -> LockSharpFilled
                     }
             }
+        QeetrixIconName.Minus ->
+            when (shape) {
+                QeetrixIconShape.Round ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> MinusRoundOutline
+                        QeetrixIconVariant.Filled -> null
+                    }
+                QeetrixIconShape.Sharp ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> MinusSharpOutline
+                        QeetrixIconVariant.Filled -> null
+                    }
+            }
         QeetrixIconName.Navigation ->
             when (shape) {
                 QeetrixIconShape.Round ->
@@ -153,6 +249,19 @@ internal fun QeetrixIconName.drawing(shape: QeetrixIconShape, variant: QeetrixIc
                     when (variant) {
                         QeetrixIconVariant.Outline -> NavigationSharpOutline
                         QeetrixIconVariant.Filled -> NavigationSharpFilled
+                    }
+            }
+        QeetrixIconName.Plus ->
+            when (shape) {
+                QeetrixIconShape.Round ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> PlusRoundOutline
+                        QeetrixIconVariant.Filled -> null
+                    }
+                QeetrixIconShape.Sharp ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> PlusSharpOutline
+                        QeetrixIconVariant.Filled -> null
                     }
             }
         QeetrixIconName.Search ->
@@ -192,6 +301,32 @@ internal fun QeetrixIconName.drawing(shape: QeetrixIconShape, variant: QeetrixIc
                     when (variant) {
                         QeetrixIconVariant.Outline -> ServerSharpOutline
                         QeetrixIconVariant.Filled -> ServerSharpFilled
+                    }
+            }
+        QeetrixIconName.TriangleAlert ->
+            when (shape) {
+                QeetrixIconShape.Round ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> TriangleAlertRoundOutline
+                        QeetrixIconVariant.Filled -> TriangleAlertRoundFilled
+                    }
+                QeetrixIconShape.Sharp ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> TriangleAlertSharpOutline
+                        QeetrixIconVariant.Filled -> TriangleAlertSharpFilled
+                    }
+            }
+        QeetrixIconName.UserRound ->
+            when (shape) {
+                QeetrixIconShape.Round ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> UserRoundRoundOutline
+                        QeetrixIconVariant.Filled -> UserRoundRoundFilled
+                    }
+                QeetrixIconShape.Sharp ->
+                    when (variant) {
+                        QeetrixIconVariant.Outline -> UserRoundSharpOutline
+                        QeetrixIconVariant.Filled -> UserRoundSharpFilled
                     }
             }
         QeetrixIconName.X ->
@@ -447,6 +582,431 @@ private val CheckSharpOutline: QeetrixIconDrawing by lazy {
                             PathNode.MoveTo(20f, 6f),
                             PathNode.LineTo(9f, 17f),
                             PathNode.LineTo(4f, 12f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// chevron-down · round-outline
+private val ChevronDownRoundOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(6f, 9f),
+                            PathNode.LineTo(12f, 15f),
+                            PathNode.LineTo(18f, 9f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// chevron-down · sharp-outline
+private val ChevronDownSharpOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(6f, 9f),
+                            PathNode.LineTo(12f, 15f),
+                            PathNode.LineTo(18f, 9f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// circle-alert · round-outline
+private val CircleAlertRoundOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 2f),
+                            PathNode.CurveTo(17.522847f, 2f, 22f, 6.477153f, 22f, 12f),
+                            PathNode.CurveTo(22f, 17.522847f, 17.522847f, 22f, 12f, 22f),
+                            PathNode.CurveTo(6.477153f, 22f, 2f, 17.522847f, 2f, 12f),
+                            PathNode.CurveTo(2f, 6.477153f, 6.477153f, 2f, 12f, 2f),
+                            PathNode.Close,
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 8f),
+                            PathNode.LineTo(12f, 12f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 16f),
+                            PathNode.LineTo(12.01f, 16f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// circle-alert · round-filled
+private val CircleAlertRoundFilled: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = true,
+                    evenOdd = true,
+                    stroke = false,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(1f, 12f),
+                            PathNode.QuadTo(1f, 9.902f, 1.772f, 7.951f),
+                            PathNode.QuadTo(2.611f, 5.833f, 4.222f, 4.222f),
+                            PathNode.QuadTo(5.833f, 2.611f, 7.951f, 1.772f),
+                            PathNode.QuadTo(9.902f, 1f, 12f, 1f),
+                            PathNode.QuadTo(14.098f, 1f, 16.049f, 1.772f),
+                            PathNode.QuadTo(18.167f, 2.611f, 19.778f, 4.222f),
+                            PathNode.QuadTo(21.389f, 5.833f, 22.228f, 7.951f),
+                            PathNode.QuadTo(23f, 9.902f, 23f, 12f),
+                            PathNode.QuadTo(23f, 14.098f, 22.228f, 16.049f),
+                            PathNode.QuadTo(21.389f, 18.167f, 19.778f, 19.778f),
+                            PathNode.QuadTo(18.167f, 21.389f, 16.049f, 22.228f),
+                            PathNode.QuadTo(14.098f, 23f, 12f, 23f),
+                            PathNode.QuadTo(9.902f, 23f, 7.951f, 22.228f),
+                            PathNode.QuadTo(5.833f, 21.389f, 4.222f, 19.778f),
+                            PathNode.QuadTo(2.611f, 18.167f, 1.772f, 16.049f),
+                            PathNode.QuadTo(1f, 14.098f, 1f, 12f),
+                            PathNode.Close,
+                            PathNode.MoveTo(13f, 8f),
+                            PathNode.LineTo(13f, 12f),
+                            PathNode.CurveTo(13f, 12.552f, 12.552f, 13f, 12f, 13f),
+                            PathNode.CurveTo(11.448f, 13f, 11f, 12.552f, 11f, 12f),
+                            PathNode.LineTo(11f, 8f),
+                            PathNode.CurveTo(11f, 7.448f, 11.448f, 7f, 12f, 7f),
+                            PathNode.CurveTo(12.552f, 7f, 13f, 7.448f, 13f, 8f),
+                            PathNode.Close,
+                            PathNode.MoveTo(12f, 15f),
+                            PathNode.LineTo(12.01f, 15f),
+                            PathNode.CurveTo(12.562f, 15f, 13.01f, 15.448f, 13.01f, 16f),
+                            PathNode.CurveTo(13.01f, 16.552f, 12.562f, 17f, 12.01f, 17f),
+                            PathNode.LineTo(12f, 17f),
+                            PathNode.CurveTo(11.448f, 17f, 11f, 16.552f, 11f, 16f),
+                            PathNode.CurveTo(11f, 15.448f, 11.448f, 15f, 12f, 15f),
+                            PathNode.Close,
+                        ),
+                ),
+            ),
+    )
+}
+
+// circle-alert · sharp-outline
+private val CircleAlertSharpOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 2f),
+                            PathNode.CurveTo(17.522847f, 2f, 22f, 6.477153f, 22f, 12f),
+                            PathNode.CurveTo(22f, 17.522847f, 17.522847f, 22f, 12f, 22f),
+                            PathNode.CurveTo(6.477153f, 22f, 2f, 17.522847f, 2f, 12f),
+                            PathNode.CurveTo(2f, 6.477153f, 6.477153f, 2f, 12f, 2f),
+                            PathNode.Close,
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 8f),
+                            PathNode.LineTo(12f, 12f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 16f),
+                            PathNode.LineTo(12.01f, 16f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// circle-alert · sharp-filled
+private val CircleAlertSharpFilled: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = true,
+                    evenOdd = true,
+                    stroke = false,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(1f, 12f),
+                            PathNode.QuadTo(1f, 9.902f, 1.772f, 7.951f),
+                            PathNode.QuadTo(2.611f, 5.833f, 4.222f, 4.222f),
+                            PathNode.QuadTo(5.833f, 2.611f, 7.951f, 1.772f),
+                            PathNode.QuadTo(9.902f, 1f, 12f, 1f),
+                            PathNode.QuadTo(14.098f, 1f, 16.049f, 1.772f),
+                            PathNode.QuadTo(18.167f, 2.611f, 19.778f, 4.222f),
+                            PathNode.QuadTo(21.389f, 5.833f, 22.228f, 7.951f),
+                            PathNode.QuadTo(23f, 9.902f, 23f, 12f),
+                            PathNode.QuadTo(23f, 14.098f, 22.228f, 16.049f),
+                            PathNode.QuadTo(21.389f, 18.167f, 19.778f, 19.778f),
+                            PathNode.QuadTo(18.167f, 21.389f, 16.049f, 22.228f),
+                            PathNode.QuadTo(14.098f, 23f, 12f, 23f),
+                            PathNode.QuadTo(9.902f, 23f, 7.951f, 22.228f),
+                            PathNode.QuadTo(5.833f, 21.389f, 4.222f, 19.778f),
+                            PathNode.QuadTo(2.611f, 18.167f, 1.772f, 16.049f),
+                            PathNode.QuadTo(1f, 14.098f, 1f, 12f),
+                            PathNode.Close,
+                            PathNode.MoveTo(13f, 7f),
+                            PathNode.LineTo(13f, 13f),
+                            PathNode.LineTo(11f, 13f),
+                            PathNode.LineTo(11f, 7f),
+                            PathNode.LineTo(13f, 7f),
+                            PathNode.Close,
+                            PathNode.MoveTo(11f, 15f),
+                            PathNode.LineTo(13.01f, 15f),
+                            PathNode.LineTo(13.01f, 17f),
+                            PathNode.LineTo(11f, 17f),
+                            PathNode.LineTo(11f, 15f),
+                            PathNode.Close,
+                        ),
+                ),
+            ),
+    )
+}
+
+// circle-check · round-outline
+private val CircleCheckRoundOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 2f),
+                            PathNode.CurveTo(17.522847f, 2f, 22f, 6.477153f, 22f, 12f),
+                            PathNode.CurveTo(22f, 17.522847f, 17.522847f, 22f, 12f, 22f),
+                            PathNode.CurveTo(6.477153f, 22f, 2f, 17.522847f, 2f, 12f),
+                            PathNode.CurveTo(2f, 6.477153f, 6.477153f, 2f, 12f, 2f),
+                            PathNode.Close,
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(16f, 9f),
+                            PathNode.LineTo(10.5f, 14.5f),
+                            PathNode.LineTo(8f, 12f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// circle-check · round-filled
+private val CircleCheckRoundFilled: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = true,
+                    evenOdd = true,
+                    stroke = false,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(1.772f, 7.951f),
+                            PathNode.QuadTo(1f, 9.902f, 1f, 12f),
+                            PathNode.QuadTo(1f, 14.098f, 1.772f, 16.049f),
+                            PathNode.QuadTo(2.611f, 18.167f, 4.222f, 19.778f),
+                            PathNode.QuadTo(5.833f, 21.389f, 7.951f, 22.228f),
+                            PathNode.QuadTo(9.902f, 23f, 12f, 23f),
+                            PathNode.QuadTo(14.098f, 23f, 16.049f, 22.228f),
+                            PathNode.QuadTo(18.167f, 21.389f, 19.778f, 19.778f),
+                            PathNode.QuadTo(21.389f, 18.167f, 22.228f, 16.049f),
+                            PathNode.QuadTo(23f, 14.098f, 23f, 12f),
+                            PathNode.QuadTo(23f, 9.902f, 22.228f, 7.951f),
+                            PathNode.QuadTo(21.389f, 5.833f, 19.778f, 4.222f),
+                            PathNode.QuadTo(18.167f, 2.611f, 16.049f, 1.772f),
+                            PathNode.QuadTo(14.098f, 1f, 12f, 1f),
+                            PathNode.QuadTo(9.902f, 1f, 7.951f, 1.772f),
+                            PathNode.QuadTo(5.833f, 2.611f, 4.222f, 4.222f),
+                            PathNode.QuadTo(2.611f, 5.833f, 1.772f, 7.951f),
+                            PathNode.Close,
+                            PathNode.MoveTo(11.207f, 15.207f),
+                            PathNode.LineTo(16.707f, 9.707f),
+                            PathNode.CurveTo(16.895f, 9.52f, 17f, 9.265f, 17f, 9f),
+                            PathNode.CurveTo(17f, 8.735f, 16.895f, 8.48f, 16.707f, 8.293f),
+                            PathNode.CurveTo(16.317f, 7.902f, 15.683f, 7.902f, 15.293f, 8.293f),
+                            PathNode.LineTo(10.5f, 13.086f),
+                            PathNode.LineTo(8.707f, 11.293f),
+                            PathNode.CurveTo(8.317f, 10.902f, 7.683f, 10.902f, 7.293f, 11.293f),
+                            PathNode.CurveTo(6.902f, 11.683f, 6.902f, 12.317f, 7.293f, 12.707f),
+                            PathNode.LineTo(9.793f, 15.207f),
+                            PathNode.CurveTo(10.183f, 15.598f, 10.817f, 15.598f, 11.207f, 15.207f),
+                            PathNode.Close,
+                        ),
+                ),
+            ),
+    )
+}
+
+// circle-check · sharp-outline
+private val CircleCheckSharpOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 2f),
+                            PathNode.CurveTo(17.522847f, 2f, 22f, 6.477153f, 22f, 12f),
+                            PathNode.CurveTo(22f, 17.522847f, 17.522847f, 22f, 12f, 22f),
+                            PathNode.CurveTo(6.477153f, 22f, 2f, 17.522847f, 2f, 12f),
+                            PathNode.CurveTo(2f, 6.477153f, 6.477153f, 2f, 12f, 2f),
+                            PathNode.Close,
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(16f, 9f),
+                            PathNode.LineTo(10.5f, 14.5f),
+                            PathNode.LineTo(8f, 12f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// circle-check · sharp-filled
+private val CircleCheckSharpFilled: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = true,
+                    evenOdd = true,
+                    stroke = false,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(1.772f, 7.951f),
+                            PathNode.QuadTo(1f, 9.902f, 1f, 12f),
+                            PathNode.QuadTo(1f, 14.098f, 1.772f, 16.049f),
+                            PathNode.QuadTo(2.611f, 18.167f, 4.222f, 19.778f),
+                            PathNode.QuadTo(5.833f, 21.389f, 7.951f, 22.228f),
+                            PathNode.QuadTo(9.902f, 23f, 12f, 23f),
+                            PathNode.QuadTo(14.098f, 23f, 16.049f, 22.228f),
+                            PathNode.QuadTo(18.167f, 21.389f, 19.778f, 19.778f),
+                            PathNode.QuadTo(21.389f, 18.167f, 22.228f, 16.049f),
+                            PathNode.QuadTo(23f, 14.098f, 23f, 12f),
+                            PathNode.QuadTo(23f, 9.902f, 22.228f, 7.951f),
+                            PathNode.QuadTo(21.389f, 5.833f, 19.778f, 4.222f),
+                            PathNode.QuadTo(18.167f, 2.611f, 16.049f, 1.772f),
+                            PathNode.QuadTo(14.098f, 1f, 12f, 1f),
+                            PathNode.QuadTo(9.902f, 1f, 7.951f, 1.772f),
+                            PathNode.QuadTo(5.833f, 2.611f, 4.222f, 4.222f),
+                            PathNode.QuadTo(2.611f, 5.833f, 1.772f, 7.951f),
+                            PathNode.Close,
+                            PathNode.MoveTo(10.5f, 15.914f),
+                            PathNode.LineTo(16.707f, 9.707f),
+                            PathNode.LineTo(17.414f, 9f),
+                            PathNode.LineTo(16f, 7.586f),
+                            PathNode.LineTo(10.5f, 13.086f),
+                            PathNode.LineTo(8f, 10.586f),
+                            PathNode.LineTo(6.586f, 12f),
+                            PathNode.LineTo(10.5f, 15.914f),
+                            PathNode.Close,
                         ),
                 ),
             ),
@@ -1016,6 +1576,315 @@ private val EyeSharpFilled: QeetrixIconDrawing by lazy {
     )
 }
 
+// eye-off · round-outline
+private val EyeOffRoundOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(10.733f, 5.076f),
+                            PathNode.CurveTo(15.520139f, 4.505508f, 20.101173f, 7.19362f, 21.938f, 11.651f),
+                            PathNode.CurveTo(22.021341f, 11.875515f, 22.021341f, 12.122485f, 21.938f, 12.347f),
+                            PathNode.CurveTo(21.570498f, 13.237995f, 21.08481f, 14.075505f, 20.494f, 14.837f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(14.084f, 14.158f),
+                            PathNode.CurveTo(12.906863f, 15.294917f, 11.035746f, 15.278657f, 9.878544f, 14.121456f),
+                            PathNode.CurveTo(8.721343f, 12.964254f, 8.705083f, 11.093137f, 9.842f, 9.916f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(17.479f, 17.499f),
+                            PathNode.CurveTo(14.794909f, 19.088947f, 11.552508f, 19.434478f, 8.593631f, 18.445882f),
+                            PathNode.CurveTo(5.634754f, 17.457287f, 3.251267f, 15.232081f, 2.062f, 12.348f),
+                            PathNode.CurveTo(1.978659f, 12.123485f, 1.978659f, 11.876515f, 2.062f, 11.652f),
+                            PathNode.CurveTo(2.948632f, 9.501855f, 4.508673f, 7.697247f, 6.508f, 6.509f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(2f, 2f),
+                            PathNode.LineTo(22f, 22f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// eye-off · round-filled
+private val EyeOffRoundFilled: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = true,
+                    evenOdd = true,
+                    stroke = false,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(15.62f, 14.206f),
+                            PathNode.LineTo(22.707f, 21.293f),
+                            PathNode.CurveTo(23.098f, 21.683f, 23.098f, 22.317f, 22.707f, 22.707f),
+                            PathNode.CurveTo(22.317f, 23.098f, 21.683f, 23.098f, 21.293f, 22.707f),
+                            PathNode.LineTo(14.032f, 15.446f),
+                            PathNode.QuadTo(14.415f, 15.22f, 14.744f, 14.911f),
+                            PathNode.LineTo(15.62f, 14.206f),
+                            PathNode.Close,
+                            PathNode.MoveTo(14.198f, 12.783f),
+                            PathNode.LineTo(11.217f, 9.802f),
+                            PathNode.LineTo(10.622f, 10.542f),
+                            PathNode.LineTo(10.621f, 10.543f),
+                            PathNode.CurveTo(10.602f, 10.566f, 10.582f, 10.589f, 10.561f, 10.611f),
+                            PathNode.QuadTo(10.299f, 10.882f, 10.154f, 11.231f),
+                            PathNode.QuadTo(10.102f, 11.355f, 10.068f, 11.482f),
+                            PathNode.LineTo(12.518f, 13.932f),
+                            PathNode.QuadTo(12.645f, 13.898f, 12.769f, 13.846f),
+                            PathNode.QuadTo(13.118f, 13.701f, 13.389f, 13.439f),
+                            PathNode.CurveTo(13.411f, 13.418f, 13.434f, 13.398f, 13.457f, 13.379f),
+                            PathNode.LineTo(14.198f, 12.783f),
+                            PathNode.Close,
+                            PathNode.MoveTo(8.554f, 9.968f),
+                            PathNode.QuadTo(8.78f, 9.585f, 9.089f, 9.256f),
+                            PathNode.LineTo(9.794f, 8.38f),
+                            PathNode.LineTo(2.707f, 1.293f),
+                            PathNode.CurveTo(2.317f, 0.902f, 1.683f, 0.902f, 1.293f, 1.293f),
+                            PathNode.CurveTo(0.902f, 1.683f, 0.902f, 2.317f, 1.293f, 2.707f),
+                            PathNode.LineTo(8.554f, 9.968f),
+                            PathNode.Close,
+                            PathNode.MoveTo(8.136f, 10.964f),
+                            PathNode.QuadTo(7.995f, 11.485f, 8f, 12.035f),
+                            PathNode.QuadTo(8.007f, 12.853f, 8.335f, 13.603f),
+                            PathNode.QuadTo(8.637f, 14.295f, 9.171f, 14.829f),
+                            PathNode.QuadTo(9.705f, 15.363f, 10.397f, 15.665f),
+                            PathNode.QuadTo(11.147f, 15.993f, 11.965f, 16f),
+                            PathNode.QuadTo(12.515f, 16.005f, 13.036f, 15.864f),
+                            PathNode.LineTo(16.342f, 19.171f),
+                            PathNode.QuadTo(14.975f, 19.716f, 13.486f, 19.906f),
+                            PathNode.QuadTo(10.823f, 20.245f, 8.277f, 19.394f),
+                            PathNode.QuadTo(5.731f, 18.544f, 3.806f, 16.672f),
+                            PathNode.QuadTo(2.064f, 14.976f, 1.138f, 12.729f),
+                            PathNode.CurveTo(1.133f, 12.718f, 1.129f, 12.707f, 1.125f, 12.696f),
+                            PathNode.QuadTo(0.999f, 12.359f, 0.999f, 12f),
+                            PathNode.QuadTo(0.999f, 11.641f, 1.125f, 11.304f),
+                            PathNode.CurveTo(1.129f, 11.293f, 1.133f, 11.282f, 1.138f, 11.271f),
+                            PathNode.QuadTo(1.864f, 9.508f, 3.111f, 8.066f),
+                            PathNode.QuadTo(3.607f, 7.492f, 4.165f, 6.993f),
+                            PathNode.LineTo(8.136f, 10.964f),
+                            PathNode.Close,
+                            PathNode.MoveTo(10.615f, 4.083f),
+                            PathNode.QuadTo(12.472f, 3.862f, 14.306f, 4.228f),
+                            PathNode.QuadTo(16.244f, 4.615f, 17.948f, 5.616f),
+                            PathNode.QuadTo(19.652f, 6.616f, 20.936f, 8.119f),
+                            PathNode.QuadTo(22.15f, 9.541f, 22.863f, 11.27f),
+                            PathNode.CurveTo(22.867f, 11.281f, 22.871f, 11.292f, 22.875f, 11.303f),
+                            PathNode.QuadTo(23.001f, 11.64f, 23.001f, 11.999f),
+                            PathNode.QuadTo(23.001f, 12.358f, 22.875f, 12.695f),
+                            PathNode.CurveTo(22.871f, 12.706f, 22.867f, 12.717f, 22.862f, 12.728f),
+                            PathNode.QuadTo(22.257f, 14.196f, 21.284f, 15.45f),
+                            PathNode.CurveTo(21.122f, 15.66f, 20.882f, 15.796f, 20.619f, 15.829f),
+                            PathNode.CurveTo(20.356f, 15.862f, 20.091f, 15.79f, 19.881f, 15.627f),
+                            PathNode.CurveTo(19.848f, 15.601f, 19.816f, 15.574f, 19.787f, 15.544f),
+                            PathNode.LineTo(10.026f, 5.783f),
+                            PathNode.CurveTo(9.635f, 5.393f, 9.635f, 4.759f, 10.026f, 4.369f),
+                            PathNode.CurveTo(10.185f, 4.21f, 10.392f, 4.11f, 10.615f, 4.083f),
+                            PathNode.Close,
+                        ),
+                ),
+            ),
+    )
+}
+
+// eye-off · sharp-outline
+private val EyeOffSharpOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(10.733f, 5.076f),
+                            PathNode.CurveTo(15.520139f, 4.505508f, 20.101173f, 7.19362f, 21.938f, 11.651f),
+                            PathNode.LineTo(22.011f, 11.849f),
+                            PathNode.LineTo(22.011f, 12.149f),
+                            PathNode.LineTo(21.938f, 12.347f),
+                            PathNode.CurveTo(21.570498f, 13.237995f, 21.08481f, 14.075505f, 20.494f, 14.837f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(14.084f, 14.158f),
+                            PathNode.CurveTo(12.906863f, 15.294917f, 11.035746f, 15.278657f, 9.878544f, 14.121456f),
+                            PathNode.CurveTo(8.721343f, 12.964254f, 8.705083f, 11.093137f, 9.842f, 9.916f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(16.596f, 17.968f),
+                            PathNode.CurveTo(13.933247f, 19.227243f, 10.870431f, 19.338734f, 8.123169f, 18.276425f),
+                            PathNode.CurveTo(5.375908f, 17.214115f, 3.184875f, 15.071068f, 2.062f, 12.348f),
+                            PathNode.LineTo(1.989f, 12.15f),
+                            PathNode.LineTo(1.989f, 11.85f),
+                            PathNode.LineTo(2.062f, 11.652f),
+                            PathNode.CurveTo(2.818566f, 9.816996f, 4.068396f, 8.227279f, 5.673f, 7.059f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(2.419f, 2.419f),
+                            PathNode.LineTo(21.581f, 21.581f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// eye-off · sharp-filled
+private val EyeOffSharpFilled: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = true,
+                    evenOdd = true,
+                    stroke = false,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(23f, 11.641f),
+                            PathNode.LineTo(22.87f, 11.287f),
+                            PathNode.LineTo(22.863f, 11.27f),
+                            PathNode.QuadTo(22.15f, 9.541f, 20.936f, 8.119f),
+                            PathNode.QuadTo(19.652f, 6.616f, 17.948f, 5.616f),
+                            PathNode.QuadTo(16.244f, 4.615f, 14.306f, 4.228f),
+                            PathNode.QuadTo(12.472f, 3.862f, 10.615f, 4.083f),
+                            PathNode.LineTo(8.57f, 4.327f),
+                            PathNode.LineTo(20.589f, 16.346f),
+                            PathNode.LineTo(21.284f, 15.45f),
+                            PathNode.QuadTo(22.257f, 14.196f, 22.862f, 12.728f),
+                            PathNode.LineTo(22.87f, 12.711f),
+                            PathNode.LineTo(23f, 12.357f),
+                            PathNode.LineTo(23f, 12.063f),
+                            PathNode.QuadTo(23.001f, 12.031f, 23.001f, 11.999f),
+                            PathNode.QuadTo(23.001f, 11.967f, 23f, 11.935f),
+                            PathNode.LineTo(23f, 11.641f),
+                            PathNode.Close,
+                            PathNode.MoveTo(1f, 12.358f),
+                            PathNode.LineTo(1.13f, 12.712f),
+                            PathNode.LineTo(1.138f, 12.729f),
+                            PathNode.QuadTo(2.018f, 14.863f, 3.64f, 16.506f),
+                            PathNode.QuadTo(5.411f, 18.3f, 7.763f, 19.209f),
+                            PathNode.QuadTo(10.114f, 20.118f, 12.631f, 19.983f),
+                            PathNode.QuadTo(14.563f, 19.879f, 16.341f, 19.169f),
+                            PathNode.LineTo(13.036f, 15.864f),
+                            PathNode.QuadTo(12.515f, 16.005f, 11.965f, 16f),
+                            PathNode.QuadTo(11.147f, 15.993f, 10.397f, 15.665f),
+                            PathNode.QuadTo(9.705f, 15.363f, 9.171f, 14.829f),
+                            PathNode.QuadTo(8.637f, 14.295f, 8.335f, 13.603f),
+                            PathNode.QuadTo(8.007f, 12.853f, 8f, 12.035f),
+                            PathNode.QuadTo(7.995f, 11.485f, 8.136f, 10.964f),
+                            PathNode.LineTo(4.165f, 6.993f),
+                            PathNode.QuadTo(3.402f, 7.676f, 2.763f, 8.487f),
+                            PathNode.QuadTo(1.758f, 9.767f, 1.137f, 11.271f),
+                            PathNode.LineTo(1.13f, 11.288f),
+                            PathNode.LineTo(1f, 11.642f),
+                            PathNode.LineTo(1f, 11.936f),
+                            PathNode.QuadTo(0.999f, 11.968f, 0.999f, 12f),
+                            PathNode.QuadTo(0.999f, 12.032f, 1f, 12.064f),
+                            PathNode.LineTo(1f, 12.358f),
+                            PathNode.Close,
+                            PathNode.MoveTo(9.089f, 9.256f),
+                            PathNode.QuadTo(8.78f, 9.585f, 8.554f, 9.968f),
+                            PathNode.LineTo(1.005f, 2.419f),
+                            PathNode.LineTo(2.419f, 1.005f),
+                            PathNode.LineTo(3.126f, 1.712f),
+                            PathNode.LineTo(9.794f, 8.38f),
+                            PathNode.LineTo(9.089f, 9.256f),
+                            PathNode.Close,
+                            PathNode.MoveTo(11.217f, 9.802f),
+                            PathNode.LineTo(14.198f, 12.783f),
+                            PathNode.LineTo(14.169f, 12.806f),
+                            PathNode.LineTo(14.109f, 12.744f),
+                            PathNode.LineTo(13.389f, 13.439f),
+                            PathNode.QuadTo(13.118f, 13.701f, 12.769f, 13.846f),
+                            PathNode.QuadTo(12.645f, 13.898f, 12.518f, 13.932f),
+                            PathNode.LineTo(10.068f, 11.482f),
+                            PathNode.QuadTo(10.102f, 11.355f, 10.154f, 11.231f),
+                            PathNode.QuadTo(10.299f, 10.882f, 10.561f, 10.611f),
+                            PathNode.LineTo(11.256f, 9.891f),
+                            PathNode.LineTo(11.194f, 9.831f),
+                            PathNode.LineTo(11.217f, 9.802f),
+                            PathNode.Close,
+                            PathNode.MoveTo(22.995f, 21.581f),
+                            PathNode.LineTo(15.62f, 14.206f),
+                            PathNode.LineTo(14.744f, 14.911f),
+                            PathNode.QuadTo(14.415f, 15.22f, 14.032f, 15.446f),
+                            PathNode.LineTo(21.581f, 22.995f),
+                            PathNode.LineTo(22.995f, 21.581f),
+                            PathNode.Close,
+                        ),
+                ),
+            ),
+    )
+}
+
 // inbox · round-outline
 private val InboxRoundOutline: QeetrixIconDrawing by lazy {
     QeetrixIconDrawing(
@@ -1408,6 +2277,56 @@ private val InfoSharpFilled: QeetrixIconDrawing by lazy {
     )
 }
 
+// loader-circle · round-outline
+private val LoaderCircleRoundOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(21f, 12f),
+                            PathNode.CurveTo(20.999809f, 15.898981f, 18.489066f, 19.354425f, 14.780876f, 20.559157f),
+                            PathNode.CurveTo(11.072686f, 21.763888f, 7.010479f, 20.44389f, 4.718765f, 17.289512f),
+                            PathNode.CurveTo(2.42705f, 14.135134f, 2.427081f, 9.863844f, 4.718841f, 6.709499f),
+                            PathNode.CurveTo(7.010601f, 3.555155f, 11.072827f, 2.235215f, 14.781f, 3.44f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// loader-circle · sharp-outline
+private val LoaderCircleSharpOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(21f, 12f),
+                            PathNode.CurveTo(20.999809f, 15.898981f, 18.489066f, 19.354425f, 14.780876f, 20.559157f),
+                            PathNode.CurveTo(11.072686f, 21.763888f, 7.010479f, 20.44389f, 4.718765f, 17.289512f),
+                            PathNode.CurveTo(2.42705f, 14.135134f, 2.427081f, 9.863844f, 4.718841f, 6.709499f),
+                            PathNode.CurveTo(7.010601f, 3.555155f, 11.072827f, 2.235215f, 14.781f, 3.44f),
+                        ),
+                ),
+            ),
+    )
+}
+
 // lock · round-outline
 private val LockRoundOutline: QeetrixIconDrawing by lazy {
     QeetrixIconDrawing(
@@ -1609,6 +2528,50 @@ private val LockSharpFilled: QeetrixIconDrawing by lazy {
     )
 }
 
+// minus · round-outline
+private val MinusRoundOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(5f, 12f),
+                            PathNode.LineTo(19f, 12f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// minus · sharp-outline
+private val MinusSharpOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(5f, 12f),
+                            PathNode.LineTo(19f, 12f),
+                        ),
+                ),
+            ),
+    )
+}
+
 // navigation · round-outline
 private val NavigationRoundOutline: QeetrixIconDrawing by lazy {
     QeetrixIconDrawing(
@@ -1720,6 +2683,74 @@ private val NavigationSharpFilled: QeetrixIconDrawing by lazy {
                             PathNode.LineTo(2.206f, 10.27f),
                             PathNode.LineTo(2.843f, 9.968f),
                             PathNode.Close,
+                        ),
+                ),
+            ),
+    )
+}
+
+// plus · round-outline
+private val PlusRoundOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(5f, 12f),
+                            PathNode.LineTo(19f, 12f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 5f),
+                            PathNode.LineTo(12f, 19f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// plus · sharp-outline
+private val PlusSharpOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(5f, 12f),
+                            PathNode.LineTo(19f, 12f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 5f),
+                            PathNode.LineTo(12f, 19f),
                         ),
                 ),
             ),
@@ -2320,6 +3351,375 @@ private val ServerSharpFilled: QeetrixIconDrawing by lazy {
                             PathNode.LineTo(7.01f, 19f),
                             PathNode.LineTo(5f, 19f),
                             PathNode.LineTo(5f, 17f),
+                            PathNode.Close,
+                        ),
+                ),
+            ),
+    )
+}
+
+// triangle-alert · round-outline
+private val TriangleAlertRoundOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(21.73f, 18f),
+                            PathNode.LineTo(13.73f, 4f),
+                            PathNode.CurveTo(13.374878f, 3.373379f, 12.710254f, 2.986103f, 11.99f, 2.986103f),
+                            PathNode.CurveTo(11.269746f, 2.986103f, 10.605122f, 3.373379f, 10.25f, 4f),
+                            PathNode.LineTo(2.25f, 18f),
+                            PathNode.CurveTo(1.891089f, 18.621585f, 1.892786f, 19.387834f, 2.254446f, 20.007823f),
+                            PathNode.CurveTo(2.616107f, 20.627812f, 3.282265f, 21.006458f, 4f, 21f),
+                            PathNode.LineTo(20f, 21f),
+                            PathNode.CurveTo(20.714165f, 20.999268f, 21.373748f, 20.617781f, 21.730513f, 19.999113f),
+                            PathNode.CurveTo(22.087279f, 19.380444f, 22.087083f, 18.618485f, 21.73f, 18f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 9f),
+                            PathNode.LineTo(12f, 13f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 17f),
+                            PathNode.LineTo(12.01f, 17f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// triangle-alert · round-filled
+private val TriangleAlertRoundFilled: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = true,
+                    evenOdd = true,
+                    stroke = false,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(22.596f, 17.5f),
+                            PathNode.LineTo(22.598f, 17.504f),
+                            PathNode.QuadTo(22.967f, 18.145f, 22.996f, 18.884f),
+                            PathNode.QuadTo(23.029f, 19.749f, 22.597f, 20.499f),
+                            PathNode.QuadTo(22.164f, 21.248f, 21.399f, 21.653f),
+                            PathNode.QuadTo(20.743f, 21.999f, 20f, 22f),
+                            PathNode.LineTo(4.009f, 22f),
+                            PathNode.QuadTo(3.202f, 22.007f, 2.5f, 21.608f),
+                            PathNode.QuadTo(1.798f, 21.209f, 1.391f, 20.512f),
+                            PathNode.QuadTo(0.984f, 19.814f, 0.982f, 19.007f),
+                            PathNode.QuadTo(0.98f, 18.199f, 1.382f, 17.504f),
+                            PathNode.LineTo(9.38f, 3.507f),
+                            PathNode.QuadTo(9.78f, 2.802f, 10.48f, 2.394f),
+                            PathNode.QuadTo(11.18f, 1.986f, 11.99f, 1.986f),
+                            PathNode.QuadTo(12.8f, 1.986f, 13.5f, 2.394f),
+                            PathNode.QuadTo(14.2f, 2.802f, 14.598f, 3.504f),
+                            PathNode.LineTo(22.596f, 17.5f),
+                            PathNode.Close,
+                            PathNode.MoveTo(13f, 9f),
+                            PathNode.LineTo(13f, 13f),
+                            PathNode.CurveTo(13f, 13.552f, 12.552f, 14f, 12f, 14f),
+                            PathNode.CurveTo(11.448f, 14f, 11f, 13.552f, 11f, 13f),
+                            PathNode.LineTo(11f, 9f),
+                            PathNode.CurveTo(11f, 8.448f, 11.448f, 8f, 12f, 8f),
+                            PathNode.CurveTo(12.552f, 8f, 13f, 8.448f, 13f, 9f),
+                            PathNode.Close,
+                            PathNode.MoveTo(12f, 16f),
+                            PathNode.LineTo(12.01f, 16f),
+                            PathNode.CurveTo(12.562f, 16f, 13.01f, 16.448f, 13.01f, 17f),
+                            PathNode.CurveTo(13.01f, 17.552f, 12.562f, 18f, 12.01f, 18f),
+                            PathNode.LineTo(12f, 18f),
+                            PathNode.CurveTo(11.448f, 18f, 11f, 17.552f, 11f, 17f),
+                            PathNode.CurveTo(11f, 16.448f, 11.448f, 16f, 12f, 16f),
+                            PathNode.Close,
+                        ),
+                ),
+            ),
+    )
+}
+
+// triangle-alert · sharp-outline
+private val TriangleAlertSharpOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(11.395f, 1.997f),
+                            PathNode.LineTo(2.134f, 18.204f),
+                            PathNode.LineTo(3.756f, 21f),
+                            PathNode.LineTo(20.224f, 21f),
+                            PathNode.LineTo(21.846f, 18.204f),
+                            PathNode.LineTo(12.585f, 1.997f),
+                            PathNode.Close,
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 9f),
+                            PathNode.LineTo(12f, 13f),
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 17f),
+                            PathNode.LineTo(12.01f, 17f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// triangle-alert · sharp-filled
+private val TriangleAlertSharpFilled: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = true,
+                    evenOdd = true,
+                    stroke = false,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(1f, 18.173f),
+                            PathNode.LineTo(10.527f, 1.501f),
+                            PathNode.LineTo(10.813f, 1f),
+                            PathNode.LineTo(13.167f, 1f),
+                            PathNode.LineTo(23f, 18.208f),
+                            PathNode.LineTo(20.8f, 22f),
+                            PathNode.LineTo(3.18f, 22f),
+                            PathNode.LineTo(1f, 18.242f),
+                            PathNode.LineTo(1f, 18.173f),
+                            PathNode.Close,
+                            PathNode.MoveTo(13f, 14f),
+                            PathNode.LineTo(13f, 8f),
+                            PathNode.LineTo(11f, 8f),
+                            PathNode.LineTo(11f, 14f),
+                            PathNode.LineTo(13f, 14f),
+                            PathNode.Close,
+                            PathNode.MoveTo(13.01f, 16f),
+                            PathNode.LineTo(11f, 16f),
+                            PathNode.LineTo(11f, 18f),
+                            PathNode.LineTo(13.01f, 18f),
+                            PathNode.LineTo(13.01f, 16f),
+                            PathNode.Close,
+                        ),
+                ),
+            ),
+    )
+}
+
+// user-round · round-outline
+private val UserRoundRoundOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 3f),
+                            PathNode.CurveTo(14.761424f, 3f, 17f, 5.238576f, 17f, 8f),
+                            PathNode.CurveTo(17f, 10.761424f, 14.761424f, 13f, 12f, 13f),
+                            PathNode.CurveTo(9.238576f, 13f, 7f, 10.761424f, 7f, 8f),
+                            PathNode.CurveTo(7f, 5.238576f, 9.238576f, 3f, 12f, 3f),
+                            PathNode.Close,
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(20f, 21f),
+                            PathNode.CurveTo(20f, 16.581722f, 16.418278f, 13f, 12f, 13f),
+                            PathNode.CurveTo(7.581722f, 13f, 4f, 16.581722f, 4f, 21f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// user-round · round-filled
+private val UserRoundRoundFilled: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = true,
+                    evenOdd = true,
+                    stroke = false,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(6.421f, 5.791f),
+                            PathNode.QuadTo(6f, 6.856f, 6f, 8f),
+                            PathNode.QuadTo(6f, 9.144f, 6.421f, 10.209f),
+                            PathNode.QuadTo(6.879f, 11.364f, 7.757f, 12.243f),
+                            PathNode.QuadTo(8.043f, 12.528f, 8.358f, 12.77f),
+                            PathNode.QuadTo(6.827f, 13.445f, 5.636f, 14.636f),
+                            PathNode.QuadTo(4.318f, 15.954f, 3.632f, 17.687f),
+                            PathNode.QuadTo(3f, 19.283f, 3f, 21f),
+                            PathNode.CurveTo(3f, 21.552f, 3.448f, 22f, 4f, 22f),
+                            PathNode.LineTo(20f, 22f),
+                            PathNode.CurveTo(20.552f, 22f, 21f, 21.552f, 21f, 21f),
+                            PathNode.QuadTo(21f, 19.283f, 20.368f, 17.687f),
+                            PathNode.QuadTo(19.682f, 15.954f, 18.364f, 14.636f),
+                            PathNode.QuadTo(17.173f, 13.445f, 15.642f, 12.77f),
+                            PathNode.QuadTo(15.957f, 12.528f, 16.243f, 12.243f),
+                            PathNode.QuadTo(17.121f, 11.364f, 17.579f, 10.209f),
+                            PathNode.QuadTo(18f, 9.144f, 18f, 8f),
+                            PathNode.QuadTo(18f, 6.856f, 17.579f, 5.791f),
+                            PathNode.QuadTo(17.121f, 4.636f, 16.243f, 3.757f),
+                            PathNode.QuadTo(15.364f, 2.879f, 14.209f, 2.421f),
+                            PathNode.QuadTo(13.144f, 2f, 12f, 2f),
+                            PathNode.QuadTo(10.856f, 2f, 9.791f, 2.421f),
+                            PathNode.QuadTo(8.636f, 2.879f, 7.757f, 3.757f),
+                            PathNode.QuadTo(6.879f, 4.636f, 6.421f, 5.791f),
+                            PathNode.Close,
+                        ),
+                ),
+            ),
+    )
+}
+
+// user-round · sharp-outline
+private val UserRoundSharpOutline: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(12f, 3f),
+                            PathNode.CurveTo(14.761424f, 3f, 17f, 5.238576f, 17f, 8f),
+                            PathNode.CurveTo(17f, 10.761424f, 14.761424f, 13f, 12f, 13f),
+                            PathNode.CurveTo(9.238576f, 13f, 7f, 10.761424f, 7f, 8f),
+                            PathNode.CurveTo(7f, 5.238576f, 9.238576f, 3f, 12f, 3f),
+                            PathNode.Close,
+                        ),
+                ),
+                QeetrixIconElement(
+                    fill = false,
+                    evenOdd = false,
+                    stroke = true,
+                    cap = StrokeCap.Square,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(20f, 21f),
+                            PathNode.CurveTo(20f, 16.581722f, 16.418278f, 13f, 12f, 13f),
+                            PathNode.CurveTo(7.581722f, 13f, 4f, 16.581722f, 4f, 21f),
+                        ),
+                ),
+            ),
+    )
+}
+
+// user-round · sharp-filled
+private val UserRoundSharpFilled: QeetrixIconDrawing by lazy {
+    QeetrixIconDrawing(
+        miterLimit = 4f,
+        elements =
+            listOf(
+                QeetrixIconElement(
+                    fill = true,
+                    evenOdd = true,
+                    stroke = false,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    nodes =
+                        listOf(
+                            PathNode.MoveTo(6.421f, 5.791f),
+                            PathNode.QuadTo(6f, 6.856f, 6f, 8f),
+                            PathNode.QuadTo(6f, 9.144f, 6.421f, 10.209f),
+                            PathNode.QuadTo(6.879f, 11.364f, 7.757f, 12.243f),
+                            PathNode.QuadTo(8.043f, 12.528f, 8.358f, 12.77f),
+                            PathNode.QuadTo(6.827f, 13.445f, 5.636f, 14.636f),
+                            PathNode.QuadTo(4.318f, 15.954f, 3.632f, 17.687f),
+                            PathNode.QuadTo(3f, 19.283f, 3f, 21f),
+                            PathNode.LineTo(3f, 22f),
+                            PathNode.LineTo(21f, 22f),
+                            PathNode.LineTo(21f, 21f),
+                            PathNode.QuadTo(21f, 19.283f, 20.368f, 17.687f),
+                            PathNode.QuadTo(19.682f, 15.954f, 18.364f, 14.636f),
+                            PathNode.QuadTo(17.173f, 13.445f, 15.642f, 12.77f),
+                            PathNode.QuadTo(15.957f, 12.528f, 16.243f, 12.243f),
+                            PathNode.QuadTo(17.121f, 11.364f, 17.579f, 10.209f),
+                            PathNode.QuadTo(18f, 9.144f, 18f, 8f),
+                            PathNode.QuadTo(18f, 6.856f, 17.579f, 5.791f),
+                            PathNode.QuadTo(17.121f, 4.636f, 16.243f, 3.757f),
+                            PathNode.QuadTo(15.364f, 2.879f, 14.209f, 2.421f),
+                            PathNode.QuadTo(13.144f, 2f, 12f, 2f),
+                            PathNode.QuadTo(10.856f, 2f, 9.791f, 2.421f),
+                            PathNode.QuadTo(8.636f, 2.879f, 7.757f, 3.757f),
+                            PathNode.QuadTo(6.879f, 4.636f, 6.421f, 5.791f),
                             PathNode.Close,
                         ),
                 ),
