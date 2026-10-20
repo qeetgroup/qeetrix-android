@@ -1,14 +1,8 @@
 package com.qeetgroup.qeetrix.components.select
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,10 +41,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
@@ -61,13 +56,9 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.qeetgroup.qeetrix.components.input.FieldBox
 import com.qeetgroup.qeetrix.components.input.FieldFrame
@@ -90,8 +81,12 @@ import com.qeetgroup.qeetrix.foundation.shape.QeetrixCorner
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
 import com.qeetgroup.qeetrix.icons.QeetrixIcon
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.internal.AnchoredPopupPosition
+import com.qeetgroup.qeetrix.internal.PopupAlign
 import com.qeetgroup.qeetrix.internal.QeetrixFont
 import com.qeetgroup.qeetrix.internal.QeetrixWebScale
+import com.qeetgroup.qeetrix.internal.popupEnter
+import com.qeetgroup.qeetrix.internal.popupExit
 import com.qeetgroup.qeetrix.internal.qeetrixFocusRing
 import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
@@ -158,6 +153,7 @@ public fun <T> QeetrixSelect(
     // Opened from the keyboard (the trigger had focus), the list moves focus to the selected option.
     var openedByKeyboard by remember { mutableStateOf(false) }
     val current = options.firstOrNull { it.value == selected }
+    val small = size == QeetrixSelectSize.Sm
     val textStyle = fieldTextStyle()
     val chevronTurn by animateFloatAsState(
         if (expanded) 180f else 0f,
@@ -191,34 +187,17 @@ public fun <T> QeetrixSelect(
                         tone = message?.tone,
                         modifier = Modifier.fillMaxWidth(),
                         holdHover = expanded,
-                        shape =
-                            RoundedCornerShape(
-                                if (size ==
-                                    QeetrixSelectSize.Sm
-                                ) {
-                                    QeetrixCorner.Chip
-                                } else {
-                                    QeetrixInputComponentTokens.Corner
-                                },
-                            ),
+                        shape = RoundedCornerShape(if (small) QeetrixCorner.Chip else QeetrixInputComponentTokens.Corner),
                         minHeight = triggerHeight(size),
-                        contentPadding = if (size == QeetrixSelectSize.Sm) PaddingSm else PaddingDefault,
+                        contentPadding = if (small) PaddingSm else PaddingDefault,
                         horizontalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(1.5f)), // gap-1.5
                     ) {
+                        val textColor =
+                            if (current == null) QeetrixInputComponentTokens.Placeholder else QeetrixInputComponentTokens.Foreground
                         BasicText(
                             current?.label ?: placeholder.orEmpty(),
                             Modifier.weight(1f),
-                            style =
-                                textStyle.copy(
-                                    color =
-                                        if (current ==
-                                            null
-                                        ) {
-                                            QeetrixInputComponentTokens.Placeholder
-                                        } else {
-                                            QeetrixInputComponentTokens.Foreground
-                                        },
-                                ),
+                            style = textStyle.copy(color = textColor),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -276,39 +255,13 @@ private fun <T> OptionList(
     val maxHeight = with(density) { maxOf(above, below, 0).toDp() }
     val opensAbove = above > below
     val width = with(density) { maxOf(anchor.width.toDp(), MinListWidth) } // w-(--anchor-width) min-w-36
-    val reduce = QeetrixTheme.reduceMotion
-    val origin = TransformOrigin(0.5f, if (opensAbove) 1f else 0f)
 
     Popup(
-        popupPositionProvider = remember(gap, margin) { ListPosition(gap, margin) },
+        popupPositionProvider = remember(gap, margin) { AnchoredPopupPosition(gap, margin, PopupAlign.Center) },
         onDismissRequest = onDismiss,
         properties = PopupProperties(focusable = true),
     ) {
-        AnimatedVisibility(
-            visibleState = visibility,
-            enter =
-                if (reduce) {
-                    EnterTransition.None
-                } else {
-                    fadeIn(qeetrixAnimationSpec(QeetrixEasing.Enter, QeetrixDuration.Fast)) +
-                        scaleIn(
-                            qeetrixAnimationSpec(QeetrixEasing.Enter, QeetrixDuration.Fast),
-                            initialScale = 0.97f,
-                            transformOrigin = origin,
-                        )
-                },
-            exit =
-                if (reduce) {
-                    ExitTransition.None
-                } else {
-                    fadeOut(qeetrixAnimationSpec(QeetrixEasing.Exit, QeetrixDuration.Fast)) +
-                        scaleOut(
-                            qeetrixAnimationSpec(QeetrixEasing.Exit, QeetrixDuration.Fast),
-                            targetScale = 0.97f,
-                            transformOrigin = origin,
-                        )
-                },
-        ) {
+        AnimatedVisibility(visibleState = visibility, enter = popupEnter(opensAbove), exit = popupExit(opensAbove)) {
             OptionListSurface(options, selected, focusSelected, title, onDismiss, onChoose, Modifier.width(width).heightIn(max = maxHeight))
         }
     }
@@ -335,8 +288,9 @@ internal fun <T> OptionListSurface(
             .border(QeetrixStroke.Hairline, QeetrixTheme.colors.borderDefault, shape)
             .clip(shape)
             .onPreviewKeyEvent { event ->
+                // Escape closes on its way down; its key-up is consumed with it, so nothing else sees half a press.
                 if (event.key == Key.Escape) {
-                    onDismiss()
+                    if (event.type == KeyEventType.KeyDown) onDismiss()
                     true
                 } else {
                     false
@@ -373,11 +327,12 @@ private fun OptionRow(
     val shape = RoundedCornerShape(QeetrixCorner.Chip) // rounded-md
     val requester = remember { FocusRequester() }
     if (takeFocus) LaunchedEffect(Unit) { requester.requestFocus() }
+    // data-[selected]:bg-brand-subtle, one step deeper when highlighted; data-highlighted:bg-accent
     val fill =
         when {
             selected && lit -> QeetrixTheme.colors.surfaceBrandSubtleHover
             selected -> QeetrixTheme.colors.surfaceBrandSubtle
-            lit -> QeetrixTheme.colors.surfaceInteractiveHover
+            lit -> QeetrixTheme.colors.surfaceInteractive
             else -> Color.Transparent
         }
     Row(
@@ -413,31 +368,6 @@ private fun OptionRow(
                 )
             }
         }
-    }
-}
-
-/**
- * Below the anchor when the list fits there, else above when it fits there, else on the roomier side — the
- * web's flip on collision — centred on the anchor and kept inside the window.
- */
-private class ListPosition(
-    private val gap: Int,
-    private val margin: Int,
-) : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize,
-    ): IntOffset {
-        val start = anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2 // align center
-        val x = start.coerceIn(0, maxOf(0, windowSize.width - popupContentSize.width))
-        val height = popupContentSize.height
-        val roomBelow = windowSize.height - margin - (anchorBounds.bottom + gap)
-        val roomAbove = anchorBounds.top - gap - margin
-        val above = height > roomBelow && (height <= roomAbove || roomAbove > roomBelow)
-        val y = if (above) anchorBounds.top - gap - height else anchorBounds.bottom + gap
-        return IntOffset(x, y.coerceIn(0, maxOf(0, windowSize.height - popupContentSize.height)))
     }
 }
 

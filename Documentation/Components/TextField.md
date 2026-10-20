@@ -47,7 +47,10 @@ QeetrixTextField(
   warnings and successes are announced politely.
 - `required` is read as "required" after the label (`qx_required`, the asterisk's description).
 - Height is exactly the control height of the density (32 dp by default) and grows with the font
-  scale.
+  scale. Without a visible label, the field reserves a 48 dp touch height around it, centred, as a
+  button does ([ADR 0017](../Decisions/0017-quality-gates-and-verification.md)); a label above the field
+  already makes the touch area taller than that. The same holds for every field built on it: textarea,
+  search, select, number and password.
 
 ## Theme and tokens
 

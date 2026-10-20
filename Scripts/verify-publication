@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Check a Qeetrix publication in a local Maven repository before anything resolves it: the coordinates, the files a
+# release has (AAR, POM, Gradle module metadata, sources), their checksums, one release variant and no debug one,
+# dependencies only from google() and Maven Central, and the published AAR identical to the one just built.
+#
+#   Scripts/verify-publication build/release-candidate/maven 0.1.0-rc.1 [qeetrix/build/outputs/aar/qeetrix-release.aar]
+set -euo pipefail
+repo=${1:?usage: Scripts/verify-publication <maven-repository-dir> <version> [built.aar]}
+version=${2:?usage: Scripts/verify-publication <maven-repository-dir> <version> [built.aar]}
+built=${3:-}
+dir="$repo/com/qeetgroup/qeetrix/$version"
+base="$dir/qeetrix-$version"
+[ -d "$dir" ] || { echo "error: $dir does not exist — publish with ./gradlew :qeetrix:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version=$version" >&2; exit 1; }
+
+for file in "$base.aar" "$base.pom" "$base.module" "$base-sources.jar"; do
+    [ -f "$file" ] || { echo "error: missing $file" >&2; exit 1; }
+    for sum in sha256 sha512; do
+        [ -f "$file.$sum" ] || { echo "error: missing $file.$sum" >&2; exit 1; }
+        actual=$(shasum -a "${sum#sha}" "$file" | cut -d' ' -f1)
+        [ "$actual" = "$(cat "$file.$sum")" ] || { echo "error: $file.$sum does not match the file" >&2; exit 1; }
+    done
+done
+if ls "$dir" | grep -q -i debug; then echo "error: a debug artifact was published" >&2; exit 1; fi
+
+if [ -n "$built" ]; then
+    cmp -s "$built" "$base.aar" || { echo "error: the published AAR differs from $built" >&2; exit 1; }
+fi
+
+python3 -I - "$base.pom" "$base.module" "$version" <<'PY'
+import json, sys, xml.etree.ElementTree as ET
+pom_path, module_path, version = sys.argv[1:]
+ns = {'m': 'http://maven.apache.org/POM/4.0.0'}
+pom = ET.parse(pom_path).getroot()
+def text(path):
+    node = pom.find(path, ns)
+    return node.text if node is not None else None
+problems = []
+expected = {'m:groupId': 'com.qeetgroup', 'm:artifactId': 'qeetrix', 'm:version': version, 'm:packaging': 'aar'}
+for path, value in expected.items():
+    if text(path) != value:
+        problems.append(f'POM {path[2:]} is {text(path)!r}, expected {value!r}')
+for path in ('m:name', 'm:description', 'm:url', 'm:scm/m:url'):
+    if not text(path):
+        problems.append(f'POM has no {path.replace("m:", "")}')
+# Every dependency is versioned and comes from a public repository an app already uses (google(), Maven Central).
+allowed = ('androidx.', 'org.jetbrains.kotlin', 'org.jetbrains.kotlinx')
+for dep in pom.findall('m:dependencies/m:dependency', ns):
+    group, artifact = dep.findtext('m:groupId', namespaces=ns), dep.findtext('m:artifactId', namespaces=ns)
+    if not dep.findtext('m:version', namespaces=ns):
+        problems.append(f'POM dependency {group}:{artifact} has no version')
+    if not group.startswith(allowed):
+        problems.append(f'POM dependency {group}:{artifact} is not from google() or Maven Central')
+module = json.load(open(module_path))
+component = module['component']
+if (component['group'], component['module'], component['version']) != ('com.qeetgroup', 'qeetrix', version):
+    problems.append(f'module metadata component is {component}')
+usages = sorted(v['attributes'].get('org.gradle.usage') + '/' + v['attributes'].get('org.gradle.category') for v in module['variants'])
+if usages != ['java-api/library', 'java-runtime/documentation', 'java-runtime/library']:
+    problems.append(f'module metadata variants are {usages}, expected api, runtime and sources')
+for variant in module['variants']:
+    for dep in variant.get('dependencies', []):
+        if not dep['group'].startswith(allowed):
+            problems.append(f'module metadata dependency {dep["group"]}:{dep["module"]} is not from google() or Maven Central')
+        if 'requires' not in dep.get('version', {}):
+            problems.append(f'module metadata dependency {dep["group"]}:{dep["module"]} has no version')
+if problems:
+    print('error: ' + '\nerror: '.join(problems), file=sys.stderr)
+    sys.exit(1)
+PY
+echo "✓ com.qeetgroup:qeetrix:$version in $repo: AAR, POM, module metadata, sources; checksums match; release variant only; dependencies from google() and Maven Central${built:+; AAR identical to $built}"

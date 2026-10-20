@@ -1,5 +1,30 @@
 [
   {
+    "id": "arrow-left",
+    "name": "arrow-left",
+    "componentName": "ArrowLeftIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "previous",
+      "back",
+      "direction",
+      "west",
+      "<-"
+    ],
+    "aliases": []
+  },
+  {
     "id": "bell",
     "name": "bell",
     "componentName": "BellIcon",
@@ -22,6 +47,33 @@
       "notification",
       "sound",
       "reminder"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "calendar",
+    "name": "calendar",
+    "componentName": "CalendarIcon",
+    "category": "time",
+    "categories": [
+      "time"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "date",
+      "month",
+      "year",
+      "event",
+      "birthday",
+      "birthdate"
     ],
     "aliases": []
   },
@@ -131,6 +183,92 @@
     ]
   },
   {
+    "id": "circle-x",
+    "name": "circle-x",
+    "componentName": "CircleXIcon",
+    "category": "math",
+    "categories": [
+      "math",
+      "development"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "cancel",
+      "close",
+      "delete",
+      "remove",
+      "times",
+      "clear",
+      "error",
+      "incorrect",
+      "wrong",
+      "mistake",
+      "failure",
+      "linter",
+      "multiply",
+      "multiplication"
+    ],
+    "aliases": [
+      "x-circle"
+    ]
+  },
+  {
+    "id": "clock",
+    "name": "clock",
+    "componentName": "ClockIcon",
+    "category": "time",
+    "categories": [
+      "time"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "time",
+      "watch",
+      "alarm"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "copy",
+    "name": "copy",
+    "componentName": "CopyIcon",
+    "category": "text",
+    "categories": [
+      "text"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "clone",
+      "duplicate",
+      "multiple"
+    ],
+    "aliases": []
+  },
+  {
     "id": "database",
     "name": "database",
     "componentName": "DatabaseIcon",
@@ -158,6 +296,82 @@
       "servers"
     ],
     "aliases": []
+  },
+  {
+    "id": "ellipsis",
+    "name": "ellipsis",
+    "componentName": "EllipsisIcon",
+    "category": "layout",
+    "categories": [
+      "layout",
+      "development"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "et cetera",
+      "etc",
+      "loader",
+      "loading",
+      "progress",
+      "pending",
+      "throbber",
+      "menu",
+      "options",
+      "operator",
+      "code",
+      "coding",
+      "spread",
+      "rest",
+      "more",
+      "further",
+      "extra",
+      "overflow",
+      "dots",
+      "…",
+      "..."
+    ],
+    "aliases": [
+      "more-horizontal"
+    ]
+  },
+  {
+    "id": "ellipsis-vertical",
+    "name": "ellipsis-vertical",
+    "componentName": "EllipsisVerticalIcon",
+    "category": "layout",
+    "categories": [
+      "layout"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "menu",
+      "options",
+      "spread",
+      "more",
+      "further",
+      "extra",
+      "overflow",
+      "dots",
+      "…",
+      "..."
+    ],
+    "aliases": [
+      "more-vertical"
+    ]
   },
   {
     "id": "eye",
@@ -227,6 +441,84 @@
       "vision"
     ],
     "aliases": []
+  },
+  {
+    "id": "file-text",
+    "name": "file-text",
+    "componentName": "FileTextIcon",
+    "category": "files",
+    "categories": [
+      "files",
+      "text"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "data",
+      "txt",
+      "pdf",
+      "document"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "folder",
+    "name": "folder",
+    "componentName": "FolderIcon",
+    "category": "files",
+    "categories": [
+      "files"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "directory"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "house",
+    "name": "house",
+    "componentName": "HouseIcon",
+    "category": "buildings",
+    "categories": [
+      "buildings",
+      "home",
+      "navigation"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "home",
+      "living",
+      "building",
+      "residence",
+      "architecture"
+    ],
+    "aliases": [
+      "home"
+    ]
   },
   {
     "id": "inbox",
@@ -344,6 +636,33 @@
     "aliases": []
   },
   {
+    "id": "mail",
+    "name": "mail",
+    "componentName": "MailIcon",
+    "category": "text",
+    "categories": [
+      "text",
+      "account",
+      "mail"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "email",
+      "message",
+      "letter",
+      "unread"
+    ],
+    "aliases": []
+  },
+  {
     "id": "minus",
     "name": "minus",
     "componentName": "MinusIcon",
@@ -412,6 +731,40 @@
     "aliases": []
   },
   {
+    "id": "pencil",
+    "name": "pencil",
+    "componentName": "PencilIcon",
+    "category": "design",
+    "categories": [
+      "design",
+      "cursors",
+      "tools",
+      "text"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "rubber",
+      "edit",
+      "create",
+      "draw",
+      "sketch",
+      "draft",
+      "writer",
+      "writing",
+      "stationery",
+      "artist"
+    ],
+    "aliases": []
+  },
+  {
     "id": "plus",
     "name": "plus",
     "componentName": "PlusIcon",
@@ -454,6 +807,34 @@
     "aliases": []
   },
   {
+    "id": "refresh-cw",
+    "name": "refresh-cw",
+    "componentName": "RefreshCwIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "rotate",
+      "reload",
+      "rerun",
+      "synchronise",
+      "synchronize",
+      "arrows",
+      "circular",
+      "cycle"
+    ],
+    "aliases": []
+  },
+  {
     "id": "search",
     "name": "search",
     "componentName": "SearchIcon",
@@ -476,6 +857,42 @@
       "scan",
       "magnifier",
       "magnifying glass",
+      "lens",
+      "locate",
+      "explore",
+      "discover",
+      "enlarge",
+      "zoom"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "search-x",
+    "name": "search-x",
+    "componentName": "SearchXIcon",
+    "category": "text",
+    "categories": [
+      "text",
+      "social"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "find",
+      "scan",
+      "magnifier",
+      "magnifying glass",
+      "stop",
+      "clear",
+      "cancel",
+      "abort",
       "lens",
       "locate",
       "explore",
@@ -539,6 +956,93 @@
     "aliases": []
   },
   {
+    "id": "settings",
+    "name": "settings",
+    "componentName": "SettingsIcon",
+    "category": "account",
+    "categories": [
+      "account"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "cog",
+      "edit",
+      "gear",
+      "preferences"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "share-2",
+    "name": "share-2",
+    "componentName": "Share2Icon",
+    "category": "account",
+    "categories": [
+      "account",
+      "social"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "network",
+      "connections"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "trash",
+    "name": "trash",
+    "componentName": "TrashIcon",
+    "category": "files",
+    "categories": [
+      "files",
+      "mail"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "empty",
+      "deletion",
+      "cleanup",
+      "junk",
+      "clear",
+      "garbage",
+      "delete",
+      "remove",
+      "bin",
+      "waste",
+      "recycle",
+      "discard",
+      "binoculars",
+      "rubbish"
+    ],
+    "aliases": [
+      "trash-2"
+    ]
+  },
+  {
     "id": "triangle-alert",
     "name": "triangle-alert",
     "componentName": "TriangleAlertIcon",
@@ -593,6 +1097,29 @@
     "aliases": [
       "user-2"
     ]
+  },
+  {
+    "id": "users",
+    "name": "users",
+    "componentName": "UsersIcon",
+    "category": "account",
+    "categories": [
+      "account"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "group",
+      "people"
+    ],
+    "aliases": []
   },
   {
     "id": "x",

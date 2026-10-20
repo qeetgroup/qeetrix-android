@@ -20,12 +20,14 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.dokka)
     alias(libs.plugins.roborazzi)
+    `maven-publish`
 }
 
-// Coordinates an app resolves through a Gradle composite build (README › Using Qeetrix in an app). Nothing
-// is published in Phase 1: there is no maven-publish configuration.
+// Maven coordinates com.qeetgroup:qeetrix (Documentation/Decisions/0018-maven-distribution.md). The version is a
+// development snapshot unless a release-candidate build passes one (`-Pqeetrix.version=…`, Scripts/release-candidate);
+// no version is final until the owner approves it.
 group = "com.qeetgroup"
-version = "0.1.0-SNAPSHOT"
+version = providers.gradleProperty("qeetrix.version").getOrElse("0.1.0-SNAPSHOT")
 
 android {
     namespace = "com.qeetgroup.qeetrix"
@@ -50,6 +52,13 @@ android {
         buildConfig = false
     }
 
+    // The quality catalog — every in-place component in its risky states — is shared by the JVM scans and the
+    // device's accessibility checks.
+    sourceSets {
+        named("test") { kotlin.directories.add("src/sharedTest/kotlin") }
+        named("androidTest") { kotlin.directories.add("src/sharedTest/kotlin") }
+    }
+
     testOptions {
         unitTests {
             // Robolectric needs the merged resources (fonts) to load them in JVM tests.
@@ -61,6 +70,13 @@ android {
                 // jdk.internal.access.SharedSecrets, which JDK 17+ does not export by default.
                 it.jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED")
             }
+        }
+    }
+
+    // One published variant, release, with its sources for IDE navigation and KDoc. No debug variant is published.
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
         }
     }
 
@@ -94,16 +110,21 @@ ktlint {
 dependencies {
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
-    // Public API types (Color, Dp, TextStyle, Shape, Easing, Modifier) come from these, so they are api.
+    // Public API types come from these, so they are api: Color, Dp, TextStyle, Shape, Easing and Modifier,
+    // and foundation's TextFieldState, KeyboardOptions, MutableInteractionSource, WindowInsets and scopes.
     api(libs.compose.runtime)
     api(libs.compose.ui)
     api(libs.compose.animation.core)
-    implementation(libs.compose.foundation)
+    api(libs.compose.foundation)
+    // Only for QeetrixBottomSheet, which wraps ModalBottomSheet; no Material type is public and no
+    // Material theme value is drawn (Documentation/Decisions/0015-navigation-overlays-and-feedback.md).
+    implementation(libs.compose.material3)
 
     testImplementation(composeBom)
     testImplementation(libs.junit4)
     testImplementation(libs.robolectric)
     testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.compose.ui.test.junit4.accessibility)
     testImplementation(libs.kotlin.reflect)
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)
@@ -114,6 +135,7 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.compose.ui.test.junit4)
+    androidTestImplementation(libs.compose.ui.test.junit4.accessibility)
 }
 
 // Lock what the library hands to apps: its release classpaths. A transitive version change then shows
@@ -124,6 +146,48 @@ dependencyLocking {
 }
 configurations.matching { it.name == "releaseCompileClasspath" || it.name == "releaseRuntimeClasspath" }.configureEach {
     resolutionStrategy.activateDependencyLocking()
+}
+
+// The Maven publication (Documentation/Releases/MAVEN-DISTRIBUTION.md). Its only repository is a local directory a
+// release-candidate build fills and an independent consumer resolves from; no remote repository is configured, so
+// nothing can be uploaded from this build.
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            artifactId = "qeetrix"
+            // AGP creates the component in afterEvaluate (developer.android.com/build/publish-library/upload-library).
+            afterEvaluate { from(components["release"]) }
+            // Publish the resolved, locked versions instead of the BOM-managed declarations without versions, so the
+            // POM and the module metadata name exactly what the library was built and tested with.
+            versionMapping {
+                usage("java-api") { fromResolutionOf("releaseCompileClasspath") }
+                usage("java-runtime") { fromResolutionOf("releaseRuntimeClasspath") }
+            }
+            pom {
+                name.set("Qeetrix for Android")
+                description.set(
+                    "Qeet Group's design system for Jetpack Compose: the Qeetrix tokens, theme, typography, icons and components.",
+                )
+                url.set("https://github.com/qeetgroup/qeetrix-android")
+                organization {
+                    name.set("Qeet Group")
+                    url.set("https://qeet.in")
+                }
+                scm {
+                    url.set("https://github.com/qeetgroup/qeetrix-android")
+                    connection.set("scm:git:https://github.com/qeetgroup/qeetrix-android.git")
+                }
+                // No <licenses>: the library's own code carries no licence (README › Licences); declaring one is the
+                // owner's decision. Bundled fonts and icons carry theirs inside the AAR (assets/qeetrix/licenses).
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "releaseCandidate"
+            url = uri(rootProject.layout.buildDirectory.dir("release-candidate/maven"))
+        }
+    }
 }
 
 // The API reference: KDoc plus the module and package overviews in Module.md.

@@ -2,8 +2,9 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 # To regenerate this file, run: ./gradlew :qeetrix:dependencies --write-locks
-androidx.activity:activity-ktx:1.7.0=releaseRuntimeClasspath
-androidx.activity:activity:1.7.0=releaseRuntimeClasspath
+androidx.activity:activity-compose:1.8.2=releaseRuntimeClasspath
+androidx.activity:activity-ktx:1.8.2=releaseRuntimeClasspath
+androidx.activity:activity:1.8.2=releaseRuntimeClasspath
 androidx.annotation:annotation-experimental:1.4.1=releaseCompileClasspath,releaseRuntimeClasspath
 androidx.annotation:annotation-jvm:1.9.1=releaseCompileClasspath,releaseRuntimeClasspath
 androidx.annotation:annotation:1.9.1=releaseCompileClasspath,releaseRuntimeClasspath
@@ -21,6 +22,10 @@ androidx.compose.foundation:foundation-android:1.12.1=releaseCompileClasspath,re
 androidx.compose.foundation:foundation-layout-android:1.12.1=releaseCompileClasspath,releaseRuntimeClasspath
 androidx.compose.foundation:foundation-layout:1.12.1=releaseCompileClasspath,releaseRuntimeClasspath
 androidx.compose.foundation:foundation:1.12.1=releaseCompileClasspath,releaseRuntimeClasspath
+androidx.compose.material3:material3-android:1.4.0=releaseCompileClasspath,releaseRuntimeClasspath
+androidx.compose.material3:material3:1.4.0=releaseCompileClasspath,releaseRuntimeClasspath
+androidx.compose.material:material-ripple-android:1.12.1=releaseCompileClasspath,releaseRuntimeClasspath
+androidx.compose.material:material-ripple:1.12.1=releaseCompileClasspath,releaseRuntimeClasspath
 androidx.compose.runtime:runtime-android:1.12.1=releaseCompileClasspath,releaseRuntimeClasspath
 androidx.compose.runtime:runtime-annotation-android:1.12.1=releaseCompileClasspath,releaseRuntimeClasspath
 androidx.compose.runtime:runtime-annotation:1.12.1=releaseCompileClasspath,releaseRuntimeClasspath
@@ -50,6 +55,7 @@ androidx.customview:customview-poolingcontainer:1.0.0=releaseRuntimeClasspath
 androidx.emoji2:emoji2:1.4.0=releaseRuntimeClasspath
 androidx.graphics:graphics-path:1.0.1=releaseRuntimeClasspath
 androidx.interpolator:interpolator:1.0.0=releaseRuntimeClasspath
+androidx.lifecycle:lifecycle-common-java8:2.9.4=releaseRuntimeClasspath
 androidx.lifecycle:lifecycle-common-jvm:2.8.7=releaseCompileClasspath
 androidx.lifecycle:lifecycle-common-jvm:2.9.4=releaseRuntimeClasspath
 androidx.lifecycle:lifecycle-common:2.8.7=releaseCompileClasspath

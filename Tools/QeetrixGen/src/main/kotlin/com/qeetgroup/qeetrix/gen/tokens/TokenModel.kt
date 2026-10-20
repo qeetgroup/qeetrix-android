@@ -203,6 +203,10 @@ class TokenModel(
                     TokenValue.Em(single.value)
                 }
 
+                single is CssComponent.Number && (single.unit == "ms" || single.unit == "s") -> {
+                    TokenValue.Duration(CssValues.durationMillis(components, context))
+                }
+
                 single is CssComponent.Number && single.unit.isEmpty() && single.value != 0.0 -> {
                     TokenValue.Number(single.value)
                 }

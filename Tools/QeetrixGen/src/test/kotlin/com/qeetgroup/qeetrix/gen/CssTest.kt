@@ -4,6 +4,8 @@ import com.qeetgroup.qeetrix.gen.css.CssDeclarations
 import com.qeetgroup.qeetrix.gen.css.CssParser
 import com.qeetgroup.qeetrix.gen.css.CssVariableResolver
 import com.qeetgroup.qeetrix.gen.tokens.CssValues
+import com.qeetgroup.qeetrix.gen.tokens.TokenModel
+import com.qeetgroup.qeetrix.gen.tokens.TokenValue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -66,6 +68,11 @@ class CssTest {
     @Test
     fun durationsEasingsAndShadows() {
         assertEquals(150.0, CssValues.durationMillis(CssParser.parse("150ms", "t"), "t"), 0.0)
+        // A component token in milliseconds (component.accordion.duration) is a duration, not a length.
+        assertEquals(
+            TokenValue.Duration(200.0),
+            TokenModel.component("200ms", CssParser.parse("200ms", "t"), emptyMap(), "t"),
+        )
         assertEquals(300.0, CssValues.durationMillis(CssParser.parse("0.3s", "t"), "t"), 1e-9)
         assertEquals(listOf(0.0, 0.0, 1.0, 1.0), CssValues.easing(CssParser.parse("linear", "t"), "t"))
         assertEquals(listOf(0.4, 0.0, 0.2, 1.0), CssValues.easing(CssParser.parse("cubic-bezier(0.4, 0, 0.2, 1)", "t"), "t"))

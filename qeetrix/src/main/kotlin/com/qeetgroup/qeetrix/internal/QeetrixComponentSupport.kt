@@ -13,9 +13,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixFocus
 import com.qeetgroup.qeetrix.foundation.typography.QeetrixTextRole
 import com.qeetgroup.qeetrix.foundation.typography.QeetrixTypography
@@ -102,6 +106,31 @@ internal fun Modifier.drawOutlineRing(
             drawOutline(outline, color, style = Stroke(width.toPx()))
         }
     }
+
+/**
+ * A short label's style — a button's, a chip's, a tab's: the paragraph's direction comes from its own text, as a
+ * `TextView`'s does. Compose otherwise lays every text out in the layout's direction, so in a right-to-left layout
+ * a left-to-right label ("[Draft] Cancel", a product name) is a right-to-left paragraph, and Android's text
+ * measurement then comes up a few pixels short for some of them: Phase 6 saw labels cut off, ended in an ellipsis or
+ * broken onto two lines, on a device and on the JVM. A right-to-left label (Arabic, Hebrew) is still right to left.
+ *
+ * For a label sized to its text, alignment can't show. A label wider than its text — a menu item — also takes
+ * [alignToLayout], so its start is the layout's start, as a `TextView`'s gravity is, and English and Arabic items
+ * line up.
+ */
+@Composable
+@ReadOnlyComposable
+internal fun TextStyle.labelDirection(alignToLayout: Boolean = false): TextStyle {
+    if (!alignToLayout) return copy(textDirection = TextDirection.Content)
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val align =
+        when (textAlign) {
+            TextAlign.Center, TextAlign.Justify, TextAlign.Left, TextAlign.Right -> textAlign
+            TextAlign.End -> if (rtl) TextAlign.Left else TextAlign.Right
+            else -> if (rtl) TextAlign.Right else TextAlign.Left // Start and Unspecified: the layout's start
+        }
+    return copy(textDirection = TextDirection.Content, textAlign = align)
+}
 
 /** A colour at [alpha], keeping its space. */
 internal fun Color.atAlpha(alpha: Float): Color = copy(alpha = this.alpha * alpha)

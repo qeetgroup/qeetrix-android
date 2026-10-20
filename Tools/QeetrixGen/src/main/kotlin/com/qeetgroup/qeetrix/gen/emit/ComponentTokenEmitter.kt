@@ -163,6 +163,11 @@ class ComponentTokenEmitter(
                 Member("$doc\nval $name: Float = ${floatLiteral(first.value)}", emptyList())
             }
 
+            // Milliseconds, as QeetrixDuration and Compose's animation specs take them.
+            is TokenValue.Duration -> {
+                Member("$doc\nval $name: Int = ${first.millis.toInt()} // ms", emptyList())
+            }
+
             else -> {
                 throw GeneratorError("${token.dotted}: a ${first::class.simpleName} component token has no Android mapping yet.")
             }

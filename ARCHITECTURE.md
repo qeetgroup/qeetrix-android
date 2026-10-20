@@ -18,7 +18,10 @@ qeetrix-icons @ 331cd85 (SVG + manifest) ─────────────
                                                                                               │
                                                                      components/* (QeetrixButton, …)
                                                                                               ▼
-                                                                                   apps (and :sample)
+             :qeetrix release AAR ──maven-publish──▶ com.qeetgroup:qeetrix (AAR + POM + module metadata + sources)
+                    │                                        │  build/release-candidate/maven (local); a registry
+                    ▼                                        ▼  only with the owner's approval (0018)
+                :sample (project dependency)        apps, and Integration/Consumer (by coordinates)
 ```
 
 Three steps, three commands:
@@ -35,13 +38,14 @@ Three steps, three commands:
 
 ## Modules and dependency rules
 
-One library module, one sample, one tool ([0001](Documentation/Decisions/0001-single-library-module.md)):
+One library module, one sample, one tool, and an independent consumer ([0001](Documentation/Decisions/0001-single-library-module.md)):
 
 | Unit | Depends on | Never depends on |
 |:--|:--|:--|
-| `:qeetrix` | Compose runtime, UI, foundation, animation-core | Material, AndroidX Core, the generator |
+| `:qeetrix` | Compose runtime, UI, foundation, animation-core (`api`: their types are public); Material 3, for `QeetrixBottomSheet` alone (`implementation`, [0015](Documentation/Decisions/0015-navigation-overlays-and-feedback.md)) | Material for anything else, AndroidX Core directly, a navigation library, a networking, database or image-loading library, the generator |
 | `:sample` | `:qeetrix` (public API only), activity-compose; Robolectric and Compose UI Test for its tests | `:qeetrix` internals (Kotlin `internal` makes them unreachable) |
 | `Tools/QeetrixGen` | kotlinx-serialization-json, the JDK | Android; it is a separate Gradle build |
+| `Integration/Consumer` | `com.qeetgroup:qeetrix:<version>` from a Maven repository, activity-compose; AndroidX Test, Compose UI Test and UI Automator for its tests | `:qeetrix` as a project or composite build, its sources or internals; it is a separate Gradle build, the release acceptance test ([0018](Documentation/Decisions/0018-maven-distribution.md)) |
 
 Inside `:qeetrix`:
 
@@ -53,7 +57,7 @@ Inside `:qeetrix`:
 | `icons`, `icons.generated` | `QeetrixIcon`, `QeetrixIconName`; the drawings | `foundation`, `theme`, `internal` |
 | `components.<family>` | One file per component (`QeetrixButton`, …) and its option enums | `foundation`, `theme`, `icons`, `internal`, `tokens.generated` (component tokens); inputs also `components.input`'s internal field parts |
 | `tokens` | `QeetrixProvenance` | `tokens.generated` |
-| `internal` | Spec types the generated files are written in; the components' shared helpers (`QeetrixWebScale`, focus ring, busy indicator) | Compose, `foundation`, `theme` |
+| `internal` | Spec types the generated files are written in; the components' shared helpers (`QeetrixWebScale`, focus ring, busy indicator, popup placement, the ruled stack) | Compose, `foundation`, `theme` |
 
 Generated code is never public. The public API is hand-written, and the generated code is written in
 terms of it: `QeetrixLightColors = QeetrixColors(textPrimary = …, …)` names every parameter, and
@@ -74,8 +78,8 @@ The generator is a Kotlin port of qeetrix-ios's, so both read the same inputs th
   `color-mix(in oklab, …)`; `oklch()`/`rgb()` with alpha; `box-shadow` lists; `cubic-bezier()`;
   font stacks. Anything else fails generation by name rather than producing a guess.
 - **Scope.** A rule decides every token: the semantic layer, the scales qeetrix-ui gives code, and the
-  component-token groups adopted in `Upstream/manifest.json` are generated (279 in 2.1.6); primitives, the
-  other component groups, z-index and gradients are excluded with a reason (604). An unmatched
+  component-token groups adopted in `Upstream/manifest.json` are generated (305 in 2.1.6); primitives, the
+  other component groups, z-index and gradients are excluded with a reason (578). An unmatched
   consumable group fails generation ([0011](Documentation/Decisions/0011-component-tokens-and-web-metrics.md)).
 - **Units.** 1 CSS px = 1 dp; 1 rem = 16 dp; font sizes in sp; letter spacing and line height in em;
   durations in ms.
@@ -145,8 +149,17 @@ Each component is one file in its web family's package, `components.<family>`
 
 - **Built from foundation primitives**, not Material: `BasicText`, `BasicTextField` and
   `BasicSecureTextField` with a `TextFieldState`, `clickable` / `toggleable` / `triStateToggleable` /
-  `selectable` with `indication = null` and the web's colour steps, `Popup` for the select's list,
-  `progressSemantics`, `Canvas` for the busy indicator and progress hatch.
+  `selectable` with `indication = null` and the web's colour steps, `Popup` for the select list and the
+  menu, `Dialog` windows for the dialogs, `progressSemantics`, `Canvas` for the busy indicator and progress
+  hatch. The one exception is the bottom sheet, which wraps Material 3's `ModalBottomSheet` with Qeetrix's
+  surface; `MaterialBoundaryTest` keeps Material in that one file.
+- **State is the app's.** Selections, presented flags, expansion, queries, load states and values come in
+  as parameters; Qeetrix keeps only presentation state and owns no navigation, back stack, Back handler or
+  data ([NAVIGATION_AND_OVERLAYS.md](Documentation/Standards/NAVIGATION_AND_OVERLAYS.md),
+  [DATA_DISPLAY_AND_COLLECTIONS.md](Documentation/Standards/DATA_DISPLAY_AND_COLLECTIONS.md)).
+- **Collections are Compose's.** Rows, headers and content states go inside `LazyColumn` and its keyed
+  `items` and `stickyHeader`s; Qeetrix adds no list container or virtualization
+  ([0016](Documentation/Decisions/0016-data-display-and-content-states.md)).
 - **Inputs share one field.** Every input is built on the internal field parts in
   `components/input/QeetrixFieldParts.kt` — the label inside the control, the boundary (`FieldBox`) per
   state and tone, description and message — and reads the enclosing field set through

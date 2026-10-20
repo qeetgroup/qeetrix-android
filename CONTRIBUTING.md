@@ -26,8 +26,10 @@ Open the repository root in Android Studio, or use the command line:
 | `./gradlew :qeetrix:assembleRelease` | Build the AAR |
 | `Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar` | Check the AAR ships only what it should |
 | `./gradlew :sample:installDebug` | Install the sample |
-| `./gradlew :qeetrix:connectedDebugAndroidTest` | Device tests (needs a device or emulator) |
+| `./gradlew :qeetrix:connectedDebugAndroidTest` | Device tests on every connected device or emulator, the Accessibility Test Framework included (from API 36, where it was verified to run; left out below it) |
 | `./gradlew :qeetrix:dokkaGenerate` | API reference into `qeetrix/build/dokka/html` |
+| `Scripts/release-candidate <X.Y.Z-rc.N> [--devices] [--allow-dirty]` | Every release gate, a local publication, the independent consumer, and evidence in `build/release-candidate/` ([RELEASE-CHECKLIST.md](Documentation/Releases/RELEASE-CHECKLIST.md)) |
+| `./gradlew -p Integration/Consumer :app:assembleRelease` | Build the independent consumer against a published candidate ([Integration/Consumer](Integration/Consumer/README.md)) |
 | `Scripts/sync-tokens [--check]` | Fetch and verify the pinned upstream artifacts (network) |
 | `Scripts/generate-tokens` | Regenerate everything derived from the snapshot |
 | `Scripts/verify-tokens` | Only the drift verification |
@@ -84,6 +86,12 @@ states, theme and component tokens only, 48 dp targets, semantics — and finish
   `@GraphicsMode(GraphicsMode.Mode.NATIVE)` when real text layout or pixels matter.
 - What only a device proves goes in `qeetrix/src/androidTest`. Say in the pull request whether you ran
   it; never report it as passing otherwise.
+- A new in-place component gets a specimen in the quality catalog
+  (`qeetrix/src/sharedTest/kotlin/com/qeetgroup/qeetrix/quality/QualityCatalog.kt`) in its risky states, so
+  the touch, clipping, contrast and accessibility scans cover it
+  ([0017](Documentation/Decisions/0017-quality-gates-and-verification.md)).
+- A check must be able to fail: give a new scan a negative control in the same class, and treat a check
+  whose control is not caught as not run.
 - **Screenshots** stay on your machine: `qeetrix/src/test/screenshots/` is git-ignored and never
   committed, and CI does not compare images
   ([0012](Documentation/Decisions/0012-visual-regression-testing.md)). Before a pull request that changes
@@ -94,8 +102,10 @@ states, theme and component tokens only, 48 dp targets, semantics — and finish
 
 Every change keeps the guarantees in
 [Documentation/Standards/ACCESSIBILITY.md](Documentation/Standards/ACCESSIBILITY.md): contrast pairs, font
-scaling, 48 dp touch targets, semantics, RTL and reduced motion. The contrast test runs in `./gradlew
-check`; TalkBack and Bold Text need a device.
+scaling, 48 dp touch targets, semantics, RTL and reduced motion. The contrast, touch-area, clipping and
+reduced-motion scans run in `./gradlew check`; the Accessibility Test Framework runs in
+`connectedDebugAndroidTest` on API 36; TalkBack and Bold Text need a person with a device
+([Accessibility report](Documentation/Quality/ACCESSIBILITY-REPORT.md)).
 
 ## Review
 

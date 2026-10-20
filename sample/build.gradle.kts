@@ -16,6 +16,22 @@ android {
         versionName = "0.1.0"
     }
 
+    buildTypes {
+        debug {
+            // Android's pseudolocales — en-XA (accented and longer) and ar-XB (right to left) — so the library's
+            // strings and layouts can be checked on a device in Settings › Languages.
+            isPseudoLocalesEnabled = true
+        }
+        release {
+            // A release built as an app builds one: R8 and resource shrinking over the library, which carries no
+            // consumer rules and needs none. Signed with the debug key so it installs for checks; never distributed.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

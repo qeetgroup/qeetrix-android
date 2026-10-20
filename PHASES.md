@@ -6,12 +6,152 @@ verification. Later phases are planning boundaries, not commitments of scope.
 | Phase | Scope | Status |
 |:--|:--|:--|
 | 1 — Foundations | Token pipeline from `@qeetrix/ui`; semantic colours; light/dark/system theming; typography with the bundled variable fonts and font scaling; spacing, corners, sizing, stroke, focus, density, elevation, motion; icon infrastructure with a representative set; accessibility helpers; sample app; tests, CI, docs | Done (`0fad2aa`) |
-| 2 — Core components | Text, Separator, Card, Badge, Button, Icon button, Spinner, Progress, Avatar, Switch, Text field, with their `component.*` tokens; screenshot testing; public API baseline; component template and `new-component`; sample catalogue | Done |
-| **3 — Advanced inputs and forms** | Field and field set, Textarea, Password input, OTP input, Checkbox, Radio group, Select, Number field; form actions and error summary; the forms standard | **Current** |
-| 4 — Navigation, overlays, feedback | Navigation patterns, sheets, menus, toasts, dialogs | Planned |
-| 5 — Data display and advanced | Lists, tables, charts and the other data components | Planned |
-| 6 — Accessibility and maturity | Device-verified TalkBack, Switch Access and keyboard; increased-contrast values (with upstream); performance | Planned |
-| 7 — Documentation and release | Published API reference, docs on ui.qeet.in, versioned releases | Planned |
+| 2 — Core components | Text, Separator, Card, Badge, Button, Icon button, Spinner, Progress, Avatar, Switch, Text field, with their `component.*` tokens; screenshot testing; public API baseline; component template and `new-component`; sample catalogue | Done (`5b4cb5b`) |
+| 3 — Advanced inputs and forms | Field and field set, Textarea, Password input, OTP input, Checkbox, Radio group, Select, Number field; form actions and error summary; the forms standard | Done (`5b4cb5b`) |
+| 4 — Navigation, overlays, feedback | Navigation bar, rail and adaptive scaffold; top app bar; tabs; alert, confirmation and custom dialogs; bottom sheet; menu; snackbar; the navigation and overlays standard | Done, verified on the JVM; not yet committed |
+| 5 — Data display, collections, content states | List item and section header; description list; accordion; empty state and data state; skeleton; chips; timeline; search field; the data display and collections standard | Done, verified on the JVM; not yet committed |
+| 6 — Quality, accessibility and performance hardening | Audit of every component; automated accessibility checks on a device; touch, clipping, contrast and reduced-motion scans; localization and right to left; stability and allocation review; reliability, security and API reviews; device tests in CI; quality reports | Done, verified; not yet committed |
+| **7 — Production readiness and release engineering** | Maven publication; independent consumer through the artifact; AAR verification; R8; API freeze; versioning, licensing, supply chain; release-candidate pipeline; release documentation | **Release candidate `0.1.0-rc.1` verified, not published — CONDITIONAL GO** |
+
+## Phase 7 — done, verified (2026-10-20)
+
+- **Distribution.** A Maven publication, `com.qeetgroup:qeetrix`, release variant with sources; versions from
+  `-Pqeetrix.version`; a local repository only ([0018](Documentation/Decisions/0018-maven-distribution.md)).
+- **Acceptance.** An independent app, `Integration/Consumer`, resolves the candidate by coordinates and builds debug
+  and an R8-optimised release; 12 Compose tests and 4 release smoke tests pass on the API 29 phone, the API 36 phone
+  and an API 36 tablet, and in landscape. The minimum toolchain (AGP 9.1.0, Kotlin 2.3.0) builds and runs.
+- **Fixed.** The bottom sheet drew an empty panel at the top of the screen on devices (P1, found by the consumer).
+- **Release engineering.** `Scripts/release-candidate` (10 gates, all passed for `0.1.0-rc.1`), publication and
+  dependency checks, a CycloneDX SBOM, a CI publication-and-consumer step and a release-candidate workflow with no
+  upload path. Release policy, checklist, rollback, licence review, compatibility matrix, release notes and the
+  release-candidate report in [Documentation/Releases](Documentation/Releases/RELEASE-CANDIDATE-REPORT.md).
+- **Decision: CONDITIONAL GO** — an internal pre-release on a private registry once the owner commits the work,
+  chooses the registry and approves the version; not for production apps until a manual TalkBack, Switch Access
+  and keyboard pass, a clean-commit re-run and green CI.
+
+## Phase 7 — not done
+
+- Publishing, tagging, committing: the owner's decisions; nothing was published, tagged, committed or pushed.
+- A manual assistive-technology pass (TalkBack could not be driven from automation on the emulator).
+- Qeet ID Auth integration: it is a React Native app.
+
+## Phase 6 — done, verified (2026-10-20)
+
+- **Audit.** Every Phase 1–5 component, against an evidence baseline, with a severity model; summary in
+  [PHASE-6-AUDIT.md](Documentation/Quality/PHASE-6-AUDIT.md), one report per area in
+  [Documentation/Quality](Documentation/Quality/), decision [0017](Documentation/Decisions/0017-quality-gates-and-verification.md).
+- **Fixed.** The number field's value on a change of locale (P2); left-to-right labels cut or misordered in
+  right-to-left layouts (P2); a 40 dp touch target on fields without a label (P2); a Back test that had never run
+  (P2); the skeleton's per-frame gradient (P3); a real mail domain in a test (P3); CI actions on moving tags (P3).
+  No P0 or P1 found. No public API, token or default changed.
+- **Verification.** 309 library JVM tests (20 new), 15 sample and 44 generator tests, three clean runs; 147
+  screenshot baselines (4 new; 22 right-to-left images re-recorded after review); device tests run for the first
+  time — 12 of 12 on an API 36 emulator, 10 of 10 on API 29; lint, ktlint, API check, token drift and AAR checks
+  clean; the minified sample exercised on a device; 94.2 % of hand-written lines covered by the JVM suite
+  ([TEST-COVERAGE.md](Documentation/Quality/TEST-COVERAGE.md)).
+- **Not claimed.** No performance figure, and no accessibility compliance: no manual TalkBack, Switch Access,
+  Voice Access or keyboard pass was done.
+
+## Phase 6 — not done, by scope
+
+- Increased-contrast colour values: qeetrix-ui has none to follow yet.
+- A Macrobenchmark module and Baseline Profile: no representative hardware ([0017](Documentation/Decisions/0017-quality-gates-and-verification.md)).
+- Translations of the built-in strings.
+
+## Phase 6 — still to verify
+
+Tracked in [RELEASE-READINESS-GAPS.md](Documentation/Quality/RELEASE-READINESS-GAPS.md): manual TalkBack, Switch
+Access, Voice Access and keyboard passes; physical devices; ATF on overlay windows and other API levels; frame
+timing; CI's device matrix on its first run; IME and AutoFill; predictive back; large screens.
+
+## Phase 5 — done, verified on the JVM (2026-10-20)
+
+- **Components.** `QeetrixListItem` with `QeetrixListItemIcon`, `QeetrixSectionHeader`,
+  `QeetrixDescriptionList` with `QeetrixDescriptionItem`, `QeetrixAccordion` with `QeetrixAccordionItem`,
+  `QeetrixEmptyState`, `QeetrixDataState` with `QeetrixDataFailure` and `QeetrixDataLoadingRows`,
+  `QeetrixSkeleton` and `QeetrixSkeletonText`, `QeetrixChip` and `QeetrixChipGroup`, `QeetrixTimeline` with
+  `QeetrixTimelineItem`, and `QeetrixSearchField`
+  ([0016](Documentation/Decisions/0016-data-display-and-content-states.md),
+  [DATA_DISPLAY_AND_COLLECTIONS.md](Documentation/Standards/DATA_DISPLAY_AND_COLLECTIONS.md)). Each has KDoc
+  with an example, a `Documentation/Components/` page and a sample page with previews; the sample adds a
+  collections screen. A list section is the documented `stickyHeader` pattern, not a component.
+- **Deferred by decision** (ADR 0016): a data table, image presentation and a pull-to-refresh wrapper.
+- **Pins.** 39 icons (eight added); component tokens `accordion`, `skeleton` and `timeline` (305 generated).
+  The generator reads millisecond component tokens as durations. No new dependencies.
+- **Tests.** 289 library JVM tests (56 new: behaviour and semantics of every component, collection
+  identity — keyed rows through insertion, removal and reordering, selection by id, state restoration,
+  one-row recomposition — and 9 screenshot tests), 15 sample tests (the collections flow and every Phase 5
+  documentation example) and 44 generator tests, all passing. `QeetrixCollectionDeviceTest` (1
+  instrumented test: a 500-row keyed list scrolled far and back) compiles; it has not run (no device).
+- **Screenshots.** 143 baselines (36 new, and the icon catalogue re-recorded for the new icons), reviewed in
+  light, dark, 200 % text and right to left; still not committed.
+- **Performance evidence.** Structural only: the Compose compiler's report shows all 20 new public
+  composables restartable and skippable and `QeetrixDataFailure` stable; selecting one of twenty keyed rows
+  recomposes that row only; the skeleton's shimmer redraws without recomposing. No timing was measured.
+- **API.** `Documentation/API/qeetrix.api`: additions only.
+- **Fixes found on the way.** Content-width paragraph text wrapped its last word in right-to-left layouts;
+  Phase 5 text fills its column instead. The README's dependency row (stale since Phase 4) and its icons
+  section's count (stale since Phase 2) are current again.
+- **Engineering.** Lint (both modules) and ktlint with no issues; Dokka with overviews for the five new
+  packages; AAR content check (twenty-one `qx_` strings).
+
+## Phase 5 — not done, by scope
+
+- A data table, charts, a feed, a tree view, a filter bar, pagination and stats; image presentation; a
+  pull-to-refresh component; swipe actions on rows; a chip that is both selectable and removable.
+- Phase 6 (accessibility and maturity on devices).
+
+## Phase 5 — still to verify
+
+- **TalkBack:** row reading order and long-press labels, accordion state and actions, chips as checkboxes
+  and radio buttons, a removable chip's button, a data state's "Loading" and its announced failure, list
+  navigation with sticky headers.
+- **On a device:** `QeetrixCollectionDeviceTest` (ran in Phase 6, API 29 and 36); scrolling and item
+  animations in long lists, and their frame timing (Macrobenchmark).
+- **Window sizes:** the description list's 640 dp switch on tablets and resizable windows (tested on the
+  JVM only).
+
+## Phase 4 — done, verified on the JVM (2026-10-19)
+
+- **Components.** `QeetrixNavigationBar`, `QeetrixNavigationRail` and `QeetrixNavigationScaffold` (with
+  `QeetrixNavigationItem<T>` and `QeetrixNavigationLayout`), `QeetrixTopAppBar` and `QeetrixBackButton`,
+  `QeetrixTabs`, `QeetrixAlertDialog` (with `QeetrixDialogAction`), `QeetrixConfirmationDialog`,
+  `QeetrixDialog`, `QeetrixBottomSheet`, `QeetrixMenu` and its items, and `QeetrixSnackbar` with its host and
+  host state ([0015](Documentation/Decisions/0015-navigation-overlays-and-feedback.md),
+  [NAVIGATION_AND_OVERLAYS.md](Documentation/Standards/NAVIGATION_AND_OVERLAYS.md)). Each has KDoc, a
+  `Documentation/Components/` page and a sample page; the sample adds a workspace screen and every page now
+  has a top app bar.
+- **Deferred by decision** (ADR 0015): a navigation drawer, a popover and a Qeetrix toast.
+- **Pins and dependencies.** 31 icons (ten added); component tokens `dialog`, `menu` and `sidebar` (297
+  generated). Compose foundation is now `api`; Material 3 is an `implementation` dependency for the bottom
+  sheet alone, guarded by `MaterialBoundaryTest`.
+- **Tests.** 233 library JVM tests (55 new: behaviour, semantics, dialog windows and Back on dialogs and
+  sheets, keyboard focus, the snackbar lifecycle under virtual time, the Material boundary, 6 new screenshot
+  tests), 9 sample tests (the workspace flow and every Phase 4 documentation example) and 44 generator
+  tests, all passing. `QeetrixOverlayBackTest` (2 instrumented tests) compiles.
+- **Screenshots.** 107 baselines (24 new, and the icon catalogue re-recorded for the new icons), reviewed in
+  light, dark, 200 % text and right to left; still not committed.
+- **API.** `Documentation/API/qeetrix.api`: additions only.
+- **Fixes to earlier phases.** The select's highlighted option takes `surface.interactive` (the web's
+  `bg-accent`) instead of a step darker; Escape closes the select list once (it acted on key-up too);
+  foundation types in the public API now reach apps through an `api` dependency.
+- **Engineering.** Lint (both modules) and ktlint with no issues; Dokka with overviews for the six new
+  packages and no unresolved links; AAR content check (thirteen `qx_` strings).
+
+## Phase 4 — not done, by scope
+
+- A navigation drawer, a popover, a Qeetrix toast; side sheets; menu checkbox, radio and submenu items;
+  snackbar swipe-to-dismiss; collapsing app bars.
+- Phase 5 components (data display and the remaining web components).
+
+## Phase 4 — still to verify
+
+- **On a device:** `QeetrixOverlayBackTest` (Back on a popup menu and on stacked overlays; ran in Phase 6, API
+  29 and 36); predictive back;
+  gesture navigation and display cutouts with the edge-to-edge bars.
+- **TalkBack:** window and pane titles announced, focus returning to the opening control after an overlay
+  closes, the sheet handle's actions, snackbar announcements (once, errors at once), Switch Access on menus.
+- **Window sizes:** tablets, foldables and resizable windows (the 600 dp switch is tested on the JVM only).
 
 ## Phase 3 — done, verified (2026-10-19)
 

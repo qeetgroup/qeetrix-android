@@ -8,25 +8,59 @@ Qeetrix is the one design language of every Qeet product. On the web it is
 same tokens, fonts and icons to Compose — generated from the published web release, so a colour, a size
 or a type role is the same value on every platform.
 
-**Status: Phase 3 — advanced inputs and forms.** The Phase 1 foundations (colours, theming, typography,
-spacing, corners, sizing, elevation, motion, icons, accessibility helpers); Phase 2's Button, Icon button,
-Text field, Switch, Avatar, Badge, Text, Progress, Spinner, Card and Separator; and Phase 3's Field and
-field set, Textarea, Password input, OTP input, Checkbox, Radio group, Select, Number field and the form
-patterns ([PHASES.md](PHASES.md), [Documentation/Components](Documentation/Components/README.md)).
+**Status: Phase 7 — release candidate `0.1.0-rc.1` built and verified, not published.** The Phase 1 foundations (colours,
+theming, typography, spacing, corners, sizing, elevation, motion, icons, accessibility helpers); Phase 2's
+Button, Icon button, Text field, Switch, Avatar, Badge, Text, Progress, Spinner, Card and Separator;
+Phase 3's Field and field set, Textarea, Password input, OTP input, Checkbox, Radio group, Select, Number
+field and the form patterns; Phase 4's navigation bar, navigation rail and adaptive scaffold, top app bar,
+tabs, alert, confirmation and custom dialogs, bottom sheet, menu and snackbar; and Phase 5's list item and
+section header, description list, accordion, empty state, data state, skeleton, chips, timeline and search
+field ([PHASES.md](PHASES.md), [Documentation/Components](Documentation/Components/README.md)). Phase 6
+added no components: it verified these on the JVM and on API 29 and API 36 emulators and fixed what it found
+([Documentation/Quality](Documentation/Quality/PHASE-6-AUDIT.md)). Phase 7 made it a Maven artifact, verified it
+from an independent app, and prepared the release process; the result and what remains are in
+[RELEASE-CANDIDATE-REPORT.md](Documentation/Releases/RELEASE-CANDIDATE-REPORT.md).
 
 ## Requirements
 
 | | |
 |:--|:--|
 | Android | API 29 (Android 10) and newer; compiled against API 37 |
-| Kotlin / Compose | Kotlin 2.4.21, Compose 1.12.1 (BOM 2026.09.00) |
-| Build | Android Gradle Plugin 9.4.1, Gradle 9.6.1 (wrapper), JDK 17 or newer (21 recommended) |
-| Runtime dependencies | Compose runtime, UI, foundation and animation-core only; no Material |
+| Kotlin / Compose | Built with Kotlin 2.4.21 and Compose 1.12.1 (BOM 2026.09.00) |
+| An app using it | Compile SDK 37 and AGP 9.1 or newer (Compose 1.12 requires both); Kotlin 2.3 or newer ([compatibility matrix](Documentation/Releases/COMPATIBILITY-MATRIX.md)) |
+| Building this repository | Android Gradle Plugin 9.4.1, Gradle 9.6.1 (wrapper), JDK 17 or newer (21 recommended) |
+| Runtime dependencies | Compose runtime, UI, foundation and animation-core; Material 3 for the bottom sheet only ([0015](Documentation/Decisions/0015-navigation-overlays-and-feedback.md)). No networking, database or image loading |
 
 ## Using Qeetrix in an app
 
-Nothing is published yet. An app includes this repository as a Gradle composite build: Gradle builds
-`:qeetrix` from source and substitutes it for the dependency.
+**From a Maven repository** — how apps will use it once a version is published. Nothing is published yet: the
+registry and the first version await the owner ([Maven distribution](Documentation/Releases/MAVEN-DISTRIBUTION.md)).
+A release candidate can be built and published to a local directory with `Scripts/release-candidate 0.1.0-rc.1`;
+`Integration/Consumer` is an independent app that uses it exactly this way.
+
+```kotlin
+// settings.gradle.kts of the app
+dependencyResolutionManagement {
+    repositories {
+        exclusiveContent {
+            forRepository { maven { url = uri("<the approved repository>") } }
+            filter { includeGroup("com.qeetgroup") }
+        }
+        google()
+        mavenCentral()
+    }
+}
+```
+
+```kotlin
+// app/build.gradle.kts
+dependencies {
+    implementation("com.qeetgroup:qeetrix:<version>")
+}
+```
+
+**From source**, to work on the library alongside an app: include this repository as a Gradle composite build, and
+Gradle builds `:qeetrix` and substitutes it for the dependency.
 
 ```kotlin
 // settings.gradle.kts of the app
@@ -40,8 +74,8 @@ dependencies {
 }
 ```
 
-The app needs the Android SDK and the Compose compiler plugin, as any Compose app does. Consumers never
-need Node.js, Style Dictionary or a qeetrix-ui checkout: the tokens are compiled Kotlin.
+The app needs the Android SDK and the Compose compiler plugin, as any Compose app does, and no keep rules for
+Qeetrix. Consumers never need Node.js, Style Dictionary or a qeetrix-ui checkout: the tokens are compiled Kotlin.
 
 ### Theme
 
@@ -84,11 +118,38 @@ Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.fieldGap)
 }
 ```
 
+Navigation and overlays present what the app decides — its selected destination, its presented flags:
+
+```kotlin
+QeetrixNavigationScaffold(destinations, selected = destination, onSelect = { destination = it }) {
+    Box(Modifier.fillMaxSize()) {
+        InboxScreen(onArchive = { scope.launch { snackbars.show("Conversation archived", actionLabel = "Undo") } })
+        QeetrixSnackbarHost(snackbars, Modifier.align(Alignment.BottomCenter))
+    }
+}
+```
+
+Collections are Compose's lazy lists with the app's keys; Qeetrix draws the rows and every content state,
+and the data, its loading and its identity stay the app's:
+
+```kotlin
+QeetrixDataState(loading = loading, empty = people.isEmpty(), emptyContent = { QeetrixEmptyState("No members yet") }) {
+    LazyColumn {
+        items(people, key = { it.id }) { person -> QeetrixListItem(person.name, description = person.email, onClick = { open(person.id) }) }
+    }
+}
+```
+
 Each component's page in [Documentation/Components](Documentation/Components/README.md) covers its use,
 states, accessibility and where it differs from the web and iOS; the KDoc is the API reference.
 [Standards/FORMS.md](Documentation/Standards/FORMS.md) covers validation, focus, secure input and
-AutoFill. The sample app has a page per component, grouped as on ui.qeet.in, and an account-preferences
-screen that combines them.
+AutoFill; [Standards/NAVIGATION_AND_OVERLAYS.md](Documentation/Standards/NAVIGATION_AND_OVERLAYS.md) state,
+dismissal, Back and the snackbar lifecycle;
+[Standards/DATA_DISPLAY_AND_COLLECTIONS.md](Documentation/Standards/DATA_DISPLAY_AND_COLLECTIONS.md)
+identity, selection, search, filters and content states. The sample app has a page per component, grouped
+as on ui.qeet.in, an account-preferences screen that combines the inputs, a workspace screen that combines
+navigation, overlays and snackbars, and a collections screen that combines search, filters, sections,
+selection and every content state.
 
 ### Typography
 
@@ -103,8 +164,8 @@ BasicText("Signed in on 3 devices", style = QeetrixTheme.typography.caption)
 
 ### Icons
 
-The 17 [qeetrix-icons](https://github.com/qeetgroup/qeetrix-icons) icons the components use, in round
-and sharp shapes, outline and filled. They draw in the inherited content colour and mirror in
+The 39 [qeetrix-icons](https://github.com/qeetgroup/qeetrix-icons) icons the components and apps use, in
+round and sharp shapes, outline and filled (where upstream draws one). They draw in the inherited content colour and mirror in
 right-to-left layouts when their meaning has a direction.
 
 ```kotlin
@@ -145,8 +206,9 @@ how to work on it.
 ./gradlew :qeetrix:apiDump            # update Documentation/API/qeetrix.api after an intended API change
 ./gradlew :qeetrix:assembleRelease    # the AAR → qeetrix/build/outputs/aar/
 ./gradlew :sample:installDebug        # the sample, on a connected device or emulator
-./gradlew :qeetrix:connectedDebugAndroidTest   # device tests (needs a device or emulator)
+./gradlew :qeetrix:connectedDebugAndroidTest   # device tests, accessibility checks included (needs a device or emulator; ATF runs on API 36)
 ./gradlew :qeetrix:dokkaGenerate      # API reference
+Scripts/release-candidate 0.1.0-rc.1 --devices   # every release gate; publishes to build/release-candidate/maven only
 ```
 
 Point Gradle at an Android SDK with platform 37 (`ANDROID_HOME` or `local.properties`). Start a new
@@ -154,13 +216,20 @@ component with `Scripts/new-component` ([Templates/Component](Templates/Componen
 
 ## Current limitations
 
-- **Phase 3's components.** Navigation, overlays, feedback and data display come in later phases.
-- **Not published.** Consume it as a composite build until releases exist.
-- **21 icons**, no Qeet logos yet.
+- **Phase 5's components.** The remaining web components (tables, charts, date and time, …) come in later
+  phases; no navigation drawer, popover or Qeetrix toast
+  ([0015](Documentation/Decisions/0015-navigation-overlays-and-feedback.md)), and no data table, image
+  presentation or pull-to-refresh wrapper ([0016](Documentation/Decisions/0016-data-display-and-content-states.md)),
+  by decision.
+- **Not published.** A release candidate is built and verified locally; publishing waits for the owner's choice of
+  registry and approval of a version. Until then, use it as a composite build.
+- **39 icons**, no Qeet logos yet.
 - **Screenshot baselines are local.** They are not committed, so CI does not run visual regression
   ([0012](Documentation/Decisions/0012-visual-regression-testing.md)).
-- **Device-only checks pending.** The instrumented tests, TalkBack, AutoFill offers, Bold Text, Indic
-  glyph fallback and Display P3 rendering have not been run on a device ([PHASES.md](PHASES.md)).
+- **Emulators only, no manual accessibility pass.** The instrumented tests ran on API 29 and API 36
+  emulators. TalkBack, Switch Access, Voice Access and keyboard passes, AutoFill offers, tablets and
+  resizable windows, frame timing, Bold Text and Display P3 rendering on a physical device have not been
+  done ([RELEASE-READINESS-GAPS.md](Documentation/Quality/RELEASE-READINESS-GAPS.md)).
 
 ## Licences
 

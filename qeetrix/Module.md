@@ -4,8 +4,12 @@ Qeetrix for Android: the Qeet Group design system in Kotlin and Jetpack Compose.
 semantic colours, typography, spacing, corners, sizing, elevation, motion, icons and accessibility
 helpers — are generated from the published `@qeetrix/ui` tokens, and the components in
 `com.qeetgroup.qeetrix.components.*` are built on them: Button, Icon button, Text field, Switch, Avatar,
-Badge, Text, Progress, Spinner, Card and Separator; and the form inputs — Field and field set, Textarea,
-Password input, OTP input, Checkbox, Radio group, Select, Number field — with the form patterns.
+Badge, Text, Progress, Spinner, Card and Separator; the form inputs — Field and field set, Textarea,
+Password input, OTP input, Checkbox, Radio group, Select, Number field — with the form patterns; and
+navigation, overlays and feedback — the navigation bar, rail and adaptive scaffold, the top app bar, tabs,
+alert, confirmation and custom dialogs, the bottom sheet, the menu and the snackbar; and data display,
+collections and content states — the list item and section header, the description list, the accordion,
+the empty and data states, the skeleton, chips, the timeline and the search field.
 
 Wrap your content in [com.qeetgroup.qeetrix.theme.QeetrixTheme] and read the theme's values from the
 `QeetrixTheme` object:
@@ -146,7 +150,9 @@ Compose's `BasicTextField` and a caller-owned `TextFieldState`.
 [com.qeetgroup.qeetrix.components.input.QeetrixField] gives any other control the same label,
 description, message and accessibility; [com.qeetgroup.qeetrix.components.input.QeetrixFieldSet] groups
 fields or choices under a legend. [com.qeetgroup.qeetrix.components.input.QeetrixOption] is a typed
-choice for the radio group and the select.
+choice for the radio group, the select and the chip group.
+[com.qeetgroup.qeetrix.components.input.QeetrixSearchField] is a field for a search query, with a clear
+button and the keyboard's search key; the filtering is the app's.
 
 # Package com.qeetgroup.qeetrix.components.passwordinput
 
@@ -186,6 +192,46 @@ Form patterns: [com.qeetgroup.qeetrix.components.form.QeetrixFormActions] places
 [com.qeetgroup.qeetrix.components.form.QeetrixFormErrorSummary] lists its problems after a failed submit.
 Values, validation and submission stay with the app.
 
+# Package com.qeetgroup.qeetrix.components.navigation
+
+App chrome. [com.qeetgroup.qeetrix.components.navigation.QeetrixNavigationBar] and
+[com.qeetgroup.qeetrix.components.navigation.QeetrixNavigationRail] present an app's top-level
+destinations ([com.qeetgroup.qeetrix.components.navigation.QeetrixNavigationItem]);
+[com.qeetgroup.qeetrix.components.navigation.QeetrixNavigationScaffold] switches between them with the
+window width; [com.qeetgroup.qeetrix.components.navigation.QeetrixTopAppBar] heads a screen, with
+[com.qeetgroup.qeetrix.components.navigation.QeetrixBackButton]. Selection is the app's: there is no router
+or back stack.
+
+# Package com.qeetgroup.qeetrix.components.tabs
+
+[com.qeetgroup.qeetrix.components.tabs.QeetrixTabs]: switches between views of related content within a
+screen, in the web's contained and line treatments.
+
+# Package com.qeetgroup.qeetrix.components.dialog
+
+Modal decisions and tasks in Compose's dialog window:
+[com.qeetgroup.qeetrix.components.dialog.QeetrixAlertDialog] with typed
+[com.qeetgroup.qeetrix.components.dialog.QeetrixDialogAction]s,
+[com.qeetgroup.qeetrix.components.dialog.QeetrixConfirmationDialog] for "are you sure?", and
+[com.qeetgroup.qeetrix.components.dialog.QeetrixDialog] for content. Actions run once; a destructive choice
+always comes with Cancel.
+
+# Package com.qeetgroup.qeetrix.components.drawer
+
+[com.qeetgroup.qeetrix.components.drawer.QeetrixBottomSheet]: the web's Drawer, a modal sheet from the
+bottom edge, presented by a flag the app owns.
+
+# Package com.qeetgroup.qeetrix.components.dropdownmenu
+
+[com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenu]: a short list of actions opened from a trigger,
+with [com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuItem]s, labels and separators.
+
+# Package com.qeetgroup.qeetrix.components.toast
+
+Transient feedback, the web Toast's Android form: [com.qeetgroup.qeetrix.components.toast.QeetrixSnackbar]
+shown through a screen's [com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarHost] and
+[com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarHostState] — one at a time, with the web's timing.
+
 # Package com.qeetgroup.qeetrix.components.switchcontrol
 
 [com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch]: an on/off control with switch semantics,
@@ -200,7 +246,41 @@ alone or as a labelled row that toggles as one control. The package is `switchco
 # Package com.qeetgroup.qeetrix.components.badge
 
 [com.qeetgroup.qeetrix.components.badge.QeetrixBadge]: a small label for a count, a status or a
-category, whose text always carries the meaning.
+category, whose text always carries the meaning. [com.qeetgroup.qeetrix.components.badge.QeetrixChip] and
+[com.qeetgroup.qeetrix.components.badge.QeetrixChipGroup]: pills that filter or choose — a toggle, one
+value or several from a set, or a removable applied filter.
+
+# Package com.qeetgroup.qeetrix.components.list
+
+Rows of collections, which only the native libraries have:
+[com.qeetgroup.qeetrix.components.list.QeetrixListItem] with its
+[com.qeetgroup.qeetrix.components.list.QeetrixListItemIcon] tile, and
+[com.qeetgroup.qeetrix.components.list.QeetrixSectionHeader] for a group of rows. They go inside Compose's
+`LazyColumn`, keyed by the app's ids; the data, its identity and its selection are the app's.
+
+# Package com.qeetgroup.qeetrix.components.descriptionlist
+
+[com.qeetgroup.qeetrix.components.descriptionlist.QeetrixDescriptionList]: labelled details — terms and
+values — horizontal, vertical or in a grid; a
+[com.qeetgroup.qeetrix.components.descriptionlist.QeetrixDescriptionItem] on its own is a key-value row.
+
+# Package com.qeetgroup.qeetrix.components.accordion
+
+[com.qeetgroup.qeetrix.components.accordion.QeetrixAccordion] and
+[com.qeetgroup.qeetrix.components.accordion.QeetrixAccordionItem]: sections whose headers show and hide
+their content, with the expansion owned by the app.
+
+# Package com.qeetgroup.qeetrix.components.emptystate
+
+What a surface shows instead of data: [com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyState] for
+an empty collection, a first use, no results, no permission or a failure, and
+[com.qeetgroup.qeetrix.components.emptystate.QeetrixDataState] for the loading, failure and empty
+branches of loaded data in one place.
+
+# Package com.qeetgroup.qeetrix.components.feed
+
+[com.qeetgroup.qeetrix.components.feed.QeetrixTimeline]: a vertical history of events, with toned
+markers, minor events and connectors.
 
 # Package com.qeetgroup.qeetrix.components.typography
 
@@ -216,7 +296,9 @@ with Compose's progress semantics and a still form when animations are off.
 # Package com.qeetgroup.qeetrix.components.spinner
 
 [com.qeetgroup.qeetrix.components.spinner.QeetrixSpinner]: an indeterminate busy indicator, announced as
-"Loading" or a label of your own.
+"Loading" or a label of your own. [com.qeetgroup.qeetrix.components.spinner.QeetrixSkeleton] and
+[com.qeetgroup.qeetrix.components.spinner.QeetrixSkeletonText]: placeholders in the shape of content that
+is loading, invisible to accessibility services.
 
 # Package com.qeetgroup.qeetrix.components.card
 

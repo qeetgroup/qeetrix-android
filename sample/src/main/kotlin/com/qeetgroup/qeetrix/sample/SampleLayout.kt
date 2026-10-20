@@ -1,6 +1,7 @@
 package com.qeetgroup.qeetrix.sample
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
+import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
@@ -50,6 +54,23 @@ fun SampleFlow(content: @Composable FlowRowScope.() -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.S),
         verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.S),
         itemVerticalAlignment = Alignment.CenterVertically,
+        content = content,
+    )
+}
+
+/**
+ * A surface for content that carries its own inset — list rows, sections — so it meets the surface's edges:
+ * the default surface, a subtle edge and the surface corner.
+ */
+@Composable
+fun SampleSurface(content: @Composable ColumnScope.() -> Unit) {
+    val colors = QeetrixTheme.colors
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(QeetrixShapes.Surface)
+            .background(colors.surfaceDefault)
+            .border(QeetrixStroke.Hairline, colors.borderSubtle, QeetrixShapes.Surface),
         content = content,
     )
 }

@@ -20,4 +20,31 @@
     <string name="qx_increase">Increase</string>
     <!-- formMessages.errorSummaryTitle: the heading of a form's error summary. -->
     <string name="qx_error_summary_title">There is a problem</string>
+    <!-- overlayMessages.close / toastMessages.close: the close button of a dialog, a sheet and a snackbar. -->
+    <string name="qx_close">Close</string>
+    <!-- The Cancel action a dialog adds when it offers a destructive action without one (filterBarMessages.cancel). -->
+    <string name="qx_cancel">Cancel</string>
+    <!-- tourMessages.back: the top app bar's back button. -->
+    <string name="qx_back">Back</string>
+    <!-- The bottom sheet's grab handle, which carries its expand, collapse and dismiss actions for accessibility
+         services. The web hides its handle (pointer decoration only); Android's sheets expose it, as Material's do. -->
+    <string name="qx_drag_handle">Drag handle</string>
+    <!-- The state of an accordion header for accessibility services, read after its title. The web leaves this to
+         the screen reader's reading of aria-expanded, which Compose has no property for; qeetrix-ios uses the same
+         words. -->
+    <string name="qx_expanded">Expanded</string>
+    <string name="qx_collapsed">Collapsed</string>
+    <!-- chipMessages.remove ("Remove"), with the chip's label: the remove button of a removable chip. On the web it
+         is read inside the chip; an Android button is read on its own, so it names what it removes. -->
+    <string name="qx_remove">Remove %1$s</string>
+    <!-- dataStateMessages.error: a data state's failure when the app gives no message of its own. -->
+    <string name="qx_data_error">Something went wrong while loading this data.</string>
+    <!-- The retry button of a data state's failure. The web leaves retrying to its error fallback; qeetrix-ios
+         offers the same button with the same words. -->
+    <string name="qx_try_again">Try again</string>
+    <!-- dataTableMessages.search / .searchPlaceholder: a search field's name and its placeholder. -->
+    <string name="qx_search">Search</string>
+    <string name="qx_search_placeholder">Search…</string>
+    <!-- autocompleteMessages.clear: the button that empties a search field. -->
+    <string name="qx_clear">Clear</string>
 </resources>

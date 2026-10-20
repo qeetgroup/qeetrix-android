@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +26,7 @@ import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixAccessibility
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixInputComponentTokens
 
 /**
@@ -114,7 +116,7 @@ public fun QeetrixTextField(
 /**
  * The label above a control, inside the control's own layout — a text field's decorator, a select's
  * trigger — so accessibility services read the label as part of the control, and tapping it reaches the
- * control.
+ * control. Without a label, the control reserves a 48 dp touch height instead.
  */
 @Composable
 internal fun LabelledControl(
@@ -124,8 +126,15 @@ internal fun LabelledControl(
     enabled: Boolean,
     control: @Composable () -> Unit,
 ) {
+    if (label == null) {
+        // Without a label above it, the control is the whole touch target: at least 48 dp tall, the web-sized
+        // field centred in it, as a button reserves its 48 dp (ADR 0010). Phase 6: the Accessibility Test
+        // Framework measured an unlabelled field at 40 dp on a device.
+        Box(Modifier.heightIn(min = QeetrixAccessibility.MinimumTouchTarget), contentAlignment = Alignment.CenterStart) { control() }
+        return
+    }
     Column(verticalArrangement = Arrangement.spacedBy(FieldPartGap)) {
-        if (label != null) FieldLabel(label, required, optional, enabled)
+        FieldLabel(label, required, optional, enabled)
         control()
     }
 }

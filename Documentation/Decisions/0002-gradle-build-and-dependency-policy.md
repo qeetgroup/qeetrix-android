@@ -27,7 +27,8 @@ Android toolchain moves fast; versions picked one at a time drift into incompati
   (`ktlint_official`) through the ktlint Gradle plugin, in the library, the sample and the generator.
   Kotlin's explicit API mode in the library.
 - **No publication.** Phase 1 configures no `maven-publish`; apps consume the library through a Gradle
-  composite build (README). Publishing is its own decision.
+  composite build (README). Publishing is its own decision — taken in
+  [0018](0018-maven-distribution.md) (Phase 7).
 
 ## Consequences
 

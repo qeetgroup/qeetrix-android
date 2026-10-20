@@ -2,21 +2,15 @@ package com.qeetgroup.qeetrix.sample
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -24,28 +18,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import com.qeetgroup.qeetrix.components.button.QeetrixButton
-import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
+import com.qeetgroup.qeetrix.components.badge.QeetrixChipGroup
 import com.qeetgroup.qeetrix.components.card.QeetrixCard
 import com.qeetgroup.qeetrix.components.card.QeetrixCardSize
-import com.qeetgroup.qeetrix.components.separator.QeetrixSeparator
+import com.qeetgroup.qeetrix.components.input.QeetrixOption
+import com.qeetgroup.qeetrix.components.navigation.QeetrixBackButton
+import com.qeetgroup.qeetrix.components.navigation.QeetrixTopAppBar
 import com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
-import com.qeetgroup.qeetrix.foundation.accessibility.qeetrixMinimumTouchTarget
-import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
 import com.qeetgroup.qeetrix.sample.composition.AccountPreferencesScreen
+import com.qeetgroup.qeetrix.sample.composition.CollectionsScreen
 import com.qeetgroup.qeetrix.sample.composition.CompositionScreen
+import com.qeetgroup.qeetrix.sample.composition.WorkspaceScreen
 import com.qeetgroup.qeetrix.sample.foundations.FoundationsScreen
 import com.qeetgroup.qeetrix.theme.LocalQeetrixDensity
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
@@ -56,6 +48,8 @@ private const val HOME = "home"
 private const val FOUNDATIONS = "foundations"
 private const val COMPOSITION = "composition"
 private const val ACCOUNT_PREFERENCES = "account-preferences"
+private const val WORKSPACE = "workspace"
+private const val COLLECTIONS = "collections"
 
 /** What the home screen's Display card sets for every page. */
 data class DisplaySettings(
@@ -102,6 +96,15 @@ fun QeetrixSampleApp() {
                 SampleScaffold("Account preferences", back) { AccountPreferencesScreen() }
             }
 
+            // A whole app screen: it draws its own bars and needs the full window.
+            WORKSPACE -> {
+                WorkspaceScreen(onExit = back)
+            }
+
+            COLLECTIONS -> {
+                CollectionsScreen(onExit = back)
+            }
+
             else -> {
                 val entry = SampleCatalog.firstOrNull { it.id == route }
                 if (entry != null) {
@@ -141,34 +144,27 @@ fun SampleDisplay(
     }
 }
 
-/** The page frame: a back button and the page title (except on the home screen), then the scrolling page. */
+/**
+ * The page frame: a [QeetrixTopAppBar] with the page title and a back button (except on the home screen),
+ * then the scrolling page. The bar draws under the status bar and keeps its content clear of it; its rule
+ * appears once the page scrolls under it.
+ */
 @Composable
 private fun SampleScaffold(
     title: String?,
     onBack: (() -> Unit)?,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(QeetrixTheme.colors.surfaceCanvas)
-            .windowInsetsPadding(WindowInsets.safeDrawing),
-    ) {
+    val scroll = rememberScrollState()
+    Column(Modifier.fillMaxSize().background(QeetrixTheme.colors.surfaceCanvas)) {
         if (title != null && onBack != null) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = QeetrixSpacing.S),
-                horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.S),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                QeetrixButton("Back", onClick = onBack, variant = QeetrixButtonVariant.Ghost)
-                QeetrixText(title, Modifier.weight(1f), variant = QeetrixTextVariant.H4)
-            }
-            QeetrixSeparator()
+            QeetrixTopAppBar(title, navigationIcon = { QeetrixBackButton(onClick = onBack) }, scrolled = scroll.canScrollBackward)
         }
         Column(
             Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .verticalScroll(scroll)
                 .padding(QeetrixSpacing.L),
             content = content,
         )
@@ -210,6 +206,18 @@ private fun HomeScreen(
                 title = "Account preferences",
                 description = "Every input in one generic form: profile, a password change with a code, preferences, feedback.",
             )
+            QeetrixCard(
+                onClick = { onOpen(WORKSPACE) },
+                size = QeetrixCardSize.Sm,
+                title = "Workspace",
+                description = "Navigation, a top app bar, a menu, a dialog, a confirmation, a bottom sheet and snackbars in one flow.",
+            )
+            QeetrixCard(
+                onClick = { onOpen(COLLECTIONS) },
+                size = QeetrixCardSize.Sm,
+                title = "Collections",
+                description = "Search, filter chips, sections, selectable rows, loading, empty and failed states, and a detail screen.",
+            )
         }
         for (category in SampleCategory.entries) {
             val entries = SampleCatalog.filter { it.category == category }
@@ -248,7 +256,7 @@ private fun DisplayCard(
     }
 }
 
-/** A single choice from a few options: a radio group drawn as chips. */
+/** A single choice from a few options, as chips: its visible label, then the group it names. */
 @Composable
 private fun <T> Choice(
     label: String,
@@ -257,28 +265,8 @@ private fun <T> Choice(
     name: (T) -> String,
     onSelect: (T) -> Unit,
 ) {
-    val colors = QeetrixTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xs)) {
         QeetrixText(label, variant = QeetrixTextVariant.Small)
-        Row(Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.S)) {
-            for (option in options) {
-                val isSelected = option == selected
-                Box(
-                    Modifier
-                        .selectable(selected = isSelected, role = Role.RadioButton, onClick = { onSelect(option) })
-                        .qeetrixMinimumTouchTarget()
-                        .background(if (isSelected) colors.surfaceBrandSubtle else colors.surfaceInteractive, QeetrixShapes.Control)
-                        .border(QeetrixStroke.Hairline, if (isSelected) colors.borderBrand else colors.borderDefault, QeetrixShapes.Control)
-                        .padding(horizontal = QeetrixSpacing.M, vertical = QeetrixSpacing.S),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    QeetrixText(
-                        name(option),
-                        variant = QeetrixTextVariant.Small,
-                        color = if (isSelected) colors.textOnSubtle else colors.textPrimary,
-                    )
-                }
-            }
-        }
+        QeetrixChipGroup(label = label, selected = selected, onSelect = onSelect, options = options.map { QeetrixOption(it, name(it)) })
     }
 }
