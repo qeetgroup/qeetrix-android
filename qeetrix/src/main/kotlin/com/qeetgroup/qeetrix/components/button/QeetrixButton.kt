@@ -22,6 +22,7 @@ import com.qeetgroup.qeetrix.internal.FontWeightMedium
 import com.qeetgroup.qeetrix.internal.QeetrixBusyIndicator
 import com.qeetgroup.qeetrix.internal.QeetrixFont
 import com.qeetgroup.qeetrix.internal.QeetrixWebScale
+import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixButtonComponentTokens
@@ -194,7 +195,7 @@ private fun Label(
     text: String,
     style: TextStyle,
 ) {
-    BasicText(text, style = style, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis) // whitespace-nowrap
+    BasicText(text, style = style.labelDirection(), maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis) // whitespace-nowrap
 }
 
 /** The web size classes, resolved for the current density. */

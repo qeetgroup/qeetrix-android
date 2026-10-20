@@ -1,10 +1,12 @@
 # Component contract
 
 What every Qeetrix Android component must provide, so the first component and the hundredth have the
-same shape. The Phase 2 and Phase 3 components follow it ([Components](../Components/README.md)); new
-ones start from `Scripts/new-component` ([Templates/Component](../../Templates/Component/README.md)).
-Inputs also follow [FORMS.md](FORMS.md): they are built on the shared field parts and take the same
-field parameters.
+same shape. The Phase 2–5 components follow it ([Components](../Components/README.md)); new ones start
+from `Scripts/new-component` ([Templates/Component](../../Templates/Component/README.md)). Inputs also
+follow [FORMS.md](FORMS.md): they are built on the shared field parts and take the same field
+parameters. Navigation, overlays and feedback follow [NAVIGATION_AND_OVERLAYS.md](NAVIGATION_AND_OVERLAYS.md);
+data display, collections and content states follow
+[DATA_DISPLAY_AND_COLLECTIONS.md](DATA_DISPLAY_AND_COLLECTIONS.md).
 
 ## The catalogue it follows
 
@@ -28,13 +30,17 @@ qeetrix/src/main/kotlin/com/qeetgroup/qeetrix/components/<package>/Qeetrix<Compo
 qeetrix/src/test/kotlin/com/qeetgroup/qeetrix/components/<package>/Qeetrix<Component>Test.kt            behaviour and semantics
 qeetrix/src/test/kotlin/com/qeetgroup/qeetrix/components/<package>/Qeetrix<Component>ScreenshotTest.kt  Roborazzi
 qeetrix/src/androidTest/kotlin/com/qeetgroup/qeetrix/components/<package>/                               device-only checks
+qeetrix/src/sharedTest/kotlin/com/qeetgroup/qeetrix/quality/QualityCatalog.kt                         a specimen for the quality scans
 sample/src/main/kotlin/com/qeetgroup/qeetrix/sample/components/<group>/<Component>Sample.kt
 Documentation/Components/<Component>.md
 ```
 
 `<package>` is the manifest family in lower case (`button`, `datepicker`), with `control` appended to a
-Java keyword (`switch` → `switchcontrol`); IconButton lives in `components/button/` beside Button. One
-file per component; internals a family shares (the button frame) live in that package.
+Java keyword (`switch` → `switchcontrol`); IconButton lives in `components/button/` beside Button. App
+chrome the web has no family for — the navigation bar, rail, top app bar and scaffold — is one Android
+family, `components/navigation/` ([0015](../Decisions/0015-navigation-overlays-and-feedback.md)); so are list
+rows and section headers, `components/list/` ([0016](../Decisions/0016-data-display-and-content-states.md)). One file
+per component; internals a family shares (the button frame) live in that package.
 `<group>` is the ui.qeet.in group (`actions`, `forms`, `datadisplay`, …). Packages are created with
 their first component, never as placeholders, and there is no Gradle module per component or category
 ([0001](../Decisions/0001-single-library-module.md), [0010](../Decisions/0010-component-api-conventions.md)).
@@ -71,7 +77,11 @@ their first component, never as placeholders, and there is no Gradle module per 
 7. **Tests.** Behaviour and semantics with Compose UI Test on the JVM — what a user and TalkBack
    observe, not layout internals; device checks where only a device proves it; one screenshot test
    laying out the variants and drawing states in the four configurations (light, dark, 200% text, right
-   to left), recorded and reviewed locally ([0012](../Decisions/0012-visual-regression-testing.md)).
+   to left), recorded and reviewed locally ([0012](../Decisions/0012-visual-regression-testing.md)); and a
+   specimen in the quality catalog in its risky states (disabled, selected, invalid, loading, long text), so
+   the touch, clipping, contrast and Accessibility Test Framework scans cover it. A component that opens a
+   window (dialog, sheet, popup) is the exception: the scans stop at the window, so its surface goes in the
+   screenshots and its Back behaviour in a device test ([0017](../Decisions/0017-quality-gates-and-verification.md)).
 8. **Documentation.** KDoc on every public declaration with a usage example; a page in
    `Documentation/Components/` (purpose, usage, states, accessibility, tokens, platform differences —
    not a copy of the KDoc); and a sample page with `@PreviewLightDark` previews, registered in
@@ -81,8 +91,15 @@ their first component, never as placeholders, and there is no Gradle module per 
 
 ## What a component must not do
 
-- Depend on Material 3 for its look. A Material or foundation primitive may be used underneath where
-  it preserves Qeetrix's design and accessibility (for example `BasicTextField`, `Indication`).
+- Depend on Material 3 for its look. Foundation primitives are used underneath where they preserve
+  Qeetrix's design and accessibility (`BasicTextField`, `Dialog`, `Popup`). Material 3 itself is used for
+  one primitive only — `ModalBottomSheet`, inside `QeetrixBottomSheet` — with every colour and shape
+  supplied by Qeetrix and no Material type in the public API; `MaterialBoundaryTest` fails on any other
+  import ([0015](../Decisions/0015-navigation-overlays-and-feedback.md)).
+- Own navigation or global state: no router, back stack, Back handler, singleton or global service.
+- Own data: no fetching, caching, pagination, search index, filter engine or image loading, and no
+  networking, database or image-loading dependency; collections are Compose's lazy layouts, not wrapped or
+  re-implemented ([0016](../Decisions/0016-data-display-and-content-states.md)).
 - Contain Qeet ID or any product's logic.
 - Keep a copy of, save, log or describe what a user types into a password or code field
   ([FORMS.md](FORMS.md)).

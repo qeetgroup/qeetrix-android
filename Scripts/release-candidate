@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+# Build and verify a Qeetrix release candidate, end to end, without publishing anything remotely
+# (Documentation/Releases/RELEASE-CHECKLIST.md). Every gate must pass; the first failure stops the run with status 1.
+#
+#   Scripts/release-candidate <version> [--devices] [--allow-dirty]
+#
+#   <version>      0.1.0-rc.1 and the like (X.Y.Z, optionally -alpha.N, -beta.N or -rc.N). A final X.Y.Z still needs
+#                  the owner's approval before it is published anywhere; this script only builds it.
+#   --devices      also run the library's and the consumer's device tests on every connected device or emulator.
+#   --allow-dirty  build from a working tree with uncommitted changes (recorded in the provenance; never for a
+#                  release that will be published).
+#
+# Output, in build/release-candidate/: maven/ (the local repository the consumer resolves from),
+# qeetrix-<version>-maven.zip (that repository, for review), evidence/ (provenance, checksums, dependency inventory,
+# release notes, a CycloneDX SBOM, one log per gate).
+set -euo pipefail
+root=$(cd "$(dirname "$0")/.." && pwd)
+cd "$root"
+
+version=${1:-}
+devices=false
+allow_dirty=false
+for arg in "${@:2}"; do
+    case $arg in
+    --devices) devices=true ;;
+    --allow-dirty) allow_dirty=true ;;
+    *) echo "error: unknown option $arg" >&2; exit 2 ;;
+    esac
+done
+if ! [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.[0-9]+)?$ ]]; then
+    echo "usage: Scripts/release-candidate <X.Y.Z[-rc.N]> [--devices] [--allow-dirty]" >&2
+    exit 2
+fi
+
+out=build/release-candidate
+evidence=$out/evidence
+rm -rf "$out"
+mkdir -p "$evidence/logs"
+export ANDROID_HOME=${ANDROID_HOME:-$(sed -n 's/^sdk\.dir=//p' local.properties 2>/dev/null)}
+
+passed=()
+gate() {
+    local name=$1
+    shift
+    echo "=== $name"
+    if "$@" > "$evidence/logs/$name.log" 2>&1; then
+        passed+=("$name")
+        echo "    passed"
+    else
+        echo "    FAILED — $evidence/logs/$name.log:" >&2
+        tail -30 "$evidence/logs/$name.log" >&2
+        exit 1
+    fi
+}
+
+# 1. The source revision. A published release is built from a commit with nothing uncommitted.
+revision=$(git rev-parse HEAD)
+changes=$(git status --porcelain | wc -l | tr -d ' ')
+if [ "$changes" != 0 ] && [ "$allow_dirty" != true ]; then
+    echo "error: $changes uncommitted changes; commit them, or pass --allow-dirty for a local trial" >&2
+    exit 1
+fi
+# What was built, when the tree is dirty: a digest of every tracked and untracked (not ignored) file.
+tree_digest=$(git ls-files -c -o --exclude-standard -z | sort -z | xargs -0 shasum -a 256 | shasum -a 256 | cut -d' ' -f1)
+
+# 2–15. Tokens, tests, lint, formatting, the API baseline, the AAR, the API reference and the minified sample.
+gate tokens Scripts/verify-tokens
+gate check ./gradlew --console=plain check :qeetrix:assembleRelease :qeetrix:dokkaGenerate :sample:assembleRelease
+gate aar Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
+if compgen -G "qeetrix/src/test/screenshots/*/*.png" > /dev/null; then
+    gate screenshots ./gradlew --console=plain :qeetrix:verifyRoborazziDebug
+else
+    # Baselines are local by policy (Documentation/Decisions/0012-visual-regression-testing.md).
+    echo "=== screenshots: SKIPPED — no local baselines on this machine"
+fi
+
+# 16–18. Publish to the local repository only, and check what was published.
+gate publish ./gradlew --console=plain :qeetrix:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version="$version"
+gate publication Scripts/verify-publication "$out/maven" "$version" qeetrix/build/outputs/aar/qeetrix-release.aar
+gate dependencies Scripts/dependency-inventory "$evidence/dependencies.md" --cyclonedx "$evidence/qeetrix-$version.cdx.json" --version "$version"
+
+# 19–21. An independent app resolves the candidate by its coordinates and builds debug and optimised release.
+gate consumer ./gradlew --console=plain -p Integration/Consumer :app:assembleDebug :app:assembleRelease :smoke:assembleRelease \
+    -Pqeetrix.version="$version"
+
+# 22. On devices: the library's own device tests, the consumer's Compose tests (debug) and its release smoke test.
+if [ "$devices" = true ]; then
+    gate library-devices ./gradlew --console=plain :qeetrix:connectedDebugAndroidTest
+    gate consumer-devices ./gradlew --console=plain -p Integration/Consumer :app:connectedDebugAndroidTest \
+        :smoke:connectedAndroidTest -Pqeetrix.version="$version"
+else
+    echo "=== devices: not run (pass --devices with a device or emulator connected)"
+fi
+
+# 24–26. Notices, release notes, checksums and provenance.
+cp Documentation/THIRD_PARTY_NOTICES.md Documentation/Releases/RELEASE-NOTES.md "$evidence/"
+(cd "$out/maven" && find . -type f \( -name '*.aar' -o -name '*.pom' -o -name '*.module' -o -name '*.jar' \) \
+    | sort | xargs shasum -a 256) > "$evidence/SHA256SUMS"
+(cd Integration/Consumer/app/build/outputs/apk && shasum -a 256 debug/app-debug.apk release/app-release.apk) \
+    > "$evidence/consumer-SHA256SUMS"
+(cd "$out" && zip -q -r "qeetrix-$version-maven.zip" maven)
+
+lock=Upstream/manifest.lock.json
+{
+    echo "# Provenance: com.qeetgroup:qeetrix:$version"
+    echo
+    echo "- Built: $(date -u +%Y-%m-%dT%H:%M:%SZ) on $(uname -sm)"
+    echo "- Source: \`$revision\` on \`$(git branch --show-current)\`; uncommitted changes: $changes"
+    echo "- Working-tree digest (tracked and untracked files): \`$tree_digest\`"
+    echo "- Gradle $(./gradlew --version | sed -n 's/^Gradle //p'), $(java -version 2>&1 | head -1)"
+    echo "- $(sed -n '/^\[versions\]/,/^\[/p' gradle/libs.versions.toml | grep -E '^(agp|kotlin|compose-bom) = ' | tr -d '"' | paste -sd ',' - | sed 's/,/, /g')"
+    echo "- Token source: $(python3 -I -c "import json,sys; m=json.load(open(sys.argv[1])); print(f'@qeetrix/ui {m[\"qeetrixUI\"][\"version\"]}; @qeetrix/icons {m[\"qeetrixIcons\"][\"version\"]} at {m[\"qeetrixIcons\"][\"commit\"][:7]}')" "$lock" 2>/dev/null || echo "see $lock")"
+    echo "- Published to: $out/maven (local directory only; nothing was uploaded)"
+    echo "- Gates passed: ${passed[*]}"
+    echo
+    echo "## Artifacts"
+    echo
+    echo '```'
+    cat "$evidence/SHA256SUMS"
+    echo '```'
+} > "$evidence/PROVENANCE.md"
+
+echo
+echo "✓ Release candidate $version verified: ${passed[*]}"
+echo "  Local repository: $out/maven · archive: $out/qeetrix-$version-maven.zip · evidence: $evidence"
+echo "  Nothing was published, tagged or pushed."

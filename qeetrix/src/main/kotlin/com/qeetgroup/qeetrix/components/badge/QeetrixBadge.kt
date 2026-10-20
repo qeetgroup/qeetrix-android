@@ -18,6 +18,7 @@ import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.internal.FontWeightMedium
 import com.qeetgroup.qeetrix.internal.QeetrixFont
 import com.qeetgroup.qeetrix.internal.QeetrixWebScale
+import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixBadgeComponentTokens
@@ -95,7 +96,7 @@ public fun QeetrixBadge(
         }
         BasicText(
             text = text,
-            style = BadgeTextStyle.copy(color = colors.content),
+            style = BadgeTextStyle.copy(color = colors.content).labelDirection(),
             maxLines = 1, // whitespace-nowrap
             softWrap = false,
             overflow = TextOverflow.Clip,

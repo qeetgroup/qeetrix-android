@@ -1,9 +1,13 @@
 package com.qeetgroup.qeetrix.components.numberfield
 
+import android.content.res.Configuration
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -13,6 +17,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -25,6 +30,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import com.qeetgroup.qeetrix.components.setQeetrix
+import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
@@ -33,6 +39,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.math.BigDecimal
+import java.util.Locale
 
 /** Typing, committing, stepping and the locale, with exact decimals. Runs in English (US) unless set. */
 @RunWith(RobolectricTestRunner::class)
@@ -145,6 +152,58 @@ class QeetrixNumberFieldTest {
         compose.setQeetrix { QeetrixNumberField(value, { value = it }, label = "Discount", fractionDigits = 2) }
         value = BigDecimal("4321.5")
         field().assert(hasText("4,321.5"))
+    }
+
+    @Test
+    fun aChangeOfLocaleRewritesTheTextAndKeepsTheValue() {
+        // Phase 6 regression: the text written in English was read again in German, where "1,234" is 1.234,
+        // and that value was reported to the app.
+        val reported = mutableListOf<BigDecimal?>()
+        var value by mutableStateOf<BigDecimal?>(BigDecimal("1234"))
+        var german by mutableStateOf(false)
+        compose.setQeetrix {
+            val base = LocalConfiguration.current
+            val configuration = Configuration(base).apply { if (german) setLocale(Locale.GERMANY) }
+            CompositionLocalProvider(LocalConfiguration provides configuration) {
+                QeetrixNumberField(value, {
+                    reported += it
+                    value = it
+                }, label = "Discount", fractionDigits = 2)
+            }
+        }
+        field().assert(hasText("1,234"))
+        compose.runOnIdle { german = true }
+        field().assert(hasText("1.234"))
+        compose.runOnIdle {
+            assertEquals(BigDecimal("1234"), value)
+            assertEquals(emptyList<BigDecimal?>(), reported)
+        }
+    }
+
+    @Test
+    fun restoredTextInAnotherLocaleIsWrittenAgainNotReadAgain() {
+        val restoration = StateRestorationTester(compose)
+        val reported = mutableListOf<BigDecimal?>()
+        var german by mutableStateOf(false)
+        restoration.setContent {
+            QeetrixTheme {
+                var value by rememberSaveable { mutableStateOf<BigDecimal?>(BigDecimal("12.5")) }
+                val base = LocalConfiguration.current
+                val configuration = Configuration(base).apply { if (german) setLocale(Locale.GERMANY) }
+                CompositionLocalProvider(LocalConfiguration provides configuration) {
+                    QeetrixNumberField(value, {
+                        reported += it
+                        value = it
+                    }, label = "Discount", fractionDigits = 2)
+                }
+            }
+        }
+        field().assert(hasText("12.5"))
+        // An activity recreated for a new locale restores the text the old locale wrote.
+        german = true
+        restoration.emulateSavedInstanceStateRestore()
+        field().assert(hasText("12,5"))
+        compose.runOnIdle { assertEquals(emptyList<BigDecimal?>(), reported) }
     }
 
     @Test

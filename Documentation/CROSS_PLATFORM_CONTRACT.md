@@ -17,7 +17,7 @@ document; it is not a jointly approved contract.
 | Component catalogue | qeetrix-ui `component-manifest.json` (137 components, 97 families) | the same file from 2.1.6, for `new-component` | the same file |
 | Themes | qeetrix-ui `scripts/config/themes.json` (`light`, `dark`) | the theme keys in `tokens.json` | the same |
 | Typeface | qeetrix-ui `fonts/` (WOFF2) | calcom/sans v2.011 and Fira Code 6.2 TTFs, proven byte-identical through their WOFF2 | the same files |
-| Icons | qeetrix-icons `icons/**.svg` + `icon-manifest.json` | commit `331cd85` (`@qeetrix/icons` 1.0.11), 21 icons | the same commit; 29 icons (eight more for components beyond Phase 3) |
+| Icons | qeetrix-icons `icons/**.svg` + `icon-manifest.json` | commit `331cd85` (`@qeetrix/icons` 1.0.11), 31 icons | the same commit; 37 icons (see Pins below) |
 
 Changes flow one way: upstream release → `Upstream/manifest.json` (iOS: `Upstream/pins.json`) → sync →
 generate. Generated files and the snapshot are never edited in either repository.
@@ -62,8 +62,56 @@ compared through each platform's component documentation, not by running both si
 | Component tokens | No new groups: the inputs draw from `component.input.*` and semantic tokens on both. The select list's `bg-popover` resolves to `surface.overlay`, the value `component.popover.*` references |
 
 Behaviour was compared through qeetrix-ios's DocC component pages and ADR 0012, not side by side on
-devices. qeetrix-ios's tree also holds components beyond Phase 3 (dialogs, menus, sheets, tabs, toasts)
-with eight more icons and the `dialog` and `popover` token groups; Android adds those with its Phase 4.
+devices.
+
+## Verified component parity (Phase 4, against qeetrix-ios's working tree, 2026-10-19)
+
+| What | Result |
+|:--|:--|
+| Upstream inputs | The four `@qeetrix/ui` files sha256-identical; the eight icons both added for Phase 4 (`circle-x`, `copy`, `ellipsis`, `house`, `pencil`, `settings`, `share-2`, `trash`) identical in every style both pin |
+| Components | The same purposes and names where both have the component: `QeetrixTabs`, `QeetrixAlertDialog`, `QeetrixConfirmationDialog`, `QeetrixMenu` / `QeetrixMenuItem`, and the dialog action with roles. Android's sheet is `QeetrixBottomSheet` (iOS `qeetrixSheet`), its transient feedback `QeetrixSnackbar` (iOS `QeetrixToast`) |
+| Decisions | Android's [0015](Decisions/0015-navigation-overlays-and-feedback.md) takes qeetrix-ios's 0014 positions: native presentation, the app owns all state, dialogs as typed actions that run once with Cancel added to a destructive choice, a host per screen and one transient message at a time with the web's timing, no router, modal manager or singleton |
+| Component tokens | Both adopt `dialog`. Android also adopts `menu` and `sidebar`, because it draws the menu surface and the rail; iOS adopts `popover` for its popover, which Android defers |
+
+Compared through qeetrix-ios's DocC pages and ADR 0014, not side by side on devices.
+
+## Verified component parity (Phase 5, against qeetrix-ios's working tree, 2026-10-19)
+
+| What | Result |
+|:--|:--|
+| Upstream inputs | The four `@qeetrix/ui` files byte-identical; the eight icons both added for Phase 5 (`calendar`, `clock`, `file-text`, `folder`, `mail`, `refresh-cw`, `search-x`, `users`) byte-identical in every style both pin (`refresh-cw` has no filled style upstream) |
+| Components | The same names and purposes: `QeetrixListItem`, `QeetrixListItemIcon`, `QeetrixSectionHeader`, `QeetrixDescriptionList` / `QeetrixDescriptionItem` and `QeetrixDescriptionListLayout`, `QeetrixAccordion` / `QeetrixAccordionItem`, `QeetrixEmptyState` with the same variants and sizes, `QeetrixDataState` with `QeetrixDataFailure`, `QeetrixDataLoadingRows`, `QeetrixSkeleton` / `QeetrixSkeletonText` with the same shapes, `QeetrixChip` / `QeetrixChipGroup` with the same sizes, `QeetrixTimeline` / `QeetrixTimelineItem` with the same tones and emphases |
+| Strings | The same words: "Expanded", "Collapsed", "Try again", "Something went wrong while loading this data."; the remove button is "Remove" on iOS (with the chip's title as its value) and "Remove Design" on Android |
+| Decisions | Android's [0016](Decisions/0016-data-display-and-content-states.md) takes qeetrix-ios's 0015 positions: the app owns data, identity, selection, expansion, the query and the load state; native collections are not wrapped; web names and metrics where the web has the component; one native-only list family; the web's data-state order with a message written for the person and an optional retry; the data table and image presentation deferred |
+| Component tokens | Both adopt `accordion`, `skeleton` and `timeline` |
+
+Compared through qeetrix-ios's sources and ADR 0015, not side by side on devices.
+
+## Parity re-checked (Phase 6, against qeetrix-ios `10b365f` and its working tree, 2026-10-20)
+
+| What | Result |
+|:--|:--|
+| Upstream inputs | The four `@qeetrix/ui` files sha256-identical; of 133 icon files both pin, 132 identical — the 133rd is `icons.json`, whose 37 shared entries are identical and which lists Android's two chrome icons (`arrow-left`, `ellipsis-vertical`, below) |
+| Tokens | No value changed in Phase 6; `Scripts/verify-tokens` and `TokenParityTest` pass against the pinned files |
+| Behaviour Android changed | Short labels take their paragraph direction from their text in right-to-left layouts, and a field without a visible label reserves a 48 dp touch height. Both are Android fixes for defects found on Android ([localization](Quality/LOCALIZATION-RTL-REPORT.md) L2, [accessibility](Quality/ACCESSIBILITY-REPORT.md) A1); iOS's behaviour in the same cases was not assessed |
+
+No token difference without a recorded reason: every Android-only token group and icon is in the deliberate
+differences below.
+
+## Release alignment (Phase 7, against qeetrix-ios `10b365f` and its working tree, 2026-10-20)
+
+| What | Android | iOS | Aligned |
+|:--|:--|:--|:--|
+| First candidate | `0.1.0-rc.1`, not published | `0.1.0-rc.1`, not tagged | Yes |
+| Versioning | SemVer; before 1.0 a breaking change only in a `0.MINOR` release, with migration notes; 1.0 once a Qeet Group app has shipped with it ([RELEASE-POLICY.md](Releases/RELEASE-POLICY.md)) | The same, in its `RELEASE_POLICY.md` | Yes |
+| Distribution | A Maven artifact (AAR, POM, module metadata, sources), `com.qeetgroup:qeetrix` | A Swift package from source, by Git tag | Native to each platform |
+| Minimum OS | Android 10 (API 29) | iOS 17 | Each platform's own decision |
+| Bundled fonts | Cal Sans 2.011 and Fira Code 6.2 variable TTFs, sha256 `9e1ae3cb…` and `04149681…` | The same two files, the same hashes | Byte-identical |
+| Upstream token inputs | The four `@qeetrix/ui` 2.1.6 files | The same | Byte-identical (re-checked) |
+| Code licence | None chosen; the owner's decision | None chosen | Yes |
+
+No contradiction in tokens, typography or design contracts was found. Each library's release still needs its own
+manual accessibility pass on a device.
 
 ## Names
 
@@ -152,13 +200,54 @@ caret, and offer `Alphanumeric` as a native addition; a revealed password is not
 form history); the textarea grows with its text instead of a drag handle; the number field has no pointer
 scrubbing; each radio option is its own keyboard focus stop rather than one stop with arrow keys.
 
+### Components (Phase 4)
+
+| Area | Android | iOS |
+|:--|:--|:--|
+| Top-level navigation | `QeetrixNavigationBar` / `QeetrixNavigationRail` drawn by Qeetrix, switched by `QeetrixNavigationScaffold` at 600 dp of window width | The system `TabView`, styled with `qeetrixTabBar()` / `qeetrixTabItem`; iPad's sidebar adaptation is the system's |
+| Screen header | `QeetrixTopAppBar` drawn by Qeetrix, with `QeetrixBackButton` | The system navigation bar, styled with `qeetrixNavigationBar(background:)` |
+| Alert and confirmation | Qeetrix's surface in Compose's dialog window; the confirmation is the alert with two fixed roles | The system alert and the system confirmation dialog (action sheet), in the system's style |
+| Custom dialog | `QeetrixDialog`, centred on every window size | Deferred: a sheet (a centred form sheet on iPad) |
+| Sheet | `QeetrixBottomSheet` (Material's sheet underneath, Qeetrix's surface); predictive back | `qeetrixSheet` with detents, the system sheet |
+| Menu | Qeetrix's surface in a popup (`component.menu`) | The system menu |
+| Popover | Deferred: menu, dialog or bottom sheet | `qeetrixPopover`, a sheet on iPhone by default |
+| Transient feedback | `QeetrixSnackbar`; while TalkBack is on, an action has no time limit | `QeetrixToast`; while VoiceOver is on, the same |
+| Back | Platform Back and Escape close the topmost overlay; Qeetrix registers no Back handler | No Back key; swipe and Escape |
+| Icons in chrome | `arrow-left` (mirrored for Back) and `ellipsis-vertical` (Android's overflow), which iOS does not pin | `ellipsis` for menu triggers; system chevrons for Back |
+
+The same on both, against the web: one transient message at a time rather than the web's stack; timing 5 s,
+or 10 s for warnings, errors and actions; a destructive dialog always offers Cancel; actions run once;
+tabs are each their own keyboard focus stop.
+
+### Components (Phase 5)
+
+| Area | Android | iOS |
+|:--|:--|:--|
+| Collections | Compose's `LazyColumn` with the app's `key`s; sections are `stickyHeader`s holding `QeetrixSectionHeader` | SwiftUI's `List` and `Section`, with `ForEach` identity |
+| Rows | `QeetrixListItem` is clickable itself (`onClick`, `onLongClick`); a long press starts a selection | The row sits in a `NavigationLink` or `Button` with `qeetrixListRow()`; swipe actions and context menus are the system's |
+| Accordion | Qeetrix's item, state hoisted (`expanded`, `onExpandedChange`); "Expanded"/"Collapsed" as the state description plus expand and collapse actions | Native `DisclosureGroup`s in `QeetrixDisclosureGroupStyle`; items can keep their own state |
+| Search | `QeetrixSearchField`, on the shared field parts | The system's `searchable` |
+| Chips' semantics | Checkboxes, and radio buttons in a single-choice group, as Material's filter chips are | Buttons with the selected trait |
+| Chip options | Labels only: an option's description is neither shown nor read | An option's description is the chip's hint |
+| Large text | From 150 % font scale, row trailing content and timeline times move below the text | At the accessibility sizes, the same |
+| Reading order | Placement order (title, description, metadata) | Sort priority, the same order |
+| Pull to refresh | Material 3's `PullToRefreshBox`, not wrapped | `refreshable` |
+
+The same on both, against the web: the data state never shows an error object's message and offers "Try
+again"; rows and section headers exist on both (the web has none); the data table, image presentation,
+feeds, trees, filter bars, pagination and stats are deferred; component tokens built on `control.*`
+resolve at the default density, so the accordion's padding and the timeline's gaps don't follow a compact
+density.
+
 ## Decisions that need both platforms
 
 1. **A shared resolved-values file.** Android publishes `token-values.json`; iOS could emit the same
    shape so parity is checked by a diff instead of by parsing generated code.
-2. **Pins.** Android's pins match qeetrix-ios's through Phase 3 (21 icons, eight component-token groups,
-   the component manifest). qeetrix-ios's working tree has eight more icons and the `dialog` and
-   `popover` groups for components beyond Phase 3; Android adds them with those components.
+2. **Pins.** Android's pins match qeetrix-ios's through Phase 5 apart from what each platform draws:
+   Android adds `arrow-left` and `ellipsis-vertical` and the `menu` and `sidebar` token groups; iOS adds
+   `popover`. Both now carry `calendar`, `clock`, `file-text`, `folder`, `mail`, `refresh-cw`, `search-x`
+   and `users`, and the `accordion`, `skeleton` and `timeline` groups. A shared rule for which pins both
+   carry would keep the lists from drifting.
 3. **Logos.** The Qeet logo's SVG uses a `<mask>`, which neither native vector format supports. Both
    platforms defer logos until qeetrix-icons provides a mask-free drawing or both agree on a conversion.
 4. **Increased contrast.** No upstream values; both platforms resolve standard values today.

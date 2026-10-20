@@ -38,8 +38,8 @@ class QeetrixTextFieldTest {
         val field = compose.onNodeWithText("Work email")
         field.assert(hasSetTextAction())
         compose.onNodeWithText("you@company.com", useUnmergedTree = true).assertExists()
-        field.performTextInput("ada@qeet.in")
-        assertEquals("ada@qeet.in", state.text.toString())
+        field.performTextInput("ada@example.com")
+        assertEquals("ada@example.com", state.text.toString())
         compose.onNodeWithText("you@company.com", useUnmergedTree = true).assertDoesNotExist()
     }
 

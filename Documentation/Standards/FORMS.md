@@ -38,6 +38,7 @@ The caller owns every value; Qeetrix holds only what is presentation.
 | Input | Caller owns | Qeetrix holds |
 |:--|:--|:--|
 | Text field, textarea, password, OTP | A `TextFieldState` | Interaction state; the password's reveal flag (saved, never the text) |
+| Search field | A `TextFieldState` | Interaction state; no history ([DATA_DISPLAY_AND_COLLECTIONS.md](DATA_DISPLAY_AND_COLLECTIONS.md)) |
 | Checkbox, switch | `checked` / `ToggleableState` and the change callback | Interaction state |
 | Radio group, select | The selected `T` and `onSelect` | Whether the list is open |
 | Number field | `Int?` / `BigDecimal?` and `onValueChange` | The text being typed, until it is committed |
@@ -115,6 +116,7 @@ and lets the app set it everywhere else.
 | `QeetrixPasswordInput`, `purpose = Current` | `Password` |
 | `QeetrixPasswordInput`, `purpose = New` | `NewPassword` (managers offer a generated password and save it) |
 | `QeetrixOTPInput`, `smsCodeAutofill = true` | `SmsOtpCode`; none when false |
+| `QeetrixSearchField` | None: a query is not a profile value |
 | `QeetrixTextField`, `QeetrixTextarea` | `contentType` parameter (`Username`, `EmailAddress`, `PersonFullName`, `PhoneNumber`, `PostalAddress`, …); otherwise Compose's type for the keyboard (an email keyboard is `EmailAddress`) |
 
 - Pass the type through the `contentType` parameter, not `Modifier.semantics` on `modifier`: a Qeetrix

@@ -86,6 +86,16 @@ class QeetrixSelectTest {
         compose.onNode(hasText("Team") and SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected)).assertIsFocused()
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun escapeClosesTheList() {
+        compose.setQeetrix { QeetrixSelect("team", {}, options, label = "Plan") }
+        compose.onNodeWithText("Plan").performClick()
+        compose.onNodeWithText("Starter").performKeyInput { pressKey(Key.Escape) }
+        compose.onNodeWithText("Starter").assertDoesNotExist()
+        compose.onNodeWithText("Plan").assert(hasText("Team"))
+    }
+
     @Test
     fun readOnlyAndDisabledDoNotOpen() {
         compose.setQeetrix { QeetrixSelect("team", {}, options, label = "Plan", readOnly = true) }

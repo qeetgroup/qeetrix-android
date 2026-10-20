@@ -35,7 +35,7 @@ the keyboard (Enter on a focused trigger) the list focuses the selected option; 
 
 Trigger: the field recipe (`component.input.*`). List: `surface.overlay`, `border.default`,
 `elevation.overlay`, `corner.overlay`; options `corner.chip` (radius-md), `surface.brand-subtle` for the
-selection, `surface.interactive-hover` when highlighted, a `text.brand` check.
+selection, `surface.interactive` (the web's `bg-accent`) when highlighted, a `text.brand` check.
 
 ## Platform differences
 

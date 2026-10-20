@@ -67,9 +67,21 @@ public fun QeetrixFormActions(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    ActionRow(modifier.padding(top = QeetrixWebScale.spacing(2f)), content) // pt-2
+}
+
+/**
+ * The web's action-row recipe — `flex flex-col-reverse gap-2 sm:flex-row sm:justify-end` — shared by
+ * [QeetrixFormActions] and the dialogs' footers: under 640 dp the buttons stack full width with the last on
+ * top; from 640 dp they sit in a row at the end, wrapping when they do not fit.
+ */
+@Composable
+internal fun ActionRow(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
     val wide = windowAtLeast(QeetrixWebScale.BreakpointSm)
-    Layout(content, modifier.padding(top = QeetrixWebScale.spacing(2f))) { measurables, constraints ->
-        // pt-2
+    Layout(content, modifier) { measurables, constraints ->
         val gap = QeetrixWebScale.spacing(2f).roundToPx() // gap-2
         if (!wide) {
             // flex-col-reverse: full width, the last child on top

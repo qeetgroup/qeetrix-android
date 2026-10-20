@@ -65,6 +65,7 @@ import com.qeetgroup.qeetrix.internal.FontWeightMedium
 import com.qeetgroup.qeetrix.internal.QeetrixFont
 import com.qeetgroup.qeetrix.internal.QeetrixWebScale
 import com.qeetgroup.qeetrix.internal.drawOutlineRing
+import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.internal.qeetrixFocusRing
 import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
 import com.qeetgroup.qeetrix.internal.windowAtLeast
@@ -132,7 +133,7 @@ internal fun FieldLabel(
         horizontalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(0.5f)), // gap-2 with -ms-1.5
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BasicText(label, style = style.copy(color = QeetrixTheme.colors.textPrimary))
+        BasicText(label, style = style.copy(color = QeetrixTheme.colors.textPrimary).labelDirection())
         if (required) {
             val spoken = stringResource(R.string.qx_required)
             BasicText(
@@ -145,7 +146,7 @@ internal fun FieldLabel(
             BasicText(
                 stringResource(R.string.qx_optional),
                 Modifier.padding(start = QeetrixWebScale.spacing(0.5f)),
-                style = FieldOptionalStyle.copy(color = QeetrixTheme.colors.textTertiary),
+                style = FieldOptionalStyle.copy(color = QeetrixTheme.colors.textTertiary).labelDirection(),
             )
         }
     }

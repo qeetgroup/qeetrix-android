@@ -40,4 +40,19 @@ if unzip -p "$aar" R.txt | grep -v -q ' qx_'; then
     unzip -p "$aar" R.txt | grep -v ' qx_' >&2
     exit 1
 fi
-echo "✓ $aar: qx_ fonts and strings, licences, classes; no permissions or components"
+# Only the library's own classes: no test, sample or generator code, and nothing shaded in.
+foreign=$(unzip -p "$aar" classes.jar > "${TMPDIR:-/tmp}/qeetrix-classes.$$.jar" && unzip -Z1 "${TMPDIR:-/tmp}/qeetrix-classes.$$.jar" \
+    | grep -v '/$' | grep -v -E '^(com/qeetgroup/qeetrix/|META-INF/)' || true)
+rm -f "${TMPDIR:-/tmp}/qeetrix-classes.$$.jar"
+if [ -n "$foreign" ]; then
+    echo "error: classes outside com.qeetgroup.qeetrix:" >&2
+    echo "$foreign" >&2
+    exit 1
+fi
+# The minimum SDK the library supports, and the compile SDK and AGP it asks of an app: Compose 1.12 itself
+# requires compile SDK 37 and AGP 9.1, so the library's own 37 adds nothing an app does not already need.
+grep -q 'android:minSdkVersion="29"' <<<"$manifest" || { echo "error: minSdkVersion is not 29" >&2; exit 1; }
+metadata=$(unzip -p "$aar" META-INF/com/android/build/gradle/aar-metadata.properties)
+grep -q '^minCompileSdk=37$' <<<"$metadata" || { echo "error: unexpected minCompileSdk:" >&2; echo "$metadata" >&2; exit 1; }
+grep -q '^coreLibraryDesugaringEnabled=false$' <<<"$metadata" || { echo "error: the library requires desugaring" >&2; exit 1; }
+echo "✓ $aar: qx_ fonts and strings, licences, com.qeetgroup.qeetrix classes only; minSdk 29, minCompileSdk 37; no permissions or components"

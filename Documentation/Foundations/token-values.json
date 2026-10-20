@@ -4513,6 +4513,94 @@
         }
       }
     },
+    "component.accordion.trigger-padding-block": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "calc(0.75rem + 0.25rem)",
+          "value": {
+            "dp": 16
+          }
+        },
+        "dark": {
+          "input": "calc(0.75rem + 0.25rem)",
+          "value": {
+            "dp": 16
+          }
+        }
+      }
+    },
+    "component.accordion.divider": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "oklch(0.912 0.003 60)",
+          "value": {
+            "ref": "color.border.default",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.891649,
+                0.883802,
+                0.877853,
+                1
+              ],
+              "srgbHex": "#E3E1E0"
+            }
+          }
+        },
+        "dark": {
+          "input": "oklch(0.268 0.001 60)",
+          "value": {
+            "ref": "color.border.default",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.150001,
+                0.148076,
+                0.146615,
+                1
+              ],
+              "srgbHex": "#262625"
+            }
+          }
+        }
+      }
+    },
+    "component.accordion.focus-bleed": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "calc(2px + 2px)",
+          "value": {
+            "dp": 4
+          }
+        },
+        "dark": {
+          "input": "calc(2px + 2px)",
+          "value": {
+            "dp": 4
+          }
+        }
+      }
+    },
+    "component.accordion.duration": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "200ms",
+          "value": {
+            "ms": 200
+          }
+        },
+        "dark": {
+          "input": "200ms",
+          "value": {
+            "ms": 200
+          }
+        }
+      }
+    },
     "component.avatar.fallback.background": {
       "kind": "component",
       "themes": {
@@ -5592,6 +5680,188 @@
         }
       }
     },
+    "component.dialog.corner": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "calc(0.45rem * 1.4)",
+          "value": {
+            "dp": 10.08
+          }
+        },
+        "dark": {
+          "input": "calc(0.45rem * 1.4)",
+          "value": {
+            "dp": 10.08
+          }
+        }
+      }
+    },
+    "component.dialog.background": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "oklch(1 0 0)",
+          "value": {
+            "ref": "color.surface.overlay",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "srgbHex": "#FFFFFF"
+            }
+          }
+        },
+        "dark": {
+          "input": "oklch(0.235 0.001 60)",
+          "value": {
+            "ref": "color.surface.overlay",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.119135,
+                0.117273,
+                0.115859,
+                1
+              ],
+              "srgbHex": "#1E1E1E"
+            }
+          }
+        }
+      }
+    },
+    "component.dialog.foreground": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "oklch(0.16 0.001 60)",
+          "value": {
+            "ref": "color.text.primary",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.053134,
+                0.051443,
+                0.050159,
+                1
+              ],
+              "srgbHex": "#0E0D0D"
+            }
+          }
+        },
+        "dark": {
+          "input": "oklch(0.958 0.003 60)",
+          "value": {
+            "ref": "color.text.primary",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.95138,
+                0.943436,
+                0.937412,
+                1
+              ],
+              "srgbHex": "#F3F1EF"
+            }
+          }
+        }
+      }
+    },
+    "component.dialog.border": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "oklch(0.912 0.003 60)",
+          "value": {
+            "ref": "color.border.default",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.891649,
+                0.883802,
+                0.877853,
+                1
+              ],
+              "srgbHex": "#E3E1E0"
+            }
+          }
+        },
+        "dark": {
+          "input": "oklch(0.268 0.001 60)",
+          "value": {
+            "ref": "color.border.default",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.150001,
+                0.148076,
+                0.146615,
+                1
+              ],
+              "srgbHex": "#262625"
+            }
+          }
+        }
+      }
+    },
+    "component.dialog.scrim": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "color-mix(in oklab, oklch(0.11 0 0) 40%, transparent)",
+          "value": {
+            "ref": "color.overlay.scrim",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.017197,
+                0.017197,
+                0.017197,
+                0.4
+              ],
+              "srgbHex": "#04040466"
+            }
+          }
+        },
+        "dark": {
+          "input": "color-mix(in oklab, oklch(0.11 0 0) 62%, transparent)",
+          "value": {
+            "ref": "color.overlay.scrim",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.017197,
+                0.017197,
+                0.017197,
+                0.62
+              ],
+              "srgbHex": "#0404049E"
+            }
+          }
+        }
+      }
+    },
+    "component.dialog.elevation": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "0 8px 16px -8px rgb(12 12 12 / 0.12), 0 24px 48px -12px rgb(12 12 12 / 0.20), 0 0 0 1px rgb(12 12 12 / 0.05)",
+          "value": {
+            "ref": "elevation.modal"
+          }
+        },
+        "dark": {
+          "input": "0 8px 16px -8px rgb(0 0 0 / 0.50), 0 24px 48px -12px rgb(0 0 0 / 0.60), 0 0 0 1px rgb(255 255 255 / 0.08), inset 0 1px 0 rgb(255 255 255 / 0.05)",
+          "value": {
+            "ref": "elevation.modal"
+          }
+        }
+      }
+    },
     "component.input.corner": {
       "kind": "component",
       "themes": {
@@ -6021,6 +6291,216 @@
         }
       }
     },
+    "component.menu.corner": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "calc(0.45rem * 1.4)",
+          "value": {
+            "dp": 10.08
+          }
+        },
+        "dark": {
+          "input": "calc(0.45rem * 1.4)",
+          "value": {
+            "dp": 10.08
+          }
+        }
+      }
+    },
+    "component.menu.background": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "oklch(1 0 0)",
+          "value": {
+            "ref": "color.surface.overlay",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "srgbHex": "#FFFFFF"
+            }
+          }
+        },
+        "dark": {
+          "input": "oklch(0.235 0.001 60)",
+          "value": {
+            "ref": "color.surface.overlay",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.119135,
+                0.117273,
+                0.115859,
+                1
+              ],
+              "srgbHex": "#1E1E1E"
+            }
+          }
+        }
+      }
+    },
+    "component.menu.foreground": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "oklch(0.16 0.001 60)",
+          "value": {
+            "ref": "color.text.primary",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.053134,
+                0.051443,
+                0.050159,
+                1
+              ],
+              "srgbHex": "#0E0D0D"
+            }
+          }
+        },
+        "dark": {
+          "input": "oklch(0.958 0.003 60)",
+          "value": {
+            "ref": "color.text.primary",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.95138,
+                0.943436,
+                0.937412,
+                1
+              ],
+              "srgbHex": "#F3F1EF"
+            }
+          }
+        }
+      }
+    },
+    "component.menu.border": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "oklch(0.912 0.003 60)",
+          "value": {
+            "ref": "color.border.default",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.891649,
+                0.883802,
+                0.877853,
+                1
+              ],
+              "srgbHex": "#E3E1E0"
+            }
+          }
+        },
+        "dark": {
+          "input": "oklch(0.268 0.001 60)",
+          "value": {
+            "ref": "color.border.default",
+            "resolved": {
+              "space": "srgb",
+              "rgba": [
+                0.150001,
+                0.148076,
+                0.146615,
+                1
+              ],
+              "srgbHex": "#262625"
+            }
+          }
+        }
+      }
+    },
+    "component.menu.elevation": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "0 4px 8px -4px rgb(12 12 12 / 0.08), 0 12px 24px -8px rgb(12 12 12 / 0.12), 0 0 0 1px rgb(12 12 12 / 0.05)",
+          "value": {
+            "ref": "elevation.overlay"
+          }
+        },
+        "dark": {
+          "input": "0 4px 8px -4px rgb(0 0 0 / 0.45), 0 12px 24px -8px rgb(0 0 0 / 0.50), 0 0 0 1px rgb(255 255 255 / 0.07), inset 0 1px 0 rgb(255 255 255 / 0.04)",
+          "value": {
+            "ref": "elevation.overlay"
+          }
+        }
+      }
+    },
+    "component.menu.item-height": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "calc(2rem - 0.25rem)",
+          "value": {
+            "dp": 28
+          }
+        },
+        "dark": {
+          "input": "calc(2rem - 0.25rem)",
+          "value": {
+            "dp": 28
+          }
+        }
+      }
+    },
+    "component.menu.item-corner": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "calc(0.45rem * 0.8)",
+          "value": {
+            "dp": 5.76
+          }
+        },
+        "dark": {
+          "input": "calc(0.45rem * 0.8)",
+          "value": {
+            "dp": 5.76
+          }
+        }
+      }
+    },
+    "component.menu.item-danger-highlight": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "color-mix(in oklab, oklch(0.522 0.189 21.633) 12%, transparent)",
+          "value": {
+            "space": "srgb",
+            "rgba": [
+              0.74575,
+              0.135458,
+              0.205525,
+              0.12
+            ],
+            "srgbHex": "#BE23341F"
+          }
+        },
+        "dark": {
+          "input": "color-mix(in oklab, oklch(0.66 0.22 22) 12%, transparent)",
+          "value": {
+            "space": "srgb",
+            "rgba": [
+              0.989194,
+              0.263399,
+              0.316216,
+              0.12
+            ],
+            "srgbHex": "#FC43511F"
+          }
+        }
+      }
+    },
     "component.progress.track": {
       "kind": "component",
       "themes": {
@@ -6085,6 +6565,105 @@
               ],
               "srgbHex": "#F26D0E"
             }
+          }
+        }
+      }
+    },
+    "component.sidebar.width.default": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "16rem",
+          "value": {
+            "dp": 256
+          }
+        },
+        "dark": {
+          "input": "16rem",
+          "value": {
+            "dp": 256
+          }
+        }
+      }
+    },
+    "component.sidebar.width.mobile": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "18rem",
+          "value": {
+            "dp": 288
+          }
+        },
+        "dark": {
+          "input": "18rem",
+          "value": {
+            "dp": 288
+          }
+        }
+      }
+    },
+    "component.sidebar.width.icon": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "3rem",
+          "value": {
+            "dp": 48
+          }
+        },
+        "dark": {
+          "input": "3rem",
+          "value": {
+            "dp": 48
+          }
+        }
+      }
+    },
+    "component.sidebar.indicator.width": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "3px",
+          "value": {
+            "dp": 3
+          }
+        },
+        "dark": {
+          "input": "3px",
+          "value": {
+            "dp": 3
+          }
+        }
+      }
+    },
+    "component.skeleton.background": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "color-mix(in oklab, oklch(0.16 0.001 60) 10%, transparent)",
+          "value": {
+            "space": "srgb",
+            "rgba": [
+              0.053134,
+              0.051443,
+              0.050159,
+              0.1
+            ],
+            "srgbHex": "#0E0D0D1A"
+          }
+        },
+        "dark": {
+          "input": "color-mix(in oklab, oklch(0.958 0.003 60) 10%, transparent)",
+          "value": {
+            "space": "srgb",
+            "rgba": [
+              0.95138,
+              0.943436,
+              0.937412,
+              0.1
+            ],
+            "srgbHex": "#F3F1EF1A"
           }
         }
       }
@@ -6287,6 +6866,57 @@
               ],
               "srgbHex": "#F3F1EF"
             }
+          }
+        }
+      }
+    },
+    "component.timeline.gap": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "calc(1rem * 1.5)",
+          "value": {
+            "dp": 24
+          }
+        },
+        "dark": {
+          "input": "calc(1rem * 1.5)",
+          "value": {
+            "dp": 24
+          }
+        }
+      }
+    },
+    "component.timeline.gap-minor": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "calc(1rem * 0.75)",
+          "value": {
+            "dp": 12
+          }
+        },
+        "dark": {
+          "input": "calc(1rem * 0.75)",
+          "value": {
+            "dp": 12
+          }
+        }
+      }
+    },
+    "component.timeline.marker-size": {
+      "kind": "component",
+      "themes": {
+        "light": {
+          "input": "1.5rem",
+          "value": {
+            "dp": 24
+          }
+        },
+        "dark": {
+          "input": "1.5rem",
+          "value": {
+            "dp": 24
           }
         }
       }

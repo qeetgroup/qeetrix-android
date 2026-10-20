@@ -84,6 +84,21 @@ internal class NumberText(
         return Reading.Number(BigDecimal(plain))
     }
 
+    /**
+     * Whether [text] stands for [value] in this locale: it reads as that number (or is empty for no value), or it
+     * is a number still being typed.
+     */
+    fun reads(
+        text: CharSequence,
+        value: BigDecimal?,
+    ): Boolean =
+        when (val reading = read(text)) {
+            Reading.Empty -> value == null
+            Reading.Incomplete -> true
+            Reading.Invalid -> false
+            is Reading.Number -> value != null && reading.value.compareTo(value) == 0
+        }
+
     /** [value] as the locale writes it: its digits, its grouping, at most [fractionDigits] decimals. */
     fun write(value: BigDecimal): String = format.format(value.setScale(fractionDigits, RoundingMode.HALF_EVEN).stripTrailingZeros())
 

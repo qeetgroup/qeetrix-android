@@ -137,7 +137,11 @@ public fun QeetrixNumberField(
     // The last value this field reported; a different value arriving from outside rewrites the text.
     val reported = remember { arrayOfNulls<BigDecimal>(1).also { it[0] = value } }
     LaunchedEffect(value, numbers) {
-        if (value?.stripTrailingZeros() != reported[0]?.stripTrailingZeros()) {
+        // Text another locale wrote — after a change of locale, or restored into an activity recreated for one —
+        // is written again in this locale rather than read in it, where "1,234" can be 1.234. Text still being
+        // typed is left alone. This runs before the typing reader below, so that reader never sees stale text.
+        val stale = !numbers.reads(text.text, value)
+        if (value?.stripTrailingZeros() != reported[0]?.stripTrailingZeros() || stale) {
             reported[0] = value
             text.setTextAndPlaceCursorAtEnd(value?.let(numbers::write).orEmpty())
         }
