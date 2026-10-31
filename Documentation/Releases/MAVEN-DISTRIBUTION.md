@@ -11,8 +11,8 @@ implementation("com.qeetgroup:qeetrix:<version>")
 ```
 
 `com.qeetgroup` is the group Qeet Group's Gradle projects use; `qeetrix` is the module. The package and Android
-namespace are `com.qeetgroup.qeetrix`. Development builds are `0.1.0-SNAPSHOT`; the first candidate is proposed as
-`0.1.0-rc.1` ([RELEASE-POLICY.md](RELEASE-POLICY.md)).
+namespace are `com.qeetgroup.qeetrix`. Development builds are `0.1.0-SNAPSHOT`; the current candidate is `0.1.0-rc.2`,
+which supersedes the unpublished `0.1.0-rc.1` ([RELEASE-POLICY.md](RELEASE-POLICY.md)).
 
 ## What a version contains
 
@@ -68,14 +68,14 @@ library and fonts and strings are in the AAR. This is exactly how the independen
 ## Building and checking a candidate locally
 
 ```sh
-Scripts/release-candidate 0.1.0-rc.1 --devices     # every gate; publishes to build/release-candidate/maven only
+Scripts/release-candidate 0.1.0-rc.2 --devices     # every gate; publishes to build/release-candidate/maven only
 ```
 
 Or the publication alone:
 
 ```sh
-./gradlew :qeetrix:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version=0.1.0-rc.1
-Scripts/verify-publication build/release-candidate/maven 0.1.0-rc.1 qeetrix/build/outputs/aar/qeetrix-release.aar
+./gradlew :qeetrix:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version=0.1.0-rc.2
+Scripts/verify-publication build/release-candidate/maven 0.1.0-rc.2 qeetrix/build/outputs/aar/qeetrix-release.aar
 ```
 
 ## Choosing a registry

@@ -1,8 +1,11 @@
 # Licence and distribution rights
 
 Whether everything in `com.qeetgroup:qeetrix` may be distributed, under what terms, and what is still the owner's
-decision. Reviewed 2026-10-20 against the release-candidate artifact `0.1.0-rc.1`. This is an engineering review of
-the licences the materials carry, not legal advice.
+decision. Reviewed 2026-10-20 against the release-candidate artifact `0.1.0-rc.1`, and re-checked 2026-10-31 against
+`0.1.0-rc.2`: the same three licence texts in the AAR (`Scripts/verify-aar`), the fonts unmodified from
+`@qeetrix/tokens` 0.0.13 (`Scripts/verify-tokens`), 92 runtime dependencies all Apache 2.0 and an SBOM of 95
+components (`Scripts/dependency-inventory`). This is an engineering review of the licences the materials carry, not
+legal advice.
 
 ## What the artifact contains
 
@@ -18,7 +21,7 @@ the licences the materials carry, not legal advice.
 
 92 artifacts on the locked release runtime classpath, every one **Apache 2.0** as declared in its own POM
 (`Scripts/dependency-inventory`, which fails a release candidate on any other or unknown licence): AndroidX
-(Compose, Material 3 for the bottom sheet, Activity, Lifecycle, Core and their dependencies), Kotlin's standard
+(Compose, Material 3 for the date and time pickers, pull to refresh and the bottom sheet, Activity, Lifecycle, Core and their dependencies), Kotlin's standard
 library, kotlinx-coroutines, JetBrains annotations and JSpecify. None is bundled in the AAR; the app resolves them.
 
 ## Tools (not distributed)

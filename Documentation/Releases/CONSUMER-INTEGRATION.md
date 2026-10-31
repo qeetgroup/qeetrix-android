@@ -20,9 +20,24 @@ is no project dependency, composite build, copied AAR, source path, generator or
 keeps it to the public API. It uses the library's own `R` class only to check that fonts and strings resolve.
 
 ```sh
-Scripts/release-candidate 0.1.0-rc.1 --devices                       # publishes, then builds and runs the consumer
+Scripts/release-candidate 0.1.0-rc.2 --devices                       # publishes, then builds and runs the consumer
 ./gradlew -p Integration/Consumer :app:connectedDebugAndroidTest :smoke:connectedAndroidTest   # after publishing
 ```
+
+## Results (candidate `0.1.0-rc.2`, 2026-10-31)
+
+In the release-candidate run (`Scripts/release-candidate 0.1.0-rc.2 --devices --allow-dirty`, from commit `9291aa1`):
+
+| Check | API 36 phone |
+|:--|:--|
+| Resolves `com.qeetgroup:qeetrix:0.1.0-rc.2` through its module metadata (`releaseVariantReleaseRuntimePublication`) | ✓ |
+| Debug build; 12 Compose tests through the public API (`ConsumerAppTest`) | 12 / 12 |
+| R8-optimised release build: no missing-rule report; both fonts and the strings the app's components use survive shrinking | ✓ |
+| 4 UI Automator tests on the release build (`ReleaseSmokeTest`) | 4 / 4 |
+
+The consumer was moved to the new public API with the migration (`ConsumerApp.kt` and three test lines: the renamed font resource,
+variants and tones, spacing, colour roles and selection parameters); its scenarios are unchanged. The API 29 phone, landscape and the minimum toolchain were not run
+again for this candidate.
 
 ## Results (candidate `0.1.0-rc.1`, 2026-10-20)
 

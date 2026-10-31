@@ -70,8 +70,9 @@ packages, so a colour, a size or a type role is the same value on every platform
 
 ## 📍 Status
 
-🚧 **In development, not yet published.** The `0.1.0-rc.1` release candidate was built and verified before the move to
-`@qeetrix/react` ([report](Documentation/Releases/RELEASE-CANDIDATE-REPORT.md)). Since then:
+🚧 **In development, not yet published.** Release candidate `0.1.0-rc.2`, built on 31 October 2026, passed all ten
+release gates, its device tests and the independent consumer app included
+([report](Documentation/Releases/RELEASE-CANDIDATE-REPORT.md)). Since `0.1.0-rc.1`:
 
 - 🔄 **Migrated** from `@qeetrix/ui` to `@qeetrix/tokens`, `@qeetrix/react` and `@qeetrix/icons`, and on to their 0.0.13,
   0.4.0 and 2.1.0 releases: every component re-specified to its `@qeetrix/react` counterpart, the API changed
@@ -83,8 +84,8 @@ packages, so a colour, a size or a type role is the same value on every platform
   component on an Android 16 phone emulator in light, dark, 200 % text and right to left; what that found is fixed
   ([CHANGELOG.md](CHANGELOG.md)).
 
-⏭️ **Next:** six deferred tickets (QTRX-126, 190, 191, 192, 195, 198), the tablet pass of the new components, a new release
-candidate and the owner's choice of registry. The phase history is in [PHASES.md](PHASES.md).
+⏭️ **Next:** six deferred tickets (QTRX-126, 190, 191, 192, 195, 198), the tablet pass of the new components and the
+owner's choice of registry. The phase history is in [PHASES.md](PHASES.md).
 
 ## 🧰 Requirements
 
@@ -102,7 +103,7 @@ candidate and the owner's choice of registry. The phase history is in [PHASES.md
 
 🏛️ **From a Maven repository** — how apps will use it once a version is published. Nothing is published yet: the
 registry and the first version await the owner ([Maven distribution](Documentation/Releases/MAVEN-DISTRIBUTION.md)).
-A release candidate can be built and published to a local directory with `Scripts/release-candidate 0.1.0-rc.1`;
+A release candidate can be built and published to a local directory with `Scripts/release-candidate 0.1.0-rc.2`;
 `Integration/Consumer` is an independent app that uses it exactly this way.
 
 ```kotlin
@@ -357,7 +358,7 @@ how to work on it.
 ./gradlew :sample:installDebug        # the sample, on a connected device or emulator
 ./gradlew :qeetrix:connectedDebugAndroidTest   # device tests, accessibility checks included (needs a device or emulator; ATF runs on API 36)
 ./gradlew :qeetrix:dokkaGenerate      # API reference
-Scripts/release-candidate 0.1.0-rc.1 --devices   # every release gate; publishes to build/release-candidate/maven only
+Scripts/release-candidate 0.1.0-rc.2 --devices   # every release gate; publishes to build/release-candidate/maven only
 ```
 
 Point Gradle at an Android SDK with platform 37 (`ANDROID_HOME` or `local.properties`). Start a new

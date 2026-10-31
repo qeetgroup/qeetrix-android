@@ -11,6 +11,7 @@ Exits 1 if any licence is unknown or not in the allowed list, so a new dependenc
 With --cyclonedx it also writes a CycloneDX 1.5 SBOM of the artifact: Qeetrix itself, the fonts and icon artwork
 bundled in it (with the hashes Upstream/manifest.lock.json records), and every runtime dependency above.
 """
+import base64
 import glob
 import json
 import os
@@ -100,22 +101,30 @@ if cyclonedx:
     if not version:
         sys.exit('error: --cyclonedx needs --version')
     lock = json.load(open(os.path.join(ROOT, 'Upstream', 'manifest.lock.json')))
-    icons = lock['qeetrixIcons']
+    tokens, icons = lock['qeetrixTokens'], lock['qeetrixIcons']
+
+    def npm(package):
+        """Where a locked npm tarball comes from: its registry page, and the registry's integrity hash."""
+        return [{'type': 'distribution', 'url': f'https://www.npmjs.com/package/{package["package"]}/v/{package["version"]}',
+                 'hashes': [{'alg': 'SHA-512', 'content': base64.b64decode(package['integrity'].split('-', 1)[1]).hex()}]}]
+
     components = [
         {
             'type': 'file', 'bom-ref': f'font-{font["family"]}', 'name': os.path.basename(font['destination']),
-            'description': f'{font["webFamily"]} ({font["repository"]} {font["tag"]}), bundled unmodified in the AAR with its licence.',
+            'description': f'{font["webFamily"]} ({tokens["package"]} {tokens["version"]}, {font["ttf"].removeprefix("package/")}), '
+                           'bundled unmodified in the AAR with its licence.',
             'hashes': [{'alg': 'SHA-256', 'content': font['ttfSHA256']}],
             'licenses': [{'expression': 'OFL-1.1'}],
-            'externalReferences': [{'type': 'vcs', 'url': f'https://github.com/{font["repository"]}'}],
+            'externalReferences': npm(tokens),
         }
         for font in lock['fonts']
     ]
     components.append({
         'type': 'data', 'bom-ref': 'qeetrix-icons', 'name': icons['package'], 'version': icons['version'],
-        'description': f'Icon artwork at {icons["repository"]}@{icons["commit"][:7]}, compiled to Kotlin path data; includes Lucide (ISC) and Feather (MIT) drawings.',
+        'description': f'Icon artwork from {icons["package"]} {icons["version"]} (git head {icons["gitHead"][:7]}), compiled to '
+                       'Kotlin path data; includes Lucide (ISC) and Feather (MIT) drawings.',
         'licenses': [{'expression': 'MIT AND ISC'}],
-        'externalReferences': [{'type': 'vcs', 'url': f'https://github.com/{icons["repository"]}'}],
+        'externalReferences': npm(icons),
     })
     for coordinate, licence in sorted(rows):
         group, artifact, ver = coordinate.split(':')

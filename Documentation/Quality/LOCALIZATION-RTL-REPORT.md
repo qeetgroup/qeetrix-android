@@ -5,7 +5,7 @@ what remains.
 
 ## Ownership
 
-Qeetrix owns its own 21 built-in strings (`qx_*`); apps own everything they pass in — titles, labels, messages,
+Qeetrix owns its own 85 built-in strings and 1 plural (`qx_*`); apps own everything they pass in — titles, labels, messages,
 dates and amounts — and its translation. Qeetrix ships **English only**. No translation exists and none was
 written: a translation needs a linguist's review, and inventing one would be worse than an honest gap.
 
@@ -61,7 +61,7 @@ icons don't; the OTP cells keep their left-to-right order, as codes are read tha
 
 ## Not done
 
-- No translation of the 21 built-in strings, and no linguistic review.
+- No translation of the 85 built-in strings and 1 plural, and no linguistic review.
 - No physical-device check of Indic glyph rendering with Bold Text, or of a whole app running in ar-XB or an
   Arabic system locale (the sample enables the pseudolocales for that check).
 - Date and time formatting is the app's: no Qeetrix component formats dates.
