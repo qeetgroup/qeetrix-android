@@ -71,13 +71,17 @@ data class DisplaySettings(
  * The sample's root: display settings that apply to every page, and one level of navigation from the
  * home screen to a page (system back returns). Settings are stored as the values an app would store —
  * the theme mode and density as their upstream strings — and survive configuration changes and process
- * death. [startRoute] opens a page first (a catalogue id such as `otp-code`), for trying one on a device.
+ * death. [startRoute] opens a page first (a catalogue id such as `otp-code`), and [startRightToLeft] starts with the
+ * right-to-left layout on, for trying one on a device.
  */
 @Composable
-fun QeetrixSampleApp(startRoute: String? = null) {
+fun QeetrixSampleApp(
+    startRoute: String? = null,
+    startRightToLeft: Boolean = false,
+) {
     var modeValue by rememberSaveable { mutableStateOf(QeetrixThemeMode.System.value) }
     var densityValue by rememberSaveable { mutableStateOf(QeetrixDensity.Default.value) }
-    var rightToLeft by rememberSaveable { mutableStateOf(false) }
+    var rightToLeft by rememberSaveable { mutableStateOf(startRightToLeft) }
     var largeText by rememberSaveable { mutableStateOf(false) }
     var route by rememberSaveable { mutableStateOf(startRoute ?: HOME) }
 

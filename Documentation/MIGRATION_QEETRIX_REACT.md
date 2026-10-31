@@ -321,9 +321,10 @@ and `value`). Both need reconciling before the files can be diffed directly.
   and listed in the CHANGELOG. The same day they were tried on the tablet emulator (`qeetrix-tablet-api36`, 1280 × 800
   dp), with the library's and the independent consumer's device tests: the bottom action bar's `fullWidth` actions ran
   off the window's start edge from `breakpoint.medium`, and the full-screen form's sheet darkened the screen twice; both
-  are fixed (CHANGELOG › Fixed on the tablet pass). Still to do: new device screenshots — those in
-  `docs-redesign-mockups/migration/android/devices/` are from 30 October, before the bump. The emulator was unstable
-  under the machine's load (two crashes, one hang); running it headless helped.
+  are fixed (CHANGELOG › Fixed on the tablet pass). New device screenshots of every sample page — light, dark, 200 %
+  text and right to left, phone and tablet — are in `docs-redesign-mockups/migration/android/devices/` (31 October; the
+  30 October set, before the bump, is under `2026-10-30/`). The sample takes `--ez rtl true` beside `--es route` for
+  them. The emulator was unstable under the machine's load (two crashes, one hang); running it headless helped.
 - **Android tickets not done:** QTRX-126, 190, 191, 192 and 195 (see CHANGELOG).
 - **Material 3** is now used, internally, by the date and time fields (the platform's pickers in Qeetrix's colours, as
   QTRX-120 and 128 ask) and pull to refresh (its nested scroll); `MaterialBoundaryTest` lists the two files and no public
