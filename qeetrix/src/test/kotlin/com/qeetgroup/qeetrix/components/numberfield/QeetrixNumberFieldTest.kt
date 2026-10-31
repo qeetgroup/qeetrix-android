@@ -17,6 +17,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -27,6 +28,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.withKeyDown
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import com.qeetgroup.qeetrix.components.setQeetrix
@@ -38,6 +40,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 import java.math.BigDecimal
 import java.util.Locale
 
@@ -73,7 +76,8 @@ class QeetrixNumberFieldTest {
                 value,
                 { value = it },
                 label = "Discount",
-                range = BigDecimal.ZERO..BigDecimal(100),
+                min = BigDecimal.ZERO,
+                max = BigDecimal(100),
                 fractionDigits = 1,
                 imeAction = ImeAction.Done,
             )
@@ -108,7 +112,7 @@ class QeetrixNumberFieldTest {
     @Test
     fun steppersStepAndStopAtTheEnds() {
         var seats by mutableStateOf<Int?>(1)
-        compose.setQeetrix { QeetrixNumberField(seats, { seats = it }, label = "Discount", range = 1..3) }
+        compose.setQeetrix { QeetrixNumberField(seats, { seats = it }, label = "Discount", min = 1, max = 3) }
         compose.onNodeWithContentDescription("Decrease").assertIsNotEnabled()
         compose.onNodeWithContentDescription("Increase").performClick().performClick()
         compose.runOnIdle { assertEquals(3, seats) }
@@ -229,5 +233,75 @@ class QeetrixNumberFieldTest {
         compose.setQeetrix { QeetrixNumberField(5, {}, label = "Discount", readOnly = true) }
         compose.onNodeWithContentDescription("Increase").assertIsNotEnabled()
         compose.onNodeWithContentDescription("Decrease").assertIsNotEnabled()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun pageKeysAndShiftStepByTheLargeStepAndHomeAndEndGoToTheEnds() {
+        var value by mutableStateOf<Int?>(50)
+        compose.setQeetrix { QeetrixNumberField(value, { value = it }, label = "Discount", min = 0, max = 100) }
+        field().performClick().performKeyInput { pressKey(Key.PageUp) }
+        compose.runOnIdle { assertEquals(60, value) }
+        field().performKeyInput { withKeyDown(Key.ShiftLeft) { pressKey(Key.DirectionDown) } }
+        compose.runOnIdle { assertEquals(50, value) }
+        field().performKeyInput { pressKey(Key.MoveEnd) }
+        compose.runOnIdle { assertEquals(100, value) }
+        field().performKeyInput { pressKey(Key.MoveHome) }
+        compose.runOnIdle { assertEquals(0, value) }
+    }
+
+    @Test
+    fun withoutSteppersThereAreNoButtonsButTheActionsStay() {
+        compose.setQeetrix { QeetrixNumberField(5, {}, label = "Discount", steppers = false) }
+        compose.onNodeWithContentDescription("Increase").assertDoesNotExist()
+        assertEquals(2, field().fetchSemanticsNode().config[SemanticsActions.CustomActions].size)
+    }
+
+    /** number-field.css: the steppers are size.control.sm squares; Android gives each the field's full height to hit. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun eachStepperIsAsTallAsTheField() {
+        compose.setQeetrix { QeetrixNumberField(5, {}, label = "Discount") }
+        val step = compose.onNodeWithContentDescription("Increase").getUnclippedBoundsInRoot()
+        assertEquals(40f, (step.bottom - step.top).value, 0.5f)
+        assertEquals(28f, (step.right - step.left).value, 0.5f)
+    }
+
+    /** Found on a device: money read "1.234,5 €". A currency's decimals are written in full, as Intl's currency style does. */
+    @Test
+    fun moneyIsWrittenWithItsCurrencysDecimalsAndSign() {
+        compose.setQeetrix {
+            QeetrixNumberField(BigDecimal("1284500"), {}, label = "Invoice total", currency = "INR", steppers = false)
+            QeetrixNumberField(
+                BigDecimal("1234.5"),
+                {},
+                label = "Betrag",
+                currency = "EUR",
+                locale = java.util.Locale.GERMANY,
+                steppers = false,
+            )
+        }
+        compose.onNodeWithText("Invoice total").assert(hasText("1,284,500.00"))
+        compose.onNodeWithText("Betrag").assert(hasText("1.234,50"))
+        // The signs, where the locales put them.
+        compose.onNodeWithText("₹", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("€", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun aPercentageIsTheShareShownAsItsPercentAndPlainCodesHaveNoGrouping() {
+        var rate by mutableStateOf<BigDecimal?>(BigDecimal("0.18"))
+        compose.setQeetrix {
+            QeetrixNumberField(rate, { rate = it }, label = "GST rate", percent = true, steppers = false)
+            QeetrixNumberField(BigDecimal("50100"), {}, label = "Branch code", grouping = false, steppers = false)
+            QeetrixNumberField(BigDecimal("12.50"), {}, label = "Weight", fractionDigits = 2, steppers = false)
+        }
+        compose.onNodeWithText("GST rate").assert(hasText("18"))
+        compose.onNodeWithText("GST rate").performTextClearance()
+        compose.onNodeWithText("GST rate").performTextInput("25")
+        compose.runOnIdle { assertEquals(0, BigDecimal("0.25").compareTo(rate)) }
+        compose.onNodeWithText("Branch code").assert(hasText("50100"))
+        // A plain number keeps dropping its trailing zeros.
+        compose.onNodeWithText("Weight").assert(hasText("12.5"))
     }
 }

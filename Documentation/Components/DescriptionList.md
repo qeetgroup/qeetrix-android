@@ -1,44 +1,56 @@
 # Description list
 
-`QeetrixDescriptionList`, `QeetrixDescriptionItem`, `QeetrixDescriptionListLayout` ·
-`components.descriptionlist` · web: [Description List](https://ui.qeet.in/docs/components/description-list) ·
+`QeetrixDescriptionList`, `QeetrixDescriptionItem`, `QeetrixDescriptionListLayout` · `components.descriptionlist` ·
+`@qeetrix/react`: [DescriptionList](https://ui.qeet.in/components/description-list) (experimental) ·
 sample: Data display → Description list
 
-Labelled details — the properties of one thing: a plan, a device, a file. A `QeetrixDescriptionItem` on its
-own is the key-value row.
+Facts about one record, as term and value pairs: a user's email and ID, a payment's amount and status.
 
 ```kotlin
-QeetrixDescriptionList(divided = true) {
-    QeetrixDescriptionItem("Plan", "Team")
-    QeetrixDescriptionItem("Region", "Mumbai (ap-south-1)")
-    QeetrixDescriptionItem("Status") { QeetrixBadge("Active", variant = QeetrixBadgeVariant.Success) }
+QeetrixDescriptionList {
+    QeetrixDescriptionItem("Email", "priya@acme.in")
+    QeetrixDescriptionItem("Status") { QeetrixBadge("Active", tone = QeetrixBadgeTone.Success) }
+    QeetrixDescriptionItem("Phone", null) // "—", read as "Not set"
+    QeetrixDescriptionItem(
+        "Display name",
+        "Acme",
+        description = "Shown in the top bar and in invitations.",
+        action = { QeetrixButton("Change", onClick = ::edit, variant = QeetrixButtonVariant.Ghost, size = QeetrixButtonSize.Sm) },
+    )
 }
 ```
 
-## Usage
+## Layouts
 
-- **Three layouts**, the web's: `Horizontal` (the default) puts a 192 dp term column beside the values from
-  the web's `sm` breakpoint, 640 dp of window width, and stacks each term above its value below it;
-  `Vertical` always stacks; `Grid` fills the width with term-over-value cells at least 192 dp wide.
-- `divided` rules between pairs.
-- **Values** are text (the `String` overload) or any content — a [badge](Badge.md), an [avatar](Avatar.md),
-  a link. Format dates, amounts and identifiers before they get here.
-- **In a lazy list**, use one `QeetrixDescriptionItem` per item, with your own padding.
-- **Never put a secret in a value.** The list displays what it is given; it never logs, copies or announces
-  anything.
+| `layout` | Look |
+|:--|:--|
+| `Rows` (default) | Each term beside its value: the term column `minmax(8rem, 30%)`, `space.gap.md` before the value, aligned on the value's first baseline; rows at least `size.row` tall, `space.gap.sm` above and below, a 1 dp `color.border.subtle` rule between. Narrower than 24 rem (384 dp at the default text size) the term moves above its value — so on a phone. With an `action`, the row centres and the action ends it (below the value when narrow). |
+| `Columns` | Term above value, `space.gap.xs` apart, in up to `columns` (1–4, default 2) columns of at least 8 rem, `space.gap.xl` apart, rows `space.gap.lg` apart. |
+
+Terms are `label.sm` in `color.text.subtle`; values `body.md` in `color.text.default`, wrapping; a value's
+`description` is `body.sm` in `color.text.subtle` under it. A rows list placed directly in a
+[card](Card.md)'s content runs edge to edge, its rows keeping the card's padding.
 
 ## Accessibility
 
-Each pair is one element — "Plan, Team" — and a control in a value stays its own element. Long values wrap.
+- Each pair is read as one element ("Email, priya@acme.in"); a control in a value or an `action` stays its own
+  focusable element.
+- An empty value (null or "") shows "—" in `color.text.subtlest`, read as `emptyLabel` ("Not set").
+- A text value and a term take their own text's direction, so an email or an amount stays left to right in a
+  right-to-left layout, aligned to the layout's start.
 
 ## Theme and tokens
 
-text-sm terms in `text.tertiary` and values in `text.primary`; pairs `density.cell-padding-y` apart (1.5×
-in a grid), so a compact density tightens them; `border.subtle` rules.
+`typography.label.sm` / `body.md` / `body.sm`, `color.text.subtle` / `default` / `subtlest`,
+`color.border.subtle`, `size.row`, `space.gap.xs` / `sm` / `md` / `lg` / `xl`.
 
 ## Platform differences
 
-The breakpoint is the window's width, as the web's is the viewport's; iOS uses the horizontal size class.
-The web's bare `DescriptionTerm`/`DescriptionDetails` pairs are always items here.
+- **rem** is 16 sp, so the 8 rem term column and the 24 rem breakpoint grow with the user's text size, as the
+  web's do with the browser's font size. The container query is the list's own width.
+- **Semantics.** Android has no `dl`/`dt`/`dd`; each pair is one merged element.
+- **Strings.** `emptyLabel` defaults to `qx_not_set` ("Not set", the web's `descriptionList.empty`).
+- **Removed since 2.x:** `Horizontal`, `Vertical` and `Grid` (now `Rows` and `Columns`), `divided` (rows are
+  always ruled).
 
-Related: [List item](ListItem.md).
+Related: [Card](Card.md), [List item](ListItem.md).

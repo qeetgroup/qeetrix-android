@@ -1,50 +1,44 @@
 # Search field
 
-`QeetrixSearchField` · `components.input` · web: none (the data table's search is an `Input`) ·
-sample: Forms & inputs → Search field
+`QeetrixSearchField` · `components.input` · `@qeetrix/react`: SearchField (`experimental`; not yet a page on
+ui.qeet.in) · sample: Forms → Search field
 
-A single-line field for a search query, with a search icon, a clear button and the keyboard's search key,
-built on the same field parts as the [text field](TextField.md).
+A search box for a list: the Input box with a leading search icon, the keyboard's search key, and a Clear search
+button while there is text.
 
 ```kotlin
 val query = rememberTextFieldState()
-QeetrixSearchField(query, placeholder = "Search members", onSearch = { search(it) })
-
-// Filter as the person types, after a pause.
-LaunchedEffect(query) {
-    snapshotFlow { query.text.toString() }.collectLatest { text ->
-        delay(300)
-        search(text)
-    }
-}
+QeetrixSearchField(query, placeholder = "e.g. Asha", onSearch = { members.search(it) })
 ```
 
-## Usage
+## API
 
-- **The query is the app's**, in a `TextFieldState` it owns; filtering, debouncing, cancelling and asking a
-  server are the app's too. `collectLatest` cancels a pending search when the person types again.
-- **The search key** runs `onSearch` with the query and hides the keyboard.
-- **Clear** appears while there is text; it empties the field and keeps the focus.
-- **Results** show where they are; with nothing to show, a no-results [empty state](EmptyState.md) offers
-  to clear the search and any [chips](Chip.md) filtering with it.
-- **Privacy.** Keep queries out of logs and analytics unless the person has agreed; never put a secret in
-  the placeholder.
+| `@qeetrix/react` | Android |
+|:--|:--|
+| `value` / `onValueChange` | `state: TextFieldState` |
+| `onSearch`, `searchDelay` (300 ms) | `onSearch: ((String) -> Unit)?`, `searchDelay: Duration = 300.milliseconds` |
+| `endAdornment` | `endAdornment` — tools before the clear button |
+| `disabled`, `readOnly`, `placeholder` | `enabled`, `readOnly`, `placeholder` |
+| a Field around it (often `hideLabel`) | `label: String?` — shown above when given; without one it is named "Search" (`qx_search`) |
 
-## Accessibility
+## Behaviour
 
-Named by its `label`, or "Search" (`qx_search`) without one; the placeholder ("Search…",
-`qx_search_placeholder`) is a hint, not a name. The clear button is "Clear" (`qx_clear`), drawn smaller than 48 dp and reached by taps within 48 dp of
-it. Without a label, the field reserves a 48 dp touch height ([Text field](TextField.md)). Announce result
-counts sparingly, not on every keystroke.
+- `onSearch` runs when typing pauses for `searchDelay`, at once on the search key, and with "" when cleared — so
+  a server-searched list asks once per pause and the search key never asks twice. Text the app writes into the
+  state is not searched.
+- **Clear search** (`qx_clear_search`) empties the field, searches "" and returns focus to it. **Escape** clears
+  a field with text and lets the key through only once it is empty, so a dialog around it closes on the second
+  press.
 
-## Theme and tokens
+## Look
 
-The field recipe of `component.input`: the control height of the density, the boundary's hover, focus and
-disabled states; a 16 dp `text.tertiary` search icon.
+The [text field](TextField.md)'s box and states, with `padding-inline-end: space.gap.xs` so the clear button (a
+small neutral icon button) sits near the edge.
 
 ## Platform differences
 
-iOS uses the system's `searchable`. Android has no search field outside Material (whose `SearchBar` is
-experimental), so this one is Qeetrix's; suggestions and recent searches are the app's content below it.
+- **Search key.** The keyboard shows its search action (`ImeAction.Search`) and hides after a search.
+- **Typing pause.** Only typing, pasting and AutoFill start the pause — the edits that pass through an input
+  transformation — as react's `onValueChange` does.
 
-Related: [Text field](TextField.md), [Chip](Chip.md), [Empty state](EmptyState.md).
+Related: [Text field](TextField.md), [Chip](Chip.md) (applied filters).

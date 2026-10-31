@@ -3,6 +3,7 @@ package com.qeetgroup.qeetrix
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -27,7 +28,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.qeetgroup.qeetrix.quality.LocalizedCatalog
 import com.qeetgroup.qeetrix.quality.QualityCatalog
 import com.qeetgroup.qeetrix.quality.clipping
+import com.qeetgroup.qeetrix.quality.clippingFinding
 import com.qeetgroup.qeetrix.quality.isClipped
+import com.qeetgroup.qeetrix.quality.isEllipsizedByDesign
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -57,7 +60,13 @@ class QeetrixLayoutDeviceTest {
         compose.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides direction) {
                 QeetrixTheme {
-                    Box(Modifier.verticalScroll(rememberScrollState()).width(360.dp).padding(16.dp)) { specimen.content() }
+                    Box(
+                        Modifier
+                            .verticalScroll(rememberScrollState())
+                            .width(360.dp)
+                            .heightIn(max = SpecimenMaxHeight)
+                            .padding(16.dp),
+                    ) { specimen.content() }
                 }
             }
         }
@@ -71,8 +80,9 @@ class QeetrixLayoutDeviceTest {
                 val layouts = mutableListOf<TextLayoutResult>()
                 node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
                 val text = layouts.firstOrNull() ?: continue
-                val byDesign = each.name == "navigation-bar" && (0 until text.lineCount).any { text.isLineEllipsized(it) }
-                if (text.isClipped(slack) && !byDesign) {
+                // The JVM scan's exclusions: texts that end in an ellipsis by design, and the recorded findings.
+                val excused = text.isEllipsizedByDesign(each.name) || text.clippingFinding(each.name) != null
+                if (text.isClipped(slack) && !excused) {
                     clipped +=
                         "${each.name} [$direction]: \"${text.layoutInput.text}\" ${text.clipping()} paragraph ${text.getParagraphDirection(
                             0,
@@ -105,3 +115,11 @@ class QeetrixLayoutDeviceTest {
         }
     }
 }
+
+/**
+ * The tallest a specimen is drawn on a device: the JVM scans' window (`LayoutQualityTest`, `h2000dp`), inside the scroll
+ * that brings a tall specimen on screen. The overlay surfaces drawn in place (`MenuSurface`, `OptionListSurface`,
+ * `DialogSurface`, `SheetLayout`) scroll their own content within the height their window gives them, and a scrolling
+ * container cannot be measured in the unbounded height of a scroll: without the bound the 0.3.0 catalog crashed here.
+ */
+internal val SpecimenMaxHeight = 2000.dp

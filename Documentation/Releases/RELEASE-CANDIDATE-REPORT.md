@@ -65,7 +65,7 @@ notes and every gate's log.
 | Module metadata SHA-256 | `b246b8b2f3ebd3cb175547b0eb538fd19702ddcfbd51cbd6a324b2f7e75b3f6f` |
 | Sources JAR SHA-256 | `23a2037caea284afdd971ec0f510e4e708d710d3115d20fd9886390af46d2b33` |
 | Toolchain | Gradle 9.6.1, AGP 9.4.1, Kotlin 2.4.21, Compose BOM 2026.09.00, JDK 21.0.9, macOS arm64 |
-| Token source | `@qeetrix/ui` 2.1.6; `@qeetrix/icons` 1.0.11 at `331cd85` |
+| Token source | `@qeetrix/ui` 2.1.6; `@qeetrix/icons` 1.0.11 at `331cd85` (since replaced by `@qeetrix/tokens` 0.0.12, `@qeetrix/react` 0.3.0 and `@qeetrix/icons` 2.0.0; no candidate has been built from them yet) |
 
 This run's `PROVENANCE.md` repeats the version-catalog line and lists an empty "files" token source; both are
 formatting faults in the script, fixed after the run. Builds are not claimed to be bit-for-bit reproducible.

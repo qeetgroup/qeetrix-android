@@ -61,8 +61,9 @@ class ComponentScaffoldTest {
         assertTrue("UpperCamelCase" in failure(Request("Checkbox", "checkbox", "Forms & inputs")))
         assertTrue("without the Qeetrix prefix" in failure(Request("Checkbox", "QeetrixCheckbox", "Forms & inputs")))
         assertTrue("Unknown category \"Inputs\"" in failure(Request("Checkbox", "Checkbox", "Inputs")))
-        assertTrue("No component \"tick-box\"" in failure(Request("Checkbox", "TickBox", "Forms & inputs")))
-        assertTrue("icon-button belongs to the Button family" in failure(Request("Card", "IconButton", "Actions")))
+        // The family and part come from @qeetrix/react's component manifest.
+        assertTrue("No family \"tick-box\"" in failure(Request("TickBox", "TickBox", "Forms & inputs")))
+        assertTrue("card has no part \"IconButton\"" in failure(Request("Card", "IconButton", "Actions")))
     }
 
     @Test
@@ -81,12 +82,13 @@ class ComponentScaffoldTest {
 
     @Test
     fun aGroupUpstreamDefinesIsAdoptedAndTheRestOfThePinsIsUntouched() {
-        val changes = ComponentScaffold(root).plan(Request("Alert", "Alert", "Feedback"))
+        // @qeetrix/tokens defines component.command-palette, which Android has not adopted yet.
+        val changes = ComponentScaffold(root).plan(Request("CommandPalette", "CommandPalette", "Navigation"))
         val pins = changes.single { it.path == ComponentScaffold.UPSTREAM_PATH }.contents
         val original = File(root, ComponentScaffold.UPSTREAM_PATH).readText()
-        assertTrue("      \"alert\",\n      \"avatar\"," in pins)
-        assertEquals(original, pins.replace("      \"alert\",\n", ""))
-        assertTrue("Component tokens: QeetrixAlertComponentTokens." in changes.first().contents)
+        assertTrue("      \"command-palette\",\n      \"sidebar\"," in pins)
+        assertEquals(original, pins.replace("      \"command-palette\",\n", ""))
+        assertTrue("Component tokens: QeetrixCommandPaletteComponentTokens." in changes.first().contents)
     }
 
     @Test

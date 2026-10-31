@@ -3,50 +3,52 @@ package com.qeetgroup.qeetrix.sample.components.forms
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyState
-import com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyStateSize
-import com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyStateVariant
 import com.qeetgroup.qeetrix.components.input.QeetrixSearchField
-import com.qeetgroup.qeetrix.components.list.QeetrixListItem
+import com.qeetgroup.qeetrix.components.typography.QeetrixText
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
-import com.qeetgroup.qeetrix.sample.SampleSurface
 
-private val Cities = listOf("Bengaluru", "Chennai", "Hyderabad", "Kolkata", "Mumbai", "New Delhi", "Pune")
+private val Members = listOf("Asha Rao", "Grace Hopper", "Ada Lovelace", "Ravi Kumar", "Meera Iyer")
 
-/** A search field filtering a short list on the device, with its no-results state; and one with a label. */
+/** A search box over a list: it searches when typing pauses, on the search key, and when cleared. */
 @Composable
 fun SearchFieldSample() {
     SamplePage {
-        SampleSection("Filter a list") {
+        SampleSection("Filtering a list") {
             val query = rememberTextFieldState()
-            var submitted by rememberSaveable { mutableStateOf<String?>(null) }
-            QeetrixSearchField(query, placeholder = "Search cities", onSearch = { submitted = it })
-            val text = query.text.toString().trim()
-            val matches = Cities.filter { it.contains(text, ignoreCase = true) }
-            SampleSurface {
-                if (matches.isEmpty()) {
-                    QeetrixEmptyState(
-                        "No cities found",
-                        description = "Nothing matches “$text”.",
-                        variant = QeetrixEmptyStateVariant.NoResults,
-                        size = QeetrixEmptyStateSize.Sm,
-                    )
-                } else {
-                    for (city in matches) QeetrixListItem(city)
-                }
+            var searched by remember { mutableStateOf("") }
+            var asks by remember { mutableIntStateOf(0) }
+            QeetrixSearchField(
+                query,
+                placeholder = "e.g. Asha",
+                onSearch = {
+                    searched = it
+                    asks++
+                },
+            )
+            val results = Members.filter { it.contains(searched, ignoreCase = true) }
+            if (results.isEmpty()) {
+                QeetrixText("No members match \"$searched\".", tone = QeetrixTextTone.Subtle)
+            } else {
+                for (member in results) QeetrixText(member)
             }
-            SampleNote(submitted?.let { "Searched for “$it”." } ?: "The list filters as you type; the search key reports the query.")
+            SampleNote(
+                "Searched $asks times: once per pause in typing, at once on the keyboard's search key, and with " +
+                    "nothing when cleared. Escape clears it too.",
+            )
         }
-        SampleSection("With a label") {
-            QeetrixSearchField(rememberTextFieldState(), label = "Find a member")
-            SampleNote("Without a label, the field is named \"Search\" for TalkBack.")
+        SampleSection("With a label, and disabled") {
+            QeetrixSearchField(rememberTextFieldState(), label = "Find an invoice", placeholder = "e.g. INV-2041")
+            QeetrixSearchField(rememberTextFieldState("archived"), enabled = false)
+            SampleNote("Without a label it is named \"Search\", the search icon its visible sign, as in a toolbar.")
         }
     }
 }

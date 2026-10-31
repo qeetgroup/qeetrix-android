@@ -14,11 +14,11 @@ expected=$(sort <<'LIST'
 AndroidManifest.xml
 META-INF/com/android/build/gradle/aar-metadata.properties
 R.txt
-assets/qeetrix/licenses/CalSans-OFL.txt
 assets/qeetrix/licenses/FiraCode-OFL.txt
+assets/qeetrix/licenses/QeetSans-OFL.txt
 assets/qeetrix/licenses/qeetrix-icons-LICENSE.txt
 classes.jar
-res/font/qx_cal_sans_vf.ttf
+res/font/qx_qeet_sans_vf.ttf
 res/font/qx_fira_code_vf.ttf
 res/values/values.xml
 LIST

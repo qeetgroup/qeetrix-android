@@ -109,7 +109,7 @@ lock=Upstream/manifest.lock.json
     echo "- Working-tree digest (tracked and untracked files): \`$tree_digest\`"
     echo "- Gradle $(./gradlew --version | sed -n 's/^Gradle //p'), $(java -version 2>&1 | head -1)"
     echo "- $(sed -n '/^\[versions\]/,/^\[/p' gradle/libs.versions.toml | grep -E '^(agp|kotlin|compose-bom) = ' | tr -d '"' | paste -sd ',' - | sed 's/,/, /g')"
-    echo "- Token source: $(python3 -I -c "import json,sys; m=json.load(open(sys.argv[1])); print(f'@qeetrix/ui {m[\"qeetrixUI\"][\"version\"]}; @qeetrix/icons {m[\"qeetrixIcons\"][\"version\"]} at {m[\"qeetrixIcons\"][\"commit\"][:7]}')" "$lock" 2>/dev/null || echo "see $lock")"
+    echo "- Upstream: $(python3 -I -c "import json,sys; m=json.load(open(sys.argv[1])); print(f'@qeetrix/react {m[\"qeetrixReact\"][\"version\"]}; @qeetrix/tokens {m[\"qeetrixTokens\"][\"version\"]}; @qeetrix/icons {m[\"qeetrixIcons\"][\"version\"]} at {m[\"qeetrixIcons\"][\"gitHead\"][:7]}')" "$lock" 2>/dev/null || echo "see $lock")"
     echo "- Published to: $out/maven (local directory only; nothing was uploaded)"
     echo "- Gates passed: ${passed[*]}"
     echo

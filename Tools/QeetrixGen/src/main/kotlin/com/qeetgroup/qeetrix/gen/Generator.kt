@@ -10,7 +10,7 @@ import com.qeetgroup.qeetrix.gen.emit.TokenEmitter
 import com.qeetgroup.qeetrix.gen.fonts.FontInspector
 import com.qeetgroup.qeetrix.gen.icons.SvgParser
 import com.qeetgroup.qeetrix.gen.tokens.TokenModel
-import com.qeetgroup.qeetrix.gen.tokens.TokenSource
+import com.qeetgroup.qeetrix.gen.tokens.DtcgSource
 import com.qeetgroup.qeetrix.gen.upstream.Lock
 import com.qeetgroup.qeetrix.gen.upstream.Manifest
 import kotlinx.serialization.json.Json
@@ -40,29 +40,16 @@ class Generator(
             if (!file.exists()) throw GeneratorError("$path is missing — run Scripts/sync-tokens.")
             return file.readText()
         }
+        val provenance = Provenance(lock)
 
-        fun uiFile(name: String) =
-            upstream(
-                manifest.uiFiles.values.firstOrNull { it.endsWith("/$name") }
-                    ?: throw GeneratorError("${Manifest.PATH}: no qeetrix-ui file named $name."),
-            )
-        val provenance =
-            Provenance(
-                uiPackage = lock.uiPackage,
-                uiVersion = lock.uiVersion,
-                uiGitHead = lock.uiGitHead,
-                uiIntegrity = lock.uiIntegrity,
-                iconsRepository = lock.iconsRepository,
-                iconsPackage = lock.iconsPackage,
-                iconsVersion = lock.iconsVersion,
-                iconsCommit = lock.iconsCommit,
-            )
-
-        val model =
-            TokenModel(
-                TokenSource(uiFile("tokens.json"), uiFile("tokens.css"), uiFile("index.css")),
-                adoptedComponents = manifest.componentTokens.toSet(),
-            )
+        val dtcgDirectory = File(root, manifest.tokens.destination)
+        if (!dtcgDirectory.isDirectory) throw GeneratorError("${manifest.tokens.destination} is missing — run Scripts/sync-tokens.")
+        val dtcgFiles =
+            dtcgDirectory
+                .walkTopDown()
+                .filter { it.isFile && it.extension == "json" }
+                .associate { it.relativeTo(dtcgDirectory).invariantSeparatorsPath to it.readText() }
+        val model = TokenModel(DtcgSource(dtcgFiles), adoptedComponents = manifest.tokens.componentTokens.toSet())
         val fonts =
             manifest.fonts.map { pin ->
                 val file = File(root, pin.destination)
@@ -73,15 +60,18 @@ class Generator(
                         "${pin.destination}: font resources must be named qx_<lowercase_name> to avoid clashing with an app's resources.",
                     )
                 }
+                val locked =
+                    lock.fonts.firstOrNull { it.destination == pin.destination }
+                        ?: throw GeneratorError("${Lock.PATH} has no font for ${pin.destination} — run Scripts/sync-tokens.")
                 val bytes = file.readBytes()
                 FontSpec(
-                    pin.family,
-                    pin.webFamily,
-                    pin.repository,
-                    pin.tag,
-                    resourceName,
-                    sha256(bytes),
-                    FontInspector.inspect(bytes, pin.destination),
+                    family = pin.family,
+                    webFamily = pin.webFamily,
+                    resourceName = resourceName,
+                    source = pin.ttf,
+                    woff2Sha256 = locked.woff2Sha256,
+                    ttfSha256 = sha256(bytes),
+                    info = FontInspector.inspect(bytes, pin.destination),
                 )
             }
 

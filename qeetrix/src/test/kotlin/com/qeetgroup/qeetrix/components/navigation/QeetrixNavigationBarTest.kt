@@ -27,7 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-/** The bottom bar: tabs in one group, selection the app's, every choice reported, badges read. */
+/** The bottom bar: tabs in one group, the current destination the app's, every choice reported, badges read. */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixNavigationBarTest {
     @get:Rule
@@ -42,8 +42,8 @@ class QeetrixNavigationBarTest {
         )
 
     @Test
-    fun itemsAreTabsInOneGroupAndTheAppsSelectionIsMarked() {
-        compose.setQeetrix { QeetrixNavigationBar(items, selected = "inbox", onSelect = {}) }
+    fun itemsAreTabsInOneGroupAndTheCurrentOneIsMarked() {
+        compose.setQeetrix { QeetrixNavigationBar(items, value = "inbox", onValueChange = {}) }
         compose
             .onNodeWithText("Inbox")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
@@ -56,14 +56,14 @@ class QeetrixNavigationBarTest {
     }
 
     @Test
-    fun choosingReportsTheValueAndTheBarKeepsNoSelectionOfItsOwn() {
+    fun choosingReportsTheValueAndTheBarKeepsNoStateOfItsOwn() {
         val chosen = mutableListOf<String>()
-        var selected by mutableStateOf("home")
-        compose.setQeetrix { QeetrixNavigationBar(items, selected = selected, onSelect = { chosen += it }) }
+        var current by mutableStateOf("home")
+        compose.setQeetrix { QeetrixNavigationBar(items, value = current, onValueChange = { chosen += it }) }
         compose.onNodeWithText("Settings").performClick()
-        // Reported, but not selected until the app says so.
+        // Reported, but not current until the app says so.
         compose.onNodeWithText("Settings").assertIsNotSelected()
-        compose.runOnIdle { selected = chosen.last() }
+        compose.runOnIdle { current = chosen.last() }
         compose.onNodeWithText("Settings").assertIsSelected()
         // The current destination chosen again is reported too, so the app can return to its top.
         compose.onNodeWithText("Settings").performClick()
@@ -74,7 +74,7 @@ class QeetrixNavigationBarTest {
 
     @Test
     fun aBadgeIsReadWithItsLabel() {
-        compose.setQeetrix { QeetrixNavigationBar(items, selected = "home", onSelect = {}) }
+        compose.setQeetrix { QeetrixNavigationBar(items, value = "home", onValueChange = {}) }
         compose.onNode(hasText("Inbox") and hasText("3")).assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
     }
 
@@ -88,8 +88,8 @@ class QeetrixNavigationBarTest {
                             QeetrixNavigationItem(1, "One", QeetrixIconName.House),
                             QeetrixNavigationItem(1, "Again", QeetrixIconName.Inbox),
                         ),
-                        selected = 1,
-                        onSelect = {},
+                        value = 1,
+                        onValueChange = {},
                     )
                 }
             }

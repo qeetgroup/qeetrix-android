@@ -67,6 +67,8 @@ class WorkspaceFlowTest {
         compose.mainClock.autoAdvance = false
         compose.onNodeWithText("Save").performClick()
         compose.mainClock.advanceTimeByFrame()
+        // The dialog leaves in motion.duration.normal, then its window goes.
+        compose.mainClock.advanceTimeBy(DIALOG_EXIT_MILLIS)
         compose.onNode(isDialog()).assertDoesNotExist()
         compose.onNode(isHeading() and hasText("Website relaunch")).assertExists()
         compose.onNodeWithText("Project renamed").assertExists()
@@ -111,3 +113,5 @@ class WorkspaceFlowTest {
         compose.runOnIdle { assertTrue(exits == 1) }
     }
 }
+
+private const val DIALOG_EXIT_MILLIS = 500L

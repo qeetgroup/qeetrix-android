@@ -31,7 +31,7 @@ the user types (only the password field's reveal flag), and logs nothing.
 | R8 | The sample's release is now minified and resource-shrunk ([RELIABILITY-REPORT.md](RELIABILITY-REPORT.md)) | The library needs and ships no consumer rules |
 | Dependencies | `qeetrix/gradle.lockfile` (strict, release classpaths); OSV batch query of all 92 locked runtime artifacts on 2026-10-20 | AndroidX, Kotlin/kotlinx, JetBrains annotations, JSpecify, Guava's empty `listenablefuture` — all Apache-2.0; OSV listed **no** advisories |
 | CI supply chain | `.github/workflows/ci.yml` | Third-party actions were pinned to moving tags; now pinned to commit SHAs (P3, fixed) |
-| Licences of bundled assets | `Documentation/THIRD_PARTY_NOTICES.md`, the AAR | Cal Sans and Fira Code (SIL OFL 1.1) and qeetrix-icons (MIT, with Lucide's ISC and Feather's MIT notices), each with its licence text in the AAR |
+| Licences of bundled assets | `Documentation/THIRD_PARTY_NOTICES.md`, the AAR | Qeet Sans (Cal Sans) and Fira Code (SIL OFL 1.1) — since the move to `@qeetrix/react`, the TrueType files `@qeetrix/tokens` ships — and `@qeetrix/icons` (MIT, with Lucide's ISC and Feather's MIT notices), each with its licence text in the AAR |
 
 ## Dependencies the library hands to apps
 

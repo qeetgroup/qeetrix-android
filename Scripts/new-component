@@ -1,13 +1,14 @@
 #!/bin/sh
 # Scaffold a component from Templates/Component, at the paths in Documentation/Standards/COMPONENT_CONTRACT.md.
 #
-#   Scripts/new-component <Family> <Component> --category "<ui.qeet.in group>" [--slug <web slug>] [--dry-run] [--root <repository>]
+#   Scripts/new-component <Family> <Component> --category "<ui.qeet.in group>" [--slug <react part>] [--dry-run] [--root <repository>]
 #
-#   Scripts/new-component Checkbox Checkbox --category "Forms & inputs" --dry-run
-#   Scripts/new-component Input TextArea --category "Forms & inputs" --slug textarea
+#   Scripts/new-component Slider Slider --category "Forms & inputs" --dry-run
+#   Scripts/new-component Input MultilineInput --category "Forms & inputs" --slug Textarea
 #
-# <Family> is the family in the pinned component-manifest.json ("category"); --slug defaults to the
-# component name in kebab case. It never overwrites: an existing component stops the run with the
+# <Family> is the @qeetrix/react family ("name" in Upstream/qeetrix-react/component-manifest.json) in
+# UpperCamelCase; --slug is the family's part the component implements, and defaults to the component
+# name. It never overwrites: an existing component stops the run with the
 # reasons and changes nothing. --root runs it against another copy of the repository, for a trial.
 # Templates/Component/README.md describes the output.
 set -eu

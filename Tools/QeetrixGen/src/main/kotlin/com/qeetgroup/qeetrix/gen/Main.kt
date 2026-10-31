@@ -8,7 +8,7 @@ import kotlin.system.exitProcess
 private const val USAGE = """qeetrix-gen <command> --root <repository>
 
 Commands:
-  sync [--check]  Fetch the artifacts pinned in Upstream/manifest.json, verify them and rewrite the lock.
+  sync [--check]  Fetch the npm tarballs pinned in Upstream/manifest.json, verify them and rewrite the lock.
                   With --check, compare upstream with the lock and change nothing. Network.
   generate        Regenerate every derived file from the snapshot. Offline, deterministic.
   verify          Fail if the snapshot differs from its lock or a generated file has drifted. Offline.

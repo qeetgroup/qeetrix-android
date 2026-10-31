@@ -3,24 +3,204 @@
 How a Qeetrix design decision made for the web arrives on Android unchanged, what "unchanged" means where
 the platforms differ, and what was verified against qeetrix-ios.
 
-**Status.** Written by the Android side. It follows the rules qeetrix-ios recorded in its own
-`Documentation/CROSS_PLATFORM_CONTRACT.md` and decision records. Foundation parity was checked against
-qeetrix-ios's committed Phase 1 (`f335645`); component parity against its **uncommitted** Phase 2 working
-tree on 2026-10-18 (on top of `f335645`), which may still change. The iOS side has not reviewed this
-document; it is not a jointly approved contract.
+**Status.** Written by the Android side. Since 2026-10-30 both native libraries are built from `@qeetrix/react`,
+`@qeetrix/tokens` and `@qeetrix/icons` 2.0 under the same shared decisions
+([0019](Decisions/0019-migrate-to-qeetrix-react-tokens-and-icons.md); the mapping and every decision are in
+[MIGRATION_QEETRIX_REACT.md](MIGRATION_QEETRIX_REACT.md)). The parity sections below "History" were checked against
+`@qeetrix/ui` 2.1.6 before the migration and describe the old API. The iOS side has not reviewed this document; it is
+not a jointly approved contract.
 
 ## Source of truth
 
 | Concern | Authority | Android reads | iOS reads |
 |:--|:--|:--|:--|
-| Tokens | qeetrix-ui `src/tokens/**` (DTCG), compiled by its Style Dictionary build | `@qeetrix/ui` 2.1.6 `tokens.json`, `tokens.css`, `index.css` | the same files |
-| Component catalogue | qeetrix-ui `component-manifest.json` (137 components, 97 families) | the same file from 2.1.6, for `new-component` | the same file |
-| Themes | qeetrix-ui `scripts/config/themes.json` (`light`, `dark`) | the theme keys in `tokens.json` | the same |
-| Typeface | qeetrix-ui `fonts/` (WOFF2) | calcom/sans v2.011 and Fira Code 6.2 TTFs, proven byte-identical through their WOFF2 | the same files |
-| Icons | qeetrix-icons `icons/**.svg` + `icon-manifest.json` | commit `331cd85` (`@qeetrix/icons` 1.0.11), 31 icons | the same commit; 37 icons (see Pins below) |
+| Tokens | qeetrix-tokens `src/` (DTCG 2025.10) and its resolver | `@qeetrix/tokens` 0.0.13 `dist/dtcg/`, resolved as `qeetrix.resolver.json` says and checked against the published light and dark documents | the same tarball |
+| Component look and API | `@qeetrix/react` (Base UI) and qeetrix-files `qeetrix-react/` (design rules, specs) | `@qeetrix/react` 0.4.0 `dist/manifest.json` (89 families) and the compiled CSS of the 42 families Android maps | the same package |
+| Colour schemes and densities | the resolver's `colorScheme` (light, dark) and `density` (default, comfortable, compact) modifiers | all six combinations; colours and shadows vary by scheme, five lengths by density | the same |
+| Typeface | the web's `QeetSans.woff2` and `FiraCode-VF.woff2` | the TrueType files `@qeetrix/tokens` ships for native platforms, checked against `fonts/native.json` | the same files |
+| Icons | qeetrix-icons `icons/**` | `@qeetrix/icons` 2.1.0, its SVG files and `dist/manifest.json`; 41 icons | the same package |
 
-Changes flow one way: upstream release → `Upstream/manifest.json` (iOS: `Upstream/pins.json`) → sync →
-generate. Generated files and the snapshot are never edited in either repository.
+Changes flow one way: upstream release → `Upstream/manifest.json` (iOS: its pins file) → sync → generate. Generated
+files and the snapshot are never edited in either repository.
+
+## Parity after the migration (Android vs qeetrix-ios's working tree, 2026-10-30, before the 0.0.13 bump)
+
+| What | Result |
+|:--|:--|
+| Upstream tarball | `@qeetrix/tokens` 0.0.12, the same integrity hash |
+| Colours | Every colour both generate is identical in 8-bit sRGB in both schemes |
+| Token scope | Android 202 generated (adds `breakpoint.*` and the adopted `component.sidebar.*`, `component.timeline.*`); iOS 194 (adds `primitive.font.weight.*`). Not yet reconciled |
+| `token-values.json` | Both write one; the shapes differ (Android: a map by path with per-scheme source, authored value, references and value; iOS: a list with Swift names). Not yet diffable |
+
+## Names
+
+- A token keeps its upstream path. Kotlin takes it in idiom: colours are `QeetrixColors` properties, camelCase of the path
+  after `color.` (`color.bg.brand.bold` → `QeetrixTheme.colors.bgBrandBold`); typography roles are `QeetrixTextRole.BodyMd`
+  / `typography.bodyMd`; tokens the density changes are `QeetrixDensity` properties (`size.control.md` → `sizeControlMd`);
+  every other token is a PascalCase constant in its group's object (`space.inset.md` → `QeetrixSpace.InsetMd`). iOS uses the
+  same words in lowerCamelCase.
+- A component's variant, tone and size names are `@qeetrix/react`'s, with react's string as the enum's `value`
+  (`QeetrixButtonVariant.Solid("solid")`), so analytics and stored values read the same everywhere.
+- Theme modes, typography roles and icon names keep their upstream spelling as values (`system`, `body.md`, `send`).
+
+## Units and values
+
+| Web | Android | iOS |
+|:--|:--|:--|
+| `1px` | 1 dp (`Dp`) | 1 pt |
+| `1rem` | 16 dp — browsers use a 16 px root | 16 pt |
+| font size `rem` | sp (`TextUnit`), following the font scale | pt, following Dynamic Type |
+| letter spacing `px` | em of the role's size (`label.caps`: 0.66 px ÷ 11 px = 0.06 em) | the same, scaled |
+| unitless line-height | `em` with `LineHeightStyle(Center, Trim.None)` — CSS half-leading | `lineSpacing` |
+| `ms` | `Int` milliseconds | seconds |
+| DTCG `oklch` colour | CSS Color 4 conversion of the components: sRGB 8-bit when inside sRGB, else Display P3; checked against the recorded `hex` | the same conversion |
+| `cubicBezier` | `CubicBezierEasing` / `LinearEasing` | `timingCurve` / `.linear` |
+| `motion.spring.*` | Compose `spring(dampingRatio, stiffness)` (`QeetrixSpring.spec()`) | SwiftUI spring with the same parameters |
+| `shadow` | `Modifier.qeetrixShadow`: offset, spread, blur with σ = blur ÷ 2, outer layers outside the shape, inset inside | the same model |
+| `font-variation-settings: "GEOM" …`, `font-optical-sizing: auto` | `GEOM` per role (display 100, heading/title 50, body/label/code 0), `opsz` = the size drawn, in dp (the role's sp through the font scale, Android 14's non-linear curve included) | the same axes |
+| `data-qx-color-scheme`, nested | `QeetrixTheme(QeetrixThemeMode.Dark)`, nestable | its theme modifier |
+| `data-qx-density` | `LocalQeetrixDensity provides QeetrixDensity.Compact` per region | its density environment |
+| `prefers-reduced-motion` (every duration 0 ms) | Remove animations (animator scale 0): every duration snaps | Reduce Motion: the same |
+
+## Deliberate differences
+
+Each follows a platform convention; none restyles anything. The per-phase component tables below were recorded before
+the migration and use the old names; the current per-component differences are in each `Documentation/Components/` page's
+"Platform differences".
+
+- **Touch targets.** 48 dp on Android, 44 pt on iOS (each platform's guidance).
+- **Bold Text.** Android raises the requested weight by the platform's adjustment (typically +300,
+  capped by the font's 700 maximum); iOS raises a role one weight step.
+- **Icon scaling.** Android icons are dp and do not grow with the font scale (Android convention); iOS
+  icons scale with Dynamic Type like SF Symbols.
+- **Line height.** Android reproduces CSS half-leading exactly; iOS cannot go below the font's natural
+  line height.
+- **Icon geometry.** Android emits circles and rounded corners as cubic Béziers (Compose paths have no
+  ellipse); iOS keeps native ellipses. The difference is under 0.03% of the radius.
+- **Wide colour.** Display P3 tokens render in P3 on Android only in a window with
+  `colorMode="wideColorGamut"`; iOS views are P3-capable by default.
+- **Not mapped on either:** z-index tokens, logos, and the `component.*` groups no adopted component uses
+  (Android adopts `sidebar` and `timeline`).
+
+### Components (Phase 2)
+
+Where a component differs, it is because the platforms do; the look, tokens and states are the same.
+
+| Area | Android | iOS |
+|:--|:--|:--|
+| Touch target of small controls | 48 dp reserved in layout (Compose's `clickable` cannot take input outside its bounds) | Hit area extended to 44 pt without moving layout |
+| Press feedback | The web's colour and elevation steps, no ripple; hover appearances on press where the web relies on hover (link underline, card boundary) | The same approach |
+| Keyboard focus | The Qeet focus ring, as the web | The system's focus indicator |
+| Heading sizes | The web's `sm` breakpoint as a 640 dp window width | The horizontal size class |
+| Text field text size | 16 sp below a 768 dp window, 14 sp above, as the web | 16 pt everywhere |
+| Text field "required" | "required" read with the label, as the asterisk's description (since Phase 3) | "Required" added to the field's label |
+| Field messages | Live regions: assertive for errors, polite otherwise (the web's `alert` / `status`) | Posted VoiceOver announcements |
+| Text colour | Inherits the surrounding content colour, as the web | The primary text colour |
+| Avatar initials | First grapheme cluster per word (the web takes the first code point) | The same (Swift `Character`s are grapheme clusters) |
+| Loading semantics | State description "Loading" | Accessibility value "Loading" |
+| Separator | Hidden from TalkBack (no separator role) | Hidden from VoiceOver |
+| Labelled switch | Label at the start, switch at the end | The same |
+
+Not implemented on Android in Phase 2: the Button's `invalid` (`aria-invalid`) styling.
+
+### Components (Phase 3)
+
+| Area | Android | iOS |
+|:--|:--|:--|
+| Field association | The label is drawn inside the control (a text field's decorator); `Modifier.qeetrixFieldControl()` names any other control | The field passes its parts through the environment; the control carries them |
+| Field description | Text after the control, read in order | The control's accessibility hint, and text in order |
+| Field messages | Error state on the control plus a live region (assertive for errors) | Custom content on the control at high importance, plus an announcement |
+| Select | Qeetrix's own list in a Compose popup, opening below (above when it does not fit), focusing the selection from a keyboard | The system menu |
+| Checkbox | Checkbox role, "partially checked" for mixed | No checkbox role: VoiceOver reads a toggle |
+| Number field steppers | Buttons, plus Up/Down arrow keys and Decrease/Increase accessibility actions on the field | Buttons; no arrow keys |
+| AutoFill | `ContentType` (`Password`, `NewPassword`, `SmsOtpCode`, and the `contentType` parameter) | `textContentType` (`.password`, `.newPassword`, `.oneTimeCode`, …) |
+| Password reveal | Same field, obscuring switched off; the visible-password keyboard while revealed | `SecureField` swapped for a `TextField` on the same binding |
+| Secret handling | No copies, no saved text; the platform exposes the field to accessibility services as a password | No copies; `privacySensitive()` |
+| Selection rows and error-summary links | 48 dp | 44 pt |
+
+The same on both, against the web: the OTP cells keep left-to-right order in right-to-left layouts, use one
+caret, and offer `Alphanumeric` as a native addition; a revealed password is not re-masked on submit (no
+form history); the textarea grows with its text instead of a drag handle; the number field has no pointer
+scrubbing; each radio option is its own keyboard focus stop rather than one stop with arrow keys.
+
+### Components (Phase 4)
+
+| Area | Android | iOS |
+|:--|:--|:--|
+| Top-level navigation | `QeetrixNavigationBar` / `QeetrixNavigationRail` drawn by Qeetrix, switched by `QeetrixNavigationScaffold` at 600 dp of window width | The system `TabView`, styled with `qeetrixTabBar()` / `qeetrixTabItem`; iPad's sidebar adaptation is the system's |
+| Screen header | `QeetrixTopAppBar` drawn by Qeetrix, with `QeetrixBackButton` | The system navigation bar, styled with `qeetrixNavigationBar(background:)` |
+| Alert and confirmation | Qeetrix's surface in Compose's dialog window; the confirmation is the alert with two fixed roles | The system alert and the system confirmation dialog (action sheet), in the system's style |
+| Custom dialog | `QeetrixDialog`, centred on every window size | Deferred: a sheet (a centred form sheet on iPad) |
+| Sheet | `QeetrixBottomSheet` (Material's sheet underneath, Qeetrix's surface); predictive back | `qeetrixSheet` with detents, the system sheet |
+| Menu | Qeetrix's surface in a popup (`component.menu`) | The system menu |
+| Popover | Deferred: menu, dialog or bottom sheet | `qeetrixPopover`, a sheet on iPhone by default |
+| Transient feedback | `QeetrixSnackbar`; while TalkBack is on, an action has no time limit | `QeetrixToast`; while VoiceOver is on, the same |
+| Back | Platform Back and Escape close the topmost overlay; Qeetrix registers no Back handler | No Back key; swipe and Escape |
+| Icons in chrome | `arrow-left` (mirrored for Back) and `ellipsis-vertical` (Android's overflow), which iOS does not pin | `ellipsis` for menu triggers; system chevrons for Back |
+
+The same on both, against the web: one transient message at a time rather than the web's stack; timing 5 s,
+or 10 s for warnings, errors and actions; a destructive dialog always offers Cancel; actions run once;
+tabs are each their own keyboard focus stop.
+
+### Components (Phase 5)
+
+| Area | Android | iOS |
+|:--|:--|:--|
+| Collections | Compose's `LazyColumn` with the app's `key`s; sections are `stickyHeader`s holding `QeetrixSectionHeader` | SwiftUI's `List` and `Section`, with `ForEach` identity |
+| Rows | `QeetrixListItem` is clickable itself (`onClick`, `onLongClick`); a long press starts a selection | The row sits in a `NavigationLink` or `Button` with `qeetrixListRow()`; swipe actions and context menus are the system's |
+| Accordion | Qeetrix's item, state hoisted (`expanded`, `onExpandedChange`); "Expanded"/"Collapsed" as the state description plus expand and collapse actions | Native `DisclosureGroup`s in `QeetrixDisclosureGroupStyle`; items can keep their own state |
+| Search | `QeetrixSearchField`, on the shared field parts | The system's `searchable` |
+| Chips' semantics | Checkboxes, and radio buttons in a single-choice group, as Material's filter chips are | Buttons with the selected trait |
+| Chip options | Labels only: an option's description is neither shown nor read | An option's description is the chip's hint |
+| Large text | From 150 % font scale, row trailing content and timeline times move below the text | At the accessibility sizes, the same |
+| Reading order | Placement order (title, description, metadata) | Sort priority, the same order |
+| Pull to refresh | Material 3's `PullToRefreshBox`, not wrapped | `refreshable` |
+
+The same on both, against the web: the data state never shows an error object's message and offers "Try
+again"; rows and section headers exist on both (the web has none); the data table, image presentation,
+feeds, trees, filter bars, pagination and stats are deferred; component tokens built on `control.*`
+resolve at the default density, so the accordion's padding and the timeline's gaps don't follow a compact
+density.
+
+## Decisions that need both platforms
+
+0. **Since the migration:** reconcile the token scope (breakpoints, adopted component groups, `primitive.font.weight.*`)
+   and one `token-values.json` shape, so parity is a diff; agree on the bug workarounds in
+   [MIGRATION_QEETRIX_REACT.md](MIGRATION_QEETRIX_REACT.md) §7 (directional icons, the neutral and danger button states, menu
+   and select rows at 48 dp / 44 pt).
+
+1. **A shared resolved-values file.** Android publishes `token-values.json`; iOS could emit the same
+   shape so parity is checked by a diff instead of by parsing generated code.
+2. **Pins.** Android's pins match qeetrix-ios's through Phase 5 apart from what each platform draws:
+   Android adds `arrow-left` and `ellipsis-vertical` and the `menu` and `sidebar` token groups; iOS adds
+   `popover`. Both now carry `calendar`, `clock`, `file-text`, `folder`, `mail`, `refresh-cw`, `search-x`
+   and `users`, and the `accordion`, `skeleton` and `timeline` groups. A shared rule for which pins both
+   carry would keep the lists from drifting.
+3. **Logos.** The Qeet logo's SVG uses a `<mask>`, which neither native vector format supports. `@qeetrix/icons`
+   2.1.0 ships mask-free drawings for native formats (`dist/svg/logos/qeet/{default,dark}.mask-free.svg`, QTRX-189);
+   Android draws no logo yet, so it takes none.
+4. **Increased contrast.** No upstream values; both platforms resolve standard values today.
+5. **Component folders.** Both organise components by qeetrix-ui family (the manifest's `category`), not by
+   ui.qeet.in's navigation categories.
+6. **API baselines.** Both check their public API against a committed baseline
+   ([0013](Decisions/0013-public-api-baseline.md)).
+7. **Screenshot baselines.** Android keeps its baselines local and out of git, so its CI does not run
+   visual regression ([0012](Decisions/0012-visual-regression-testing.md)). If the two platforms want
+   comparable visual evidence, they need a shared decision on where baselines live.
+
+## Proposed upstream changes (not made)
+
+The two proposals made before the migration are resolved by `@qeetrix/tokens`: corner roles are DTCG tokens
+(`radius.*`), and the DTCG build is typed and resolvable without CSS. QTRX-91 (native TTFs) and QTRX-92 (a JSON component
+manifest) were filed during the migration and are fixed, and so are the gaps and bugs found while porting
+(QTRX-157 to 189: SVG files and a JSON catalogue in `@qeetrix/icons`, the role letter style and exact line heights in
+the DTCG, a mask-free Qeet logo, and the CSS and token fixes), released on 30 October 2026 in `@qeetrix/react` 0.4.0,
+`@qeetrix/tokens` 0.0.13 and `@qeetrix/icons` 2.1.0. [MIGRATION_QEETRIX_REACT.md](MIGRATION_QEETRIX_REACT.md) §7
+lists each with its ticket and what Android does now.
+
+## History: parity checked against `@qeetrix/ui` 2.1.6 (before the migration)
+
+The sections below record what was verified in Phases 1–7. Their token names, components and values are the old ones.
 
 ## Verified parity (Android vs qeetrix-ios `f335645`, `@qeetrix/ui` 2.1.6)
 
@@ -113,165 +293,3 @@ differences below.
 No contradiction in tokens, typography or design contracts was found. Each library's release still needs its own
 manual accessibility pass on a device.
 
-## Names
-
-- A token keeps its upstream path. The Kotlin name is the path without its group, in camelCase for
-  properties (`color.text.on-brand` → `QeetrixTheme.colors.textOnBrand`) and PascalCase for constants
-  and enum entries (`elevation.ramp.2xs` → `QeetrixElevation.Ramp2xs`). iOS uses the same words in
-  lowerCamelCase (`QeetrixColor.textOnBrand`).
-- A leading number moves to the end on both platforms (`space.2xl` → `Xl2` / `xl2`), and `0` becomes
-  `Zero` / `zero`.
-- Theme modes, typography roles and icon names keep their upstream spelling as values (`system`,
-  `label-compact`, `send`), so stored preferences and analytics read the same on every platform.
-
-## Units and values
-
-| Web | Android | iOS |
-|:--|:--|:--|
-| `1px` | 1 dp (`Dp`) | 1 pt |
-| `1rem` | 16 dp — qeetrix-ui sets no root font size, so browsers use 16 px | 16 pt |
-| font size `px`/`rem` | sp (`TextUnit`), following the font scale | pt, following Dynamic Type |
-| `em` letter-spacing | `em` (`TextUnit`) | multiplied by the scaled point size |
-| unitless line-height | `em` with `LineHeightStyle(Center, Trim.None)` — CSS half-leading | `lineSpacing` (cannot shrink below the font's natural height) |
-| `ms` | `Int` milliseconds | seconds |
-| `oklch()` / `color-mix(in oklab, …)` | sRGB 8-bit when inside sRGB, else Display P3 (CSS Color 4) | sRGB or Display P3, six decimals |
-| `cubic-bezier()` / `linear` | `CubicBezierEasing` / `LinearEasing` | `timingCurve` / `.linear` |
-| `box-shadow` | `Modifier.qeetrixElevation`: offset, spread, blur with σ = blur ÷ 2, outer layers outside the shape, inset inside | `.qeetrixElevation`, the same model |
-| `font-weight` / `GEOM` / `font-optical-sizing: auto` | `wght` / `GEOM` / `opsz` = role size in sp × font scale | the same axes; `opsz` = scaled point size |
-| `.dark` / nested `.dark` | `QeetrixTheme(QeetrixThemeMode.Dark)`, nestable | `.qeetrixThemeMode(.dark)` / `.qeetrixTheme(.dark)` |
-| `prefers-reduced-motion` → `motion.reduced.*` | Remove animations (animator scale 0) → `motion.reduced.*` | Reduce Motion → `motion.reduced.*` |
-
-## Deliberate differences
-
-Each follows a platform convention; none restyles anything.
-
-- **Touch targets.** 48 dp on Android, 44 pt on iOS (each platform's guidance).
-- **Bold Text.** Android raises the requested weight by the platform's adjustment (typically +300,
-  capped by the font's 700 maximum); iOS raises a role one weight step.
-- **Icon scaling.** Android icons are dp and do not grow with the font scale (Android convention); iOS
-  icons scale with Dynamic Type like SF Symbols.
-- **Line height.** Android reproduces CSS half-leading exactly; iOS cannot go below the font's natural
-  line height.
-- **Icon geometry.** Android emits circles and rounded corners as cubic Béziers (Compose paths have no
-  ellipse); iOS keeps native ellipses. The difference is under 0.03% of the radius.
-- **Wide colour.** Display P3 tokens render in P3 on Android only in a window with
-  `colorMode="wideColorGamut"`; iOS views are P3-capable by default.
-- **Not mapped on either:** z-index tokens, gradients, logos, and the 33 component-token groups no
-  adopted component uses yet.
-
-### Components (Phase 2)
-
-Where a component differs, it is because the platforms do; the look, tokens and states are the same.
-
-| Area | Android | iOS |
-|:--|:--|:--|
-| Touch target of small controls | 48 dp reserved in layout (Compose's `clickable` cannot take input outside its bounds) | Hit area extended to 44 pt without moving layout |
-| Press feedback | The web's colour and elevation steps, no ripple; hover appearances on press where the web relies on hover (link underline, card boundary) | The same approach |
-| Keyboard focus | The Qeet focus ring, as the web | The system's focus indicator |
-| Heading sizes | The web's `sm` breakpoint as a 640 dp window width | The horizontal size class |
-| Text field text size | 16 sp below a 768 dp window, 14 sp above, as the web | 16 pt everywhere |
-| Text field "required" | "required" read with the label, as the asterisk's description (since Phase 3) | "Required" added to the field's label |
-| Field messages | Live regions: assertive for errors, polite otherwise (the web's `alert` / `status`) | Posted VoiceOver announcements |
-| Text colour | Inherits the surrounding content colour, as the web | The primary text colour |
-| Avatar initials | First grapheme cluster per word (the web takes the first code point) | The same (Swift `Character`s are grapheme clusters) |
-| Loading semantics | State description "Loading" | Accessibility value "Loading" |
-| Separator | Hidden from TalkBack (no separator role) | Hidden from VoiceOver |
-| Labelled switch | Label at the start, switch at the end | The same |
-
-Not implemented on Android in Phase 2: the Button's `invalid` (`aria-invalid`) styling.
-
-### Components (Phase 3)
-
-| Area | Android | iOS |
-|:--|:--|:--|
-| Field association | The label is drawn inside the control (a text field's decorator); `Modifier.qeetrixFieldControl()` names any other control | The field passes its parts through the environment; the control carries them |
-| Field description | Text after the control, read in order | The control's accessibility hint, and text in order |
-| Field messages | Error state on the control plus a live region (assertive for errors) | Custom content on the control at high importance, plus an announcement |
-| Select | Qeetrix's own list in a Compose popup, opening below (above when it does not fit), focusing the selection from a keyboard | The system menu |
-| Checkbox | Checkbox role, "partially checked" for mixed | No checkbox role: VoiceOver reads a toggle |
-| Number field steppers | Buttons, plus Up/Down arrow keys and Decrease/Increase accessibility actions on the field | Buttons; no arrow keys |
-| AutoFill | `ContentType` (`Password`, `NewPassword`, `SmsOtpCode`, and the `contentType` parameter) | `textContentType` (`.password`, `.newPassword`, `.oneTimeCode`, …) |
-| Password reveal | Same field, obscuring switched off; the visible-password keyboard while revealed | `SecureField` swapped for a `TextField` on the same binding |
-| Secret handling | No copies, no saved text; the platform exposes the field to accessibility services as a password | No copies; `privacySensitive()` |
-| Selection rows and error-summary links | 48 dp | 44 pt |
-
-The same on both, against the web: the OTP cells keep left-to-right order in right-to-left layouts, use one
-caret, and offer `Alphanumeric` as a native addition; a revealed password is not re-masked on submit (no
-form history); the textarea grows with its text instead of a drag handle; the number field has no pointer
-scrubbing; each radio option is its own keyboard focus stop rather than one stop with arrow keys.
-
-### Components (Phase 4)
-
-| Area | Android | iOS |
-|:--|:--|:--|
-| Top-level navigation | `QeetrixNavigationBar` / `QeetrixNavigationRail` drawn by Qeetrix, switched by `QeetrixNavigationScaffold` at 600 dp of window width | The system `TabView`, styled with `qeetrixTabBar()` / `qeetrixTabItem`; iPad's sidebar adaptation is the system's |
-| Screen header | `QeetrixTopAppBar` drawn by Qeetrix, with `QeetrixBackButton` | The system navigation bar, styled with `qeetrixNavigationBar(background:)` |
-| Alert and confirmation | Qeetrix's surface in Compose's dialog window; the confirmation is the alert with two fixed roles | The system alert and the system confirmation dialog (action sheet), in the system's style |
-| Custom dialog | `QeetrixDialog`, centred on every window size | Deferred: a sheet (a centred form sheet on iPad) |
-| Sheet | `QeetrixBottomSheet` (Material's sheet underneath, Qeetrix's surface); predictive back | `qeetrixSheet` with detents, the system sheet |
-| Menu | Qeetrix's surface in a popup (`component.menu`) | The system menu |
-| Popover | Deferred: menu, dialog or bottom sheet | `qeetrixPopover`, a sheet on iPhone by default |
-| Transient feedback | `QeetrixSnackbar`; while TalkBack is on, an action has no time limit | `QeetrixToast`; while VoiceOver is on, the same |
-| Back | Platform Back and Escape close the topmost overlay; Qeetrix registers no Back handler | No Back key; swipe and Escape |
-| Icons in chrome | `arrow-left` (mirrored for Back) and `ellipsis-vertical` (Android's overflow), which iOS does not pin | `ellipsis` for menu triggers; system chevrons for Back |
-
-The same on both, against the web: one transient message at a time rather than the web's stack; timing 5 s,
-or 10 s for warnings, errors and actions; a destructive dialog always offers Cancel; actions run once;
-tabs are each their own keyboard focus stop.
-
-### Components (Phase 5)
-
-| Area | Android | iOS |
-|:--|:--|:--|
-| Collections | Compose's `LazyColumn` with the app's `key`s; sections are `stickyHeader`s holding `QeetrixSectionHeader` | SwiftUI's `List` and `Section`, with `ForEach` identity |
-| Rows | `QeetrixListItem` is clickable itself (`onClick`, `onLongClick`); a long press starts a selection | The row sits in a `NavigationLink` or `Button` with `qeetrixListRow()`; swipe actions and context menus are the system's |
-| Accordion | Qeetrix's item, state hoisted (`expanded`, `onExpandedChange`); "Expanded"/"Collapsed" as the state description plus expand and collapse actions | Native `DisclosureGroup`s in `QeetrixDisclosureGroupStyle`; items can keep their own state |
-| Search | `QeetrixSearchField`, on the shared field parts | The system's `searchable` |
-| Chips' semantics | Checkboxes, and radio buttons in a single-choice group, as Material's filter chips are | Buttons with the selected trait |
-| Chip options | Labels only: an option's description is neither shown nor read | An option's description is the chip's hint |
-| Large text | From 150 % font scale, row trailing content and timeline times move below the text | At the accessibility sizes, the same |
-| Reading order | Placement order (title, description, metadata) | Sort priority, the same order |
-| Pull to refresh | Material 3's `PullToRefreshBox`, not wrapped | `refreshable` |
-
-The same on both, against the web: the data state never shows an error object's message and offers "Try
-again"; rows and section headers exist on both (the web has none); the data table, image presentation,
-feeds, trees, filter bars, pagination and stats are deferred; component tokens built on `control.*`
-resolve at the default density, so the accordion's padding and the timeline's gaps don't follow a compact
-density.
-
-## Decisions that need both platforms
-
-1. **A shared resolved-values file.** Android publishes `token-values.json`; iOS could emit the same
-   shape so parity is checked by a diff instead of by parsing generated code.
-2. **Pins.** Android's pins match qeetrix-ios's through Phase 5 apart from what each platform draws:
-   Android adds `arrow-left` and `ellipsis-vertical` and the `menu` and `sidebar` token groups; iOS adds
-   `popover`. Both now carry `calendar`, `clock`, `file-text`, `folder`, `mail`, `refresh-cw`, `search-x`
-   and `users`, and the `accordion`, `skeleton` and `timeline` groups. A shared rule for which pins both
-   carry would keep the lists from drifting.
-3. **Logos.** The Qeet logo's SVG uses a `<mask>`, which neither native vector format supports. Both
-   platforms defer logos until qeetrix-icons provides a mask-free drawing or both agree on a conversion.
-4. **Increased contrast.** No upstream values; both platforms resolve standard values today.
-5. **Component folders.** Both organise components by qeetrix-ui family (the manifest's `category`), not by
-   ui.qeet.in's navigation categories.
-6. **API baselines.** Both check their public API against a committed baseline
-   ([0013](Decisions/0013-public-api-baseline.md)).
-7. **Screenshot baselines.** Android keeps its baselines local and out of git, so its CI does not run
-   visual regression ([0012](Decisions/0012-visual-regression-testing.md)). If the two platforms want
-   comparable visual evidence, they need a shared decision on where baselines live.
-
-## Proposed upstream changes (not made)
-
-These would help every native platform. They are proposals for the qeetrix-ui and qeetrix-icons
-maintainers; nothing upstream was changed.
-
-- **qeetrix-ui:** the semantic `corner.*` roles reference Tailwind's `--radius-*` variables, which are
-  declared in `index.css` (a web stylesheet), not in the token build. Expressing the corner roles in
-  DTCG (`{corner.base}` and a multiplier) would let native generators read tokens only.
-- **qeetrix-ui:** `tokens.json` keeps `var()` and `color-mix()` expressions, so every platform resolves
-  them again. A fully resolved, typed export (for example the shape of `token-values.json`) would remove
-  that duplicated logic.
-- **qeetrix-icons:** a mask-free version of the Qeet logo (the bowl and its hole as one even-odd path)
-  for native vector formats.
-- **qeetrix-files:** the PRD lists native SwiftUI and Compose as a non-goal (in the sense of generating
-  them from React). The native libraries are now being built by hand; an accepted decision at the
-  organisation level would remove the contradiction.

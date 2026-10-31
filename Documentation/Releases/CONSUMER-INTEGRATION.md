@@ -46,7 +46,7 @@ The minimum toolchain (AGP 9.1.0, Kotlin 2.3.0) was also built and run on API 36
 | 2 | Compile against the public API | The app compiles with only Qeetrix's public declarations and Compose's layout |
 | 3 | `QeetrixTheme` | Wraps the whole app |
 | 4 | Semantic colours | Swatches of `QeetrixTheme.colors`; the dark-theme test measures the screen darkening |
-| 5 | Typography | `QeetrixTheme.typography` body and code; the test resolves both font resources from the artifact; the release capture shows Qeet Sans and Fira Code |
+| 5 | Typography | `QeetrixTheme.typography` `bodyMd` and `codeMd`; the test resolves both font resources from the artifact; the release capture shows Qeet Sans and Fira Code |
 | 6 | Icons | Three `QeetrixIcon`s found by their descriptions, in debug and release |
 | 7 | `QeetrixButton` | Pressed; the count changes |
 | 8 | `QeetrixTextField` | Typed into |

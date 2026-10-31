@@ -1,5 +1,6 @@
 package com.qeetgroup.qeetrix.components.accordion
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,89 +20,154 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.setQeetrix
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-/** Accordions: app-owned expansion, the header's semantics and actions, one at a time, disabled, touch size. */
+/** Accordions: the open values are the app's, the trigger's semantics and actions, one or several open, disabled; Collapsible. */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixAccordionTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val header = hasText("Billing") and isHeading()
+    private val trigger = hasText("Billing") and isHeading()
 
     @Test
-    fun theHeaderIsAHeadingButtonReadWithItsState() {
-        var expanded by mutableStateOf(false)
+    fun theTriggerIsAHeadingButtonReadWithItsState() {
+        var open by mutableStateOf(listOf<String>())
         compose.setQeetrix {
-            QeetrixAccordionItem("Billing", expanded, { expanded = it }, description = "Invoices", icon = QeetrixIconName.FileText) {
-                QeetrixText("Paid monthly")
-            }
+            QeetrixAccordion(open, { open = it }) { QeetrixAccordionItem("billing", "Billing") { QeetrixText("Paid monthly") } }
         }
         compose
-            .onNode(header)
+            .onNode(trigger)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Collapsed"))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Expand))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Collapse))
         compose.onNodeWithText("Paid monthly").assertDoesNotExist()
 
-        compose.onNode(header).performClick()
+        compose.onNode(trigger).performClick()
+        assertEquals(listOf("billing"), open)
         compose
-            .onNode(header)
+            .onNode(trigger)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Expanded"))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Collapse))
         compose.onNodeWithText("Paid monthly").assertExists()
 
         // TalkBack's actions do the same.
-        compose.onNode(header).performSemanticsAction(SemanticsActions.Collapse)
+        compose.onNode(trigger).performSemanticsAction(SemanticsActions.Collapse)
         compose.onNodeWithText("Paid monthly").assertDoesNotExist()
-        compose.onNode(header).performSemanticsAction(SemanticsActions.Expand)
+        compose.onNode(trigger).performSemanticsAction(SemanticsActions.Expand)
         compose.onNodeWithText("Paid monthly").assertExists()
     }
 
     @Test
-    fun expansionIsTheAppsAndOneOpenValueOpensOneAtATime() {
-        val requests = mutableListOf<Boolean>()
-        var open by mutableStateOf<String?>("billing")
+    fun withoutMultipleOpeningOneClosesTheOther() {
+        var open by mutableStateOf(listOf("billing"))
         compose.setQeetrix {
-            QeetrixAccordion {
-                QeetrixAccordionItem("Billing", open == "billing", { open = if (it) "billing" else null }) { QeetrixText("Invoices") }
-                QeetrixAccordionItem("Seats", open == "seats", { open = if (it) "seats" else null }) { QeetrixText("Five seats") }
-                QeetrixAccordionItem("Locked", expanded = false, onExpandedChange = { requests += it }) { QeetrixText("Never shown") }
+            QeetrixAccordion(open, { open = it }) {
+                QeetrixAccordionItem("billing", "Billing") { QeetrixText("Invoices") }
+                QeetrixAccordionItem("seats", "Seats") { QeetrixText("Five seats") }
             }
         }
-        compose.onNodeWithText("Invoices").assertExists()
         compose.onNodeWithText("Seats").performClick()
+        assertEquals(listOf("seats"), open)
         compose.onNodeWithText("Five seats").assertExists()
         compose.onNodeWithText("Invoices").assertDoesNotExist()
-        // An item whose app doesn't change the state stays closed: it only asks.
+    }
+
+    @Test
+    fun withMultipleSeveralStayOpen() {
+        var open by mutableStateOf(listOf("billing"))
+        compose.setQeetrix {
+            QeetrixAccordion(open, { open = it }, multiple = true) {
+                QeetrixAccordionItem("billing", "Billing") { QeetrixText("Invoices") }
+                QeetrixAccordionItem("seats", "Seats") { QeetrixText("Five seats") }
+            }
+        }
+        compose.onNodeWithText("Seats").performClick()
+        assertEquals(listOf("billing", "seats"), open)
+        compose.onNodeWithText("Billing").performClick()
+        assertEquals(listOf("seats"), open)
+    }
+
+    @Test
+    fun theOpenSectionsAreTheAppsSoAnAccordionThatIgnoresAChangeStaysAsItIs() {
+        val requests = mutableListOf<List<String>>()
+        compose.setQeetrix {
+            QeetrixAccordion(
+                listOf<String>(),
+                { requests += it },
+            ) { QeetrixAccordionItem("locked", "Locked") { QeetrixText("Never shown") } }
+        }
         compose.onNodeWithText("Locked").performClick()
-        assertEquals(listOf(true), requests)
+        assertEquals(listOf(listOf("locked")), requests)
         compose.onNodeWithText("Never shown").assertDoesNotExist()
     }
 
     @Test
-    fun aDisabledItemCannotBeToggled() {
-        val requests = mutableListOf<Boolean>()
+    fun aDisabledSectionOrAccordionCannotBeToggled() {
+        val requests = mutableListOf<List<String>>()
+        var accordionEnabled by mutableStateOf(true)
         compose.setQeetrix {
-            QeetrixAccordionItem("Billing", expanded = false, onExpandedChange = { requests += it }, enabled = false) { QeetrixText("x") }
+            QeetrixAccordion(listOf<String>(), { requests += it }, enabled = accordionEnabled) {
+                QeetrixAccordionItem("billing", "Billing", enabled = false) { QeetrixText("x") }
+                QeetrixAccordionItem("seats", "Seats") { QeetrixText("y") }
+            }
         }
         compose
-            .onNode(header)
+            .onNode(trigger)
             .assertIsNotEnabled()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Expand))
             .performClick()
-        assertEquals(emptyList<Boolean>(), requests)
+        assertEquals(emptyList<List<String>>(), requests)
+        compose.runOnIdle { accordionEnabled = false }
+        compose.onNode(hasText("Seats") and isHeading()).assertIsNotEnabled().performClick()
+        assertEquals(emptyList<List<String>>(), requests)
+    }
+
+    /** accordion.css: min-block-size size.control.lg; Android's touch area reaches 48 dp round it. */
+    @Test
+    fun theTriggerIsTheFieldHeightAndA48DpTarget() {
+        compose.setQeetrix { QeetrixAccordion(listOf<String>(), {}) { QeetrixAccordionItem("billing", "Billing") {} } }
+        compose.onNode(trigger).assertHeightIsAtLeast(QeetrixDensity.Default.sizeControlLg)
+        val node = compose.onNode(trigger).fetchSemanticsNode()
+        val touch = with(compose.density) { node.touchBoundsInRoot.height.toDp() }
+        assertTrue("touch height $touch", touch >= 48.dp)
     }
 
     @Test
-    fun theHeaderIsAtLeastA48DpTarget() {
-        compose.setQeetrix { QeetrixAccordionItem("Billing", expanded = false, onExpandedChange = {}) {} }
-        compose.onNode(header).assertHeightIsAtLeast(48.dp)
+    fun anItemGoesInsideAnAccordion() {
+        assertThrows(IllegalStateException::class.java) {
+            compose.setQeetrix { QeetrixAccordionItem("billing", "Billing") {} }
+        }
+    }
+
+    @Test
+    fun aCollapsibleTriggerSaysWhetherItsPanelIsOpen() {
+        var open by mutableStateOf(false)
+        compose.setQeetrix {
+            Column {
+                QeetrixCollapsibleTrigger("Advanced options", open = open, onOpenChange = { open = it })
+                QeetrixCollapsiblePanel(open) { QeetrixText("Webhook signing secret") }
+            }
+        }
+        compose
+            .onNodeWithText("Advanced options")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Collapsed"))
+            .performClick()
+        assertEquals(true, open)
+        compose.onNodeWithText("Webhook signing secret").assertExists()
+        compose
+            .onNodeWithText("Advanced options")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Expanded"))
+            .performSemanticsAction(SemanticsActions.Collapse)
+        compose.onNodeWithText("Webhook signing secret").assertDoesNotExist()
     }
 }

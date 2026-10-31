@@ -1,50 +1,53 @@
 # Timeline
 
-`QeetrixTimeline`, `QeetrixTimelineItem`, `QeetrixTimelineTone`, `QeetrixTimelineEmphasis` ·
-`components.feed` · web: [Timeline](https://ui.qeet.in/docs/components/timeline) ·
+`QeetrixTimeline`, `QeetrixTimelineGroup`, `QeetrixTimelineItem`, `QeetrixTimelineVariant`, `QeetrixTimelineTone` ·
+`components.feed` · `@qeetrix/react`: [Timeline](https://ui.qeet.in/components/timeline) (experimental) ·
 sample: Data display → Timeline
 
-A vertical history of events — an audit log, an invoice's history — in the order the app gives them.
+What happened, newest first: a user's recent activity, a payment's history, a delivery's attempts.
 
 ```kotlin
 QeetrixTimeline {
-    for (event in events) {
-        key(event.id) {
-            QeetrixTimelineItem(
-                title = event.title,
-                time = event.time,
-                description = event.detail,
-                tone = if (event.failed) QeetrixTimelineTone.Destructive else QeetrixTimelineTone.Neutral,
-                markerLabel = if (event.failed) "Failed" else null,
-            )
-        }
+    QeetrixTimelineGroup("Today") {
+        QeetrixTimelineItem("Signed in with a passkey", description = "Bengaluru · Chrome on macOS", time = "2 min ago", icon = QeetrixIconName.Lock)
+        QeetrixTimelineItem("Sign-in refused", time = "1 h ago", icon = QeetrixIconName.CircleX, tone = QeetrixTimelineTone.Danger)
     }
 }
 ```
 
-## Usage
+## Look
 
-- **Three marker strengths:** an `icon` in a tinted circle for what matters most, a toned dot for the rest,
-  and `Minor` emphasis — a small neutral dot, a muted title, a tighter gap — for housekeeping.
-- **Tone is a second channel only.** The title says what happened; `markerLabel` says what a marker means
-  when the words don't ("Failed").
-- **The events are the app's** — their order, wording and grouping. Format times before passing them.
-- For a long or growing history in a lazy list, use [list items](ListItem.md): a connector can't join
-  separate lazy items.
+| `variant` | Look |
+|:--|:--|
+| `Default` | A 28 dp square marker per event (`color.bg.neutral.subtle`, a 1 dp `color.border.subtle` edge, 4 dp corners) holding its 16 dp sharp icon; a 1 dp `color.border.subtle` line from 4 dp under the marker to 4 dp above the next event, broken between groups; events `space.gap.lg` apart, `space.gap.md` between the marker and the text. |
+| `Compact` | A 6 dp dot (`color.border.strong`, or the tone's icon colour) centred on the title's line, no line, events `space.gap.sm` apart. |
+
+- Title `body.md` at weight 500 (compact: 400) in `color.text.default`; description and time `body.sm` in
+  `color.text.subtle`, the time at the end of the event, on one line. Each first line is centred on the marker.
+- `tone` takes Badge's names — `Neutral` (default), `Brand`, `Info`, `Success`, `Warning`, `Danger` — and colours
+  the icon or the dot (`color.icon.<tone>`); `Danger` colours the title too.
+- `QeetrixTimelineGroup(label)`: the day's group label in `label.caps`, `color.text.subtle`, `space.gap.sm` above
+  its events; groups `space.gap.md` apart.
 
 ## Accessibility
 
-Each event is one element — title, time, description — followed by its marker label. Markers are
-decorative. From 150 % text the time moves below the title.
+- Each event is one element: title, description, time. The marker is decorative, so the title must say what
+  happened ("Sign-in refused"), never the colour.
+- From 150 % text the time moves below the description, and the marker moves down to the title's line.
 
 ## Theme and tokens
 
-`component.timeline.marker-size` (24 dp rail), `gap` after an event and `gap-minor` after a minor one,
-nothing after the last; a 1 dp `border.default` connector between marker centres. Dots use the feedback
-colours; icon markers a `border.*` edge, a subtle tint and the tone's text colour.
+`color.bg.neutral.subtle`, `color.border.subtle` / `strong`, `color.icon.*`, `color.text.default` / `subtle` /
+`danger`, `typography.body.md` / `body.sm` / `label.caps`, `space.gap.xs` / `sm` / `md` / `lg`, `radius.control`,
+`component.timeline.marker-size` (28px since `@qeetrix/tokens` 0.0.13, QTRX-185, as timeline.css draws it).
 
 ## Platform differences
 
-None in what it draws. Like iOS, the gaps don't follow a compact density.
+- **No `dateTime`.** Android has no `<time>` element; format the time for reading and, where it helps, give the
+  full date in `description`.
+- The full audit log stays a list; in a lazy list use [list items](ListItem.md): a line can't join separate lazy
+  items.
+- **Removed since 2.x:** `Destructive` (now `Danger`), `emphasis` (`Minor`; use the compact look), `markerLabel`
+  (the title carries the meaning), the toned 10 dp dots and round icon markers.
 
-Related: [List item](ListItem.md), [Description list](DescriptionList.md).
+Related: [List item](ListItem.md), [Badge](Badge.md).

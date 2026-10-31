@@ -23,13 +23,16 @@ class ComponentScaffold(
 ) {
     /** What to scaffold. */
     data class Request(
-        /** The qeetrix-ui family (the manifest's `category`), e.g. `Button`. */
+        /** The `@qeetrix/react` family in UpperCamelCase (the manifest's `name`, `button` → `Button`), e.g. `Button`. */
         val family: String,
         /** The component name without the `Qeetrix` prefix, e.g. `IconButton`. */
         val component: String,
         /** The ui.qeet.in group, e.g. `Actions`. */
         val category: String,
-        /** The web component's manifest slug; defaults to the component name in kebab case. */
+        /**
+         * The `@qeetrix/react` part this component implements (one of the family's `parts`), whose kebab case is its
+         * ui.qeet.in slug; defaults to the component name.
+         */
         val slug: String? = null,
     )
 
@@ -62,16 +65,11 @@ class ComponentScaffold(
         val category =
             CATEGORIES.firstOrNull { it.name == request.category }
                 ?: throw GeneratorError("Unknown category \"${request.category}\". Use one of: ${CATEGORIES.joinToString { it.name }}.")
-        val slug = request.slug ?: kebab(request.component)
-        val entry = manifestEntry(slug)
-        if (entry.family != request.family) {
-            throw GeneratorError(
-                "$slug belongs to the ${entry.family} family in $MANIFEST_PATH, not ${request.family}. " +
-                    "Components live in their web family's package (ADR 0010).",
-            )
-        }
+        val part = request.slug ?: request.component
+        val entry = manifestEntry(kebab(request.family), part)
+        val slug = kebab(part)
         val packageName = packageName(request.family)
-        val tokenGroup = componentTokenGroup(slug, request.family)
+        val tokenGroup = componentTokenGroup(slug, kebab(request.family))
         val tokenObject = tokenGroup?.let { "Qeetrix${upperCamel(it)}ComponentTokens" }
         val title = title(request.component)
         val values =
@@ -91,7 +89,7 @@ class ComponentScaffold(
                     if (tokenGroup != null) {
                         "`component.$tokenGroup.*` (`$tokenObject`)."
                     } else {
-                        "Semantic tokens only: qeetrix-ui defines no `component.$slug` group."
+                        "Semantic tokens only: @qeetrix/tokens defines no `component.$slug` group."
                     },
             )
 
@@ -110,7 +108,7 @@ class ComponentScaffold(
             problems += "$CATALOG_PATH already has a ${request.component} page"
         }
         val index = read(INDEX_PATH)
-        val row = "| ${category.name} | [$title](${request.component}.md) | `Qeetrix${request.component}` | `$packageName` |"
+        val row = "| ${category.name} | [$title](${request.component}.md) | `Qeetrix${request.component}` | `$packageName` | $part |"
         if ("(${request.component}.md)" in index) problems += "$INDEX_PATH already lists ${request.component}"
         if (problems.isNotEmpty()) {
             throw GeneratorError("Qeetrix${request.component} already exists; nothing was changed:\n  " + problems.joinToString("\n  "))
@@ -149,27 +147,42 @@ class ComponentScaffold(
         "# Package com.qeetgroup.qeetrix.components.${packageName(request.family)}\n" !in read(MODULE_DOC_PATH)
 
     private data class ManifestEntry(
-        val family: String,
         val name: String,
         val description: String,
     )
 
-    private fun manifestEntry(slug: String): ManifestEntry {
-        val components =
+    /**
+     * The part's family in `@qeetrix/react`'s component manifest (its `dist/manifest.json`, which
+     * Scripts/sync-tokens copies to [MANIFEST_PATH]).
+     */
+    private fun manifestEntry(
+        family: String,
+        part: String,
+    ): ManifestEntry {
+        val families =
             Json
                 .parseToJsonElement(read(MANIFEST_PATH))
-                .jsonObject["components"]
-                ?.jsonArray
-                .orEmpty()
+                .jsonArray
+                .map { it.jsonObject }
         val entry =
-            components.map { it.jsonObject }.firstOrNull { it.string("slug") == slug }
-                ?: throw GeneratorError(
-                    "No component \"$slug\" in $MANIFEST_PATH. Pass the web slug with --slug (for example --slug input for TextField).",
-                )
-        return ManifestEntry(entry.string("category").orEmpty(), entry.string("name") ?: slug, entry.string("description").orEmpty())
+            families.firstOrNull { it.string("name") == family }
+                ?: throw GeneratorError("No family \"$family\" in $MANIFEST_PATH. Use the @qeetrix/react family the component belongs to.")
+        val parts = entry["parts"]?.jsonArray?.map { it.jsonPrimitive.content }.orEmpty()
+        if (part !in parts) {
+            throw GeneratorError(
+                "$family has no part \"$part\" in $MANIFEST_PATH (its parts: ${parts.joinToString()}). " +
+                    "Pass the @qeetrix/react part with --slug (for example --slug TextField).",
+            )
+        }
+        val status = entry.string("status").orEmpty()
+        return ManifestEntry(
+            name = part,
+            description =
+                "The Android counterpart of `@qeetrix/react`'s `$part` (${entry.string("entry")}, $status since ${entry.string("since")}).",
+        )
     }
 
-    /** The `component.<group>` token group for the component: the slug's own, or else the family's. */
+    /** The `component.<group>` token group for the component: the part's own, or else the family's. */
     private fun componentTokenGroup(
         slug: String,
         family: String,
@@ -177,11 +190,9 @@ class ComponentScaffold(
         val groups =
             Json
                 .parseToJsonElement(read(TOKENS_PATH))
-                .jsonObject["light"]
-                ?.jsonObject
-                ?.get("component")
+                .jsonObject["component"]
                 ?.jsonObject ?: return null
-        return listOf(slug, kebab(family)).firstOrNull { it in groups }
+        return listOf(slug, family).firstOrNull { it in groups }
     }
 
     /** Where `Qeetrix<Component>` is already declared in the library, if anywhere. */
@@ -208,8 +219,8 @@ class ComponentScaffold(
 
     companion object {
         const val TEMPLATES_PATH = "Templates/Component"
-        const val MANIFEST_PATH = "Upstream/qeetrix-ui/component-manifest.json"
-        const val TOKENS_PATH = "Upstream/qeetrix-ui/tokens.json"
+        const val MANIFEST_PATH = "Upstream/qeetrix-react/component-manifest.json"
+        const val TOKENS_PATH = "Upstream/qeetrix-tokens/dtcg/light.tokens.json"
         const val UPSTREAM_PATH = "Upstream/manifest.json"
         const val CATALOG_PATH = "sample/src/main/kotlin/com/qeetgroup/qeetrix/sample/SampleCatalog.kt"
         const val INDEX_PATH = "Documentation/Components/README.md"

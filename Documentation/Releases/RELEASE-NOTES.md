@@ -1,7 +1,10 @@
 # Qeetrix for Android 0.1.0 — release-candidate notes (draft)
 
 **Status: release candidate `0.1.0-rc.1`, not published.** These notes describe the candidate; the version, the
-registry and the release need the owner's approval ([RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md)).
+registry and the release need the owner's approval ([RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md)). Since the
+candidate, the library is built from `@qeetrix/tokens` 0.0.13, `@qeetrix/react` 0.4.0 and `@qeetrix/icons` 2.1.0
+instead of `@qeetrix/ui` 2.1.6, and its components follow `@qeetrix/react`; the foundations below are the current
+ones, and a new candidate is needed.
 
 Qeetrix for Android is Qeet Group's design system for Jetpack Compose: the Qeetrix tokens, light and dark themes,
 Qeet typography and icons, and components that look and behave like their ui.qeet.in counterparts, as Android apps
@@ -25,9 +28,10 @@ From the registry the owner approves ([MAVEN-DISTRIBUTION.md](MAVEN-DISTRIBUTION
 
 ## What is in it
 
-- **Foundations** generated from `@qeetrix/ui` 2.1.6: 84 semantic colours in light and dark, nine type roles in
-  Qeet Sans and Fira Code (bundled, with the font size following the system), spacing, corners, sizes, strokes,
-  elevations, motion with reduced-motion values, focus and density. 39 Qeetrix icons in two shapes and two styles.
+- **Foundations** generated from `@qeetrix/tokens` 0.0.13: 109 semantic colours in light and dark, 18 type roles in
+  Qeet Sans and Fira Code (bundled, with the font size following the system), spacing, sizes, radii, borders,
+  shadows, motion with springs, breakpoints, focus and three densities. 41 `@qeetrix/icons` icons in two shapes,
+  outline and filled.
 - **Theme:** `QeetrixTheme` with light, dark and system modes, nestable.
 - **Actions:** button, icon button.
 - **Forms:** text field, textarea, password input, one-time-code input, search field, number field (exact
@@ -51,7 +55,7 @@ counterpart.
   components draw; stillness with animations removed. **Not yet:** a manual TalkBack, Switch Access or keyboard pass
   ([RELEASE-READINESS-GAPS.md](../Quality/RELEASE-READINESS-GAPS.md)).
 - **Localization:** right-to-left layouts; labels take their direction from their text; locale-aware numbers,
-  including Indian grouping and native digits. Built-in strings (21) are English; apps override them to translate.
+  including Indian grouping and native digits. Built-in strings (27) are English; apps override them to translate.
 - **Verified** on Android 10 and Android 16 emulators (phone, tablet, landscape) and in an independent app that
   consumes this artifact in debug and in an R8-optimised release ([CONSUMER-INTEGRATION.md](CONSUMER-INTEGRATION.md)).
 - **Performance:** no measurements are claimed. Every restartable composable is skippable; animations read their
@@ -78,5 +82,5 @@ migration steps in the CHANGELOG ([RELEASE-POLICY.md](RELEASE-POLICY.md)).
 
 ## Licences
 
-Qeet Sans (Cal Sans) and Fira Code under the SIL Open Font License 1.1, and the Qeetrix icons under MIT with Lucide's
+Qeet Sans (Cal Sans) and Fira Code, from `@qeetrix/tokens`, under the SIL Open Font License 1.1, and the Qeetrix icons under MIT with Lucide's
 ISC notice; the texts ship inside the library ([LICENSE-COMPLIANCE.md](LICENSE-COMPLIANCE.md)).

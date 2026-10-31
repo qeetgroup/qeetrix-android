@@ -1,5 +1,6 @@
 package com.qeetgroup.qeetrix.components.select
 
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,8 +26,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.dp
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
+import com.qeetgroup.qeetrix.components.input.QeetrixOptionGroup
 import com.qeetgroup.qeetrix.components.setQeetrix
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -57,8 +58,8 @@ class QeetrixSelectTest {
 
     @Test
     fun withoutAChoiceItShowsThePlaceholder() {
-        compose.setQeetrix { QeetrixSelect<String?>(null, {}, options, label = "Plan", placeholder = "Choose a plan") }
-        compose.onNodeWithText("Plan").assert(hasText("Choose a plan"))
+        compose.setQeetrix { QeetrixSelect<String?>(null, {}, options, label = "Plan", placeholder = "e.g. Team") }
+        compose.onNodeWithText("Plan").assert(hasText("e.g. Team"))
     }
 
     @Test
@@ -80,7 +81,7 @@ class QeetrixSelectTest {
     @Test
     fun openedFromTheKeyboardItFocusesTheSelectedOption() {
         val focus = FocusRequester()
-        compose.setQeetrix { QeetrixSelect("team", {}, options, Modifier.focusRequester(focus), label = "Plan") }
+        compose.setQeetrix { QeetrixSelect("team", {}, options, label = "Plan", modifier = Modifier.focusRequester(focus)) }
         compose.runOnIdle { focus.requestFocus() }
         compose.onNodeWithText("Plan").assertIsFocused().performKeyInput { pressKey(Key.Enter) }
         compose.onNode(hasText("Team") and SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected)).assertIsFocused()
@@ -112,7 +113,54 @@ class QeetrixSelectTest {
 
     @Test
     fun anErrorMarksTheTriggerInvalid() {
-        compose.setQeetrix { QeetrixSelect<String?>(null, {}, options, label = "Plan", message = QeetrixFieldMessage("Choose a plan.")) }
+        compose.setQeetrix { QeetrixSelect<String?>(null, {}, options, label = "Plan", error = "Choose a plan.") }
         compose.onNodeWithText("Plan").assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, "Choose a plan."))
+    }
+
+    @Test
+    fun groupLabelsHeadTheirOptionsAndAMetaIsReadWithItsOption() {
+        val groups =
+            listOf(
+                QeetrixOptionGroup("India", listOf(QeetrixOption("mum", "Mumbai", meta = "12"), QeetrixOption("blr", "Bengaluru"))),
+                QeetrixOptionGroup("Singapore", listOf(QeetrixOption("sin", "Singapore"))),
+            )
+        var region by mutableStateOf("mum")
+        compose.setQeetrix { QeetrixSelect(region, { region = it }, groups, label = "Region") }
+        // The trigger shows the label only, not the meta.
+        compose.onNodeWithText("Region").assert(hasText("Mumbai")).assert(!hasText("12"))
+        compose.onNodeWithText("Region").performClick()
+        compose.onNodeWithText("India").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+        compose.onNode(hasText("Mumbai") and SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected)).assert(hasText("12"))
+        compose.onNodeWithText("Bengaluru").performClick()
+        assertEquals("blr", region)
+    }
+
+    @Test
+    fun theListIsNamedByTheLabel() {
+        compose.setQeetrix { QeetrixSelect("team", {}, options, label = "Plan") }
+        compose.onNodeWithText("Plan").performClick()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Plan")).assertExists()
+    }
+
+    /**
+     * The open list is as wide as the trigger when its options fit (select.css: `min-inline-size: var(--anchor-width)`),
+     * not as wide as the window: its rows fill the list, so the popup took the window's width until the list was
+     * given its intrinsic width (seen on API 36 devices, where the list ran past an 800 dp field to the window's edge).
+     */
+    @Test
+    fun theOpenListIsAsWideAsTheTrigger() {
+        compose.setQeetrix { QeetrixSelect("team", {}, options, label = "Plan", modifier = Modifier.width(240.dp)) }
+        compose.onNodeWithText("Plan").performClick()
+        val trigger =
+            compose
+                .onNodeWithText("Plan")
+                .fetchSemanticsNode()
+                .size.width
+        val list =
+            compose
+                .onNode(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Plan"))
+                .fetchSemanticsNode()
+                .size.width
+        assertEquals(trigger.toFloat(), list.toFloat(), 1f)
     }
 }

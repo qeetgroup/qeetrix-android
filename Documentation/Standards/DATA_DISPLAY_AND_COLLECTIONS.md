@@ -11,13 +11,14 @@ holder (a view model, `rememberSaveable`).
 
 | Component | The app owns | Qeetrix reports |
 |:--|:--|:--|
-| List item | The row's values; its selection | `onClick`, `onLongClick` |
+| List item | The row's values; its `selected` | `onClick`, `onLongClick` |
 | Section header | The grouping | The action's click |
 | Description list | Formatted values | — |
-| Accordion | Each item's `expanded` | `onExpandedChange(Boolean)` |
-| Chip, chip group | `selected` (a Boolean, a value, a set) | `onSelectedChange`, `onSelect` |
+| Accordion | The open sections' values, `value: List<T>` | `onValueChange(List<T>)` |
+| Collapsible | `open` | `onOpenChange(Boolean)` |
+| Chip, chip group | `selected` (a Boolean), `value` (one) or `values` (a set) | `onSelectedChange`, `onValueChange`, `onValuesChange`, `onRemove` |
 | Search field | The query's `TextFieldState` | `onSearch(query)` |
-| Data state | `loading`, `empty`, the failure and its retry | The retry's click |
+| Data state | `loading`, `error`, `empty`, and the retry | The retry's click |
 | Empty state, timeline, skeleton | The words, the events, the shape | — |
 
 There is no data store, fetching, caching, pagination, search index or filter engine in Qeetrix, and no
@@ -28,7 +29,7 @@ networking, database or image-loading dependency.
 - **Key every lazy item by the app's stable id** — `items(members, key = { it.id })` — never by index. A
   row's own state and the app's selection and expansion, kept as sets of ids, then follow the item through
   insertions, removals, reordering and paging. Section headers take keys of their own that can't clash
-  (`"team-$team"`).
+  (`"team-$team"`). An accordion finds its sections by their `value`, so they keep their state when reordered.
 - **`contentType`** for mixed lists (`"header"`, `"member"`) lets Compose reuse slots across item kinds.
 - Keep selection and expansion as ids in saved state (`rememberSaveable { mutableStateOf(setOf<String>()) }`),
   so they survive configuration changes and process death; prune ids whose items are gone.
@@ -37,48 +38,55 @@ networking, database or image-loading dependency.
 
 ## Lists and sections
 
-- Rows are `QeetrixListItem`s in a `LazyColumn` (or a `Column` for a handful in a card). Separators between
-  rows are optional; a lazy list draws them as items' content, not as list chrome.
-- A section is a `stickyHeader` (or an `item`) with a `QeetrixSectionHeader`, then its `items`. Sticky headers
-  take the surface they sit on through their modifier.
+- Rows are `QeetrixListItem`s in a `LazyColumn` (or a `Column` for a handful in a card), drawn by `@qeetrix/react`'s
+  Table row rules: at least `size.row` (32 / 40 / 48 dp with the density) and 48 dp tall. Rules between rows are
+  the app's: a [separator](../Components/Separator.md) in `color.border.subtle`, drawn as the item's content, not
+  as list chrome.
+- A section is a `stickyHeader` (or an `item`) with a `QeetrixSectionHeader` — a group label in `label.caps`, the
+  Sidebar's — then its `items`. Sticky headers take the surface they sit on through their modifier; the first
+  group of a list has `ruled = false`.
 - Rows animate when keyed items move, appear and leave with `Modifier.animateItem(…)`; pass
   `qeetrixAnimationSpec(…)` so animations stop when the person has turned them off.
-- Grids are `LazyVerticalGrid` with the same keys; description lists have their own grid layout for details.
+- Grids are `LazyVerticalGrid` with the same keys; description lists have their own `Columns` layout for details.
 
 ## Selection
 
+- Design rules §11 separate **selected** from **current**: a selected row takes the Ember tint
+  (`color.bg.selected`) and a checked checkbox, never the Ember bar, which marks where you are (a tab, a
+  navigation item).
 - Single tap opens; selection mode starts with a long press (`onLongClick`, named with `onLongClickLabel`),
-  shows a `QeetrixCheckbox(checked, onCheckedChange = null)` in each row, and turns taps into toggles. The top
-  app bar shows the count and the actions; Back clears the selection before it leaves the screen.
-- `selected` draws the brand tint and edge and reports the row as selected. Destructive actions on a
-  selection ask first ([confirmation dialog](../Components/ConfirmationDialog.md)) and offer Undo
+  shows a `QeetrixCheckbox(checked, onCheckedChange = null)` in each row's `leading`, and turns taps into
+  toggles. The top app bar shows the count and the actions; Back clears the selection before it leaves the screen.
+- `selected` draws the tint and reports the row as selected. Destructive actions on a selection ask first
+  ([confirmation dialog](../Components/ConfirmationDialog.md)) and offer Undo
   ([snackbar](../Components/Snackbar.md)).
 - Confirmation is not authorisation: whatever performs the action checks permission.
 
 ## Search and filters
 
-- The query is a `TextFieldState` the app owns. Filter as the person types after a pause with
-  `snapshotFlow { query.text.toString() }.collectLatest { delay(300); search(it) }` — `collectLatest`
-  cancels a search the next keystroke makes stale. Filter small lists on the device; ask the server for large
-  ones.
-- Filters are chips: a `QeetrixChipGroup` for one value or several, `QeetrixChip(onRemove)` for applied
-  filters. The chips change state; the app applies it.
-- No results is a `NoResults` empty state with a way to clear the search and the filters together.
+- The query is a `TextFieldState` the app owns. `QeetrixSearchField`'s `onSearch` runs when typing pauses for
+  `searchDelay` (300 ms, react's default), at once on the keyboard's search key, and with "" when cleared — so a
+  server-searched list asks once per pause. Filter small lists on the device; ask the server for large ones.
+- Filters are chips: a `QeetrixChipGroup` for one value (`value`) or several (`values`), `QeetrixChip(onRemove)`
+  for applied filters. The chips change state; the app applies it.
+- No results is an empty state that says so, with a way to clear the search and the filters together.
 - Keep queries out of logs and analytics unless the person has agreed; don't put them in crash reports.
 
 ## Content states
 
 | Branch | When | What shows | TalkBack |
 |:--|:--|:--|:--|
-| Loading | Nothing to show yet | Skeletons in the content's shape (`QeetrixDataLoadingRows` by default) | One "Loading" element |
-| Failure | The load failed | An error empty state: the app's message for the person, "Try again" if it can | Announced, assertively |
-| Empty | Loaded, nothing in it | The app's `QeetrixEmptyState` (default, first use, no results, no permission) | The title is a heading |
-| Content | Loaded, with data | The content | — |
+| Loading | Nothing to show yet | A labelled `Lg` spinner, in a region that holds the error state's height | One "Loading" element |
+| Error | The load failed | A section-size empty state in the danger tone: `errorTitle`, `errorDescription` and "Try again" with `onRetry` | Announced, assertively |
+| Empty | Loaded, nothing in it | The app's `emptyState` — usually a `QeetrixEmptyState` | Its title, a heading with a `level` |
+| Content | Loaded, with data | The content, with no wrapper | — |
 
-- `QeetrixDataState` shows exactly one branch, in that order.
+- `QeetrixDataState` shows exactly one branch, in that order: `loading`, then `error`, then `empty`, then the
+  content.
 - **Refreshing is not loading.** Keep the content while refreshing — a spinner in the top app bar, or
   Material 3's `PullToRefreshBox` around the list, which Qeetrix doesn't wrap — and set `loading` only when
-  there is nothing to show.
+  there is nothing to show. Skeletons (`QeetrixSkeleton`, `QeetrixSkeletonText`) are composed by the app where a
+  screen needs its shape held.
 - **Pagination** is the app's (Paging 3 or its own): show the next page's loading as skeleton rows or a
   `QeetrixSpinner` in a footer item, and a page's failure as an inline row with a retry, not a data state.
 - Never show an exception's message, a status code or a stack trace; write what happened and what to do.
@@ -91,11 +99,10 @@ image request unless the app does so deliberately for that URL.
 
 ## Performance
 
-- Every Phase 5 public composable is restartable and skippable (Compose compiler report); parameters are
-  values, enums, strings and lambdas. Pass stable item types — immutable classes, or `@Immutable` ones — so
-  rows whose data hasn't changed are skipped.
+- Public composables take values, enums, strings and lambdas. Pass stable item types — immutable classes, or
+  `@Immutable` ones — so rows whose data hasn't changed are skipped.
 - A row's semantics are merged once per row; nothing in Qeetrix iterates the collection.
-- The skeleton's shimmer runs in the draw phase only and stops with animations off.
+- The skeleton's pulse runs in the draw phase only and stands still with animations off.
 - Measure an app's own lists with Macrobenchmark and JankStats on a device; Qeetrix's tests check skipping and
   recomposition counts, not frame times.
 
@@ -112,8 +119,8 @@ image request unless the app does so deliberately for that URL.
 The full table is in [ACCESSIBILITY.md](ACCESSIBILITY.md). For this family:
 
 - A row is one element, read title, description, metadata; controls in it stay their own.
-- Section headers, empty-state titles and accordion headers are headings.
-- Selected rows and chips say so; selection never rests on colour alone (an edge, a check mark).
+- Section headers and accordion triggers are headings; an empty state's title is one when it has a `level`.
+- Selected rows and chips say so; selection never rests on colour alone (a check, a check mark).
 - Loading is one element; failures are announced; result changes are shown, not announced per keystroke.
 - From 150 % text, rows and timeline events move their trailing content below the text.
 

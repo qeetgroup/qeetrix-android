@@ -4,17 +4,17 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupPositionProvider
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixDuration
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixEasing
+import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
 import com.qeetgroup.qeetrix.foundation.motion.qeetrixAnimationSpec
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
@@ -60,23 +60,28 @@ internal class AnchoredPopupPosition(
 }
 
 /**
- * How an anchored popup comes and goes: a fade and a scale from 97 %, from the edge that faces its anchor
- * (`data-open:fade-in-0 zoom-in-97`, `duration-fast`), and nothing under reduced motion.
+ * How an anchored popup comes: menu.css and select.css — a fade and a 4 dp slide from its anchor
+ * (`translate: 0 -4px` below it, `4px` above), in `motion.duration.normal` on `motion.easing.enter`; never
+ * a scale (design rules §18). Nothing under reduced motion.
  */
 @Composable
 internal fun popupEnter(fromBottom: Boolean): EnterTransition {
     if (QeetrixTheme.reduceMotion) return EnterTransition.None
-    val spec = qeetrixAnimationSpec<Float>(QeetrixEasing.Enter, QeetrixDuration.Fast)
-    return fadeIn(spec) + scaleIn(spec, initialScale = POPUP_SCALE, transformOrigin = TransformOrigin(0.5f, if (fromBottom) 1f else 0f))
+    val fade = qeetrixAnimationSpec<Float>(QeetrixMotion.EasingEnter, QeetrixMotion.DurationNormal)
+    val slide = qeetrixAnimationSpec<IntOffset>(QeetrixMotion.EasingEnter, QeetrixMotion.DurationNormal)
+    val distance = with(LocalDensity.current) { POPUP_SLIDE.roundToPx() }
+    return fadeIn(fade) + slideIn(slide) { IntOffset(0, if (fromBottom) distance else -distance) }
 }
 
-/** [popupEnter] reversed, on the exit curve. */
+/** [popupEnter] reversed, one step faster (`motion.duration.fast`) on `motion.easing.exit`. */
 @Composable
 internal fun popupExit(fromBottom: Boolean): ExitTransition {
     if (QeetrixTheme.reduceMotion) return ExitTransition.None
-    val spec = qeetrixAnimationSpec<Float>(QeetrixEasing.Exit, QeetrixDuration.Fast)
-    return fadeOut(spec) + scaleOut(spec, targetScale = POPUP_SCALE, transformOrigin = TransformOrigin(0.5f, if (fromBottom) 1f else 0f))
+    val fade = qeetrixAnimationSpec<Float>(QeetrixMotion.EasingExit, QeetrixMotion.DurationFast)
+    val slide = qeetrixAnimationSpec<IntOffset>(QeetrixMotion.EasingExit, QeetrixMotion.DurationFast)
+    val distance = with(LocalDensity.current) { POPUP_SLIDE.roundToPx() }
+    return fadeOut(fade) + slideOut(slide) { IntOffset(0, if (fromBottom) distance else -distance) }
 }
 
-/** `zoom-in-97` / `scale-97`. */
-private const val POPUP_SCALE = 0.97f
+/** `translate: 0 ±4px`. */
+private val POPUP_SLIDE = 4.dp

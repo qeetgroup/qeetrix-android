@@ -39,23 +39,23 @@ import com.qeetgroup.qeetrix.components.accordion.QeetrixAccordionItem
 import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatar
 import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatarSize
 import com.qeetgroup.qeetrix.components.badge.QeetrixBadge
-import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeVariant
+import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeTone
 import com.qeetgroup.qeetrix.components.badge.QeetrixChipGroup
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
 import com.qeetgroup.qeetrix.components.checkbox.QeetrixCheckbox
 import com.qeetgroup.qeetrix.components.descriptionlist.QeetrixDescriptionItem
 import com.qeetgroup.qeetrix.components.descriptionlist.QeetrixDescriptionList
 import com.qeetgroup.qeetrix.components.dialog.QeetrixConfirmationDialog
+import com.qeetgroup.qeetrix.components.dialog.QeetrixDialogIntent
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenu
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuItem
-import com.qeetgroup.qeetrix.components.emptystate.QeetrixDataFailure
 import com.qeetgroup.qeetrix.components.emptystate.QeetrixDataState
 import com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyState
-import com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyStateVariant
+import com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyStateSize
 import com.qeetgroup.qeetrix.components.feed.QeetrixTimeline
-import com.qeetgroup.qeetrix.components.feed.QeetrixTimelineEmphasis
 import com.qeetgroup.qeetrix.components.feed.QeetrixTimelineItem
 import com.qeetgroup.qeetrix.components.feed.QeetrixTimelineTone
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
@@ -67,12 +67,15 @@ import com.qeetgroup.qeetrix.components.navigation.QeetrixTopAppBar
 import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarHost
 import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarResult
 import com.qeetgroup.qeetrix.components.toast.rememberQeetrixSnackbarHostState
+import com.qeetgroup.qeetrix.components.typography.QeetrixHeading
+import com.qeetgroup.qeetrix.components.typography.QeetrixHeadingSize
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixDuration
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixEasing
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextWeight
+import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
 import com.qeetgroup.qeetrix.foundation.motion.qeetrixAnimationSpec
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import kotlinx.coroutines.delay
@@ -129,6 +132,8 @@ fun CollectionsScreen(onExit: () -> Unit) {
     var selected by rememberSaveable { mutableStateOf(setOf<String>()) }
     var openMember by rememberSaveable { mutableStateOf<String?>(null) }
     var confirming by rememberSaveable { mutableStateOf(false) }
+    // The people a confirmation asks about, kept while the dialog leaves.
+    var removing by rememberSaveable { mutableStateOf(setOf<String>()) }
     var attempt by rememberSaveable { mutableIntStateOf(0) }
     var failNext by rememberSaveable { mutableStateOf(false) }
     var loading by rememberSaveable { mutableStateOf(true) }
@@ -156,15 +161,8 @@ fun CollectionsScreen(onExit: () -> Unit) {
             MemberDirectory(
                 members = members,
                 loading = loading,
-                failure =
-                    if (failed) {
-                        QeetrixDataFailure(
-                            "Members couldn't be loaded. Check your connection.",
-                            onRetry = { attempt++ },
-                        )
-                    } else {
-                        null
-                    },
+                failed = failed,
+                onRetry = { attempt++ },
                 selected = selected,
                 onSelectedChange = { selected = it },
                 onOpen = { openMember = it },
@@ -173,39 +171,41 @@ fun CollectionsScreen(onExit: () -> Unit) {
                     failNext = true
                     attempt++
                 },
-                onRemove = { confirming = true },
+                onRemove = {
+                    removing = selected
+                    confirming = true
+                },
                 onExit = onExit,
             )
         }
         QeetrixSnackbarHost(snackbars, Modifier.align(Alignment.BottomCenter))
     }
 
-    if (confirming) {
-        val count = selected.size
-        QeetrixConfirmationDialog(
-            title = if (count == 1) "Remove 1 person?" else "Remove $count people?",
-            message = "They lose access to this workspace. You can invite them again later.",
-            confirmLabel = "Remove",
-            destructive = true,
-            onConfirm = {
-                val gone = selected
-                removed = removed + gone
-                selected = emptySet()
-                scope.launch {
-                    val message = if (gone.size == 1) "1 person removed" else "${gone.size} people removed"
-                    if (snackbars.show(message, actionLabel = "Undo") == QeetrixSnackbarResult.ActionPerformed) removed = removed - gone
-                }
-            },
-            onDismissRequest = { confirming = false },
-        )
-    }
+    QeetrixConfirmationDialog(
+        open = confirming,
+        onOpenChange = { confirming = it },
+        title = if (removing.size == 1) "Remove 1 person?" else "Remove ${removing.size} people?",
+        description = "They lose access to this workspace. You can invite them again later.",
+        confirmLabel = "Remove",
+        onConfirm = {
+            val gone = removing
+            removed = removed + gone
+            selected = emptySet()
+            scope.launch {
+                val message = if (gone.size == 1) "1 person removed" else "${gone.size} people removed"
+                if (snackbars.show(message, actionLabel = "Undo") == QeetrixSnackbarResult.ActionPerformed) removed = removed - gone
+            }
+        },
+        intent = QeetrixDialogIntent.Danger,
+    )
 }
 
 @Composable
 private fun MemberDirectory(
     members: List<SampleMember>,
     loading: Boolean,
-    failure: QeetrixDataFailure?,
+    failed: Boolean,
+    onRetry: () -> Unit,
     selected: Set<String>,
     onSelectedChange: (Set<String>) -> Unit,
     onOpen: (String) -> Unit,
@@ -231,72 +231,98 @@ private fun MemberDirectory(
     Column(Modifier.fillMaxSize()) {
         QeetrixTopAppBar(
             title = if (selecting) "${selected.size} selected" else "Members",
-            subtitle = if (selecting || loading) null else "${members.size} people",
+            description = if (selecting || loading) null else "${members.size} people",
             navigationIcon = {
                 if (selecting) {
-                    QeetrixIconButton(QeetrixIconName.X, "Clear selection", onClick = { onSelectedChange(emptySet()) })
+                    QeetrixIconButton(
+                        QeetrixIconName.X,
+                        "Clear selection",
+                        onClick = { onSelectedChange(emptySet()) },
+                        tone = QeetrixButtonTone.Neutral,
+                    )
                 } else {
                     QeetrixBackButton(onClick = onExit)
                 }
             },
             actions = {
                 if (selecting) {
-                    QeetrixButton("Remove", onClick = onRemove, variant = QeetrixButtonVariant.Ghost, leadingIcon = QeetrixIconName.Trash)
+                    QeetrixButton(
+                        "Remove",
+                        onClick = onRemove,
+                        variant = QeetrixButtonVariant.Ghost,
+                        tone = QeetrixButtonTone.Danger,
+                        icon = QeetrixIconName.Trash,
+                    )
                 } else {
                     QeetrixMenu(
-                        expanded = menu,
-                        onExpandedChange = { menu = it },
-                        trigger = { QeetrixIconButton(QeetrixIconName.EllipsisVertical, "More options", onClick = { menu = true }) },
+                        open = menu,
+                        onOpenChange = { menu = it },
+                        trigger = {
+                            QeetrixIconButton(
+                                QeetrixIconName.EllipsisVertical,
+                                "More options",
+                                onClick = { menu = true },
+                                tone = QeetrixButtonTone.Neutral,
+                            )
+                        },
                     ) {
                         QeetrixMenuItem("Reload", onClick = onReload, icon = QeetrixIconName.RefreshCw)
                         QeetrixMenuItem("Simulate a failed load", onClick = onFailNext, icon = QeetrixIconName.TriangleAlert)
                     }
                 }
             },
-            scrolled = listState.canScrollBackward,
         )
         Column(
-            Modifier.padding(horizontal = QeetrixSpacing.L, vertical = QeetrixSpacing.S),
-            verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xs),
+            Modifier.padding(horizontal = QeetrixSpace.InsetLg, vertical = QeetrixSpace.InsetSm),
+            verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs),
         ) {
-            QeetrixSearchField(query, placeholder = "Search by name or email")
+            QeetrixSearchField(query, label = "Search members", placeholder = "e.g. Asha or asha@example.com")
             QeetrixChipGroup(
                 label = "Role",
-                selected = role,
-                onSelect = { role = it },
+                value = role,
+                onValueChange = { role = it },
                 options = RoleOptions,
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
             )
         }
         QeetrixDataState(
             loading = loading,
+            error = failed,
             empty = shown.isEmpty(),
-            failure = failure,
-            emptyContent = {
+            onRetry = onRetry,
+            errorTitle = "Members couldn't be loaded",
+            errorDescription = "Check your connection, then try again.",
+            emptyState = {
                 if (members.isEmpty()) {
                     QeetrixEmptyState(
                         "No members yet",
-                        description = "Invite people to work in this workspace with you.",
-                        variant = QeetrixEmptyStateVariant.FirstUse,
                         icon = QeetrixIconName.Users,
-                    ) { QeetrixButton("Invite people", onClick = {}, leadingIcon = QeetrixIconName.Plus) }
+                        description = "Invite people to work in this workspace with you.",
+                        level = 2, // the list's main message, so TalkBack's heading navigation finds it
+                    ) { QeetrixButton("Invite people", onClick = {}, icon = QeetrixIconName.Plus) }
                 } else {
                     QeetrixEmptyState(
                         "No members found",
+                        icon = QeetrixIconName.SearchX,
                         description = if (text.isEmpty()) "No one has this role." else "No one matches “$text”.",
-                        variant = QeetrixEmptyStateVariant.NoResults,
+                        size = QeetrixEmptyStateSize.Section,
+                        level = 2,
                     ) {
-                        QeetrixButton("Clear search and filters", onClick = {
-                            query.clearText()
-                            role = null
-                        }, variant = QeetrixButtonVariant.Outline)
+                        QeetrixButton(
+                            "Clear search and filters",
+                            onClick = {
+                                query.clearText()
+                                role = null
+                            },
+                            variant = QeetrixButtonVariant.Soft,
+                        )
                     }
                 }
             },
             modifier = Modifier.fillMaxSize(),
         ) {
-            val placement = qeetrixAnimationSpec<IntOffset>(QeetrixEasing.Standard, QeetrixDuration.Normal)
-            val fade = qeetrixAnimationSpec<Float>(QeetrixEasing.Standard, QeetrixDuration.Fast)
+            val placement = qeetrixAnimationSpec<IntOffset>(QeetrixMotion.EasingStandard, QeetrixMotion.DurationNormal)
+            val fade = qeetrixAnimationSpec<Float>(QeetrixMotion.EasingStandard, QeetrixMotion.DurationFast)
             LazyColumn(
                 Modifier.fillMaxSize(),
                 state = listState,
@@ -324,11 +350,11 @@ private fun MemberDirectory(
                                 if (selecting) {
                                     QeetrixCheckbox(checked = isSelected, onCheckedChange = null)
                                 } else {
-                                    QeetrixAvatar(person.name, contentDescription = null)
+                                    QeetrixAvatar(person.name, decorative = true)
                                 }
                             },
                         ) {
-                            if (person.role == MemberRole.Owner) QeetrixBadge("Owner", variant = QeetrixBadgeVariant.Brand)
+                            if (person.role == MemberRole.Owner) QeetrixBadge("Owner", tone = QeetrixBadgeTone.Brand)
                         }
                     }
                 }
@@ -344,85 +370,79 @@ private fun MemberDetail(
     member: SampleMember,
     onBack: () -> Unit,
 ) {
-    val scroll = rememberScrollState()
-    var open by rememberSaveable(member.id) { mutableStateOf(setOf(MemberSection.Permissions)) }
-
-    fun toggle(section: MemberSection) = { on: Boolean -> open = if (on) open + section else open - section }
+    var open by rememberSaveable(member.id) { mutableStateOf(listOf(MemberSection.Permissions)) }
     Column(Modifier.fillMaxSize()) {
-        QeetrixTopAppBar(member.name, navigationIcon = { QeetrixBackButton(onClick = onBack) }, scrolled = scroll.canScrollBackward)
+        QeetrixTopAppBar(member.name, navigationIcon = { QeetrixBackButton(onClick = onBack) })
         Column(
             Modifier
                 .fillMaxWidth()
-                .verticalScroll(scroll)
+                .verticalScroll(rememberScrollState())
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal))
-                .padding(QeetrixSpacing.L),
-            verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xl),
+                .padding(QeetrixSpace.InsetLg),
+            verticalArrangement = Arrangement.spacedBy(QeetrixSpace.LayoutSm),
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.M), verticalAlignment = Alignment.CenterVertically) {
-                QeetrixAvatar(member.name, size = QeetrixAvatarSize.Lg, contentDescription = null)
+            Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd), verticalAlignment = Alignment.CenterVertically) {
+                QeetrixAvatar(member.name, size = QeetrixAvatarSize.Lg, decorative = true)
                 Column {
-                    QeetrixText(member.name, variant = QeetrixTextVariant.Large)
-                    QeetrixText("${member.role.title} · ${member.team}", variant = QeetrixTextVariant.Muted)
+                    QeetrixText(member.name, size = QeetrixTextSize.Lg, weight = QeetrixTextWeight.Semibold)
+                    QeetrixText("${member.role.title} · ${member.team}", tone = QeetrixTextTone.Subtle)
                 }
             }
-            QeetrixDescriptionList(divided = true) {
+            QeetrixDescriptionList {
                 QeetrixDescriptionItem("Email", member.email)
                 QeetrixDescriptionItem("Team", member.team)
                 QeetrixDescriptionItem("Role") {
                     QeetrixBadge(
                         member.role.title,
-                        variant =
+                        tone =
                             if (member.role ==
                                 MemberRole.Owner
                             ) {
-                                QeetrixBadgeVariant.Brand
+                                QeetrixBadgeTone.Brand
                             } else {
-                                QeetrixBadgeVariant.Secondary
+                                QeetrixBadgeTone.Neutral
                             },
                     )
                 }
                 QeetrixDescriptionItem("Joined", member.joined)
                 QeetrixDescriptionItem("Last active", member.lastActive)
             }
-            QeetrixAccordion {
-                QeetrixAccordionItem(
-                    "Permissions",
-                    expanded = MemberSection.Permissions in open,
-                    onExpandedChange = toggle(MemberSection.Permissions),
-                    description = "What ${member.name.substringBefore(' ')} can do here",
-                    icon = QeetrixIconName.Lock,
-                ) {
+            QeetrixAccordion(value = open, onValueChange = { open = it }, multiple = true) {
+                QeetrixAccordionItem(MemberSection.Permissions, "Permissions") {
                     val can =
                         when (member.role) {
                             MemberRole.Owner -> "Manage members, billing and every project."
                             MemberRole.Editor -> "Create and edit projects; invite viewers."
                             MemberRole.Viewer -> "Read projects and leave comments."
                         }
-                    QeetrixText(can, variant = QeetrixTextVariant.Small)
+                    QeetrixText(can, size = QeetrixTextSize.Sm)
                 }
-                QeetrixAccordionItem(
-                    "Devices",
-                    expanded = MemberSection.Devices in open,
-                    onExpandedChange = toggle(MemberSection.Devices),
-                    description = "Signed in with a passkey",
-                    icon = QeetrixIconName.Server,
-                ) {
-                    QeetrixDescriptionList(divided = true) {
-                        QeetrixDescriptionItem("Pixel 9", "Last used ${member.lastActive.lowercase()}")
+                QeetrixAccordionItem(MemberSection.Devices, "Devices") {
+                    QeetrixDescriptionList {
+                        QeetrixDescriptionItem(
+                            "Pixel 9",
+                            "Last used ${member.lastActive.lowercase()}",
+                            description = "Signed in with a passkey",
+                        )
                         QeetrixDescriptionItem("MacBook Air", "Last used last week")
                     }
                 }
             }
-            Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.M)) {
-                QeetrixText("Activity", variant = QeetrixTextVariant.H4)
+            Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd)) {
+                QeetrixHeading("Activity", level = 2, size = QeetrixHeadingSize.TitleSm)
                 QeetrixTimeline {
-                    QeetrixTimelineItem("Signed in", time = member.lastActive, tone = QeetrixTimelineTone.Success)
-                    QeetrixTimelineItem("Profile photo changed", time = "Last week", emphasis = QeetrixTimelineEmphasis.Minor)
+                    QeetrixTimelineItem(
+                        "Signed in",
+                        time = member.lastActive,
+                        icon = QeetrixIconName.Lock,
+                        tone = QeetrixTimelineTone.Success,
+                    )
+                    QeetrixTimelineItem("Profile photo changed", time = "Last week")
                     QeetrixTimelineItem(
                         "Role set to ${member.role.title}",
                         time = member.joined,
-                        tone = QeetrixTimelineTone.Brand,
                         icon = QeetrixIconName.UserRound,
+                        tone = QeetrixTimelineTone.Brand,
                     )
                     QeetrixTimelineItem("Joined the workspace", time = member.joined, description = "Invited by Asha Rao.")
                 }

@@ -1,5 +1,7 @@
 package com.qeetgroup.qeetrix.gen
 
+import java.math.BigDecimal
+import java.math.MathContext
 import java.security.MessageDigest
 import java.util.Locale
 
@@ -80,6 +82,19 @@ fun numberText(value: Double): String {
 
 /** A Kotlin `Float` literal: `0.5f`, `2f`, `-1f`. */
 fun floatLiteral(value: Double): String = numberText(value) + "f"
+
+/**
+ * A Kotlin `Float` literal that is exactly the `Float` nearest [value]: the fewest significant digits that read back
+ * as that `Float` (nine always do), found the same way on every JDK. For values a product must reproduce exactly (a
+ * line height ratio × its font size), where [floatLiteral]'s six decimals could land a hair above and round a line
+ * up a pixel.
+ */
+fun exactFloatLiteral(value: Double): String {
+    val nearest = value.toFloat()
+    val exact = BigDecimal(nearest.toDouble())
+    val digits = (1..9).first { exact.round(MathContext(it)).toFloat() == nearest }
+    return exact.round(MathContext(digits)).stripTrailingZeros().toPlainString() + "f"
+}
 
 /** A Kotlin string literal. */
 fun kotlinString(value: String): String = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"").replace("$", "\\$") + "\""

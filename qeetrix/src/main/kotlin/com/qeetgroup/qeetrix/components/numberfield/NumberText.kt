@@ -21,6 +21,9 @@ internal class NumberText(
     locale: Locale,
     private val fractionDigits: Int,
     private val allowNegative: Boolean,
+    private val grouping: Boolean = true,
+    // Money keeps its currency's decimals ("1.234,50 €"), as Intl's currency style does; other numbers drop trailing zeros.
+    private val padFraction: Boolean = false,
 ) {
     private val symbols = DecimalFormatSymbols.getInstance(locale)
     private val decimal = symbols.decimalSeparator
@@ -29,8 +32,8 @@ internal class NumberText(
     private val minusSigns = setOf('-', symbols.minusSign, '−')
     private val format =
         (NumberFormat.getNumberInstance(locale) as DecimalFormat).apply {
-            isGroupingUsed = true
-            minimumFractionDigits = 0
+            isGroupingUsed = grouping
+            minimumFractionDigits = if (padFraction) fractionDigits else 0
             maximumFractionDigits = fractionDigits
             roundingMode = RoundingMode.HALF_EVEN
         }
@@ -99,16 +102,22 @@ internal class NumberText(
             is Reading.Number -> value != null && reading.value.compareTo(value) == 0
         }
 
-    /** [value] as the locale writes it: its digits, its grouping, at most [fractionDigits] decimals. */
-    fun write(value: BigDecimal): String = format.format(value.setScale(fractionDigits, RoundingMode.HALF_EVEN).stripTrailingZeros())
+    /** [value] as the locale writes it: its digits, its grouping, at most [fractionDigits] decimals (exactly that many for money). */
+    fun write(value: BigDecimal): String {
+        val rounded = value.setScale(fractionDigits, RoundingMode.HALF_EVEN)
+        return format.format(if (padFraction) rounded else rounded.stripTrailingZeros())
+    }
 
-    /** Rounds [value] to [fractionDigits] and brings it into [range]. */
+    /** Rounds [value] to [fractionDigits] and brings it within [min] and [max], either of which may be open. */
     fun settle(
         value: BigDecimal,
-        range: ClosedRange<BigDecimal>?,
+        min: BigDecimal? = null,
+        max: BigDecimal? = null,
     ): BigDecimal {
-        val inRange = if (range == null) value else value.max(range.start).min(range.endInclusive)
-        return inRange.setScale(fractionDigits, RoundingMode.HALF_EVEN)
+        var bounded = value
+        if (min != null) bounded = bounded.max(min)
+        if (max != null) bounded = bounded.min(max)
+        return bounded.setScale(fractionDigits, RoundingMode.HALF_EVEN)
     }
 
     /** True when the separators in [whole] sit exactly where the locale's own formatting puts them. */

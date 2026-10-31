@@ -41,8 +41,8 @@ run two validators on one baseline; the decision is in [0017](../Decisions/0017-
 - **Renaming or reordering parameters is source-breaking** for named or positional callers.
 - **Enum entries**: adding one is additive for the library but can break an app's exhaustive `when`; the CHANGELOG
   says so.
-- **`@Immutable` option types** (`QeetrixOption`, `QeetrixTab`, `QeetrixNavigationItem`, `QeetrixDialogAction`,
-  `QeetrixFieldMessage`) promise that their properties never change. Their generic `value` is the app's identity for
+- **`@Immutable` option types** (`QeetrixOption`, `QeetrixOptionGroup`, `QeetrixTab`, `QeetrixNavigationItem`,
+  `QeetrixDialogAction`; in Phase 6 also `QeetrixFieldMessage`, since removed) promise that their properties never change. Their generic `value` is the app's identity for
   an option: pass immutable values (enums, ids, strings) — a mutable value breaks the contract the annotation states.
 - Nothing is published yet, so there are no consumers to migrate; these rules apply from the first release.
 

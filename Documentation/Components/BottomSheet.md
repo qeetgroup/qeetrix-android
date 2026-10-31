@@ -1,55 +1,60 @@
 # Bottom sheet
 
-`QeetrixBottomSheet` · `components.drawer` · web: [Drawer](https://ui.qeet.in/docs/components/drawer) (the
-mobile bottom sheet) · sample: Overlays → Bottom sheet
+`QeetrixBottomSheet`, `QeetrixBottomSheetSize` · `components.drawer` · `@qeetrix/react`:
+[Drawer](https://ui.qeet.in/components/drawer) (`Drawer`, `DrawerContent`, `DrawerBody`, `DrawerFooter`) ·
+sample: Overlays → Bottom sheet
 
-A modal sheet that rises from the bottom edge, for supplementary content and actions: details, filters, a
-short form, a list of choices.
+A modal sheet that rises from the bottom edge — Android's form of the Drawer: details, filters or a short form
+beside the screen they belong to, with a ruled header and footer.
 
 ```kotlin
-var filtering by rememberSaveable { mutableStateOf(false) }
 QeetrixBottomSheet(
-    visible = filtering,
-    onDismissRequest = { filtering = false },
+    open = filtering,
+    onOpenChange = { filtering = it },
     title = "Filter invoices",
-    footer = { QeetrixButton("Show results", onClick = { filtering = false }, modifier = Modifier.fillMaxWidth()) },
+    footer = {
+        QeetrixButton("Clear", onClick = ::clear, variant = QeetrixButtonVariant.Ghost)
+        QeetrixButton("Show results", onClick = { filtering = false })
+    },
 ) {
-    QeetrixRadioGroup(status, { status = it }, statusOptions, label = "Status")
+    // the filters
 }
 ```
 
 ## Usage
 
-- **Presented by `visible`**, from the app's state. Setting it to `false` slides the sheet away and removes
-  it from the composition; opening it again while it leaves turns it round. A person's swipe, tap outside,
-  Back or the close button calls `onDismissRequest`, which should set `visible` to `false`.
-- **Height.** Its content's, at most 85 % of the window's, and at most 640 dp wide on a large window. With
-  `partiallyExpandable`, a tall sheet opens half-way and expands when dragged up.
-- **`dismissOnGesture = false`** refuses a swipe and a tap outside, for a step the person must finish or
-  cancel deliberately. Back and the close button still close it: Android never traps Back.
-- The footer stacks its buttons full width, in order.
+- **The app owns `open`.** A swipe down, a tap on the scrim, Back, the close button and the handle's dismiss
+  action call `onOpenChange(false)`; the sheet slides away and leaves the composition. Setting `open = false`
+  closes it too; opening it again while it closes turns it round.
+- **`dismissible`** (default `true`): `false` removes the close button and stops a swipe down or a tap outside
+  from closing it, for a panel only its own actions should close. Back still closes it.
+- **`title`** is required, as on the web: it is the sheet's heading and pane title. `description` sits under it.
+- **Footer.** Under a rule, end-aligned, tertiary first; `footerStart` holds a quiet link or a summary.
+- **Height.** Its content's, at most 85 % of the window; with `partiallyExpandable` a tall sheet opens half-way
+  and expands when dragged up. **Width**: `size` `Sm` 400, `Md` 560 (default), `Lg` 800 dp on a large window; a
+  phone's full width.
 
 ## Accessibility
 
-Compose's modal bottom sheet in its own window: focus stays in it, it moves up with the keyboard, and it
-animates with predictive back. The handle ("Drag handle", `qx_drag_handle`) carries expand, collapse and
-dismiss actions for TalkBack users, who cannot drag. The title is a heading; the close button is "Close".
+Its own window: focus stays inside, and the title is announced as the pane opens. The handle carries expand,
+collapse and dismiss actions ("Drag handle", `qx_drag_handle`).
 
 ## Theme and tokens
 
-`component.dialog.*` rounded on top, with a rule along its top edge; a 40 × 4 dp handle in
-`border.strong`; 16 dp header and footer padding; the dialog scrim.
+drawer.css: `color.surface.overlay`, square corners, the `color.overlay.scrim` backdrop; header padding
+`space.inset.xl` with a 1 dp `color.border.subtle` rule below, title `title.md`, description `body.md`
+`color.text.subtle`; body padding `space.inset.xl`; footer padding `space.inset.lg` × `space.inset.xl` under a
+rule; the close button 20 dp from the top and 16 dp from the end. The handle (40 × 4 dp, `color.border.strong`,
+`radius.sm`) sits in the header's top padding, so the title stays 24 dp from the edge.
 
 ## Platform differences
 
-- Android's sheet is Material 3's `ModalBottomSheet` underneath — the one Material primitive Qeetrix uses,
-  with every colour and shape Qeetrix's ([ADR 0015](../Decisions/0015-navigation-overlays-and-feedback.md)).
-  Its motion is the platform's, following the finger and the fling, rather than the web drawer's curves.
-- The web hides its handle from screen readers; Android exposes it, because it carries the sheet's actions.
-- No shadow (the web's `elevation.modal`): Material's sheet cannot draw one, and over the scrim it would not be
-  seen. Until Phase 7 the shadow and rule were passed to Material as a modifier, which drew them as an empty
-  panel at the top of the screen; `QeetrixBottomSheetDeviceTest` now guards against it. The `modifier`
-  parameter is for semantics and test tags for the same reason.
-- The web's side `Sheet` has no Android counterpart yet.
+- **Bottom, not side.** The web's Drawer is a full-height side panel (`side` start or end); Android shows the
+  same content as a bottom sheet, the platform's pattern, through Material 3's `ModalBottomSheet` (the one
+  Material component Qeetrix wraps). There is no `side`.
+- **Handle.** The web has none; Android sheets show one and expose its actions.
+- **Motion and shadow.** The slide is Material's sheet motion, not `motion.duration.slow`; the sheet draws no
+  `shadow.modal` (Material's sheet cannot draw a Qeetrix shadow, and over the scrim it would not show).
+- **Back** always closes it, dismissible or not.
 
-Related: [Dialog](Dialog.md), [Menu](Menu.md).
+Related: [Dialog](Dialog.md).

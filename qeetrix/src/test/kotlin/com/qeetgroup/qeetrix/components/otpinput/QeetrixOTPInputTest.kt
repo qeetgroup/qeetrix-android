@@ -1,26 +1,33 @@
 package com.qeetgroup.qeetrix.components.otpinput
 
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.AnnotatedString
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
+import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.setQeetrix
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
 
 /** One text field behind the cells: typing, paste, AutoFill semantics and completion. Synthetic codes only. */
 @RunWith(RobolectricTestRunner::class)
@@ -32,7 +39,7 @@ class QeetrixOTPInputTest {
     fun itKeepsLeadingZerosAndReportsTheCompleteCodeOnce() {
         val state = TextFieldState()
         val completed = mutableListOf<String>()
-        compose.setQeetrix { QeetrixOTPInput(state, label = "Verification code") { completed += it } }
+        compose.setQeetrix { QeetrixOTPInput(state, label = "Verification code", onValueComplete = { completed += it }) }
         compose.onNodeWithText("Verification code").assert(hasSetTextAction()).performTextInput("012345")
         compose.runOnIdle {
             assertEquals("012345", state.text.toString())
@@ -72,7 +79,14 @@ class QeetrixOTPInputTest {
     @Test
     fun alphanumericCodesKeepLettersAsTyped() {
         val state = TextFieldState()
-        compose.setQeetrix { QeetrixOTPInput(state, label = "Recovery code", length = 8, characters = QeetrixOTPCharacters.Alphanumeric) }
+        compose.setQeetrix {
+            QeetrixOTPInput(
+                state,
+                label = "Recovery code",
+                length = 8,
+                validationType = QeetrixOTPValidationType.Alphanumeric,
+            )
+        }
         compose.onNodeWithText("Recovery code").performTextInput("ab12-CD34")
         compose.runOnIdle { assertEquals("ab12CD34", state.text.toString()) }
     }
@@ -81,7 +95,7 @@ class QeetrixOTPInputTest {
     fun clearingAndRetypingCompletesAgain() {
         val state = TextFieldState()
         val completed = mutableListOf<String>()
-        compose.setQeetrix { QeetrixOTPInput(state, label = "Verification code", length = 4) { completed += it } }
+        compose.setQeetrix { QeetrixOTPInput(state, label = "Verification code", length = 4, onValueComplete = { completed += it }) }
         val field = compose.onNodeWithText("Verification code")
         field.performTextInput("4821")
         compose.runOnIdle { state.clearText() }
@@ -92,7 +106,7 @@ class QeetrixOTPInputTest {
     @Test
     fun aCodeAlreadyCompleteWhenShownIsNotReported() {
         val completed = mutableListOf<String>()
-        compose.setQeetrix { QeetrixOTPInput(TextFieldState("123456"), label = "Verification code") { completed += it } }
+        compose.setQeetrix { QeetrixOTPInput(TextFieldState("123456"), label = "Verification code", onValueComplete = { completed += it }) }
         compose.runOnIdle { assertEquals(emptyList<String>(), completed) }
     }
 
@@ -121,19 +135,57 @@ class QeetrixOTPInputTest {
     }
 
     @Test
-    fun withoutALabelItIsNamedOneTimeCode() {
-        compose.setQeetrix { QeetrixOTPInput(TextFieldState()) }
+    fun alphaCodesTakeLettersOnly() {
+        val state = TextFieldState()
+        compose.setQeetrix { QeetrixOTPInput(state, label = "Word", length = 4, validationType = QeetrixOTPValidationType.Alpha) }
+        compose.onNodeWithText("Word").performTextInput("a1b2cD")
+        compose.runOnIdle { assertEquals("abcD", state.text.toString()) }
+    }
+
+    @Test
+    fun aHiddenLabelStillNamesTheCode() {
+        compose.setQeetrix { QeetrixOTPInput(TextFieldState(), label = "One-time code", hideLabel = true) }
         compose.onNode(hasSetTextAction() and hasContentDescription("One-time code")).assertExists()
+    }
+
+    @Test
+    fun groupsMustAddUpToTheLength() {
+        assertThrows(IllegalArgumentException::class.java) {
+            compose.setQeetrix { QeetrixOTPInput(TextFieldState(), label = "Code", groups = listOf(3, 2)) }
+        }
+    }
+
+    /** otp-input.css: the slots share the container's width, gap.sm apart; md slots are size.control.lg tall, lg 16 dp more. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun theSlotsSpanTheContainer() {
+        compose.setQeetrix {
+            androidx.compose.foundation.layout.Column {
+                QeetrixOTPInput(TextFieldState(), label = "Md", modifier = Modifier.width(300.dp).testTag("md"))
+                QeetrixOTPInput(
+                    TextFieldState(),
+                    label = "Lg",
+                    size = QeetrixOTPInputSize.Lg,
+                    modifier = Modifier.width(300.dp).testTag("lg"),
+                )
+            }
+        }
+        // The label (16 dp) and its 4 dp gap sit above the slots.
+        val md = compose.onNodeWithTag("md").getUnclippedBoundsInRoot()
+        val lg = compose.onNodeWithTag("lg").getUnclippedBoundsInRoot()
+        assertEquals(300f, (md.right - md.left).value, 0.5f)
+        assertEquals(16f + 4f + 40f, (md.bottom - md.top).value, 0.5f)
+        assertEquals(16f + 4f + 56f, (lg.bottom - lg.top).value, 0.5f)
     }
 
     @Test
     fun anErrorMarksItInvalid() {
         compose.setQeetrix {
-            QeetrixOTPInput(TextFieldState("12"), label = "Verification code", message = QeetrixFieldMessage("That code has expired."))
+            QeetrixOTPInput(TextFieldState("12"), label = "Verification code", error = "That code has expired. Enter the new one we sent.")
         }
         compose
             .onNodeWithText(
                 "Verification code",
-            ).assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, "That code has expired."))
+            ).assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, "That code has expired. Enter the new one we sent."))
     }
 }

@@ -25,10 +25,10 @@ class QeetrixSeparatorScreenshotTest {
     fun states() =
         captureStates("separator") {
             ScreenshotStack {
-                QeetrixText("default")
-                QeetrixSeparator()
-                QeetrixText("muted")
-                QeetrixSeparator(variant = QeetrixSeparatorVariant.Muted)
+                for (tone in QeetrixSeparatorTone.entries) {
+                    QeetrixText(tone.value)
+                    QeetrixSeparator(tone = tone)
+                }
                 Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(ScreenshotGap)) {
                     QeetrixText("start")
                     QeetrixSeparator(orientation = QeetrixSeparatorOrientation.Vertical)

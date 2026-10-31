@@ -10,7 +10,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-/** Baselines in `src/test/screenshots/searchfield/`: the placeholder, a query with its clear button, a label, disabled. */
+/** Baselines for [QeetrixSearchField] in `src/test/screenshots/searchfield/`. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = SCREENSHOT_QUALIFIERS)
@@ -19,10 +19,11 @@ class QeetrixSearchFieldScreenshotTest {
     fun states() =
         captureStates("searchfield") {
             ScreenshotStack {
-                QeetrixSearchField(TextFieldState())
-                QeetrixSearchField(TextFieldState("Ada"))
-                QeetrixSearchField(TextFieldState(), label = "Find a member", placeholder = "Name or email")
-                QeetrixSearchField(TextFieldState("Grace"), enabled = false)
+                QeetrixSearchField(TextFieldState(), placeholder = "e.g. Asha")
+                QeetrixSearchField(TextFieldState("grace"))
+                QeetrixSearchField(TextFieldState("pay"), label = "Find an invoice", interactionSource = rememberFocusedSource())
+                QeetrixSearchField(TextFieldState("ada"), readOnly = true)
+                QeetrixSearchField(TextFieldState("ada"), enabled = false)
             }
         }
 }

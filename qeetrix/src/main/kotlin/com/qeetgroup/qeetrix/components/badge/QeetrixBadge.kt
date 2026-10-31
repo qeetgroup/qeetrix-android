@@ -1,165 +1,133 @@
 package com.qeetgroup.qeetrix.components.badge
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
+import androidx.compose.ui.unit.dp
+import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.icons.QeetrixIcon
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
-import com.qeetgroup.qeetrix.internal.FontWeightMedium
-import com.qeetgroup.qeetrix.internal.QeetrixFont
-import com.qeetgroup.qeetrix.internal.QeetrixWebScale
+import com.qeetgroup.qeetrix.icons.QeetrixIconShape
 import com.qeetgroup.qeetrix.internal.labelDirection
-import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixBadgeComponentTokens
 
-/**
- * The styles of [QeetrixBadge] (`value` is the web name): one solid Qeet fill, quiet tints for the brand
- * and status tones, and neutral styles for metadata.
- */
+/** What a badge means (`value` is `@qeetrix/react`'s `tone`). The word carries the meaning; the tone reinforces it. */
+public enum class QeetrixBadgeTone(
+    public val value: String,
+) {
+    /** The default. */
+    Neutral("neutral"),
+    Brand("brand"),
+    Info("info"),
+    Success("success"),
+    Warning("warning"),
+    Danger("danger"),
+}
+
+/** Emphasis (`value` is `@qeetrix/react`'s `variant`). */
 public enum class QeetrixBadgeVariant(
     public val value: String,
 ) {
-    /** The one solid Qeet fill, for counts and "New". The loudest a badge can be: use it sparingly. */
-    Default("default"),
+    /** The tinted pill, for most statuses. The default. */
+    Subtle("subtle"),
 
-    /** Graphite, for metadata that should not compete. */
-    Secondary("secondary"),
+    /** The bold fill, for the one status in a view that must stand out ("Overdue"). */
+    Solid("solid"),
+}
 
-    /** An outline only. */
-    Outline("outline"),
+/** Heights (`value` is `@qeetrix/react`'s `size`). */
+public enum class QeetrixBadgeSize(
+    public val value: String,
+) {
+    /** 16 dp, for tight rows and beside small text. */
+    Sm("sm"),
 
-    /** A quiet brand tint. */
-    Brand("brand"),
-
-    /** A quiet information tint. */
-    Info("info"),
-
-    /** A quiet success tint. */
-    Success("success"),
-
-    /** A quiet warning tint. */
-    Warning("warning"),
-
-    /** A quiet danger tint. */
-    Destructive("destructive"),
-
-    /** The quietest neutral. */
-    Muted("muted"),
+    /** 20 dp. The default. */
+    Md("md"),
 }
 
 /**
- * A small label for a count, a status or a category.
+ * A short, static status or count — `@qeetrix/react`'s Badge, a status tag: a pill (`radius.chip`) in
+ * `label.sm`, tinted ([QeetrixBadgeVariant.Subtle]) or solid, with an optional 12 dp leading [icon] in
+ * the sharp shape. One or two words ("Paid", "Overdue"), never colour alone; it ends in an ellipsis when
+ * space runs out.
  *
- * The [text] carries the meaning, so a status never rests on colour alone: write "Failed", not a red
- * dot. The [icon], if any, is decorative. Badges are not interactive. Text is in sp and follows the
- * font scale; the badge grows with it and stays on one line.
- *
- * ```
- * QeetrixBadge("Active", variant = QeetrixBadgeVariant.Success, icon = QeetrixIconName.CircleCheck)
- * ```
+ * Not interactive: a selectable or removable tag is [QeetrixChip]. A count needs context for TalkBack —
+ * give the row around it a `contentDescription` such as "3 pending".
  */
 @Composable
 public fun QeetrixBadge(
     text: String,
     modifier: Modifier = Modifier,
-    variant: QeetrixBadgeVariant = QeetrixBadgeVariant.Default,
+    tone: QeetrixBadgeTone = QeetrixBadgeTone.Neutral,
+    variant: QeetrixBadgeVariant = QeetrixBadgeVariant.Subtle,
+    size: QeetrixBadgeSize = QeetrixBadgeSize.Md,
     icon: QeetrixIconName? = null,
 ) {
-    val colors = badgeColors(variant)
-    val shape = RoundedCornerShape(QeetrixBadgeComponentTokens.Corner)
+    val (background, content) = badgeColors(tone, variant)
+    val small = size == QeetrixBadgeSize.Sm
     Row(
         modifier =
             modifier
-                .background(colors.background, shape)
-                .border(QeetrixStroke.Hairline, colors.border, shape) // border (transparent where unwanted)
-                // px-2 py-0.5, inside the 1 dp border (CSS sizes are border-box)
-                .padding(
-                    horizontal = QeetrixWebScale.spacing(2f) + QeetrixStroke.Hairline,
-                    vertical = QeetrixWebScale.spacing(0.5f) + QeetrixStroke.Hairline,
-                ),
-        horizontalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(1f)), // gap-1
+                .background(background, QeetrixShapes.Chip)
+                // md: padding 2px 8px; sm: padding 0 6px
+                .padding(horizontal = if (small) 6.dp else 8.dp, vertical = if (small) 0.dp else 2.dp),
+        horizontalArrangement = Arrangement.spacedBy(if (small) 2.dp else QeetrixSpace.GapXs), // gap: space.gap.xs; sm 2px
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null) {
-            QeetrixIcon(icon, contentDescription = null, size = QeetrixWebScale.spacing(3f), tint = colors.content) // [&>svg]:size-3
+            QeetrixIcon(icon, contentDescription = null, size = QeetrixSize.Icon2xs, shape = QeetrixIconShape.Sharp, tint = content)
         }
         BasicText(
             text = text,
-            style = BadgeTextStyle.copy(color = colors.content).labelDirection(),
-            maxLines = 1, // whitespace-nowrap
+            style =
+                QeetrixTheme.typography.labelSm
+                    .copy(color = content)
+                    .labelDirection(),
+            maxLines = 1, // white-space: nowrap, text-overflow: ellipsis
             softWrap = false,
-            overflow = TextOverflow.Clip,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
 
-// font-ui text-xs font-medium
-private val BadgeTextStyle = qeetrixTextStyle(QeetrixFont.Ui, QeetrixWebScale.TextXs, FontWeightMedium)
-
-private class BadgeColors(
-    val background: Color,
-    val content: Color,
-    val border: Color,
-)
-
+/** badge.css: fill and text per tone and variant. */
 @Composable
-private fun badgeColors(variant: QeetrixBadgeVariant): BadgeColors {
-    val colors = QeetrixTheme.colors
+internal fun badgeColors(
+    tone: QeetrixBadgeTone,
+    variant: QeetrixBadgeVariant,
+): Pair<Color, Color> {
+    val c = QeetrixTheme.colors
     return when (variant) {
-        // border-transparent bg-(--qx-component-badge-default-background) text-(--qx-component-badge-default-foreground)
-        QeetrixBadgeVariant.Default -> {
-            BadgeColors(QeetrixBadgeComponentTokens.DefaultBackground, QeetrixBadgeComponentTokens.DefaultForeground, Color.Transparent)
+        QeetrixBadgeVariant.Subtle -> {
+            when (tone) {
+                QeetrixBadgeTone.Neutral -> c.bgNeutralSubtlePressed to c.textDefault
+                QeetrixBadgeTone.Brand -> c.bgBrandSubtle to c.textBrand
+                QeetrixBadgeTone.Info -> c.bgInfoSubtle to c.textInfo
+                QeetrixBadgeTone.Success -> c.bgSuccessSubtle to c.textSuccess
+                QeetrixBadgeTone.Warning -> c.bgWarningSubtle to c.textWarning
+                QeetrixBadgeTone.Danger -> c.bgDangerSubtle to c.textDanger
+            }
         }
 
-        // border-transparent bg-secondary text-secondary-foreground
-        QeetrixBadgeVariant.Secondary -> {
-            BadgeColors(colors.surfaceInteractive, colors.textOnSubtle, Color.Transparent)
-        }
-
-        // border-border text-foreground dark:border-border-strong
-        QeetrixBadgeVariant.Outline -> {
-            BadgeColors(Color.Transparent, colors.textPrimary, if (QeetrixTheme.isDark) colors.borderStrong else colors.borderDefault)
-        }
-
-        // border-(--qx-component-badge-border-brand) bg-brand-subtle text-brand
-        QeetrixBadgeVariant.Brand -> {
-            BadgeColors(colors.surfaceBrandSubtle, colors.textBrand, QeetrixBadgeComponentTokens.BorderBrand)
-        }
-
-        // border-(--qx-component-badge-border-info) bg-info-subtle text-info-text
-        QeetrixBadgeVariant.Info -> {
-            BadgeColors(colors.feedbackInfoSubtle, colors.textInfo, QeetrixBadgeComponentTokens.BorderInfo)
-        }
-
-        // border-(--qx-component-badge-border-success) bg-success-subtle text-success-text
-        QeetrixBadgeVariant.Success -> {
-            BadgeColors(colors.feedbackSuccessSubtle, colors.textSuccess, QeetrixBadgeComponentTokens.BorderSuccess)
-        }
-
-        // border-(--qx-component-badge-border-warning) bg-warning-subtle text-warning-text
-        QeetrixBadgeVariant.Warning -> {
-            BadgeColors(colors.feedbackWarningSubtle, colors.textWarning, QeetrixBadgeComponentTokens.BorderWarning)
-        }
-
-        // border-(--qx-component-badge-border-danger) bg-destructive-subtle text-destructive-text
-        QeetrixBadgeVariant.Destructive -> {
-            BadgeColors(colors.feedbackErrorSubtle, colors.textDanger, QeetrixBadgeComponentTokens.BorderDanger)
-        }
-
-        // border-transparent bg-muted text-muted-foreground
-        QeetrixBadgeVariant.Muted -> {
-            BadgeColors(colors.surfaceSubtle, colors.textTertiary, Color.Transparent)
+        QeetrixBadgeVariant.Solid -> {
+            when (tone) {
+                QeetrixBadgeTone.Neutral -> c.bgNeutralBold to c.textInverse
+                QeetrixBadgeTone.Brand -> c.bgBrandBold to c.textOnBrand
+                QeetrixBadgeTone.Info -> c.bgInfoBold to c.textOnBold
+                QeetrixBadgeTone.Success -> c.bgSuccessBold to c.textOnBold
+                QeetrixBadgeTone.Warning -> c.bgWarningBold to c.textOnWarning
+                QeetrixBadgeTone.Danger -> c.bgDangerBold to c.textOnBold
+            }
         }
     }
 }

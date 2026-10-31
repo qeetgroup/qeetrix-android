@@ -1,7 +1,7 @@
 package com.qeetgroup.qeetrix.components.passwordinput
 
 import androidx.compose.foundation.text.input.TextFieldState
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
+import com.qeetgroup.qeetrix.components.input.rememberFocusedSource
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
 import com.qeetgroup.qeetrix.screenshot.ScreenshotStack
 import com.qeetgroup.qeetrix.screenshot.captureStates
@@ -20,20 +20,24 @@ class QeetrixPasswordInputScreenshotTest {
     fun states() =
         captureStates("passwordinput") {
             ScreenshotStack {
-                QeetrixPasswordInput(TextFieldState(), label = "Password", placeholder = "Enter your password")
+                QeetrixPasswordInput(TextFieldState(), label = "Password")
+                QeetrixPasswordInput(TextFieldState("Synthetic-0042"), label = "Password", description = "At least 12 characters.")
                 QeetrixPasswordInput(
-                    TextFieldState("synthetic"),
+                    TextFieldState("Synthetic-0042"),
                     label = "New password",
-                    purpose = QeetrixPasswordPurpose.New,
-                    description = "At least 12 characters.",
+                    autoComplete = QeetrixPasswordAutoComplete.NewPassword,
+                    visible = true,
+                    onVisibleChange = {},
+                    interactionSource = rememberFocusedSource(),
                 )
+                QeetrixPasswordInput(TextFieldState("short"), label = "Password", error = "Use at least 12 characters.")
                 QeetrixPasswordInput(
-                    TextFieldState("short"),
-                    label = "Confirm password",
-                    message = QeetrixFieldMessage("The passwords do not match."),
+                    TextFieldState("sk_live_synthetic"),
+                    label = "Client secret",
+                    readOnly = true,
+                    autoComplete = QeetrixPasswordAutoComplete.Off,
                 )
-                QeetrixPasswordInput(TextFieldState("synthetic"), label = "Without a reveal button", showToggle = false)
-                QeetrixPasswordInput(TextFieldState("synthetic"), label = "Disabled", enabled = false)
+                QeetrixPasswordInput(TextFieldState("Synthetic-0042"), label = "Disabled", enabled = false)
             }
         }
 }

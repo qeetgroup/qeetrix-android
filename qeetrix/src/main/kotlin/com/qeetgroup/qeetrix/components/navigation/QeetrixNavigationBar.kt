@@ -18,30 +18,33 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
-import com.qeetgroup.qeetrix.internal.QeetrixWebScale
+import androidx.compose.ui.geometry.Size
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
 /**
- * The bottom navigation bar: an app's three to five top-level destinations, side by side along the bottom
- * of a compact window. For a wider window use [QeetrixNavigationRail], or [QeetrixNavigationScaffold] to
- * switch between them as the window changes.
+ * The bottom navigation bar: an app's three to five top-level destinations, side by side along the bottom of a
+ * compact window. For a wider window use [QeetrixNavigationRail], or [QeetrixNavigationScaffold] to switch between
+ * them as the window changes.
  *
- * - **The app owns navigation.** [selected] is the app's current destination and [onSelect] is called with
- *   the value of the item chosen — also when it is the current one, so the app can return to the top of
- *   that destination. Qeetrix keeps no back stack and knows no routes; it works with Navigation Compose,
- *   Navigation 3 or plain state alike.
- * - **Not tabs.** Destinations here are the app's top level, each with its own history; switching
- *   between views of one screen's content is [com.qeetgroup.qeetrix.components.tabs.QeetrixTabs].
- * - **Drawing.** The web sidebar's navigation signature, turned horizontal: the app-chrome surface
- *   (`surface.rail`) with a rule along its top; the selected item tinted, its icon in the brand colour, its
- *   label medium, and a 3 dp brand indicator on its top edge. Items share the width equally; at large text
- *   sizes a label that does not fit ends in an ellipsis (accessibility services read it in full) and the bar
- *   grows taller with the text.
- * - **Edge to edge.** The surface runs under the system navigation bar; [windowInsets] (by default the
- *   bottom and horizontal safe-drawing insets) keeps the items clear of it.
- * - **Accessibility.** One selectable group; each item is a tab, read with its label, its badge and
- *   whether it is selected, and is at least 48 dp tall.
+ * `@qeetrix/react` has no bottom bar: below 840 px its AppShell opens the Sidebar as a drawer. This is Android's
+ * bottom bar drawn as the AppShell's navigation column — `color.surface.canvas`, a 1 dp `color.border.default` seam
+ * on the edge that meets the screen — with the Sidebar's items stacked into cells ([QeetrixNavigationItem]): the
+ * current one tinted `color.bg.neutral.subtle-hover`, its round icon Ember and filled, its label at weight 600, and
+ * the 3 dp Ember bar along its top edge, the one facing the screen.
+ *
+ * - **The app owns navigation.** [value] is the app's current destination and [onValueChange] is called with the
+ *   value of the item chosen — also when it is the current one, so the app can return to the top of that
+ *   destination. Qeetrix keeps no back stack and knows no routes; it works with Navigation Compose, Navigation 3 or
+ *   plain state alike, and system Back stays the app's.
+ * - **Not tabs.** Destinations here are the app's top level, each with its own history; views of one screen's
+ *   content are [com.qeetgroup.qeetrix.components.tabs.QeetrixTabs].
+ * - Items share the width equally; at large text sizes a label that does not fit ends in an ellipsis
+ *   (accessibility services read it in full) and the bar grows taller with the text.
+ * - **Edge to edge.** The surface runs under the system navigation bar; [windowInsets] (by default the bottom and
+ *   horizontal safe-drawing insets) keeps the items clear of it.
+ * - **Accessibility.** One selectable group; each item is a tab, read with its label, its badge and whether it is
+ *   selected, and is at least 48 dp tall.
  *
  * ```
  * QeetrixNavigationBar(
@@ -50,28 +53,30 @@ import com.qeetgroup.qeetrix.theme.QeetrixTheme
  *         QeetrixNavigationItem(Destination.Inbox, "Inbox", QeetrixIconName.Inbox, badge = "3"),
  *         QeetrixNavigationItem(Destination.Settings, "Settings", QeetrixIconName.Settings),
  *     ),
- *     selected = destination,
- *     onSelect = { destination = it },
+ *     value = destination,
+ *     onValueChange = { destination = it },
  * )
  * ```
  */
 @Composable
 public fun <T> QeetrixNavigationBar(
     items: List<QeetrixNavigationItem<T>>,
-    selected: T,
-    onSelect: (T) -> Unit,
+    value: T,
+    onValueChange: (T) -> Unit,
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = QeetrixNavigationBarInsets,
 ) {
     requireDistinctValues(items)
-    val rule = QeetrixTheme.colors.borderDefault // border-sidebar-border
+    val seam = QeetrixTheme.colors.borderDefault
     Row(
         modifier
             .fillMaxWidth()
-            .background(QeetrixTheme.colors.surfaceRail) // bg-sidebar
-            .drawBehind { drawLine(rule, Offset(0f, 0f), Offset(size.width, 0f), QeetrixStroke.Hairline.toPx()) }
-            .windowInsetsPadding(windowInsets)
-            .padding(horizontal = QeetrixWebScale.spacing(1f))
+            .background(QeetrixTheme.colors.surfaceCanvas) // .qx-app-shell-nav-panel background: color.surface.canvas
+            .drawBehind {
+                // The seam: border.width.default solid color.border.default, on the edge that meets the screen.
+                drawRect(seam, Offset.Zero, Size(size.width, QeetrixBorder.WidthDefault.toPx()))
+            }.windowInsetsPadding(windowInsets)
+            .padding(top = QeetrixBorder.WidthDefault)
             .height(IntrinsicSize.Min)
             .selectableGroup(),
     ) {
@@ -79,8 +84,8 @@ public fun <T> QeetrixNavigationBar(
             key(item.value) {
                 NavigationItem(
                     item = item,
-                    selected = item.value == selected,
-                    onClick = { onSelect(item.value) },
+                    current = item.value == value,
+                    onClick = { onValueChange(item.value) },
                     edge = IndicatorEdge.Top,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                 )
@@ -92,8 +97,3 @@ public fun <T> QeetrixNavigationBar(
 /** The bottom and horizontal safe-drawing insets: what a bottom bar keeps its items clear of. */
 internal val QeetrixNavigationBarInsets: WindowInsets
     @Composable get() = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-
-/** Values must be distinct, as each is one destination. */
-internal fun requireDistinctValues(items: List<QeetrixNavigationItem<*>>) {
-    require(items.map { it.value }.toSet().size == items.size) { "Each navigation item needs a distinct value." }
-}

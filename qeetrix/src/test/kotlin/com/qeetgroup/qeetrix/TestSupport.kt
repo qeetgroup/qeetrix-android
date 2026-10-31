@@ -17,8 +17,16 @@ internal object TestSupport {
             .keys()
             .asSequence()
             .filter {
-                tokenValues.getJSONObject(it).getString("kind") == kind
+                tokenValues.getJSONObject(it).getString("type") == kind
             }.toList()
+
+    /** A number token's value, or a length's / duration's amount (`px`, `ms`), in the light scheme. */
+    fun number(path: String): Double =
+        when (val v = value(path)) {
+            is Number -> v.toDouble()
+            is JSONObject -> if (v.has("px")) v.getDouble("px") else v.getDouble("ms")
+            else -> error("$path is not a number")
+        }
 
     fun value(
         path: String,

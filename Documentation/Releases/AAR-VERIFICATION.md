@@ -19,10 +19,10 @@ build. Built by `Scripts/release-candidate 0.1.0-rc.1 --devices --allow-dirty` o
 |:--|:--|:--|
 | `classes.jar` | The library's compiled Kotlin: components, foundations, theme, generated tokens and icon paths | Only `com/qeetgroup/qeetrix/**` and `META-INF/` — no test, sample, generator or shaded third-party classes |
 | `AndroidManifest.xml` | `package="com.qeetgroup.qeetrix"`, `minSdkVersion 29` | No permissions, application attributes, activities, services, receivers or providers |
-| `res/font/qx_cal_sans_vf.ttf`, `res/font/qx_fira_code_vf.ttf` | Qeet Sans (Cal Sans 2.011) and Fira Code 6.2, variable | SHA-256 equal to the upstream TTFs in `Upstream/manifest.lock.json`; one copy each |
+| `res/font/qx_cal_sans_vf.ttf`, `res/font/qx_fira_code_vf.ttf` | Qeet Sans (Cal Sans 2.011) and Fira Code 6.2, variable. Since the move to `@qeetrix/react` the sans font is `res/font/qx_qeet_sans_vf.ttf`, and both are the TrueType files `@qeetrix/tokens` ships | SHA-256 equal to the upstream TTFs in `Upstream/manifest.lock.json`; one copy each |
 | `res/values/values.xml` | 21 strings, all `qx_` | Every resource in `R.txt` is `qx_`-prefixed (2 fonts, 21 strings) |
 | `R.txt` | The resource symbol table | — |
-| `assets/qeetrix/licenses/` | `CalSans-OFL.txt`, `FiraCode-OFL.txt`, `qeetrix-icons-LICENSE.txt` | All three present; byte-identical to the upstream texts ([LICENSE-COMPLIANCE.md](LICENSE-COMPLIANCE.md)) |
+| `assets/qeetrix/licenses/` | `CalSans-OFL.txt` (now `QeetSans-OFL.txt`), `FiraCode-OFL.txt`, `qeetrix-icons-LICENSE.txt` | All three present; byte-identical to the upstream texts ([LICENSE-COMPLIANCE.md](LICENSE-COMPLIANCE.md)) |
 | `META-INF/com/android/build/gradle/aar-metadata.properties` | `minCompileSdk=37`, `minAndroidGradlePluginVersion=1.0.0`, `coreLibraryDesugaringEnabled=false` | `minCompileSdk` 37 adds nothing: Compose UI and Foundation 1.12.1 already require compile SDK 37 and AGP 9.1.0 |
 
 Not in the AAR, correctly: icons as drawables (they are compiled Kotlin path data), sample code or images, screenshot
@@ -43,7 +43,7 @@ baselines, research or upstream source files, `proguard.txt` (no consumer rules 
 
 ## Independence
 
-An app needs no qeetrix-ui checkout, Node.js, Style Dictionary, the token generator, the sample or this repository:
+An app needs no Qeetrix npm package, Node.js, the token generator, the sample or this repository:
 tokens are compiled into `classes.jar` and fonts and strings are resources. The independent consumer builds from the
 Maven artifact alone.
 

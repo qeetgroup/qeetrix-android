@@ -1,5 +1,38 @@
 [
   {
+    "id": "arrow-big-up",
+    "name": "arrow-big-up",
+    "componentName": "ArrowBigUpIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows",
+      "text",
+      "development",
+      "gaming"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "shift",
+      "keyboard",
+      "button",
+      "mac",
+      "capitalize",
+      "capitalise",
+      "forward",
+      "direction",
+      "north"
+    ],
+    "aliases": []
+  },
+  {
     "id": "arrow-left",
     "name": "arrow-left",
     "componentName": "ArrowLeftIcon",
@@ -21,6 +54,31 @@
       "direction",
       "west",
       "<-"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "arrow-right",
+    "name": "arrow-right",
+    "componentName": "ArrowRightIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "forward",
+      "next",
+      "direction",
+      "east",
+      "->"
     ],
     "aliases": []
   },
@@ -78,6 +136,66 @@
     "aliases": []
   },
   {
+    "id": "camera",
+    "name": "camera",
+    "componentName": "CameraIcon",
+    "category": "photography",
+    "categories": [
+      "photography",
+      "devices",
+      "communication"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "photography",
+      "lens",
+      "focus",
+      "capture",
+      "shot",
+      "visual",
+      "image",
+      "device",
+      "equipment",
+      "photo",
+      "webcam",
+      "video"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "camera-off",
+    "name": "camera-off",
+    "componentName": "CameraOffIcon",
+    "category": "photography",
+    "categories": [
+      "photography",
+      "devices",
+      "communication"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "photo",
+      "webcam",
+      "video"
+    ],
+    "aliases": []
+  },
+  {
     "id": "check",
     "name": "check",
     "componentName": "CheckIcon",
@@ -124,6 +242,66 @@
       "reverse",
       "slow",
       "dropdown"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "chevron-left",
+    "name": "chevron-left",
+    "componentName": "ChevronLeftIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "back",
+      "previous",
+      "less than",
+      "fewer",
+      "menu",
+      "<"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "chevron-right",
+    "name": "chevron-right",
+    "componentName": "ChevronRightIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows",
+      "math",
+      "development"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "forward",
+      "next",
+      "more than",
+      "greater",
+      "menu",
+      "code",
+      "coding",
+      "command line",
+      "terminal",
+      "prompt",
+      "shell",
+      ">"
     ],
     "aliases": []
   },
@@ -180,6 +358,62 @@
     ],
     "aliases": [
       "check-circle-2"
+    ]
+  },
+  {
+    "id": "circle-dashed",
+    "name": "circle-dashed",
+    "componentName": "CircleDashedIcon",
+    "category": "development",
+    "categories": [
+      "development",
+      "shapes"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "pending",
+      "dot",
+      "progress",
+      "issue",
+      "draft",
+      "code",
+      "coding",
+      "version control"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "circle-question-mark",
+    "name": "circle-question-mark",
+    "componentName": "CircleQuestionMarkIcon",
+    "category": "accessibility",
+    "categories": [
+      "accessibility",
+      "text",
+      "notifications"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "question mark"
+    ],
+    "aliases": [
+      "help-circle",
+      "circle-help"
     ]
   },
   {
@@ -245,6 +479,63 @@
     "aliases": []
   },
   {
+    "id": "cloud-upload",
+    "name": "cloud-upload",
+    "componentName": "CloudUploadIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows",
+      "files"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "file"
+    ],
+    "aliases": [
+      "upload-cloud"
+    ]
+  },
+  {
+    "id": "contact-round",
+    "name": "contact-round",
+    "componentName": "ContactRoundIcon",
+    "category": "account",
+    "categories": [
+      "account",
+      "connectivity",
+      "communication",
+      "social"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "user",
+      "person",
+      "family",
+      "friend",
+      "acquaintance",
+      "listing",
+      "networking"
+    ],
+    "aliases": [
+      "contact-2"
+    ]
+  },
+  {
     "id": "copy",
     "name": "copy",
     "componentName": "CopyIcon",
@@ -265,35 +556,6 @@
       "clone",
       "duplicate",
       "multiple"
-    ],
-    "aliases": []
-  },
-  {
-    "id": "database",
-    "name": "database",
-    "componentName": "DatabaseIcon",
-    "category": "devices",
-    "categories": [
-      "devices",
-      "development"
-    ],
-    "variants": [
-      "outline",
-      "filled"
-    ],
-    "shapes": [
-      "round",
-      "sharp"
-    ],
-    "directionality": "preserve",
-    "tags": [
-      "storage",
-      "memory",
-      "container",
-      "tin",
-      "pot",
-      "bytes",
-      "servers"
     ],
     "aliases": []
   },
@@ -443,6 +705,128 @@
     "aliases": []
   },
   {
+    "id": "file",
+    "name": "file",
+    "componentName": "FileIcon",
+    "category": "files",
+    "categories": [
+      "files"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "document"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "file-archive",
+    "name": "file-archive",
+    "componentName": "FileArchiveIcon",
+    "category": "files",
+    "categories": [
+      "files"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "zip",
+      "package",
+      "archive"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "file-code",
+    "name": "file-code",
+    "componentName": "FileCodeIcon",
+    "category": "files",
+    "categories": [
+      "files",
+      "development"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "script",
+      "document",
+      "gist",
+      "html",
+      "xml",
+      "property list",
+      "plist"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "file-image",
+    "name": "file-image",
+    "componentName": "FileImageIcon",
+    "category": "files",
+    "categories": [
+      "files"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "image",
+      "graphics",
+      "photo",
+      "picture"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "file-spreadsheet",
+    "name": "file-spreadsheet",
+    "componentName": "FileSpreadsheetIcon",
+    "category": "files",
+    "categories": [
+      "files"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "spreadsheet",
+      "sheet",
+      "table"
+    ],
+    "aliases": []
+  },
+  {
     "id": "file-text",
     "name": "file-text",
     "componentName": "FileTextIcon",
@@ -465,6 +849,63 @@
       "txt",
       "pdf",
       "document"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "flashlight",
+    "name": "flashlight",
+    "componentName": "FlashlightIcon",
+    "category": "photography",
+    "categories": [
+      "photography",
+      "devices"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "torch",
+      "light",
+      "beam",
+      "emergency",
+      "safety",
+      "tool",
+      "bright"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "flashlight-off",
+    "name": "flashlight-off",
+    "componentName": "FlashlightOffIcon",
+    "category": "photography",
+    "categories": [
+      "photography",
+      "devices"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "torch",
+      "light",
+      "beam",
+      "emergency",
+      "safety",
+      "tool",
+      "bright"
     ],
     "aliases": []
   },
@@ -519,6 +960,32 @@
     "aliases": [
       "home"
     ]
+  },
+  {
+    "id": "image",
+    "name": "image",
+    "componentName": "ImageIcon",
+    "category": "photography",
+    "categories": [
+      "photography",
+      "text",
+      "multimedia",
+      "files"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "picture",
+      "photo"
+    ],
+    "aliases": []
   },
   {
     "id": "inbox",
@@ -579,17 +1046,18 @@
     "aliases": []
   },
   {
-    "id": "loader-circle",
-    "name": "loader-circle",
-    "componentName": "LoaderCircleIcon",
-    "category": "cursors",
+    "id": "keyboard",
+    "name": "keyboard",
+    "componentName": "KeyboardIcon",
+    "category": "text",
     "categories": [
-      "cursors",
-      "multimedia",
-      "layout"
+      "text",
+      "devices",
+      "development"
     ],
     "variants": [
-      "outline"
+      "outline",
+      "filled"
     ],
     "shapes": [
       "round",
@@ -597,18 +1065,12 @@
     ],
     "directionality": "preserve",
     "tags": [
-      "loading",
-      "wait",
-      "busy",
-      "progress",
-      "spinner",
-      "spinning",
-      "throbber",
-      "circle"
+      "layout",
+      "spell",
+      "settings",
+      "mouse"
     ],
-    "aliases": [
-      "loader-2"
-    ]
+    "aliases": []
   },
   {
     "id": "lock",
@@ -659,6 +1121,58 @@
       "message",
       "letter",
       "unread"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "map-pin",
+    "name": "map-pin",
+    "componentName": "MapPinIcon",
+    "category": "navigation",
+    "categories": [
+      "navigation",
+      "travel",
+      "account"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "location",
+      "waypoint",
+      "marker",
+      "drop"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "menu",
+    "name": "menu",
+    "componentName": "MenuIcon",
+    "category": "layout",
+    "categories": [
+      "layout",
+      "account"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "bars",
+      "navigation",
+      "hamburger",
+      "options"
     ],
     "aliases": []
   },
@@ -727,6 +1241,31 @@
     "tags": [
       "location",
       "travel"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "paperclip",
+    "name": "paperclip",
+    "componentName": "PaperclipIcon",
+    "category": "text",
+    "categories": [
+      "text",
+      "design",
+      "files",
+      "mail"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "attachment",
+      "file"
     ],
     "aliases": []
   },

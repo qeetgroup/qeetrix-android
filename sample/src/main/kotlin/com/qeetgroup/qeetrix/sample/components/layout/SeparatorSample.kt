@@ -9,16 +9,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.separator.QeetrixSeparator
 import com.qeetgroup.qeetrix.components.separator.QeetrixSeparatorOrientation
-import com.qeetgroup.qeetrix.components.separator.QeetrixSeparatorVariant
+import com.qeetgroup.qeetrix.components.separator.QeetrixSeparatorTone
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-/** Separators: horizontal in both variants, and vertical between inline items. */
+/** Rules — `@qeetrix/react`'s Separator: horizontal in its three tones, and vertical between inline items. */
 @Composable
 fun SeparatorSample() {
     SamplePage {
@@ -26,17 +26,22 @@ fun SeparatorSample() {
             QeetrixText("Account")
             QeetrixSeparator()
             QeetrixText("Notifications")
-            QeetrixSeparator(variant = QeetrixSeparatorVariant.Muted)
+            QeetrixSeparator(tone = QeetrixSeparatorTone.Default)
             QeetrixText("Privacy")
-            SampleNote("Default, then muted for quieter divisions. TalkBack skips separators: they are decoration.")
+            QeetrixSeparator(tone = QeetrixSeparatorTone.Strong)
+            QeetrixText("Danger zone")
+            SampleNote(
+                "Subtle (the default), default and strong: 1 dp rules in the border colours. Ruled surfaces separate " +
+                    "content by lines and tone, never shadows. TalkBack skips separators.",
+            )
         }
         SampleSection("Vertical") {
-            Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.M)) {
-                QeetrixText("Docs", variant = QeetrixTextVariant.Small)
+            Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd)) {
+                QeetrixText("Docs", size = QeetrixTextSize.Sm)
                 QeetrixSeparator(orientation = QeetrixSeparatorOrientation.Vertical)
-                QeetrixText("Status", variant = QeetrixTextVariant.Small)
+                QeetrixText("Status", size = QeetrixTextSize.Sm)
                 QeetrixSeparator(orientation = QeetrixSeparatorOrientation.Vertical)
-                QeetrixText("Support", variant = QeetrixTextVariant.Small)
+                QeetrixText("Support", size = QeetrixTextSize.Sm)
             }
             SampleNote("A vertical separator takes its parent's height; give the row an intrinsic height.")
         }

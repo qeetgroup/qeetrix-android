@@ -2,55 +2,227 @@
 
 # Token coverage
 
-Source: `@qeetrix/ui@2.1.6` (git `7d7f651`), themes `light`, `dark`.
+Source: `@qeetrix/tokens@0.0.13` (git `4483f96`), its DTCG build resolved as `qeetrix.resolver.json` says: colour schemes `light`, `dark` at the `default` density, and densities `default`, `comfortable`, `compact`.
 
-305 tokens are generated as Kotlin; 578 are not. The rule is in
-[`Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt`](../../Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt).
+202 tokens are generated as Kotlin; 137 are not. The rule is in
+[`Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt`](../../Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt);
+every value, with the DTCG token it came from, is in [token-values.json](token-values.json).
 
 ## Generated
 
-| Group | Tokens | Public Kotlin API |
-|:--|--:|:--|
-| `color` | 84 | `QeetrixColors` (`QeetrixTheme.colors`) |
-| `elevation` | 14 | `QeetrixElevation` |
-| `typography` | 53 | `QeetrixTextRole`, `QeetrixTypography` (`QeetrixTheme.typography`) |
-| `font.weight` | 4 | `QeetrixFontWeight` |
-| `font.geometry` | 4 | `QeetrixFontGeometry` |
-| `space` | 11 | `QeetrixSpacing` |
-| `corner` | 10 | `QeetrixCorner`, `QeetrixShapes` |
-| `stroke.width` | 3 | `QeetrixStroke` |
-| `focus` | 3 | `QeetrixFocus` |
-| `state.opacity` | 1 | `QeetrixOpacity` |
-| `icon.size` | 4 | `QeetrixIconSize` |
-| `icon.stroke` | 2 | `QeetrixIconStroke` |
-| `density` | 12 | `QeetrixDensity` |
-| `motion` | 12 | `QeetrixDuration`, `QeetrixEasing`, `QeetrixMotion` |
-| `component.accordion` | 4 | internal `QeetrixAccordionComponentTokens`, read by the accordion components |
-| `component.avatar` | 6 | internal `QeetrixAvatarComponentTokens`, read by the avatar components |
-| `component.badge` | 8 | internal `QeetrixBadgeComponentTokens`, read by the badge components |
-| `component.button` | 11 | internal `QeetrixButtonComponentTokens`, read by the button components |
-| `component.card` | 11 | internal `QeetrixCardComponentTokens`, read by the card components |
-| `component.dialog` | 6 | internal `QeetrixDialogComponentTokens`, read by the dialog components |
-| `component.input` | 13 | internal `QeetrixInputComponentTokens`, read by the input components |
-| `component.menu` | 8 | internal `QeetrixMenuComponentTokens`, read by the menu components |
-| `component.progress` | 2 | internal `QeetrixProgressComponentTokens`, read by the progress components |
-| `component.sidebar` | 4 | internal `QeetrixSidebarComponentTokens`, read by the sidebar components |
-| `component.skeleton` | 1 | internal `QeetrixSkeletonComponentTokens`, read by the skeleton components |
-| `component.switch` | 6 | internal `QeetrixSwitchComponentTokens`, read by the switch components |
-| `component.timeline` | 3 | internal `QeetrixTimelineComponentTokens`, read by the timeline components |
-| `component.typography` | 5 | internal `QeetrixTypographyComponentTokens`, read by the typography components |
+| Token | Kotlin |
+|:--|:--|
+| `font.family.heading` | `internal: the font of the typography roles that use it` |
+| `font.family.sans` | `internal: the font of the typography roles that use it` |
+| `font.family.mono` | `internal: the font of the typography roles that use it` |
+| `font.geometry.display` | `QeetrixFontGeometry.Display` |
+| `font.geometry.heading` | `QeetrixFontGeometry.Heading` |
+| `font.geometry.body` | `QeetrixFontGeometry.Body` |
+| `typography.display.lg` | `QeetrixTextRole.DisplayLg · QeetrixTheme.typography.displayLg` |
+| `typography.display.md` | `QeetrixTextRole.DisplayMd · QeetrixTheme.typography.displayMd` |
+| `typography.display.sm` | `QeetrixTextRole.DisplaySm · QeetrixTheme.typography.displaySm` |
+| `typography.heading.lg` | `QeetrixTextRole.HeadingLg · QeetrixTheme.typography.headingLg` |
+| `typography.heading.md` | `QeetrixTextRole.HeadingMd · QeetrixTheme.typography.headingMd` |
+| `typography.heading.sm` | `QeetrixTextRole.HeadingSm · QeetrixTheme.typography.headingSm` |
+| `typography.title.lg` | `QeetrixTextRole.TitleLg · QeetrixTheme.typography.titleLg` |
+| `typography.title.md` | `QeetrixTextRole.TitleMd · QeetrixTheme.typography.titleMd` |
+| `typography.title.sm` | `QeetrixTextRole.TitleSm · QeetrixTheme.typography.titleSm` |
+| `typography.body.lg` | `QeetrixTextRole.BodyLg · QeetrixTheme.typography.bodyLg` |
+| `typography.body.md` | `QeetrixTextRole.BodyMd · QeetrixTheme.typography.bodyMd` |
+| `typography.body.sm` | `QeetrixTextRole.BodySm · QeetrixTheme.typography.bodySm` |
+| `typography.label.lg` | `QeetrixTextRole.LabelLg · QeetrixTheme.typography.labelLg` |
+| `typography.label.md` | `QeetrixTextRole.LabelMd · QeetrixTheme.typography.labelMd` |
+| `typography.label.sm` | `QeetrixTextRole.LabelSm · QeetrixTheme.typography.labelSm` |
+| `typography.label.caps` | `QeetrixTextRole.LabelCaps · QeetrixTheme.typography.labelCaps` |
+| `typography.code.md` | `QeetrixTextRole.CodeMd · QeetrixTheme.typography.codeMd` |
+| `typography.code.sm` | `QeetrixTextRole.CodeSm · QeetrixTheme.typography.codeSm` |
+| `space.inset.xs` | `QeetrixSpace.InsetXs` |
+| `space.inset.sm` | `QeetrixSpace.InsetSm` |
+| `space.inset.md` | `QeetrixSpace.InsetMd` |
+| `space.inset.lg` | `QeetrixSpace.InsetLg` |
+| `space.inset.xl` | `QeetrixSpace.InsetXl` |
+| `space.gap.xs` | `QeetrixSpace.GapXs` |
+| `space.gap.sm` | `QeetrixSpace.GapSm` |
+| `space.gap.md` | `QeetrixSpace.GapMd` |
+| `space.gap.lg` | `QeetrixSpace.GapLg` |
+| `space.gap.xl` | `QeetrixSpace.GapXl` |
+| `space.layout.sm` | `QeetrixSpace.LayoutSm` |
+| `space.layout.md` | `QeetrixSpace.LayoutMd` |
+| `space.layout.lg` | `QeetrixSpace.LayoutLg` |
+| `space.layout.xl` | `QeetrixSpace.LayoutXl` |
+| `size.icon.2xs` | `QeetrixSize.Icon2xs` |
+| `size.icon.xs` | `QeetrixSize.IconXs` |
+| `size.icon.sm` | `QeetrixSize.IconSm` |
+| `size.icon.md` | `QeetrixSize.IconMd` |
+| `size.icon.lg` | `QeetrixSize.IconLg` |
+| `size.target.min` | `QeetrixSize.TargetMin` |
+| `radius.none` | `QeetrixRadius.None` |
+| `radius.sm` | `QeetrixRadius.Sm` |
+| `radius.tooltip` | `QeetrixRadius.Tooltip` |
+| `radius.control` | `QeetrixRadius.Control` |
+| `radius.surface` | `QeetrixRadius.Surface` |
+| `radius.overlay` | `QeetrixRadius.Overlay` |
+| `radius.modal` | `QeetrixRadius.Modal` |
+| `radius.chip` | `QeetrixRadius.Chip` |
+| `radius.full` | `QeetrixRadius.Full` |
+| `border.width.default` | `QeetrixBorder.WidthDefault` |
+| `border.width.strong` | `QeetrixBorder.WidthStrong` |
+| `border.width.accent` | `QeetrixBorder.WidthAccent` |
+| `focus.ring.width` | `QeetrixFocus.RingWidth` |
+| `focus.ring.offset` | `QeetrixFocus.RingOffset` |
+| `motion.duration.instant` | `QeetrixMotion.DurationInstant` |
+| `motion.duration.fast` | `QeetrixMotion.DurationFast` |
+| `motion.duration.normal` | `QeetrixMotion.DurationNormal` |
+| `motion.duration.slow` | `QeetrixMotion.DurationSlow` |
+| `motion.duration.slower` | `QeetrixMotion.DurationSlower` |
+| `motion.easing.standard` | `QeetrixMotion.EasingStandard` |
+| `motion.easing.enter` | `QeetrixMotion.EasingEnter` |
+| `motion.easing.exit` | `QeetrixMotion.EasingExit` |
+| `motion.easing.emphasized` | `QeetrixMotion.EasingEmphasized` |
+| `motion.easing.linear` | `QeetrixMotion.EasingLinear` |
+| `motion.spring.snappy.stiffness` | `QeetrixMotion.SpringSnappy.stiffness` |
+| `motion.spring.snappy.damping-ratio` | `QeetrixMotion.SpringSnappy.dampingRatio` |
+| `motion.spring.gentle.stiffness` | `QeetrixMotion.SpringGentle.stiffness` |
+| `motion.spring.gentle.damping-ratio` | `QeetrixMotion.SpringGentle.dampingRatio` |
+| `opacity.disabled` | `QeetrixOpacity.Disabled` |
+| `icon.stroke.thin` | `QeetrixIconStroke.Thin` |
+| `icon.stroke.regular` | `QeetrixIconStroke.Regular` |
+| `breakpoint.medium` | `QeetrixBreakpoint.Medium` |
+| `breakpoint.expanded` | `QeetrixBreakpoint.Expanded` |
+| `breakpoint.large` | `QeetrixBreakpoint.Large` |
+| `breakpoint.xlarge` | `QeetrixBreakpoint.Xlarge` |
+| `component.sidebar.width.expanded` | `internal QeetrixSidebarComponentTokens.WidthExpanded` |
+| `component.sidebar.width.collapsed` | `internal QeetrixSidebarComponentTokens.WidthCollapsed` |
+| `component.sidebar.width.mobile` | `internal QeetrixSidebarComponentTokens.WidthMobile` |
+| `component.timeline.marker-size` | `internal QeetrixTimelineComponentTokens.MarkerSize` |
+| `color.surface.canvas` | `QeetrixTheme.colors.surfaceCanvas` |
+| `color.surface.default` | `QeetrixTheme.colors.surfaceDefault` |
+| `color.surface.raised` | `QeetrixTheme.colors.surfaceRaised` |
+| `color.surface.overlay` | `QeetrixTheme.colors.surfaceOverlay` |
+| `color.surface.sunken` | `QeetrixTheme.colors.surfaceSunken` |
+| `color.surface.inverse` | `QeetrixTheme.colors.surfaceInverse` |
+| `color.bg.neutral.subtle` | `QeetrixTheme.colors.bgNeutralSubtle` |
+| `color.bg.neutral.subtle-hover` | `QeetrixTheme.colors.bgNeutralSubtleHover` |
+| `color.bg.neutral.subtle-pressed` | `QeetrixTheme.colors.bgNeutralSubtlePressed` |
+| `color.bg.neutral.bold` | `QeetrixTheme.colors.bgNeutralBold` |
+| `color.bg.neutral.bold-hover` | `QeetrixTheme.colors.bgNeutralBoldHover` |
+| `color.bg.neutral.bold-pressed` | `QeetrixTheme.colors.bgNeutralBoldPressed` |
+| `color.bg.brand.subtle` | `QeetrixTheme.colors.bgBrandSubtle` |
+| `color.bg.brand.subtle-hover` | `QeetrixTheme.colors.bgBrandSubtleHover` |
+| `color.bg.brand.subtle-pressed` | `QeetrixTheme.colors.bgBrandSubtlePressed` |
+| `color.bg.brand.bold` | `QeetrixTheme.colors.bgBrandBold` |
+| `color.bg.brand.bold-hover` | `QeetrixTheme.colors.bgBrandBoldHover` |
+| `color.bg.brand.bold-pressed` | `QeetrixTheme.colors.bgBrandBoldPressed` |
+| `color.bg.danger.subtle` | `QeetrixTheme.colors.bgDangerSubtle` |
+| `color.bg.danger.bold` | `QeetrixTheme.colors.bgDangerBold` |
+| `color.bg.danger.bold-hover` | `QeetrixTheme.colors.bgDangerBoldHover` |
+| `color.bg.danger.bold-pressed` | `QeetrixTheme.colors.bgDangerBoldPressed` |
+| `color.bg.warning.subtle` | `QeetrixTheme.colors.bgWarningSubtle` |
+| `color.bg.warning.bold` | `QeetrixTheme.colors.bgWarningBold` |
+| `color.bg.success.subtle` | `QeetrixTheme.colors.bgSuccessSubtle` |
+| `color.bg.success.bold` | `QeetrixTheme.colors.bgSuccessBold` |
+| `color.bg.info.subtle` | `QeetrixTheme.colors.bgInfoSubtle` |
+| `color.bg.info.bold` | `QeetrixTheme.colors.bgInfoBold` |
+| `color.bg.selected` | `QeetrixTheme.colors.bgSelected` |
+| `color.bg.selected-hover` | `QeetrixTheme.colors.bgSelectedHover` |
+| `color.bg.input` | `QeetrixTheme.colors.bgInput` |
+| `color.bg.disabled` | `QeetrixTheme.colors.bgDisabled` |
+| `color.text.default` | `QeetrixTheme.colors.textDefault` |
+| `color.text.subtle` | `QeetrixTheme.colors.textSubtle` |
+| `color.text.subtlest` | `QeetrixTheme.colors.textSubtlest` |
+| `color.text.disabled` | `QeetrixTheme.colors.textDisabled` |
+| `color.text.inverse` | `QeetrixTheme.colors.textInverse` |
+| `color.text.brand` | `QeetrixTheme.colors.textBrand` |
+| `color.text.link` | `QeetrixTheme.colors.textLink` |
+| `color.text.link-hover` | `QeetrixTheme.colors.textLinkHover` |
+| `color.text.on-brand` | `QeetrixTheme.colors.textOnBrand` |
+| `color.text.on-bold` | `QeetrixTheme.colors.textOnBold` |
+| `color.text.on-warning` | `QeetrixTheme.colors.textOnWarning` |
+| `color.text.danger` | `QeetrixTheme.colors.textDanger` |
+| `color.text.warning` | `QeetrixTheme.colors.textWarning` |
+| `color.text.success` | `QeetrixTheme.colors.textSuccess` |
+| `color.text.info` | `QeetrixTheme.colors.textInfo` |
+| `color.icon.default` | `QeetrixTheme.colors.iconDefault` |
+| `color.icon.subtle` | `QeetrixTheme.colors.iconSubtle` |
+| `color.icon.disabled` | `QeetrixTheme.colors.iconDisabled` |
+| `color.icon.inverse` | `QeetrixTheme.colors.iconInverse` |
+| `color.icon.brand` | `QeetrixTheme.colors.iconBrand` |
+| `color.icon.on-brand` | `QeetrixTheme.colors.iconOnBrand` |
+| `color.icon.on-bold` | `QeetrixTheme.colors.iconOnBold` |
+| `color.icon.danger` | `QeetrixTheme.colors.iconDanger` |
+| `color.icon.warning` | `QeetrixTheme.colors.iconWarning` |
+| `color.icon.success` | `QeetrixTheme.colors.iconSuccess` |
+| `color.icon.info` | `QeetrixTheme.colors.iconInfo` |
+| `color.icon.highlight` | `QeetrixTheme.colors.iconHighlight` |
+| `color.border.default` | `QeetrixTheme.colors.borderDefault` |
+| `color.border.subtle` | `QeetrixTheme.colors.borderSubtle` |
+| `color.border.strong` | `QeetrixTheme.colors.borderStrong` |
+| `color.border.strong-hover` | `QeetrixTheme.colors.borderStrongHover` |
+| `color.border.focus` | `QeetrixTheme.colors.borderFocus` |
+| `color.border.brand` | `QeetrixTheme.colors.borderBrand` |
+| `color.border.selected` | `QeetrixTheme.colors.borderSelected` |
+| `color.border.danger` | `QeetrixTheme.colors.borderDanger` |
+| `color.border.warning` | `QeetrixTheme.colors.borderWarning` |
+| `color.border.success` | `QeetrixTheme.colors.borderSuccess` |
+| `color.border.info` | `QeetrixTheme.colors.borderInfo` |
+| `color.border.disabled` | `QeetrixTheme.colors.borderDisabled` |
+| `color.overlay.scrim` | `QeetrixTheme.colors.overlayScrim` |
+| `color.overlay.hover` | `QeetrixTheme.colors.overlayHover` |
+| `color.overlay.pressed` | `QeetrixTheme.colors.overlayPressed` |
+| `color.selection` | `QeetrixTheme.colors.selection` |
+| `color.dataviz.categorical.1` | `QeetrixTheme.colors.datavizCategorical1` |
+| `color.dataviz.categorical.2` | `QeetrixTheme.colors.datavizCategorical2` |
+| `color.dataviz.categorical.3` | `QeetrixTheme.colors.datavizCategorical3` |
+| `color.dataviz.categorical.4` | `QeetrixTheme.colors.datavizCategorical4` |
+| `color.dataviz.categorical.5` | `QeetrixTheme.colors.datavizCategorical5` |
+| `color.dataviz.categorical.6` | `QeetrixTheme.colors.datavizCategorical6` |
+| `color.dataviz.categorical.7` | `QeetrixTheme.colors.datavizCategorical7` |
+| `color.dataviz.categorical.8` | `QeetrixTheme.colors.datavizCategorical8` |
+| `color.dataviz.sequential.1` | `QeetrixTheme.colors.datavizSequential1` |
+| `color.dataviz.sequential.2` | `QeetrixTheme.colors.datavizSequential2` |
+| `color.dataviz.sequential.3` | `QeetrixTheme.colors.datavizSequential3` |
+| `color.dataviz.sequential.4` | `QeetrixTheme.colors.datavizSequential4` |
+| `color.dataviz.sequential.5` | `QeetrixTheme.colors.datavizSequential5` |
+| `color.dataviz.sequential.6` | `QeetrixTheme.colors.datavizSequential6` |
+| `color.dataviz.sequential.7` | `QeetrixTheme.colors.datavizSequential7` |
+| `color.dataviz.diverging.1` | `QeetrixTheme.colors.datavizDiverging1` |
+| `color.dataviz.diverging.2` | `QeetrixTheme.colors.datavizDiverging2` |
+| `color.dataviz.diverging.3` | `QeetrixTheme.colors.datavizDiverging3` |
+| `color.dataviz.diverging.4` | `QeetrixTheme.colors.datavizDiverging4` |
+| `color.dataviz.diverging.5` | `QeetrixTheme.colors.datavizDiverging5` |
+| `color.dataviz.diverging.6` | `QeetrixTheme.colors.datavizDiverging6` |
+| `color.dataviz.diverging.7` | `QeetrixTheme.colors.datavizDiverging7` |
+| `color.dataviz.positive` | `QeetrixTheme.colors.datavizPositive` |
+| `color.dataviz.negative` | `QeetrixTheme.colors.datavizNegative` |
+| `color.dataviz.warning` | `QeetrixTheme.colors.datavizWarning` |
+| `color.dataviz.grid` | `QeetrixTheme.colors.datavizGrid` |
+| `color.dataviz.axis` | `QeetrixTheme.colors.datavizAxis` |
+| `color.dataviz.reference` | `QeetrixTheme.colors.datavizReference` |
+| `color.code.keyword` | `QeetrixTheme.colors.codeKeyword` |
+| `color.code.string` | `QeetrixTheme.colors.codeString` |
+| `color.code.number` | `QeetrixTheme.colors.codeNumber` |
+| `color.code.literal` | `QeetrixTheme.colors.codeLiteral` |
+| `color.code.punctuation` | `QeetrixTheme.colors.codePunctuation` |
+| `color.code.comment` | `QeetrixTheme.colors.codeComment` |
+| `shadow.raised` | `QeetrixShadow.Raised` |
+| `shadow.raised-hover` | `QeetrixShadow.RaisedHover` |
+| `shadow.overlay` | `QeetrixShadow.Overlay` |
+| `shadow.modal` | `QeetrixShadow.Modal` |
+| `shadow.inset` | `QeetrixShadow.Inset` |
+| `size.control.sm` | `QeetrixTheme.density.sizeControlSm (QeetrixDensity)` |
+| `size.control.md` | `QeetrixTheme.density.sizeControlMd (QeetrixDensity)` |
+| `size.control.lg` | `QeetrixTheme.density.sizeControlLg (QeetrixDensity)` |
+| `size.row` | `QeetrixTheme.density.sizeRow (QeetrixDensity)` |
+| `space.form.gap` | `QeetrixTheme.density.spaceFormGap (QeetrixDensity)` |
 
 ## Not generated
 
 | Reason | Tokens | Examples |
 |:--|--:|:--|
-| Primitive — not exposed. Semantic tokens carry the decision; product code never reads a raw scale or palette value. | 428 | `color.neutral.0`, `color.neutral.50`, `color.neutral.100`, … |
-| Not in the Phase 1 foundation set. | 1 | `gradient.surface-fade` |
-| Resolves through the active density — read QeetrixDensity instead. | 4 | `control.height`, `control.row-height`, `control.cell-padding-y`, … |
-| 50% is a shape, not a length — use CircleShape. | 1 | `corner.circle` |
-| A CSS border-style keyword; Compose strokes are solid unless a path effect is set. | 1 | `focus.ring-style` |
-| Web stacking order. Compose zIndex only orders siblings and overlays are separate windows, so a global scale has no meaning. | 15 | `z.base`, `z.dropdown`, `z.sticky`, … |
-| Component tokens for a component Android does not implement yet. Adopted groups are listed in Upstream/manifest.json. | 128 | `component.alert.padding-block`, `component.alert.description`, `component.alert.border.info`, … |
+| Primitive (`primitive.*`): private to @qeetrix/tokens and not published as CSS. Semantic tokens carry the decision; product code never reads a raw palette or scale value. | 122 | `primitive.color.graphite.0`, `primitive.color.graphite.25`, `primitive.color.graphite.50`, … |
+| A Noto stack for Indian scripts. Qeet Sans has no Indic glyphs and Android already draws them in its system Noto fonts, character by character, so nothing is bundled for it. | 1 | `font.family.indic` |
+| Web stacking order. Compose zIndex only orders siblings and overlays are separate windows, so a global scale has no meaning (the package says z-index is web-only). | 10 | `z.base`, `z.sticky`, `z.dropdown`, … |
+| Component tokens for a component Android does not implement. Adopted groups are listed in Upstream/manifest.json. | 4 | `component.tour.card-width`, `component.tour.offset`, `component.tour.spotlight-padding`, … |
 
 ## Colours outside sRGB
 
@@ -58,12 +230,8 @@ These convert outside sRGB and are emitted in Display P3, as a browser paints th
 
 | Token | Theme | Handling |
 |:--|:--|:--|
-| `color.data.categorical.1` | dark | inside P3 — drawn in Display P3 |
-| `color.data.categorical.2` | light | inside P3 — drawn in Display P3 |
-| `color.data.categorical.4` | dark | inside P3 — drawn in Display P3 |
-| `color.data.categorical.6` | light | inside P3 — drawn in Display P3 |
-| `color.data.categorical.7` | light | inside P3 — drawn in Display P3 |
-| `color.data.categorical.7` | dark | inside P3 — drawn in Display P3 |
-| `color.rating.filled` | light | inside P3 — drawn in Display P3 |
-| `color.rating.filled` | dark | inside P3 — drawn in Display P3 |
-| `color.syntax.literal` | dark | inside P3 — drawn in Display P3 |
+| `color.dataviz.categorical.2` | light | inside P3 — drawn in Display P3 |
+
+## Cross-check against the recorded hex
+
+Every colour's 8-bit sRGB rendition, converted here from its OKLCH components per CSS Color 4, equals the `hex` @qeetrix/tokens records beside it.

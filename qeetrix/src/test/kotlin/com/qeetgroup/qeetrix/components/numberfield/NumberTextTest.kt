@@ -93,12 +93,15 @@ class NumberTextTest {
     @Test
     fun settlingRoundsExactlyAndClamps() {
         val en = numbers(Locale.US, fractionDigits = 1)
-        assertEquals(BigDecimal("0.2"), en.settle(BigDecimal("0.25"), null)) // half to even
-        assertEquals(BigDecimal("0.4"), en.settle(BigDecimal("0.35"), null))
-        assertEquals(BigDecimal("100.0"), en.settle(BigDecimal("250"), BigDecimal.ZERO..BigDecimal(100)))
-        assertEquals(BigDecimal("0.0"), en.settle(BigDecimal("-3"), BigDecimal.ZERO..BigDecimal(100)))
+        assertEquals(BigDecimal("0.2"), en.settle(BigDecimal("0.25"))) // half to even
+        assertEquals(BigDecimal("0.4"), en.settle(BigDecimal("0.35")))
+        assertEquals(BigDecimal("100.0"), en.settle(BigDecimal("250"), BigDecimal.ZERO, BigDecimal(100)))
+        assertEquals(BigDecimal("0.0"), en.settle(BigDecimal("-3"), BigDecimal.ZERO, BigDecimal(100)))
+        // One bound only: the other side stays open.
+        assertEquals(BigDecimal("250.0"), en.settle(BigDecimal("250"), min = BigDecimal.ZERO))
+        assertEquals(BigDecimal("-3.0"), en.settle(BigDecimal("-3"), max = BigDecimal(100)))
         // 0.1 + 0.2 is exactly 0.3, as it is not in binary floating point.
-        assertEquals(BigDecimal("0.3"), en.settle(BigDecimal("0.1") + BigDecimal("0.2"), null))
+        assertEquals(BigDecimal("0.3"), en.settle(BigDecimal("0.1") + BigDecimal("0.2")))
     }
 
     @Test

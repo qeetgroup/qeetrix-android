@@ -1,57 +1,49 @@
 # Empty state
 
-`QeetrixEmptyState`, `QeetrixEmptyStateVariant`, `QeetrixEmptyStateSize` · `components.emptystate` ·
-web: [Empty State](https://ui.qeet.in/docs/components/empty-state) · sample: Feedback → Empty state
+`QeetrixEmptyState`, `QeetrixEmptyStateSize`, `QeetrixEmptyStateTone` · `components.emptystate` ·
+`@qeetrix/react`: [EmptyState](https://ui.qeet.in/components/empty-state) (experimental) · sample: Feedback →
+Empty state
 
-What a surface shows when it has nothing to show: an icon on a tinted tile, a title, a description and
-actions.
+The message where content would be: nothing yet, no results, or an error.
 
 ```kotlin
 QeetrixEmptyState(
     title = "No invoices yet",
-    description = "Invoices appear here once you bill a customer.",
-    variant = QeetrixEmptyStateVariant.FirstUse,
     icon = QeetrixIconName.FileText,
+    description = "Invoices appear here once you bill a customer.",
+    footer = { QeetrixText("Or import them from a CSV file", size = QeetrixTextSize.Sm) },
 ) {
-    QeetrixButton("Create invoice", onClick = ::createInvoice)
-}
-
-QeetrixEmptyState(
-    title = "No results",
-    description = "Nothing matches “${query.text}”.",
-    variant = QeetrixEmptyStateVariant.NoResults,
-    size = QeetrixEmptyStateSize.Sm,
-) {
-    QeetrixButton("Clear search", onClick = { query.clearText() }, variant = QeetrixButtonVariant.Outline)
+    QeetrixButton("Create invoice", onClick = ::createInvoice, icon = QeetrixIconName.Plus)
 }
 ```
 
 ## Usage
 
-- **The variant says why**, and the app decides which applies: `Default` (an empty collection), `FirstUse`
-  (an invitation to create the first thing — the only brand tile; pair it with a primary button),
-  `NoResults` (a search or filter excluded everything — offer a way to clear), `NoPermission` (say who can
-  grant access) and `Error` (loading failed — say what to do).
-- `icon` replaces the variant's own: search-x, lock and triangle-alert for no results, no permission and an
-  error; none for the others.
-- **Sizes:** `Sm` for a section or a list's body, `Default` for a collection's area, `Lg` for a screen.
-- **Words, not codes.** Never put an exception's message, a status code or a stack trace in the description.
-- For the loading, failure and empty branches of one surface together, use the [data state](DataState.md).
+- `title` (required) says what is missing or what went wrong; `description` is one or two sentences — why, and
+  what to do. Never a raw error, a status code or a stack trace.
+- `icon`: a 24 dp sharp icon in `color.icon.subtle`; `tone = Danger` colours it `color.icon.danger`, for an error.
+- `actions`: buttons, one primary at most, in a centred row that wraps. `footer`: under the actions, in
+  `color.text.subtle` — a link to the docs or a second way in.
+- `size`: `Page` (default; `title.md`, 48 dp above and below) for a whole view, `Section` (`title.sm`, 24 dp) inside
+  a card or table.
+- `level`: makes the title a heading, when this is the screen's main message.
+- For loading, error and empty together, use [Data state](DataState.md).
 
 ## Accessibility
 
-The title is a heading, the description follows it, and actions are their own controls. The tile is
-decorative. Actions wrap onto more lines when they don't fit; text follows the font scale.
+The title is read first, then the description; with a `level` it is a heading. The icon is decorative; actions
+are their own controls. Text follows the font scale and wraps.
 
 ## Theme and tokens
 
-Tiles: `surface.sunken` with `text.tertiary` (default, no results, no permission), `surface.brand-subtle`
-with `text.brand` (first use), `feedback.error-subtle` with `text.danger` (error), all edged with
-`border.subtle`, `corner.surface`. Title in the heading font, semibold, 14/16/18 sp by size; description
-text-sm `text.tertiary`, at most 384 dp wide.
+empty-state.css: centred, at most 480 dp wide, `space.gap.sm` between parts, `space.inset.lg` at the sides; the
+icon `space.gap.xs` above the title; title `color.text.default`; description `body.md` `color.text.subtle`; actions
+`space.gap.sm` apart and below the description; footer `body.sm` `color.text.subtle`.
 
 ## Platform differences
 
-None in what it draws. iOS also draws its own rather than the system's `ContentUnavailableView`.
+- Android has no heading levels: any `level` makes the title a heading; the look comes from `size`.
+- The earlier Android variants (first use, no results, no permission, error) and their tinted icon tiles are gone:
+  the web's empty state has an icon and a tone, and the words say the reason.
 
-Related: [Data state](DataState.md), [Search field](SearchField.md).
+Related: [Data state](DataState.md), [Skeleton](Skeleton.md).

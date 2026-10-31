@@ -61,7 +61,7 @@ dependencies {
 ```
 
 Then wrap the app's content in `QeetrixTheme { … }`. An app needs no keep rules for Qeetrix, no other Compose
-dependency for Qeetrix's sake, no Node.js, qeetrix-ui checkout or token generator: tokens are compiled into the
+dependency for Qeetrix's sake, no Node.js, Qeetrix npm package or token generator: tokens are compiled into the
 library and fonts and strings are in the AAR. This is exactly how the independent consumer in
 `Integration/Consumer` is set up, and it is verified on every candidate ([CONSUMER-INTEGRATION.md](CONSUMER-INTEGRATION.md)).
 

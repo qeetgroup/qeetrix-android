@@ -1,55 +1,50 @@
 # Data state
 
-`QeetrixDataState`, `QeetrixDataFailure`, `QeetrixDataLoadingRows` · `components.emptystate` ·
-web: [Data State](https://ui.qeet.in/docs/components/data-state) · sample: Feedback → Data state
+`QeetrixDataState` · `components.emptystate` · `@qeetrix/react`: DataState
+([experimental, with EmptyState](https://ui.qeet.in/components/empty-state)) · sample: Feedback → Data state
 
-The loading, failure and empty branches of a surface that shows loaded data, in one place, so none is
-forgotten.
+The four states of loaded content in one place: loading, error, empty and the content.
 
 ```kotlin
-val listState = rememberLazyListState()
 QeetrixDataState(
     loading = state.loading,
+    error = state.failed,
     empty = state.invoices.isEmpty(),
-    failure = if (state.failed) QeetrixDataFailure("Invoices couldn't be loaded.", onRetry = ::reload) else null,
-    emptyContent = { QeetrixEmptyState("No invoices yet", description = "Invoices appear here once you bill a customer.") },
+    onRetry = ::reload,
+    emptyState = { QeetrixEmptyState("No invoices yet", description = "Invoices appear here once you bill a customer.") },
 ) {
-    LazyColumn(state = listState) {
-        items(state.invoices, key = { it.id }) { invoice -> QeetrixListItem(invoice.number, metadata = invoice.amount) }
-    }
+    InvoiceList(state.invoices)
 }
 ```
 
 ## Usage
 
-- **The web's order:** `loading`, then a `failure`, then `empty`, then the content. A change of branch
-  cross-fades over the fast duration.
-- **The state is the app's** — from a view model, a repository, a paging source. The component fetches,
-  retries, caches and paginates nothing, and holds no state of its own.
-- **Loading** shows six skeleton rows (`QeetrixDataLoadingRows`) unless `loadingContent` draws skeletons in
-  the shape of the content. Set `loading` only when there is nothing to show yet; keep the content while
-  refreshing it.
-- **A failure** carries a message written for the person — never an exception's message — and an optional
-  `onRetry`, which adds "Try again".
-- **Branches are composed again when they return**, so hoist what the content must keep — its
-  `LazyListState`, expansion, selection — above the data state, as `listState` is above.
-- Each branch is placed in a `Box`: give several elements their own `Column` or lazy list.
+- **Precedence**: `loading`, then `error`, then `empty`, then the content.
+- **Loading** shows a labelled `lg` spinner, centred in a region that holds the error state's height, so the screen
+  does not jump when a load fails.
+- **Error** shows a section-size empty state in the danger tone with circle-alert: `errorTitle`,
+  `errorDescription`, and with `onRetry` a soft "Try again" button (`retryLabel`, `qx_try_again`). The raw error is
+  never shown; log it in the app.
+- **Empty** shows `emptyState`.
+- **The content** is composed as it is, with no wrapper; `modifier` goes on the loading, error and empty regions.
+- The state is the app's: nothing is fetched, retried or cached here. Keep showing content while refreshing.
 
 ## Accessibility
 
-Loading is one element, "Loading" (`qx_loading`), instead of a placeholder per row, and nothing is
-announced while it waits. The failure's message is an assertive live region, announced as it appears (the
-web's `role="alert"`); without a message it says "Something went wrong while loading this data."
-(`qx_data_error`). "Try again" is `qx_try_again`.
+Loading is one element, "Loading" (`qx_loading`); the held error state is neither seen nor reachable. The error is
+announced as it appears (an assertive live region, the web's `role="alert"`); Try again is its own control.
 
 ## Theme and tokens
 
-Loading rows: 40 dp skeletons, 12 dp apart, in a 16 dp inset. The failure is a small error
-[empty state](EmptyState.md) with an outline button.
+Those of [Empty state](EmptyState.md) (section size, danger tone), [Spinner](Spinner.md) (`lg`) and
+[Button](Button.md) (`soft`).
 
 ## Platform differences
 
-The web's default error view shows an error object's message; Android never does. The web has no retry
-button; Android and iOS offer "Try again" when the app passes a retry.
+- **Default words** are the web's: "Couldn't load this" (`qx_data_error`) and "Try again, or check your connection."
+  (`qx_data_error_description`).
+- `error` is a Boolean: the web accepts any truthy error and never shows it.
+- The earlier Android `QeetrixDataFailure`, custom loading content and skeleton rows are gone, as on the web; compose
+  skeletons yourself when a screen needs them.
 
-Related: [Empty state](EmptyState.md), [Skeleton](Skeleton.md).
+Related: [Empty state](EmptyState.md), [Skeleton](Skeleton.md), [Spinner](Spinner.md).

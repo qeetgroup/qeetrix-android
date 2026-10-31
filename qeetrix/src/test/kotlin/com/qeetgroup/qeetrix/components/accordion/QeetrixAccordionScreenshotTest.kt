@@ -1,8 +1,7 @@
 package com.qeetgroup.qeetrix.components.accordion
 
+import androidx.compose.foundation.layout.Column
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
-import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
 import com.qeetgroup.qeetrix.screenshot.ScreenshotStack
 import com.qeetgroup.qeetrix.screenshot.captureStates
@@ -12,7 +11,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-/** Baselines in `src/test/screenshots/accordion/`: open and closed items, a description and icon, a wrapping title, disabled. */
+/** Baselines in `src/test/screenshots/accordion/`: open and closed sections, a wrapping title, a disabled one, and a collapsible. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = SCREENSHOT_QUALIFIERS)
@@ -21,23 +20,18 @@ class QeetrixAccordionScreenshotTest {
     fun states() =
         captureStates("accordion") {
             ScreenshotStack {
-                QeetrixAccordion {
-                    QeetrixAccordionItem("How am I billed?", expanded = true, onExpandedChange = {}) {
-                        QeetrixText("Monthly, on the date you subscribed. Invoices include GST.", variant = QeetrixTextVariant.Small)
+                QeetrixAccordion(value = listOf("billing"), onValueChange = {}) {
+                    QeetrixAccordionItem("billing", "How am I billed?") {
+                        QeetrixText("Monthly, on the date you subscribed. Invoices include GST.")
                     }
-                    QeetrixAccordionItem(
-                        "Notifications",
-                        expanded = false,
-                        onExpandedChange = {},
-                        description = "Email and push",
-                        icon = QeetrixIconName.Bell,
-                    ) {}
-                    QeetrixAccordionItem(
-                        "A question long enough to wrap onto a second line of the header",
-                        expanded = false,
-                        onExpandedChange = {},
-                    ) {}
-                    QeetrixAccordionItem("Data export", expanded = false, onExpandedChange = {}, enabled = false) {}
+                    QeetrixAccordionItem("numbering", "Invoice numbering") { QeetrixText("INV-YYYY-NNNN") }
+                    QeetrixAccordionItem("long", "A question long enough to wrap onto a second line of the trigger") {}
+                    QeetrixAccordionItem("legacy", "Legacy export", enabled = false) {}
+                }
+                Column {
+                    QeetrixCollapsibleTrigger("Advanced options", open = true, onOpenChange = {})
+                    QeetrixCollapsiblePanel(open = true) { QeetrixText("Webhook signing secret: rotate every 90 days.") }
+                    QeetrixCollapsibleTrigger("Show more", open = false, onOpenChange = {})
                 }
             }
         }

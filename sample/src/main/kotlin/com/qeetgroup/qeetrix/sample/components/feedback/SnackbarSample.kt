@@ -18,7 +18,7 @@ import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbar
 import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarHost
 import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarResult
-import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarType
+import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarTone
 import com.qeetgroup.qeetrix.components.toast.rememberQeetrixSnackbarHostState
 import com.qeetgroup.qeetrix.sample.SampleFlow
 import com.qeetgroup.qeetrix.sample.SampleNote
@@ -27,7 +27,7 @@ import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 import kotlinx.coroutines.launch
 
-/** Snackbars: the four types, an action with its result, repeats and replacement, and the system Toast's place. */
+/** Snackbars: the four tones, an action with its result, repeats and replacement, and the system Toast's place. */
 @Composable
 fun SnackbarSample() {
     val snackbars = rememberQeetrixSnackbarHostState()
@@ -39,36 +39,29 @@ fun SnackbarSample() {
                 QeetrixButton(
                     "Info",
                     onClick = { scope.launch { snackbars.show("Conversation archived") } },
-                    variant = QeetrixButtonVariant.Outline,
+                    variant = QeetrixButtonVariant.Ghost,
                 )
                 QeetrixButton("Success", onClick = {
                     scope.launch {
-                        snackbars.show(
-                            "Invoice sent",
-                            QeetrixSnackbarType.Success,
-                            description = "INV-2041 to accounts@example.com",
-                        )
+                        snackbars.show("Invoice sent", QeetrixSnackbarTone.Success, description = "INV-2041 to accounts@example.com")
                     }
-                }, variant = QeetrixButtonVariant.Outline)
+                }, variant = QeetrixButtonVariant.Ghost)
                 QeetrixButton("Warning", onClick = {
                     scope.launch {
-                        snackbars.show(
-                            "Sync is paused",
-                            QeetrixSnackbarType.Warning,
-                            description = "Reconnect to keep working offline.",
-                        )
+                        snackbars.show("Sync is paused", QeetrixSnackbarTone.Warning, description = "Reconnect to keep working offline.")
                     }
-                }, variant = QeetrixButtonVariant.Outline)
-                QeetrixButton("Error with retry", onClick = {
+                }, variant = QeetrixButtonVariant.Ghost)
+                QeetrixButton("Danger with retry", onClick = {
                     scope.launch {
-                        val result = snackbars.show("Couldn't send the invoice", QeetrixSnackbarType.Error, actionLabel = "Retry")
+                        val result = snackbars.show("Couldn't send the invoice", QeetrixSnackbarTone.Danger, actionLabel = "Retry")
                         outcome = if (result == QeetrixSnackbarResult.ActionPerformed) "Retry chosen." else "Error dismissed."
                     }
-                }, variant = QeetrixButtonVariant.Outline)
+                }, variant = QeetrixButtonVariant.Ghost)
             }
             SampleNote(
                 "$outcome One snackbar at a time: a new one replaces the last, and showing the same one again restarts its " +
-                    "time without a second announcement. A snackbar with an action stays while TalkBack is on.",
+                    "time without a second announcement. Each closes after 5 s except a danger one, which stays until it is " +
+                    "used or closed; a snackbar with an action also stays while TalkBack is on.",
             )
         }
         SampleSection("Undo") {
@@ -80,7 +73,7 @@ fun SnackbarSample() {
             })
         }
         SampleSection("Drawn on its own") {
-            QeetrixSnackbar("Copied", type = QeetrixSnackbarType.Success)
+            QeetrixSnackbar("Copied", tone = QeetrixSnackbarTone.Success)
             SampleNote(
                 "For messages that must outlive the app's window — after the last screen closes — Android's own " +
                     "android.widget.Toast is the platform tool; Qeetrix does not imitate it.",

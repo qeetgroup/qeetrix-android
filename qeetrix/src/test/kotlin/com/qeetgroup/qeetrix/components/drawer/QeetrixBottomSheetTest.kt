@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
@@ -28,20 +29,21 @@ class QeetrixBottomSheetTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private var visible by mutableStateOf(false)
+    private var open by mutableStateOf(false)
     private val requests = mutableListOf<String>()
 
-    private fun showSheet(dismissOnGesture: Boolean = true) {
+    private fun showSheet(dismissible: Boolean = true) {
         compose.setQeetrix {
             QeetrixBottomSheet(
-                visible = visible,
-                onDismissRequest = {
-                    requests += "dismiss"
-                    visible = false
+                open = open,
+                onOpenChange = {
+                    requests += "open=$it"
+                    open = it
                 },
                 title = "Filter invoices",
                 description = "Show only the invoices you need.",
-                dismissOnGesture = dismissOnGesture,
+                dismissible = dismissible,
+                footer = { QeetrixButton("Show results", onClick = { open = false }) },
             ) {
                 QeetrixButton("Overdue", onClick = { requests += "overdue" })
             }
@@ -52,10 +54,11 @@ class QeetrixBottomSheetTest {
     fun itShowsWhileTheAppSaysSoAndLeavesWhenItDoesNot() {
         showSheet()
         compose.onNodeWithText("Overdue").assertDoesNotExist()
-        compose.runOnIdle { visible = true }
+        compose.runOnIdle { open = true }
         compose.onNode(isHeading() and hasText("Filter invoices")).assertExists()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Filter invoices")).assertExists()
         compose.onNodeWithText("Overdue").performClick()
-        compose.runOnIdle { visible = false }
+        compose.onNodeWithText("Show results").performClick()
         // Closed by the app: it slides away and leaves the composition, without asking the app again.
         compose.onNodeWithText("Overdue").assertDoesNotExist()
         compose.runOnIdle { assertEquals(listOf("overdue"), requests) }
@@ -64,50 +67,57 @@ class QeetrixBottomSheetTest {
     @Test
     fun theCloseButtonAndBackAskToClose() {
         showSheet()
-        compose.runOnIdle { visible = true }
+        compose.runOnIdle { open = true }
         compose.onNodeWithContentDescription("Close").performClick()
         compose.onNodeWithText("Overdue").assertDoesNotExist()
-        compose.runOnIdle { visible = true }
+        compose.runOnIdle { open = true }
         compose.onNodeWithText("Overdue").assertExists()
         Espresso.pressBack()
         compose.onNodeWithText("Overdue").assertDoesNotExist()
-        compose.runOnIdle { assertEquals(listOf("dismiss", "dismiss"), requests) }
+        compose.runOnIdle { assertEquals(listOf("open=false", "open=false"), requests) }
     }
 
     @Test
     fun theHandleOffersAccessibilityServicesADismissAction() {
         showSheet()
-        compose.runOnIdle { visible = true }
+        compose.runOnIdle { open = true }
         compose
             .onNodeWithContentDescription("Drag handle")
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
             .performSemanticsAction(SemanticsActions.Dismiss)
         compose.onNodeWithText("Overdue").assertDoesNotExist()
-        compose.runOnIdle { assertEquals(listOf("dismiss"), requests) }
+        compose.runOnIdle { assertEquals(listOf("open=false"), requests) }
     }
 
     @Test
-    fun withoutGestureDismissalTheHandleCannotCloseItButBackCan() {
-        showSheet(dismissOnGesture = false)
-        compose.runOnIdle { visible = true }
+    fun notDismissibleItHasNoCloseButtonAndTheHandleCannotCloseItButBackCan() {
+        showSheet(dismissible = false)
+        compose.runOnIdle { open = true }
+        compose.onNodeWithContentDescription("Close").assertDoesNotExist()
         compose.onNodeWithContentDescription("Drag handle").performSemanticsAction(SemanticsActions.Dismiss)
         compose.onNodeWithText("Overdue").assertExists()
         compose.runOnIdle { assertEquals(emptyList<String>(), requests) }
         Espresso.pressBack()
         compose.onNodeWithText("Overdue").assertDoesNotExist()
-        compose.runOnIdle { assertEquals(listOf("dismiss"), requests) }
+        compose.runOnIdle { assertEquals(listOf("open=false"), requests) }
     }
 
     @Test
     fun openingAgainWhileItClosesEndsWithTheSheetOpen() {
         showSheet()
-        compose.runOnIdle { visible = true }
+        compose.runOnIdle { open = true }
         compose.onNodeWithText("Overdue").assertExists()
         compose.mainClock.autoAdvance = false
-        compose.runOnIdle { visible = false }
+        compose.runOnIdle { open = false }
         compose.mainClock.advanceTimeByFrame()
-        compose.runOnIdle { visible = true }
+        compose.runOnIdle { open = true }
         compose.mainClock.autoAdvance = true
         compose.onNodeWithText("Overdue").assertExists()
+    }
+
+    @Test
+    fun sizesAreTheDrawers() {
+        assertEquals(listOf("sm", "md", "lg"), QeetrixBottomSheetSize.entries.map { it.value })
+        assertEquals(listOf(400f, 560f, 800f), QeetrixBottomSheetSize.entries.map { it.width.value })
     }
 }

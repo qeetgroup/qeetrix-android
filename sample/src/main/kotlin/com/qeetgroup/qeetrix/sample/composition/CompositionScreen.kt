@@ -25,21 +25,22 @@ import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatar
 import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatarShape
 import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatarSize
 import com.qeetgroup.qeetrix.components.badge.QeetrixBadge
-import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeVariant
+import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.card.QeetrixCard
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
 import com.qeetgroup.qeetrix.components.input.QeetrixTextField
-import com.qeetgroup.qeetrix.components.progress.QeetrixProgress
+import com.qeetgroup.qeetrix.components.progress.QeetrixMeter
 import com.qeetgroup.qeetrix.components.separator.QeetrixSeparator
 import com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
+import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import kotlinx.coroutines.delay
 
 private const val SAVED_NAME = "Qeet Group"
@@ -64,34 +65,25 @@ fun CompositionScreen() {
             saved = true
         }
     }
-    val nameMessage = if (name.text.isBlank()) QeetrixFieldMessage("Enter a name for the workspace.") else null
+    val nameError = if (name.text.isBlank()) "Enter a name for the workspace." else null
 
     SamplePage {
         QeetrixCard(
             title = name.text.toString().ifBlank { "Untitled workspace" },
             description = "Workspace · 12 members",
-            action = { QeetrixBadge("Pro", variant = QeetrixBadgeVariant.Brand) },
+            actions = { QeetrixBadge("Pro", tone = QeetrixBadgeTone.Brand) },
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.S), verticalAlignment = Alignment.CenterVertically) {
-                QeetrixAvatar(name.text.toString(), size = QeetrixAvatarSize.Lg, shape = QeetrixAvatarShape.Square)
+            Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm), verticalAlignment = Alignment.CenterVertically) {
+                QeetrixAvatar(name.text.toString(), size = QeetrixAvatarSize.Lg, shape = QeetrixAvatarShape.Square, decorative = true)
                 for (member in listOf("Ada Lovelace", "Grace Hopper", "Priya Raman")) QeetrixAvatar(member, size = QeetrixAvatarSize.Sm)
-                QeetrixText("and 9 more", variant = QeetrixTextVariant.Muted)
+                QeetrixText("and 9 more", tone = QeetrixTextTone.Subtle)
             }
         }
         QeetrixCard(
             title = "Settings",
             description = "Changes apply to everyone in the workspace.",
+            // Tertiary first, then the primary, at the end; lg, the field height, as a form's buttons are.
             footer = {
-                QeetrixButton(
-                    "Save changes",
-                    onClick = {
-                        saved = false
-                        saving = true
-                    },
-                    enabled = nameMessage == null,
-                    loading = saving,
-                    loadingLabel = "Saving…",
-                )
                 QeetrixButton(
                     "Reset",
                     onClick = {
@@ -99,16 +91,27 @@ fun CompositionScreen() {
                         saved = false
                     },
                     variant = QeetrixButtonVariant.Ghost,
+                    size = QeetrixButtonSize.Lg,
                     enabled = !saving,
+                )
+                QeetrixButton(
+                    "Save changes",
+                    onClick = {
+                        saved = false
+                        saving = true
+                    },
+                    size = QeetrixButtonSize.Lg,
+                    enabled = nameError == null,
+                    loading = saving,
                 )
             },
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.L)) {
+            Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.spaceFormGap)) {
                 QeetrixTextField(
                     name,
                     label = "Workspace name",
                     required = true,
-                    message = nameMessage,
+                    error = nameError,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 )
                 QeetrixTextField(
@@ -129,11 +132,11 @@ fun CompositionScreen() {
         }
         if (saved) {
             Row(Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }) {
-                QeetrixBadge("Saved", variant = QeetrixBadgeVariant.Success, icon = QeetrixIconName.CircleCheck)
+                QeetrixBadge("Saved", tone = QeetrixBadgeTone.Success, icon = QeetrixIconName.CircleCheck)
             }
         }
         QeetrixCard(title = "Storage", description = "4.2 GB of 10 GB used") {
-            QeetrixProgress(0.42f, label = "Storage used")
+            QeetrixMeter(4.2f, max = 10f, label = "Storage used")
         }
     }
 }

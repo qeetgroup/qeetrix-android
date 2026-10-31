@@ -3,7 +3,7 @@ package com.qeetgroup.qeetrix.components.feed
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -26,61 +26,83 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-/** Timelines: one element per event, the marker's label, the timeline tokens' gaps, and the time at large text. */
+/** Timelines: one element per event, the CSS's gaps, groups, the compact look, and the time at large text. */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixTimelineTest {
     @get:Rule
     val compose = createComposeRule()
 
     @Test
-    fun anEventIsReadAsOneElementWithItsMarkersLabel() {
+    fun anEventIsReadAsOneElementAndItsMarkerNotAtAll() {
         compose.setQeetrix {
             QeetrixTimeline {
                 QeetrixTimelineItem(
-                    "Card payment",
-                    time = "5 days ago",
-                    description = "The bank declined it.",
-                    tone = QeetrixTimelineTone.Destructive,
+                    "Sign-in refused",
+                    description = "Wrong one-time code",
+                    time = "1 h ago",
                     icon = QeetrixIconName.CircleX,
-                    markerLabel = "Failed",
+                    tone = QeetrixTimelineTone.Danger,
                 )
             }
         }
-        val event = compose.onNode(hasText("Card payment")).fetchSemanticsNode()
+        val event = compose.onNode(hasText("Sign-in refused")).fetchSemanticsNode()
         assertEquals(
-            listOf("Card payment", "5 days ago", "The bank declined it."),
-            event.config.getOrNull(SemanticsProperties.Text)?.map {
-                it.text
-            },
+            listOf("Sign-in refused", "Wrong one-time code", "1 h ago"),
+            event.config.getOrNull(SemanticsProperties.Text)?.map { it.text },
         )
-        assertEquals("Failed", event.config.getOrNull(SemanticsProperties.StateDescription))
+        assertEquals(null, event.config.getOrNull(SemanticsProperties.ContentDescription))
+    }
+
+    /** timeline.css: items `space.gap.lg` apart (compact `space.gap.sm`), nothing after the last; groups `space.gap.md`. */
+    @Test
+    fun eventsAndGroupsAreTheCssGapsApart() {
+        compose.setQeetrix {
+            QeetrixTimeline(Modifier.testTag("timeline")) {
+                QeetrixTimelineGroup("Today", Modifier.testTag("today")) {
+                    QeetrixTimelineItem("Sent", Modifier.testTag("first"))
+                    QeetrixTimelineItem("Paid", Modifier.testTag("last"))
+                }
+                QeetrixTimelineGroup("Yesterday", Modifier.testTag("yesterday")) { QeetrixTimelineItem("Created") }
+            }
+        }
+
+        fun bounds(tag: String) = compose.onNodeWithTag(tag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertEquals(16.dp, bounds("last").top - bounds("first").bottom)
+        assertEquals(bounds("today").bottom, bounds("last").bottom)
+        assertEquals(12.dp, bounds("yesterday").top - bounds("today").bottom)
+        assertEquals(bounds("timeline").bottom, bounds("yesterday").bottom)
     }
 
     @Test
-    fun eventsAreTheTimelineGapApartTheMinorGapAfterAMinorOneAndNothingAfterTheLast() {
+    fun compactEventsAreTheSmallGapApart() {
         compose.setQeetrix {
-            QeetrixTimeline(Modifier.testTag("timeline")) {
+            QeetrixTimeline(variant = QeetrixTimelineVariant.Compact) {
                 QeetrixTimelineItem("Sent", Modifier.testTag("first"))
-                QeetrixTimelineItem("Viewed", Modifier.testTag("minor"), emphasis = QeetrixTimelineEmphasis.Minor)
                 QeetrixTimelineItem("Paid", Modifier.testTag("last"))
             }
         }
         val first = compose.onNodeWithTag("first", useUnmergedTree = true).getUnclippedBoundsInRoot()
-        val minor = compose.onNodeWithTag("minor", useUnmergedTree = true).getUnclippedBoundsInRoot()
         val last = compose.onNodeWithTag("last", useUnmergedTree = true).getUnclippedBoundsInRoot()
-        val timeline = compose.onNodeWithTag("timeline").getUnclippedBoundsInRoot()
-        assertEquals(24.dp, minor.top - first.bottom) // component.timeline.gap
-        assertEquals(12.dp, last.top - minor.bottom) // component.timeline.gap-minor
-        assertEquals(timeline.bottom, last.bottom)
+        assertEquals(8.dp, last.top - first.bottom)
+    }
+
+    /** `padding-block-start: calc(14px − .5lh)`: the title's 20 dp line is centred on the 28 dp marker. */
+    @Test
+    fun theFirstLineIsCentredOnTheMarker() {
+        compose.setQeetrix { QeetrixTimeline { QeetrixTimelineItem("Sent", Modifier.testTag("item")) } }
+        val item = compose.onNodeWithTag("item", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val title = compose.onNodeWithText("Sent", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertEquals(4.dp, title.top - item.top)
+        assertEquals(28.dp + 12.dp, title.left - item.left) // the marker column, then space.gap.md
     }
 
     @Test
-    fun fromLargeTextTheTimeMovesBelowTheTitle() {
-        var scale by mutableStateOf(1f)
+    fun fromLargeTextTheTimeMovesBelowTheText() {
+        var scale by mutableFloatStateOf(1f)
         compose.setQeetrix {
             val base = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(base.density, scale)) {
-                QeetrixTimelineItem("Payment received", Modifier.width(360.dp), time = "Today")
+                QeetrixTimeline(Modifier.width(360.dp)) { QeetrixTimelineItem("Payment received", time = "Today") }
             }
         }
 
@@ -92,7 +114,7 @@ class QeetrixTimelineTest {
 
     @Test
     fun optionsCarryTheWebsNames() {
-        assertEquals(listOf("neutral", "brand", "info", "success", "warning", "destructive"), QeetrixTimelineTone.entries.map { it.value })
-        assertEquals(listOf("default", "minor"), QeetrixTimelineEmphasis.entries.map { it.value })
+        assertEquals(listOf("neutral", "brand", "info", "success", "warning", "danger"), QeetrixTimelineTone.entries.map { it.value })
+        assertEquals(listOf("default", "compact"), QeetrixTimelineVariant.entries.map { it.value })
     }
 }

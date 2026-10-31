@@ -1,51 +1,49 @@
 # Switch
 
-`QeetrixSwitch` · `components.switchcontrol` · web: [Switch](https://ui.qeet.in/docs/components/switch) ·
-sample: Forms & inputs → Switch
+`QeetrixSwitch` · `components.switchcontrol` · `@qeetrix/react`: Switch
+([Switch](https://ui.qeet.in/components/switch)) · sample: Forms → Switch
 
-An on/off control for a setting that takes effect immediately. The package is `switchcontrol` because
-`switch` is a Java keyword.
+A setting that turns on or off at once. A setting that waits for a Save button is a [checkbox](Checkbox.md).
 
 ```kotlin
-var alerts by rememberSaveable { mutableStateOf(true) }
-QeetrixSwitch(alerts, { alerts = it }, label = "Email alerts", description = "Sent within a minute of the event.")
+QeetrixSwitch(autoRenew, { autoRenew = it }, label = "Auto-renew", description = "Renews on the 1st of each month.")
 ```
 
-## Usage
+## API
 
-- Prefer the overload with a `label` (and optional `description`): the whole row toggles and is read
-  as one control. A bare switch needs a name from its context — a `toggleable` row, or a content
-  description.
-- State is hoisted: `checked` plus `onCheckedChange`. Pass `onCheckedChange = null` to show a state the
-  user cannot change.
-- Sizes: `Default` (32 × 18.4 dp track, 16 dp thumb) and `Sm` (24 × 14 dp, 12 dp thumb).
-- In a [`QeetrixFieldSet`](Field.md) labelled switches sit flush, as checkbox rows do, and a disabled
-  set disables them.
+| `@qeetrix/react` | Android |
+|:--|:--|
+| `checked` / `onCheckedChange` | `checked` / `onCheckedChange: ((Boolean) -> Unit)?` |
+| `label`, `description` | `label`, `description` |
+| no label + `aria-label` | the overload without `label` |
+| `disabled`, `readOnly` | `enabled` (inverted), `readOnly` |
+| — | `invalid` (an unset required setting) |
 
-## States
+Old `size` (`Default` / `Sm`) is gone: react has one size.
 
-- Off / on: the thumb moves to the end and the track fills with the brand colour.
-- Disabled: faded. Invalid (`invalid = true`): the red boundary, for a required choice left off.
-- Hovered (pointer): a checked track takes its hover colour. Keyboard focus draws the focus ring.
+## Look (design rules §9, switch.css)
+
+A 32 × 18 dp track with 2 dp corners and a 1 dp `color.border.strong` edge on `color.bg.input`, and a 12 dp square
+thumb with 1 dp corners in `color.icon.subtle`, 2 dp in from the start. On: the track and edge
+`color.bg.brand.bold`, the thumb `color.icon.on-brand` — white in dark too (switch.css 0.4.0, QTRX-162) — 16 dp in, on
+the end side, mirrored right to left. An invalid switch keeps a `color.border.danger` edge, on or off. The
+thumb moves in `motion.duration.normal`; colours change in `motion.duration.fast`. Disabled: `color.bg.disabled`,
+`color.border.disabled`, a `color.icon.disabled` thumb. The label **follows** the switch, 8 dp after it; the
+description is 40 dp in.
 
 ## Accessibility
 
-- A switch role with its on/off state; double-tap toggles. The labelled overload reads the label, the
-  description, "switch" and the state together.
-- The state is shown by the thumb's side and the track's fill, not by hue alone.
-- 48 × 48 dp touch target around the drawn switch; the labelled row is a larger target.
-- Right to left, the thumb travels the other way.
-
-## Theme and tokens
-
-`component.switch.*` (`QeetrixSwitchComponentTokens`): track and thumb colours per state, and the
-thumb size; `component.input.border-invalid` for the invalid boundary.
+A native switch, read with its label, description and on/off state; the whole row toggles. Keyboard focus draws
+the Ember frame 2 dp outside the track. Nothing moves under reduced motion.
 
 ## Platform differences
 
-- **Layout.** The web places the switch where the form puts it. Android, like iOS, puts the label at
-  the start and the switch at the end, the system settings convention.
-- **Target.** The web gives its switch a larger pointer target; Android reserves 48 dp, and the
-  labelled row is the target, as a web `<label>` is.
+- **Label placement.** Android settings screens usually put the switch at the end; Qeetrix puts it first, as the
+  web does (design rules §9).
+- **Rows** are 48 dp touch targets.
 
 Related: [Checkbox](Checkbox.md), [Field](Field.md).
+
+## Haptics
+
+A toggle plays `QeetrixHapticRole.Selection` ([Haptics](../Foundations/HAPTICS.md)), nothing where the system has touch feedback off.

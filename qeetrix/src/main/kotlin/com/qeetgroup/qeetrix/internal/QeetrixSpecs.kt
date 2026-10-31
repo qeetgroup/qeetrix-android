@@ -45,19 +45,19 @@ internal data class QeetrixTextRoleSpec(
     val lineHeight: Float,
     /** Letter spacing in em. */
     val letterSpacing: Float,
-    /** The `GEOM` axis value, or null for a font without one. */
+    /** The `GEOM` axis value (the role's `font.geometry.*`), or null for a font without the axis. */
     val geometry: Float?,
 )
 
-/** Where a bundled font came from. */
+/** Where a bundled font came from: the TrueType file in `@qeetrix/tokens`, and the WOFF2 it was made from. */
 @Immutable
 internal data class QeetrixFontProvenanceSpec(
     val family: String,
     val webFamily: String,
     val postScriptName: String,
     val version: String,
-    val repository: String,
-    val tag: String,
+    val source: String,
+    val woff2Sha256: String,
     val sha256: String,
 )
 

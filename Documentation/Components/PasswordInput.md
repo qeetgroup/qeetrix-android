@@ -1,52 +1,48 @@
 # Password input
 
-`QeetrixPasswordInput` · `components.passwordinput` · web: [Password Input](https://ui.qeet.in/docs/components/password-input) ·
-sample: Forms & inputs → Password input
+`QeetrixPasswordInput` · `components.passwordinput` · `@qeetrix/react`: PasswordInput (`experimental`)
+([Password input](https://ui.qeet.in/components/password-input)) · sample: Forms → Password input
 
-A password field with a reveal button, built on Compose's `BasicSecureTextField`.
+A password or secret field with a Show password toggle, in the [text field](TextField.md)'s box with its label,
+help text and error.
 
 ```kotlin
 val password = rememberTextFieldState()
-QeetrixPasswordInput(password, label = "Password", purpose = QeetrixPasswordPurpose.Current,
+QeetrixPasswordInput(password, label = "Password",
     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done), onKeyboardAction = { signIn() })
 ```
 
-## Usage
+## API
 
-- **Purpose.** `Current` for signing in, `New` for sign-up, reset and change: AutoFill and password
-  managers offer saved passwords, or a new one and a save prompt. Whether they do depends on the device and
-  the user's provider.
-- **Reveal.** The button at the end shows and hides the password in the same field — text, cursor,
-  selection, focus and keyboard all stay. `showToggle = false` removes it.
-- **Policy is the app's.** Length, strength and matching rules are yours; show them as messages.
+| `@qeetrix/react` | Android |
+|:--|:--|
+| `autoComplete`: `current-password` · `new-password` · `off` | `autoComplete: QeetrixPasswordAutoComplete` — `CurrentPassword` (default), `NewPassword`, `Off` |
+| `visible` / `defaultVisible` / `onVisibleChange` | `visible: Boolean?` (null: the field keeps its own, hidden at first) / `onVisibleChange` |
+| `capsLockWarning` (default on) | `capsLockWarning = true` |
+| `endAdornment` (tools before the toggle) | `endAdornment` |
+| Field and Input props | as [Text field](TextField.md) |
 
-## Security
+Old `purpose` became `autoComplete`; `showToggle` is gone (the toggle is always there, as on the web).
 
-- Masked by default; the last character typed shows briefly only if the device's "Show passwords"
-  setting allows. Copy and cut are unavailable; suggestions and auto-correction are off.
-- The password lives only in your `TextFieldState`. Qeetrix keeps no copy and never logs, stores, sends or
-  describes it — no label, description or accessibility text contains it (tested by scanning every
-  semantics node).
-- Compose exposes the field's text to accessibility services marked as a password, as for every secure
-  field; TalkBack does not speak it unless the user has turned on spoken passwords.
-- Qeetrix cannot protect a password from a compromised device or a malicious keyboard, and stores no
-  credentials.
+## Behaviour
 
-## Accessibility
-
-One password field named by its label. The reveal button is named for its action — "Show password" /
-"Hide password" (`qx_show_password`, `qx_hide_password`) — and is drawn 24 dp inside the field without
-changing its height; Compose's hit testing gives it touches within 48 dp of it.
-
-## Theme and tokens
-
-`component.input.*`; the web's `fieldAction` geometry for the button (max(24 dp, control height − 8 dp),
-corner − 2 dp); the `eye` and `eye-off` icons.
+- **Show password**: a pressed-state toggle (`qx_show_password`), eye ↔ eye-off, a small neutral icon button
+  at the end. It shows the password in the same field — text, cursor, focus and keyboard stay. TalkBack reads its
+  state as "Password shown" or "Password hidden" (`qx_password_shown`, `qx_password_hidden`).
+- **Caps Lock**: while a hardware keyboard types with Caps Lock on, "Caps Lock is on" (`qx_caps_lock`) shows
+  before the toggle in `label.sm` / `color.text.warning`.
+- **Secure entry**: Compose's `BasicSecureTextField` — masked (the last character shows briefly when the
+  device allows), copy and cut off, suggestions, spelling and capitalisation off, marked as a password for
+  TalkBack. Paste and password managers always work: never cap its length or block paste (WCAG 3.3.8).
 
 ## Platform differences
 
-- The web re-masks a revealed password when its form submits, to keep it out of browser form history.
-  Android, like iOS, has no form history; the password stays as the person left it.
-- The keyboard switches to its visible-password variant while revealed, as Compose's guidance asks.
+- **Announcement.** The web announces "Password shown" in a polite live region; Android makes it the toggle's
+  state, which TalkBack reads after the toggle changes.
+- **Hiding on submit.** The web hides the password before the browser reads the form; Android has no form
+  submission to hook, and the app owns the state.
+- **Caps Lock** is only known from hardware keyboards; soft keyboards do not report it.
+- **`Off`** marks the field as not for AutoFill (`ContentDataType.None`).
+- The Caps Lock warning starts with a 14 dp `arrow-big-up`, as on the web.
 
-Related: [OTP input](OTPInput.md), [Text field](TextField.md).
+Related: [Text field](TextField.md), [OTP input](OTPInput.md).

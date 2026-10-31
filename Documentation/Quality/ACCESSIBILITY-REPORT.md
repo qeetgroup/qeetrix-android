@@ -17,7 +17,7 @@ No manual TalkBack, Switch Access, Voice Access or keyboard pass was performed i
 | Where taps land near small controls (`TouchLandingTest`) | JVM | The controls drawn under 48 dp inside another one | Each asserts the action ran |
 | Text clipping (`LayoutQualityTest`, `QeetrixLayoutDeviceTest`) | JVM at 100 %, linear 200 %, Android's non-linear 200 %, LTR and RTL; device at its own scale, LTR and RTL | Every text node in the catalogs | Text cut by a box too small for it is caught |
 | Contrast as drawn (`ComponentContrastTest`) | JVM | 45 pairs components draw × 2 themes, translucent fills composited | Thresholds per WCAG 1.4.3 / 1.4.11 |
-| Contrast of qeetrix-ui's designed pairs (`ContrastTest`, Phase 1) | JVM | 142 pairs × 2 themes | — |
+| Contrast of the designed pairs (`ContrastTest`, Phase 1; qeetrix-ui's then, `@qeetrix/tokens`' 145 pairs since the move to `@qeetrix/react`) | JVM | 142 pairs × 2 themes | — |
 | Reduced motion (`ReducedMotionTest`) | JVM | Spinner, skeleton, indeterminate progress | With animations on, frames differ |
 
 ATF's checks on API 36 include touch target size, text and image contrast measured from a screenshot of the

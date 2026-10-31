@@ -24,75 +24,83 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.LayoutDirection
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
-import com.qeetgroup.qeetrix.internal.QeetrixWebScale
+import androidx.compose.ui.unit.dp
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
 /**
- * The navigation rail: an app's top-level destinations in a column along the inline start of a medium or
- * expanded window — the web sidebar's icon rail, with labels. On a compact window use
- * [QeetrixNavigationBar]; [QeetrixNavigationScaffold] switches between the two as the window changes.
+ * The navigation rail: an app's top-level destinations in a column along the inline start of a medium or expanded
+ * window. On a compact window use [QeetrixNavigationBar]; [QeetrixNavigationScaffold] switches between the two as the
+ * window changes.
  *
- * - **The app owns navigation**, as for the bar: [selected] and [onSelect] carry the app's own values.
+ * Its `@qeetrix/react` counterpart is the AppShell's navigation column with its Sidebar: `color.surface.canvas`, a
+ * 1 dp `color.border.default` seam on its inline end, and rows that run edge to edge. The current row is tinted
+ * `color.bg.neutral.subtle-hover`, its round icon Ember and filled, its label at weight 600, with the 3 dp Ember bar
+ * on its start edge (design rules §11). The web's collapsed rail shows icons alone and puts the labels in tooltips;
+ * Android's rail keeps each label under its icon, as touch has no hover to show a tooltip, and is 80 dp wide —
+ * wider when a label needs the room at a large text size. The destinations scroll when they do not fit the height.
+ *
+ * - **The app owns navigation**, as for the bar: [value] and [onValueChange] carry the app's own values.
  * - **[header]** sits above the destinations — a primary action such as "Compose", or the product's mark.
- * - **Drawing.** The web sidebar's signature: `surface.rail` with a rule along its inline end; the selected
- *   item tinted, its icon in the brand colour, its label medium, and the 3 dp brand indicator on its inline
- *   start (`component.sidebar.indicator-width`). The rail is 80 dp wide, wider when a label needs the room
- *   at a large text size, and the destinations scroll when they do not fit the height.
- * - **Edge to edge.** [windowInsets] (by default the vertical and inline-start safe-drawing insets) keeps the
- *   items clear of the status bar, a display cutout and a navigation bar on the start side.
- * - **Accessibility.** One selectable group of tabs, each at least 48 dp tall, in reading order; keyboard
- *   and D-pad focus move through them with the arrow keys and Tab.
+ * - **Edge to edge.** [windowInsets] (by default the vertical and inline-start safe-drawing insets) keeps the items
+ *   clear of the status bar, a display cutout and a navigation bar on the start side.
+ * - **Accessibility.** One selectable group of tabs, each at least 48 dp tall, in reading order; keyboard and D-pad
+ *   focus move through them with the arrow keys and Tab.
  *
  * ```
- * QeetrixNavigationRail(items, selected = destination, onSelect = { destination = it }) {
- *     QeetrixIconButton(QeetrixIconName.Plus, "New message", onClick = ::composeMessage, variant = QeetrixButtonVariant.Default)
+ * QeetrixNavigationRail(items, value = destination, onValueChange = { destination = it }) {
+ *     QeetrixIconButton(QeetrixIconName.Plus, "New message", onClick = ::composeMessage, variant = QeetrixButtonVariant.Solid)
  * }
  * ```
  */
 @Composable
 public fun <T> QeetrixNavigationRail(
     items: List<QeetrixNavigationItem<T>>,
-    selected: T,
-    onSelect: (T) -> Unit,
+    value: T,
+    onValueChange: (T) -> Unit,
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = QeetrixNavigationRailInsets,
     header: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     requireDistinctValues(items)
-    val rule = QeetrixTheme.colors.borderDefault // border-e border-sidebar-border
+    val seam = QeetrixTheme.colors.borderDefault
     Column(
         modifier
             .fillMaxHeight()
-            .background(QeetrixTheme.colors.surfaceRail) // bg-sidebar
+            .background(QeetrixTheme.colors.surfaceCanvas) // .qx-app-shell-nav-panel background: color.surface.canvas
             .drawBehind {
-                val x = if (layoutDirection == LayoutDirection.Rtl) 0f else size.width
-                drawLine(rule, Offset(x, 0f), Offset(x, size.height), QeetrixStroke.Hairline.toPx())
+                // border-inline-end: border.width.default solid color.border.default
+                val width = QeetrixBorder.WidthDefault.toPx()
+                val x = if (layoutDirection == LayoutDirection.Rtl) 0f else size.width - width
+                drawRect(seam, Offset(x, 0f), Size(width, size.height))
             }.windowInsetsPadding(windowInsets)
+            .padding(end = QeetrixBorder.WidthDefault)
             // 80 dp, or wider when a label needs it at a large text size: rail labels never truncate.
             .width(IntrinsicSize.Max)
             .widthIn(min = RailWidth)
             .verticalScroll(rememberScrollState())
-            .padding(vertical = QeetrixWebScale.spacing(3f), horizontal = QeetrixWebScale.spacing(1f)),
-        verticalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(1f)),
+            // .qx-sidebar-nav padding-block: space.gap.sm space.inset.md
+            .padding(top = QeetrixSpace.GapSm, bottom = QeetrixSpace.InsetMd),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (header != null) {
             Column(
-                Modifier.padding(bottom = QeetrixWebScale.spacing(3f)),
-                verticalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(2f)),
+                Modifier.padding(start = QeetrixSpace.InsetXs, end = QeetrixSpace.InsetXs, bottom = QeetrixSpace.InsetMd),
+                verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 content = header,
             )
         }
-        Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(1f))) {
+        Column(Modifier.fillMaxWidth().selectableGroup()) {
             for (item in items) {
                 key(item.value) {
                     NavigationItem(
                         item = item,
-                        selected = item.value == selected,
-                        onClick = { onSelect(item.value) },
+                        current = item.value == value,
+                        onClick = { onValueChange(item.value) },
                         edge = IndicatorEdge.Start,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -106,5 +114,5 @@ public fun <T> QeetrixNavigationRail(
 internal val QeetrixNavigationRailInsets: WindowInsets
     @Composable get() = WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.Start)
 
-/** w-20: the rail's width at the default text size — a 24 dp icon and a 12 sp label. */
-internal val RailWidth = QeetrixWebScale.spacing(20f)
+/** The rail's width at the default text size: Android's navigation rail (a 20 dp icon over a `label.sm` label). */
+internal val RailWidth = 80.dp

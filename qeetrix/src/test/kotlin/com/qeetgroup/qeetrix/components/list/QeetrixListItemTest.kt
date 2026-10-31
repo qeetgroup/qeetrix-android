@@ -3,6 +3,7 @@ package com.qeetgroup.qeetrix.components.list
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -82,7 +83,7 @@ class QeetrixListItemTest {
         var enabled by mutableStateOf(true)
         compose.setQeetrix {
             QeetrixListItem(
-                "Ada Lovelace",
+                "Priya Sharma",
                 Modifier.testTag("row"),
                 enabled = enabled,
                 onClick = { events += "click" },
@@ -110,14 +111,14 @@ class QeetrixListItemTest {
     @Test
     fun aLongClickNeedsAClick() {
         assertThrows(IllegalArgumentException::class.java) {
-            compose.setQeetrix { QeetrixListItem("Ada", onLongClick = {}) }
+            compose.setQeetrix { QeetrixListItem("Priya", onLongClick = {}) }
         }
     }
 
     @Test
     fun selectionIsDrawnAndReadOnlyWhenSelected() {
         var selected by mutableStateOf(true)
-        compose.setQeetrix { QeetrixListItem("Ada", Modifier.testTag("row"), selected = selected, onClick = {}) }
+        compose.setQeetrix { QeetrixListItem("Priya", Modifier.testTag("row"), selected = selected, onClick = {}) }
         compose.onNodeWithTag("row").assertIsSelected()
         compose.runOnIdle { selected = false }
         // Rows that can't be selected aren't read as "not selected".
@@ -129,12 +130,12 @@ class QeetrixListItemTest {
         var density by mutableStateOf(QeetrixDensity.Compact)
         compose.setQeetrix {
             CompositionLocalProvider(LocalQeetrixDensity provides density) {
-                QeetrixListItem("Ada", Modifier.testTag("row"), onClick = {})
+                QeetrixListItem("Priya", Modifier.testTag("row"), onClick = {})
             }
         }
         for (each in QeetrixDensity.entries) {
             compose.runOnIdle { density = each }
-            compose.onNodeWithTag("row").assertHeightIsAtLeast(maxOf(each.rowHeight, 48.dp))
+            compose.onNodeWithTag("row").assertHeightIsAtLeast(maxOf(each.sizeRow, 48.dp))
         }
     }
 
@@ -159,7 +160,7 @@ class QeetrixListItemTest {
 
     @Test
     fun fromLargeTextTheTrailingContentMovesBelowTheText() {
-        var scale by mutableStateOf(1f)
+        var scale by mutableFloatStateOf(1f)
         compose.setQeetrix {
             val base = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(base.density, scale)) {
@@ -189,17 +190,26 @@ class QeetrixListItemTest {
     }
 
     @Test
-    fun aSectionHeaderIsAHeadingWithItsDescriptionAndASeparateAction() {
-        val invited = mutableListOf<Unit>()
+    fun aSectionHeaderIsAHeadingReadAsWrittenWithASeparateAction() {
+        var invited = 0
         compose.setQeetrix {
             QeetrixSectionHeader("Members", description = "People with access") {
-                QeetrixButton("Invite", onClick = { invited += Unit }, variant = QeetrixButtonVariant.Link)
+                QeetrixButton("Invite", onClick = { invited++ }, variant = QeetrixButtonVariant.Ghost)
             }
         }
         val heading = compose.onNode(isHeading()).fetchSemanticsNode()
+        // Drawn in capitals (label.caps), read as written.
         assertEquals(listOf("Members", "People with access"), heading.config.getOrNull(SemanticsProperties.Text)?.map { it.text })
         assertFalse(heading.config.contains(SemanticsActions.OnClick))
         compose.onNodeWithText("Invite").performClick()
-        assertEquals(1, invited.size)
+        assertEquals(1, invited)
+    }
+
+    @Test
+    fun indicTextIsFoundByItsScript() {
+        assertTrue(hasIndicScript("दस्तावेज़"))
+        assertTrue(hasIndicScript("தமிழ்"))
+        assertFalse(hasIndicScript("Members"))
+        assertFalse(hasIndicScript("الأعضاء"))
     }
 }

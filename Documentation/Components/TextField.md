@@ -1,70 +1,69 @@
 # Text field
 
-`QeetrixTextField` · `components.input` · web: [Input](https://ui.qeet.in/docs/components/input) ·
-sample: Forms & inputs → Text field
+`QeetrixTextField` · `components.input` · `@qeetrix/react`: TextField
+([Text field](https://ui.qeet.in/components/text-field)) · sample: Forms → Text field
 
-A single-line text input with its label, help text and validation message — the web's `Input` inside a
-vertical `Field`.
+A single-line text field with its label, help text and error — Field and Input in one, the default way to build
+a form row.
 
 ```kotlin
 val email = rememberTextFieldState()
 QeetrixTextField(
     email,
     label = "Work email",
-    placeholder = "you@company.com",
-    message = if (invalid) QeetrixFieldMessage("Enter an email address like name@company.com.") else null,
+    placeholder = "e.g. asha@acme.in",
+    icon = QeetrixIconName.Mail,
+    error = emailError, // "Enter a work email, like asha@acme.in."
     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
 )
 ```
 
-## Usage
+## API
 
-- The text lives in a `TextFieldState` you own (`rememberTextFieldState()`), the state model of
-  Compose's current text APIs; read it with `state.text`. Filter input with an `InputTransformation`.
-- Slots: `label`, `placeholder`, `description` (help), `message`, and `leading` / `trailing` content
-  (an icon, a clear button).
-- Validation is yours: compute a `QeetrixFieldMessage` from the state. There is no form framework; see
-  [Form](Form.md) for the patterns.
-- `modifier` is the whole field's; `Modifier.focusRequester(requester)` on it focuses the text.
-- Other text has its own component: [password](PasswordInput.md), [one-time code](OTPInput.md),
-  [multi-line](Textarea.md), [number](NumberField.md). Not in Qeetrix yet: currency and search fields.
-- Built on the field parts every Qeetrix input shares ([Field](Field.md)); inside a disabled
-  `QeetrixFieldSet` it is disabled too.
+| `@qeetrix/react` | Android |
+|:--|:--|
+| `value` / `defaultValue` / `onValueChange` | `state: TextFieldState` (Compose's controlled text model; read `state.text`) |
+| `label`, `description`, `error`, `invalid`, `optional`, `hideLabel`, `help` | the same (see [Field](Field.md)) |
+| `required`, `readOnly`, `disabled` | `required`, `readOnly`, `enabled` (inverted) |
+| `placeholder` | `placeholder` — an example, never an instruction |
+| `icon` | `icon: QeetrixIconName?` — sharp, 16 dp, `color.icon.subtle`, decorative |
+| `startAdornment`, `endAdornment` | `startAdornment`, `endAdornment: (@Composable () -> Unit)?` — affixes take `color.text.subtle` |
+| `type`, `autoComplete`, native attributes | `keyboardOptions`, `contentType`, `onKeyboardAction`, `inputTransformation` |
 
-## States
+Removed from the old API: `message` with tones (react has errors only — use `error`), `leading` / `trailing`
+(use `icon` and the adornments).
 
-- **Message tones** — `Error` (red boundary, invalid), `Warning`, `Success` — each with its icon.
-- **Read-only**: dashed boundary; the value can be focused, selected and copied.
-- **Disabled**: faded; cannot be focused.
-- **Focused**: the boundary thickens to 2 dp in the focus colour (red when invalid).
-- `required` adds a red asterisk; `optional` adds "(optional)" (`qx_optional`).
+## Look (design rules §8, input.css)
+
+| State | Fill | Bottom line | Frame |
+|:--|:--|:--|:--|
+| Rest | `color.bg.neutral.subtle` | 1 dp `color.border.strong` | — |
+| Hover | `color.bg.neutral.subtle-hover` | 1 dp `color.border.strong` | — |
+| Focus (any focus: the caret needs context) | `color.bg.neutral.subtle` | hidden | 2 dp `color.border.focus` inside |
+| Invalid | as rest | hidden | 2 dp `color.border.danger` inside |
+| Read-only | none | 1 dp `color.border.strong` (input.css 0.4.0, QTRX-175) | — |
+| Disabled | `color.bg.disabled` | 1 dp `color.border.disabled` | — |
+
+4 dp top corners and a square bottom (`QeetrixShapes.Field`), `size.control.lg` tall (32 / 40 / 44 dp with the
+density, growing with the font scale), 12 dp inline padding, 8 dp between an icon, an adornment and the value, the
+value in `body.md`. Focus wins over invalid, as the CSS orders them.
 
 ## Accessibility
 
-- The label is drawn inside the field's own control, so TalkBack reads it as the field's name and
-  tapping it focuses the field. TalkBack reads the label, the text, then the description.
-- An error sets the field's error state, and the message is a live region announced assertively;
-  warnings and successes are announced politely.
-- `required` is read as "required" after the label (`qx_required`, the asterisk's description).
-- Height is exactly the control height of the density (32 dp by default) and grows with the font
-  scale. Without a visible label, the field reserves a 48 dp touch height around it, centred, as a
-  button does ([ADR 0017](../Decisions/0017-quality-gates-and-verification.md)); a label above the field
-  already makes the touch area taller than that. The same holds for every field built on it: textarea,
-  search, select, number and password.
-
-## Theme and tokens
-
-`component.input.*` (`QeetrixInputComponentTokens`): background (per theme, disabled, read-only),
-boundary per state and tone, placeholder, corner, and the height through the density.
+- The label is drawn inside the field's own control, so TalkBack reads it as the field's name and tapping it
+  focuses the field.
+- An error sets the field's error state and is announced at once; it replaces the description.
+- `contentType` tells AutoFill what the field holds; without one Compose derives it from the keyboard type.
+- With `hideLabel` the label still names the field, and the field is centred in a 48 dp touch height.
 
 ## Platform differences
 
-- **Text size.** Android follows the web: 16 sp below a 768 dp window, 14 sp from there. iOS keeps
-  16 pt everywhere.
-- **Required.** The web announces the control's `required`; Android and iOS add the word to the
-  label that names the field (Compose has no required property).
-- **Announcements.** The web uses `role="alert"` / `role="status"`; Android uses live regions of the
-  same politeness; iOS posts VoiceOver announcements.
-- **Dashes.** The read-only boundary's dash is approximated as 3 dp dashes and gaps.
+- **Text size.** `body.md` at every window width (the old Android port followed the old web's 16 → 14 sp).
+- **State.** Compose's `TextFieldState` replaces react's `value` / `onValueChange`.
+- **Required** and **help**: see [Field](Field.md).
 
-Related: [Field](Field.md), [Textarea](Textarea.md), [Form](Form.md).
+Related: [Field](Field.md), [Textarea](Textarea.md), [Search field](SearchField.md), [Form](Form.md).
+
+## Placeholders at large text (QTRX-197)
+
+A single-line field's placeholder ends in an ellipsis where it doesn't fit (finding Q-5, gone); keep placeholders short examples (design rules §8).

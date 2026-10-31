@@ -1,7 +1,8 @@
 #!/bin/sh
-# Fetch the upstream artifacts pinned in Upstream/manifest.json — @qeetrix/ui from npm, the native
-# fonts from their releases, the icon drawings from qeetrix-icons — verify them, and rewrite
-# Upstream/manifest.lock.json. The only step that touches the network.
+# Fetch the npm tarballs pinned in Upstream/manifest.json — @qeetrix/tokens (the DTCG tokens and the
+# native TrueType fonts), @qeetrix/react (the component manifest and CSS) and @qeetrix/icons — verify
+# them against the registry and fonts/native.json, and rewrite Upstream/manifest.lock.json. The only
+# step that touches the network.
 #
 #   Scripts/sync-tokens           refresh the snapshot and lock
 #   Scripts/sync-tokens --check   compare upstream with the lock; change nothing

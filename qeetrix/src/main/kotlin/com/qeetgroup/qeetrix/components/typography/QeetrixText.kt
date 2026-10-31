@@ -1,113 +1,143 @@
 package com.qeetgroup.qeetrix.components.typography
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.em
+import com.qeetgroup.qeetrix.foundation.color.QeetrixColors
 import com.qeetgroup.qeetrix.foundation.typography.QeetrixTextRole
-import com.qeetgroup.qeetrix.internal.FontWeightSemibold
-import com.qeetgroup.qeetrix.internal.QeetrixFont
-import com.qeetgroup.qeetrix.internal.QeetrixWebScale
-import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
-import com.qeetgroup.qeetrix.internal.windowAtLeast
+import com.qeetgroup.qeetrix.foundation.typography.QeetrixTypography
+import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixTypographyComponentTokens
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixFontFamilyTokens
+import com.qeetgroup.qeetrix.internal.QeetrixTextWeight as RoleWeight
 
-/**
- * The styles of [QeetrixText]: the web Typography component's variants, by the same names (`value`).
- *
- * Headings follow the web's application scale: below the web's `sm` breakpoint (a window narrower than
- * 640 dp — every phone in portrait) h1, h2 and h3 are 24, 20 and 18 sp; from 640 dp they are 32, 24 and
- * 20. h4 is 16 sp at every width. There is no display or hero variant, as on the web.
- */
-public enum class QeetrixTextVariant(
+/** The body sizes of [QeetrixText] (`value` is `@qeetrix/react`'s `size`). */
+public enum class QeetrixTextSize(
+    public val value: String,
+    internal val role: QeetrixTextRole,
+) {
+    /** `body.sm`, 12 / 16. */
+    Sm("sm", QeetrixTextRole.BodySm),
+
+    /** `body.md`, 14 / 20 — the default. */
+    Md("md", QeetrixTextRole.BodyMd),
+
+    /** `body.lg`, 16 / 24. */
+    Lg("lg", QeetrixTextRole.BodyLg),
+}
+
+/** The weights of [QeetrixText] (`value` is `@qeetrix/react`'s `weight`): each a role's own weight. */
+public enum class QeetrixTextWeight(
     public val value: String,
 ) {
-    /** A page title. A heading for accessibility services. */
-    H1("h1"),
+    /** 400, `body.md`'s. The default. */
+    Regular("regular"),
 
-    /** A section heading. */
-    H2("h2"),
+    /** 500, `label.md`'s. */
+    Medium("medium"),
 
-    /** A group heading. */
-    H3("h3"),
-
-    /** A block heading. */
-    H4("h4"),
-
-    /** Body copy, in the body role. The default. */
-    P("p"),
-
-    /** A quotation: body copy in the tertiary colour behind a 2 dp rule on the leading edge. */
-    Blockquote("blockquote"),
-
-    /** An introductory paragraph: 16 sp with relaxed leading, in the secondary colour. */
-    Lead("lead"),
-
-    /** Emphasised copy: 18 sp semibold. */
-    Large("large"),
-
-    /** An interface label, in the label role. */
-    Small("small"),
-
-    /** De-emphasised body copy, in the tertiary colour. */
-    Muted("muted"),
-
-    /** Code in Fira Code on a sunken chip, 0.875 × the body size. */
-    InlineCode("inlineCode"),
-    ;
-
-    /** True for [H1]–[H4], which accessibility services announce as headings. */
-    public val isHeading: Boolean get() = this == H1 || this == H2 || this == H3 || this == H4
+    /** 600, `title.md`'s. */
+    Semibold("semibold"),
 }
 
 /**
- * A piece of copy in a Qeetrix text style: the font, size, line height, colour and heading semantics of
- * a [QeetrixTextVariant]. Sizes are in sp, so text follows the user's font size; it wraps rather than
- * truncates unless [maxLines] and [overflow] say otherwise.
+ * Text colours from the tokens (`value` is `@qeetrix/react`'s `tone`). Pass one to [QeetrixText] or
+ * [QeetrixHeading]; without one, text inherits the content colour.
+ */
+public enum class QeetrixTextTone(
+    public val value: String,
+) {
+    /** `color.text.default` */
+    Default("default"),
+
+    /** `color.text.subtle` — quieter text that must still be read. */
+    Subtle("subtle"),
+
+    /** `color.text.subtlest` */
+    Subtlest("subtlest"),
+
+    /**
+     * `color.text.disabled` — only for text inside an inactive control. It is exempt from contrast there
+     * and unreadable anywhere else (2.48:1 in light); quieter text that must be read is [Subtle].
+     */
+    Disabled("disabled"),
+
+    /** `color.text.inverse` — on `color.surface.inverse`. */
+    Inverse("inverse"),
+
+    /** `color.text.brand` */
+    Brand("brand"),
+
+    /** `color.text.danger` */
+    Danger("danger"),
+
+    /** `color.text.success` */
+    Success("success"),
+
+    /** `color.text.warning` */
+    Warning("warning"),
+
+    /** `color.text.info` */
+    Info("info"),
+    ;
+
+    internal fun color(colors: QeetrixColors): Color =
+        when (this) {
+            Default -> colors.textDefault
+            Subtle -> colors.textSubtle
+            Subtlest -> colors.textSubtlest
+            Disabled -> colors.textDisabled
+            Inverse -> colors.textInverse
+            Brand -> colors.textBrand
+            Danger -> colors.textDanger
+            Success -> colors.textSuccess
+            Warning -> colors.textWarning
+            Info -> colors.textInfo
+        }
+}
+
+/**
+ * Running text, labels and inline code on the body type roles — `@qeetrix/react`'s Text. Sizes are in sp,
+ * so text follows the user's font size; it wraps unless [maxLines] limits it, and then ends in an
+ * ellipsis (the web's `truncate`).
  *
  * ```
- * QeetrixText("Billing", variant = QeetrixTextVariant.H2)
- * QeetrixText("Invoices are sent on the first of each month.", variant = QeetrixTextVariant.Muted)
+ * QeetrixText("Invoices are sent on the first of each month.", tone = QeetrixTextTone.Subtle)
+ * QeetrixText("inv_2K9", mono = true, size = QeetrixTextSize.Sm)
  * ```
  *
- * @param color The text colour. By default the inherited content colour ([LocalQeetrixContentColor]) —
- *   `textPrimary` on a Qeetrix surface — or the variant's own colour for [QeetrixTextVariant.Lead],
- *   [QeetrixTextVariant.Muted] and [QeetrixTextVariant.Blockquote]. Pass a `QeetrixTheme.colors` role, never
- *   a literal.
+ * For headings use [QeetrixHeading]; Qeetrix has no uppercase text except a group label
+ * (`QeetrixTheme.typography.labelCaps`).
+ *
+ * @param tone The colour; null inherits the content colour ([LocalQeetrixContentColor]), as the web does.
+ * @param mono Fira Code at the same size, for code, IDs and keys.
  */
 @Composable
 public fun QeetrixText(
     text: String,
     modifier: Modifier = Modifier,
-    variant: QeetrixTextVariant = QeetrixTextVariant.P,
-    color: Color = Color.Unspecified,
+    size: QeetrixTextSize = QeetrixTextSize.Md,
+    weight: QeetrixTextWeight = QeetrixTextWeight.Regular,
+    tone: QeetrixTextTone? = null,
+    mono: Boolean = false,
     textAlign: TextAlign = TextAlign.Unspecified,
-    overflow: TextOverflow = TextOverflow.Clip,
-    softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
 ) {
-    QeetrixText(AnnotatedString(text), modifier, variant, color, textAlign, overflow, softWrap, maxLines, minLines, onTextLayout)
+    QeetrixText(AnnotatedString(text), modifier, size, weight, tone, mono, textAlign, maxLines, minLines, onTextLayout)
 }
 
 /** [QeetrixText] for styled text — links, emphasis, spans in another colour. */
@@ -115,148 +145,152 @@ public fun QeetrixText(
 public fun QeetrixText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
-    variant: QeetrixTextVariant = QeetrixTextVariant.P,
-    color: Color = Color.Unspecified,
+    size: QeetrixTextSize = QeetrixTextSize.Md,
+    weight: QeetrixTextWeight = QeetrixTextWeight.Regular,
+    tone: QeetrixTextTone? = null,
+    mono: Boolean = false,
     textAlign: TextAlign = TextAlign.Unspecified,
-    overflow: TextOverflow = TextOverflow.Clip,
-    softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
 ) {
-    val style = QeetrixTextStyles.style(variant, wide = windowAtLeast(QeetrixWebScale.BreakpointSm))
-    val resolvedColor = color.takeOrElse { variantColor(variant) }
+    // A paragraph takes its direction from its own text and its alignment from the layout (QTRX-199), as labels do: in
+    // a right-to-left screen an English sentence keeps its full stop at its end and still lines up with its neighbours.
+    val style = textStyle(size, weight, mono).copy(textAlign = textAlign).labelDirection(alignToLayout = true)
     BasicText(
         text = text,
-        modifier =
-            modifier
-                .textDecoration(variant, QeetrixTheme.colors.borderStrong, QeetrixTypographyComponentTokens.CodeBackground)
-                .then(if (variant.isHeading) Modifier.semantics { heading() } else Modifier),
-        style = style.copy(color = resolvedColor, textAlign = textAlign),
+        modifier = modifier,
+        style = style.copy(color = toneColor(tone)),
         onTextLayout = onTextLayout,
-        overflow = overflow,
-        softWrap = softWrap,
+        overflow = if (maxLines == Int.MAX_VALUE) TextOverflow.Clip else TextOverflow.Ellipsis,
         maxLines = maxLines,
         minLines = minLines,
     )
 }
 
-/** The variant's own colour, else the inherited content colour. */
+/** The look of a [QeetrixHeading] (`value` is `@qeetrix/react`'s `size`): a display, heading or title role. */
+public enum class QeetrixHeadingSize(
+    public val value: String,
+    internal val role: QeetrixTextRole,
+) {
+    /** `display.lg` — welcoming screens only (design rules §17). */
+    DisplayLg("display-lg", QeetrixTextRole.DisplayLg),
+
+    /** `display.md` */
+    DisplayMd("display-md", QeetrixTextRole.DisplayMd),
+
+    /** `display.sm` */
+    DisplaySm("display-sm", QeetrixTextRole.DisplaySm),
+
+    /** `heading.lg` — level 1's default. */
+    HeadingLg("heading-lg", QeetrixTextRole.HeadingLg),
+
+    /** `heading.md` — level 2's default. */
+    HeadingMd("heading-md", QeetrixTextRole.HeadingMd),
+
+    /** `heading.sm` — level 3's default, and a screen title. */
+    HeadingSm("heading-sm", QeetrixTextRole.HeadingSm),
+
+    /** `title.lg` — level 4's default. */
+    TitleLg("title-lg", QeetrixTextRole.TitleLg),
+
+    /** `title.md` — level 5's default; a dialog title. */
+    TitleMd("title-md", QeetrixTextRole.TitleMd),
+
+    /** `title.sm` — level 6's default; a card title. */
+    TitleSm("title-sm", QeetrixTextRole.TitleSm),
+}
+
+/** The colours of a [QeetrixHeading] (`value` is `@qeetrix/react`'s `tone`). */
+public enum class QeetrixHeadingTone(
+    public val value: String,
+) {
+    /** `color.text.default` — the default. */
+    Default("default"),
+
+    /** `color.text.subtle` */
+    Subtle("subtle"),
+
+    /** `color.text.inverse` */
+    Inverse("inverse"),
+}
+
+/**
+ * A section heading — `@qeetrix/react`'s Heading: the [level] says where it sits in the screen's outline,
+ * the [size] how it looks (by default from the level: 1 `heading.lg`, 2 `heading.md`, 3 `heading.sm`,
+ * 4 `title.lg`, 5 `title.md`, 6 `title.sm`). Display sizes take Qeet Sans's Geo letter style, the rest Base.
+ *
+ * Accessibility services announce it as a heading. Android has no heading levels, so [level] only chooses
+ * the default look here; the web renders `<h1>`…`<h6>`.
+ */
+@Composable
+public fun QeetrixHeading(
+    text: String,
+    level: Int,
+    modifier: Modifier = Modifier,
+    size: QeetrixHeadingSize = headingSizeFor(level),
+    tone: QeetrixHeadingTone = QeetrixHeadingTone.Default,
+    textAlign: TextAlign = TextAlign.Unspecified,
+    maxLines: Int = Int.MAX_VALUE,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+) {
+    require(level in 1..6) { "A heading level is 1 to 6, not $level." }
+    val colors = QeetrixTheme.colors
+    val color =
+        when (tone) {
+            QeetrixHeadingTone.Default -> colors.textDefault
+            QeetrixHeadingTone.Subtle -> colors.textSubtle
+            QeetrixHeadingTone.Inverse -> colors.textInverse
+        }
+    BasicText(
+        text = text,
+        modifier = modifier.semantics { heading() },
+        style = QeetrixTheme.typography[size.role].copy(color = color, textAlign = textAlign).labelDirection(alignToLayout = true),
+        onTextLayout = onTextLayout,
+        overflow = if (maxLines == Int.MAX_VALUE) TextOverflow.Clip else TextOverflow.Ellipsis,
+        maxLines = maxLines,
+    )
+}
+
+/** heading.tsx's default size for a level. */
+internal fun headingSizeFor(level: Int): QeetrixHeadingSize =
+    when (level) {
+        1 -> QeetrixHeadingSize.HeadingLg
+        2 -> QeetrixHeadingSize.HeadingMd
+        3 -> QeetrixHeadingSize.HeadingSm
+        4 -> QeetrixHeadingSize.TitleLg
+        5 -> QeetrixHeadingSize.TitleMd
+        else -> QeetrixHeadingSize.TitleSm
+    }
+
+/** The colour of a [tone], or the inherited content colour. */
 @Composable
 @ReadOnlyComposable
-private fun variantColor(variant: QeetrixTextVariant): Color =
-    when (variant) {
-        QeetrixTextVariant.Lead -> QeetrixTheme.colors.textSecondary
-
-        // text-(--qx-color-text-secondary)
-        QeetrixTextVariant.Muted, QeetrixTextVariant.Blockquote -> QeetrixTheme.colors.textTertiary
-
-        // text-muted-foreground
-        else -> LocalQeetrixContentColor.current.takeOrElse { QeetrixTheme.colors.textPrimary }
-    }
+internal fun toneColor(tone: QeetrixTextTone?): Color =
+    tone?.color(QeetrixTheme.colors) ?: LocalQeetrixContentColor.current.takeOrElse { QeetrixTheme.colors.textDefault }
 
 /**
- * The blockquote's leading rule (in [rule]) and the inline-code chip (on [codeBackground]); other variants
- * draw nothing extra.
+ * text.css: the body role at [size], at a role's [weight], and with [mono] Fira Code at the same size (and
+ * no letter style, which Fira Code does not have).
  */
-private fun Modifier.textDecoration(
-    variant: QeetrixTextVariant,
-    rule: Color,
-    codeBackground: Color,
-): Modifier =
-    when (variant) {
-        // border-s-2 border-border-strong ps-4
-        QeetrixTextVariant.Blockquote -> {
-            drawBehind {
-                val width = QeetrixWebScale.spacing(0.5f).toPx()
-                val x = if (layoutDirection == LayoutDirection.Ltr) width / 2 else size.width - width / 2
-                drawLine(rule, Offset(x, 0f), Offset(x, size.height), strokeWidth = width)
-            }.padding(start = QeetrixWebScale.spacing(4f))
+@Composable
+@ReadOnlyComposable
+internal fun textStyle(
+    size: QeetrixTextSize,
+    weight: QeetrixTextWeight,
+    mono: Boolean,
+): TextStyle {
+    val base =
+        if (mono) {
+            QeetrixTypography.style(size.role.spec.copy(face = QeetrixFontFamilyTokens.Mono, geometry = null), LocalDensity.current)
+        } else {
+            QeetrixTheme.typography[size.role]
         }
-
-        QeetrixTextVariant.InlineCode -> {
-            background(codeBackground, RoundedCornerShape(QeetrixTypographyComponentTokens.CodeCorner)).padding(
-                horizontal = QeetrixTypographyComponentTokens.CodePaddingInline,
-                vertical = QeetrixTypographyComponentTokens.CodePaddingBlock,
-            )
+    val fontWeight =
+        when (weight) {
+            QeetrixTextWeight.Regular -> RoleWeight.Regular
+            QeetrixTextWeight.Medium -> RoleWeight.Medium
+            QeetrixTextWeight.Semibold -> RoleWeight.Semibold
         }
-
-        else -> {
-            this
-        }
-    }
-
-/**
- * The web Typography classes for each variant, at mobile width and from the `sm` breakpoint up. Built
- * once: text styles hold font families, which Compose caches by identity.
- */
-internal object QeetrixTextStyles {
-    private val title = QeetrixTextRole.Title.spec
-    private val headingRole = QeetrixTextRole.Heading.spec
-    private val body = QeetrixTextRole.Body.spec
-    private val label = QeetrixTextRole.Label.spec
-
-    private fun heading(
-        size: Float,
-        lineHeight: Float,
-        letterSpacing: Float,
-    ): TextStyle =
-        qeetrixTextStyle(QeetrixFont.Heading, size, lineHeight, FontWeightSemibold) // font-heading font-semibold
-            .copy(letterSpacing = letterSpacing.em, lineBreak = LineBreak.Heading) // text-balance
-
-    // h1: text-2xl/(title line height) → sm:text-title, title tracking.
-    private val h1 = heading(QeetrixWebScale.Text2xl.size, title.lineHeight, title.letterSpacing)
-    private val h1Wide = heading(title.size, title.lineHeight, title.letterSpacing)
-
-    // h2: text-xl/(heading line height) → sm:text-2xl, heading tracking.
-    private val h2 = heading(QeetrixWebScale.TextXl.size, headingRole.lineHeight, headingRole.letterSpacing)
-    private val h2Wide = heading(QeetrixWebScale.Text2xl.size, headingRole.lineHeight, headingRole.letterSpacing)
-
-    // h3: text-lg/(heading line height) → sm:text-heading.
-    private val h3 = heading(QeetrixWebScale.TextLg.size, headingRole.lineHeight, headingRole.letterSpacing)
-    private val h3Wide = heading(headingRole.size, headingRole.lineHeight, headingRole.letterSpacing)
-
-    // h4: text-base/snug.
-    private val h4 = heading(QeetrixWebScale.TextBase.size, QeetrixWebScale.LEADING_SNUG, headingRole.letterSpacing)
-
-    // p, muted, blockquote: font-sans text-body, text-pretty.
-    private val paragraph = qeetrixTextStyle(QeetrixFont.Sans, body.size, body.lineHeight).copy(lineBreak = LineBreak.Paragraph)
-
-    // lead: font-sans text-base/relaxed.
-    private val lead =
-        qeetrixTextStyle(
-            QeetrixFont.Sans,
-            QeetrixWebScale.TextBase.size,
-            QeetrixWebScale.LEADING_RELAXED,
-        ).copy(lineBreak = LineBreak.Paragraph)
-
-    // large: font-sans text-lg/snug font-semibold.
-    private val large = qeetrixTextStyle(QeetrixFont.Sans, QeetrixWebScale.TextLg.size, QeetrixWebScale.LEADING_SNUG, FontWeightSemibold)
-
-    // small: font-ui text-label font-medium.
-    private val small = qeetrixTextStyle(QeetrixFont.Ui, label.size, label.lineHeight, label.weight)
-
-    // inlineCode: font-mono, 0.875em of the body text it sits in, font-normal.
-    private val inlineCode =
-        qeetrixTextStyle(
-            QeetrixFont.Mono,
-            body.size * QeetrixTypographyComponentTokens.CodeFontSize.value,
-            body.lineHeight / QeetrixTypographyComponentTokens.CodeFontSize.value,
-        )
-
-    fun style(
-        variant: QeetrixTextVariant,
-        wide: Boolean,
-    ): TextStyle =
-        when (variant) {
-            QeetrixTextVariant.H1 -> if (wide) h1Wide else h1
-            QeetrixTextVariant.H2 -> if (wide) h2Wide else h2
-            QeetrixTextVariant.H3 -> if (wide) h3Wide else h3
-            QeetrixTextVariant.H4 -> h4
-            QeetrixTextVariant.P, QeetrixTextVariant.Muted, QeetrixTextVariant.Blockquote -> paragraph
-            QeetrixTextVariant.Lead -> lead
-            QeetrixTextVariant.Large -> large
-            QeetrixTextVariant.Small -> small
-            QeetrixTextVariant.InlineCode -> inlineCode
-        }
+    return base.copy(fontWeight = fontWeight)
 }

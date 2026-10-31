@@ -23,29 +23,26 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatar
 import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatarSize
 import com.qeetgroup.qeetrix.components.badge.QeetrixBadge
-import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeVariant
+import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.card.QeetrixCard
-import com.qeetgroup.qeetrix.components.checkbox.QeetrixCheckbox
+import com.qeetgroup.qeetrix.components.checkbox.QeetrixCheckboxGroup
 import com.qeetgroup.qeetrix.components.form.QeetrixFormActions
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessageTone
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldSet
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldSetLegend
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
 import com.qeetgroup.qeetrix.components.input.QeetrixTextField
 import com.qeetgroup.qeetrix.components.input.QeetrixTextarea
 import com.qeetgroup.qeetrix.components.numberfield.QeetrixNumberField
 import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPInput
+import com.qeetgroup.qeetrix.components.passwordinput.QeetrixPasswordAutoComplete
 import com.qeetgroup.qeetrix.components.passwordinput.QeetrixPasswordInput
-import com.qeetgroup.qeetrix.components.passwordinput.QeetrixPasswordPurpose
 import com.qeetgroup.qeetrix.components.radiogroup.QeetrixRadioGroup
 import com.qeetgroup.qeetrix.components.select.QeetrixSelect
 import com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
@@ -71,8 +68,7 @@ fun AccountPreferencesScreen() {
     var language by rememberSaveable { mutableStateOf("en") }
     var digest by rememberSaveable { mutableStateOf(Digest.Weekly) }
     var pageSize by rememberSaveable { mutableStateOf<Int?>(25) }
-    var mentions by rememberSaveable { mutableStateOf(true) }
-    var invites by rememberSaveable { mutableStateOf(false) }
+    var notify by rememberSaveable { mutableStateOf(setOf("mentions")) }
     val feedback = rememberTextFieldState()
     var saving by remember { mutableStateOf(false) }
     var saved by rememberSaveable { mutableStateOf(false) }
@@ -83,31 +79,26 @@ fun AccountPreferencesScreen() {
             saved = true
         }
     }
-    val nameMessage = if (name.text.isBlank()) QeetrixFieldMessage("Enter your name.") else null
-    val codeMessage =
-        when {
-            !twoStep -> null
-            code.text.length < 6 -> null
-            else -> QeetrixFieldMessage("Code entered", QeetrixFieldMessageTone.Success)
-        }
-    val canSave = nameMessage == null && (!twoStep || code.text.length == 6)
+    val nameError = if (name.text.isBlank()) "Enter your name." else null
+    val codeComplete = code.text.length == 6
+    val canSave = nameError == null && (!twoStep || codeComplete)
 
     SamplePage {
         QeetrixCard(title = "Profile") {
-            Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.fieldGap)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.M), verticalAlignment = Alignment.CenterVertically) {
-                    QeetrixAvatar(name.text.toString().ifBlank { null }, size = QeetrixAvatarSize.Xl)
+            Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.spaceFormGap)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd), verticalAlignment = Alignment.CenterVertically) {
+                    QeetrixAvatar(name.text.toString(), size = QeetrixAvatarSize.Xl)
                     QeetrixText(
                         "Your name and picture are shown to people in your workspaces.",
                         Modifier.weight(1f),
-                        variant = QeetrixTextVariant.Muted,
+                        tone = QeetrixTextTone.Subtle,
                     )
                 }
                 QeetrixTextField(
                     name,
                     label = "Display name",
                     required = true,
-                    message = nameMessage,
+                    error = nameError,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 )
                 QeetrixTextField(
@@ -119,12 +110,12 @@ fun AccountPreferencesScreen() {
             }
         }
         QeetrixCard(title = "Security", description = "A demonstration: nothing here signs you in or changes a password.") {
-            Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.fieldGap)) {
+            Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.spaceFormGap)) {
                 QeetrixPasswordInput(
                     newPassword,
                     label = "New password",
-                    purpose = QeetrixPasswordPurpose.New,
                     optional = true,
+                    autoComplete = QeetrixPasswordAutoComplete.NewPassword,
                     description = "Leave empty to keep your current one.",
                 )
                 QeetrixSwitch(twoStep, { twoStep = it }, label = "Two-step verification", description = "Ask for a code when signing in.")
@@ -132,15 +123,14 @@ fun AccountPreferencesScreen() {
                     QeetrixOTPInput(
                         code,
                         label = "Verification code",
-                        groupSize = 3,
-                        description = "Enter any six digits.",
-                        message = codeMessage,
+                        groups = listOf(3, 3),
+                        description = if (codeComplete) "Code entered." else "Enter any six digits.",
                     )
                 }
             }
         }
         QeetrixCard(title = "Preferences") {
-            Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.fieldGap)) {
+            Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.spaceFormGap)) {
                 QeetrixSelect(
                     language,
                     { language = it },
@@ -162,11 +152,13 @@ fun AccountPreferencesScreen() {
                     ),
                     label = "Email digest",
                 )
-                QeetrixNumberField(pageSize, { pageSize = it }, label = "Items per page", range = 10..100, step = 5)
-                QeetrixFieldSet("Notify me about", legendStyle = QeetrixFieldSetLegend.Label) {
-                    QeetrixCheckbox(mentions, { mentions = it }, label = "Mentions")
-                    QeetrixCheckbox(invites, { invites = it }, label = "Invitations")
-                }
+                QeetrixNumberField(pageSize, { pageSize = it }, label = "Items per page", min = 10, max = 100, step = 5)
+                QeetrixCheckboxGroup(
+                    notify,
+                    { notify = it },
+                    listOf(QeetrixOption("mentions", "Mentions"), QeetrixOption("invitations", "Invitations")),
+                    label = "Notify me about",
+                )
             }
         }
         QeetrixCard(title = "Feedback") {
@@ -174,7 +166,7 @@ fun AccountPreferencesScreen() {
         }
         if (saved) {
             Row(Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }) {
-                QeetrixBadge("Preferences saved", variant = QeetrixBadgeVariant.Success, icon = QeetrixIconName.CircleCheck)
+                QeetrixBadge("Preferences saved", tone = QeetrixBadgeTone.Success, icon = QeetrixIconName.CircleCheck)
             }
         }
         QeetrixFormActions {
@@ -184,7 +176,8 @@ fun AccountPreferencesScreen() {
                     name.setTextAndPlaceCursorAtEnd(SAVED_NAME)
                     saved = false
                 },
-                variant = QeetrixButtonVariant.Outline,
+                variant = QeetrixButtonVariant.Ghost,
+                size = QeetrixButtonSize.Lg,
                 enabled = !saving,
             )
             QeetrixButton(
@@ -193,9 +186,9 @@ fun AccountPreferencesScreen() {
                     saved = false
                     saving = true
                 },
+                size = QeetrixButtonSize.Lg,
                 enabled = canSave,
                 loading = saving,
-                loadingLabel = "Saving…",
             )
         }
     }

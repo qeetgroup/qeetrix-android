@@ -1,45 +1,56 @@
 # Checkbox
 
-`QeetrixCheckbox`, `QeetrixTriStateCheckbox` · `components.checkbox` · web: [Checkbox](https://ui.qeet.in/docs/components/checkbox) ·
-sample: Forms & inputs → Checkbox
+`QeetrixCheckbox`, `QeetrixCheckboxGroup` · `components.checkbox` · `@qeetrix/react`: Checkbox, CheckboxGroup
+([Checkbox](https://ui.qeet.in/components/checkbox)) · sample: Forms → Checkbox
 
-A choice that is on or off — or mixed, for a "select all" over a partly selected list.
+Turn one option on or off, or pick several under one question.
 
 ```kotlin
 QeetrixCheckbox(updates, { updates = it }, label = "Product updates", description = "About once a month.")
-QeetrixTriStateCheckbox(allState, onClick = { selectAll(allState != ToggleableState.On) }, label = "All members")
+
+QeetrixCheckboxGroup(channels, { channels = it },
+    listOf(QeetrixOption("email", "Email"), QeetrixOption("sms", "SMS")), label = "Notify me by",
+    error = if (channels.isEmpty()) "Choose at least one way to reach you." else null)
 ```
 
-## Usage
+## API
 
-- The labelled overloads make the whole row the control: box at the start, label and description after.
-  The bare overloads draw the box alone; give it a name from its context.
-- State is yours: `checked` + `onCheckedChange`, or `state` + `onClick` for tri-state. Pass `null` to show a
-  state the user cannot change.
-- **Mixed.** `QeetrixTriStateCheckbox` shows the state you pass. The usual rule: a tap selects everything
-  from unchecked or mixed and clears everything from checked, so mixed comes only from the items.
-- Group several in a [`QeetrixFieldSet`](Field.md); its message applies to each. Consent and agreement
-  rules are the app's.
+| `@qeetrix/react` | Android |
+|:--|:--|
+| `checked` / `onCheckedChange` | `checked` / `onCheckedChange: ((Boolean) -> Unit)?` |
+| `indeterminate` | `indeterminate` — a tap calls `onCheckedChange(!checked)` |
+| `label`, `description`, `icon` | `label`, `description`, `icon` |
+| no label + `aria-label` | the overload without `label`; name it from its row |
+| `disabled`, `readOnly` | `enabled` (inverted), `readOnly` (or `onCheckedChange = null`) |
+| CheckboxGroup `value` / `onValueChange`, `label`, `description`, `error` | `value: Set<T>` / `onValueChange`, `options: List<QeetrixOption<T>>`, `label`, `description`, `error` |
+| `orientation`: `vertical` · `horizontal` | `QeetrixChoiceOrientation.Vertical` / `Horizontal` |
+| `variant`: `default` · `tile`, `columns` 1–4 | `QeetrixChoiceVariant.Default` / `Tile`, `columns` |
+| `parent` + `allValues` | not ported: compose a select-all with `indeterminate` (see the sample) |
 
-## States
+`QeetrixTriStateCheckbox` is gone: use `indeterminate`.
 
-Unchecked, checked, mixed (a dash), invalid (`invalid = true`, or the set's error), disabled, read-only.
-Checked and mixed are the Ember fill with a light glyph and the darker `border-brand` edge.
+## Look (design rules §9, checkbox.css)
+
+- A 16 dp box, 2 dp corners, a 1 dp `color.border.strong` edge on `color.bg.input`; hover
+  `color.border.strong-hover`. Checked: `color.bg.brand.bold` fill and edge with a white 12 dp sharp tick
+  (stroke 3); indeterminate: the same with a dash. Invalid (an `invalid` box, or inside a group or field with an
+  error): `color.border.danger`, checked or not and under the pointer too (checkbox.css 0.4.0, QTRX-161). Disabled: `color.bg.disabled`, `color.border.disabled`, a `color.icon.disabled`
+  mark, `color.text.disabled`.
+- The label follows the box, 8 dp after it, in `body.md`; the description under the label in `body.sm`, 24 dp in.
+- **Group**: the question in the field-label style, then the options — stacked, or wrapping 16 dp apart — then the
+  description or the error.
+- **Tiles**: `color.surface.default` with a 1 dp `color.border.subtle` edge, 4 dp corners, 12 dp padding; the
+  icon in a 36 dp `color.bg.neutral.subtle` box, the title at `title.sm`'s weight, the box at the end; chosen,
+  `color.bg.selected` with a 2 dp `color.border.brand` edge. As many columns as fit 192 dp tiles, up to `columns`.
 
 ## Accessibility
 
-A checkbox role with its state — "partially checked" for mixed. The labelled row is one control reading
-label, description and state. Rows are at least 48 dp tall and sit flush in a field set; the bare box
-reserves 48 dp.
-
-## Theme and tokens
-
-`component.input.*` at rest (the field's fill and ≥3:1 boundary), `action.primary` and `border.brand`
-when chosen, `text.on-brand` for the glyph, `corner.sm`, the `check` and `minus` icons at stroke 3.
+The whole row — label and description — is one checkbox, read with its state ("partially checked" when
+indeterminate). A group's question is a heading; its error is carried by every option. Keyboard focus draws the
+2 dp Ember frame 2 dp outside the box (round the tile for tiles).
 
 ## Platform differences
 
-- The web box carries a 24 px pointer target; Android rows are 48 dp touch targets (iOS: 44 pt).
-- Android has a checkbox role; iOS has none, and VoiceOver reads its checkbox as a toggle.
+- **Rows** are 48 dp touch targets and sit flush; the web's rows are 24 px, 4 px apart.
 
 Related: [Radio group](RadioGroup.md), [Switch](Switch.md), [Field](Field.md).

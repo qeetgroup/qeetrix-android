@@ -15,9 +15,8 @@ import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
 import com.qeetgroup.qeetrix.components.navigation.QeetrixNavigationRail
-import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.components.typography.QeetrixHeading
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
@@ -31,14 +30,15 @@ fun NavigationRailSample() {
         SampleSection("Rail with a header") {
             var destination by rememberSaveable { mutableStateOf(SampleDestination.Home) }
             Row(Modifier.height(420.dp)) {
-                QeetrixNavigationRail(sampleDestinations(), selected = destination, onSelect = { destination = it }) {
-                    QeetrixIconButton(QeetrixIconName.Plus, "New message", onClick = {}, variant = QeetrixButtonVariant.Default)
+                QeetrixNavigationRail(sampleDestinations(), value = destination, onValueChange = { destination = it }) {
+                    QeetrixIconButton(QeetrixIconName.Plus, "New message", onClick = {}, variant = QeetrixButtonVariant.Solid)
                 }
-                Box(Modifier.padding(QeetrixSpacing.L)) { QeetrixText(destination.title, variant = QeetrixTextVariant.H3) }
+                Box(Modifier.padding(QeetrixSpace.InsetLg)) { QeetrixHeading(destination.title, level = 3) }
             }
             SampleNote(
-                "The selected destination keeps the sidebar's indicator on its inline start. At large text sizes the rail " +
-                    "widens to fit its labels; it scrolls when the destinations do not fit its height.",
+                "The current destination has the Ember bar on its start edge and a filled, round Ember icon, as the web " +
+                    "Sidebar marks the current page. Each label stays under its icon; at large text sizes the rail widens " +
+                    "to fit them, and it scrolls when the destinations do not fit its height.",
             )
         }
     }

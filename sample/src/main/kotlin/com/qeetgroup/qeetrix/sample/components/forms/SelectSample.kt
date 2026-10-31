@@ -6,49 +6,72 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
+import com.qeetgroup.qeetrix.components.input.QeetrixOptionGroup
 import com.qeetgroup.qeetrix.components.select.QeetrixSelect
 import com.qeetgroup.qeetrix.components.select.QeetrixSelectSize
+import com.qeetgroup.qeetrix.sample.SampleFlow
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-private val Regions =
-    listOf(
-        QeetrixOption("in", "India (Mumbai)"),
-        QeetrixOption("ae", "United Arab Emirates (Dubai)"),
-        QeetrixOption("eu", "European Union (Frankfurt)", "Data stays inside the EU."),
-        QeetrixOption("us", "United States (Virginia)", enabled = false),
-    )
-
-/** Choosing from a short list: a placeholder until chosen, descriptions, a disabled option, sizes and states. */
+/** Choosing from a short list: a typed choice, options in groups with counts, toolbar sizes, and the states. */
 @Composable
 fun SelectSample() {
     SamplePage {
-        SampleSection("Data region") {
-            var region by rememberSaveable { mutableStateOf<String?>(null) }
+        SampleSection("Billing cycle") {
+            var cycle by rememberSaveable { mutableStateOf<String?>(null) }
+            QeetrixSelect(
+                cycle,
+                { cycle = it },
+                listOf(
+                    QeetrixOption("monthly", "Monthly"),
+                    QeetrixOption("yearly", "Yearly"),
+                    QeetrixOption("custom", "Custom", enabled = false),
+                ),
+                label = "Billing cycle",
+                placeholder = "e.g. Monthly",
+                error = if (cycle == null) "Choose a billing cycle." else null,
+            )
+            SampleNote("Chosen: ${cycle ?: "nothing yet"}. The list opens below, closes on a choice, Back or a tap outside.")
+        }
+        SampleSection("Regions, in groups") {
+            var region by rememberSaveable { mutableStateOf("blr") }
             QeetrixSelect(
                 region,
                 { region = it },
-                Regions,
+                listOf(
+                    QeetrixOptionGroup(
+                        "India",
+                        listOf(QeetrixOption("blr", "Bengaluru", meta = "412"), QeetrixOption("bom", "Mumbai", meta = "38")),
+                    ),
+                    QeetrixOptionGroup("Singapore", listOf(QeetrixOption("sin", "Singapore", meta = "7"))),
+                ),
                 label = "Data region",
-                placeholder = "Choose a region",
-                description = "Where your workspace's data is stored.",
-                required = true,
-                message = if (region == null) QeetrixFieldMessage("Choose a region.") else null,
+                description = "Where your data is stored.",
             )
-            SampleNote(
-                "The list opens below the field, or above when there is more room there, and closes on a choice, a tap " +
-                    "outside or Back. From a keyboard, Enter opens it on the selected option.",
-            )
+            SampleNote("The count after each option is read with it but not shown in the closed field.")
         }
-        SampleSection("Sizes and states") {
-            var plan by rememberSaveable { mutableStateOf(SamplePlan.Team) }
-            QeetrixSelect(plan, { plan = it }, SamplePlanOptions, label = "Plan (small)", size = QeetrixSelectSize.Sm)
-            QeetrixSelect("in", {}, Regions, label = "Read-only", readOnly = true)
-            QeetrixSelect("in", {}, Regions, label = "Disabled", enabled = false)
+        SampleSection("Toolbar sizes") {
+            var style by rememberSaveable { mutableStateOf("body") }
+            val styles = listOf(QeetrixOption("body", "Body"), QeetrixOption("heading", "Heading"), QeetrixOption("quote", "Quote"))
+            SampleFlow {
+                QeetrixSelect(style, { style = it }, styles, label = "Paragraph style", size = QeetrixSelectSize.Md, hideLabel = true)
+                QeetrixSelect(
+                    style,
+                    { style = it },
+                    styles,
+                    label = "Paragraph style, small",
+                    size = QeetrixSelectSize.Sm,
+                    hideLabel = true,
+                )
+            }
+        }
+        SampleSection("Read-only and disabled") {
+            val plans = listOf(QeetrixOption("team", "Team"), QeetrixOption("business", "Business"))
+            QeetrixSelect("team", {}, plans, label = "Plan", readOnly = true)
+            QeetrixSelect("business", {}, plans, label = "Plan", enabled = false, description = "Your admin sets this.")
         }
     }
 }

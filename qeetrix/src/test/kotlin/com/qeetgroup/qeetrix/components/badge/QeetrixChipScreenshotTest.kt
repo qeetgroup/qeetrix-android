@@ -1,6 +1,8 @@
 package com.qeetgroup.qeetrix.components.badge
 
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
+import com.qeetgroup.qeetrix.components.input.rememberFocusedSource
+import com.qeetgroup.qeetrix.components.input.rememberHoveredSource
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
 import com.qeetgroup.qeetrix.screenshot.ScreenshotFlow
@@ -12,7 +14,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-/** Baselines in `src/test/screenshots/chip/`: selected and resting in each size, an icon, disabled, removable, a group. */
+/** Baselines for [QeetrixChip] and [QeetrixChipGroup] in `src/test/screenshots/chip/`. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = SCREENSHOT_QUALIFIERS)
@@ -23,20 +25,37 @@ class QeetrixChipScreenshotTest {
             ScreenshotStack {
                 for (size in QeetrixChipSize.entries) {
                     ScreenshotFlow {
+                        QeetrixChip("Unread ${size.value}", selected = false, onSelectedChange = {}, size = size)
                         QeetrixChip("Selected", selected = true, onSelectedChange = {}, size = size)
-                        QeetrixChip("Resting", selected = false, onSelectedChange = {}, size = size)
+                        QeetrixChip("Status: Active", onRemove = {}, size = size)
                     }
                 }
                 ScreenshotFlow {
-                    QeetrixChip("Mine", selected = true, onSelectedChange = {}, icon = QeetrixIconName.UserRound)
-                    QeetrixChip("Archived", selected = false, onSelectedChange = {}, enabled = false)
-                    QeetrixChip("Owner: Ada", onRemove = {})
+                    QeetrixChip("Hovered", selected = false, onSelectedChange = {}, interactionSource = rememberHoveredSource())
+                    QeetrixChip("Focused", selected = true, onSelectedChange = {}, interactionSource = rememberFocusedSource())
+                    QeetrixChip("Starred", selected = true, onSelectedChange = {}, icon = QeetrixIconName.Bell)
+                    QeetrixChip("Disabled", selected = false, onSelectedChange = {}, enabled = false)
+                    QeetrixChip("Disabled", selected = true, onSelectedChange = {}, enabled = false)
+                    QeetrixChip("Removed", onRemove = {}, enabled = false)
                 }
                 QeetrixChipGroup(
-                    label = "Labels",
-                    selected = setOf("Design", "Legal"),
-                    onSelectedChange = {},
-                    options = listOf("Design", "Engineering", "Finance", "Legal", "Marketing").map { QeetrixOption(it, it) },
+                    label = "Status",
+                    value = "open",
+                    onValueChange = {},
+                    options =
+                        listOf(
+                            QeetrixOption("all", "All"),
+                            QeetrixOption("open", "Open"),
+                            QeetrixOption("closed", "Closed"),
+                            QeetrixOption("draft", "Draft", enabled = false),
+                        ),
+                )
+                QeetrixChipGroup(
+                    label = "Departments",
+                    values = setOf("Design", "Legal"),
+                    onValuesChange = {},
+                    options = listOf("Design", "Engineering", "Finance", "Legal", "People operations").map { QeetrixOption(it, it) },
+                    size = QeetrixChipSize.Sm,
                 )
             }
         }

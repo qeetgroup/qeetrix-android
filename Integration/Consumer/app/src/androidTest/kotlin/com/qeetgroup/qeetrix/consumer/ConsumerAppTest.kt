@@ -49,7 +49,7 @@ class ConsumerAppTest {
     fun theFontsAndStringsResolveFromTheArtifact() {
         val context = compose.activity
         // The library's own R class, from the AAR: fonts and strings reach the app's resources.
-        assertNotNull(ResourcesCompat.getFont(context, com.qeetgroup.qeetrix.R.font.qx_cal_sans_vf))
+        assertNotNull(ResourcesCompat.getFont(context, com.qeetgroup.qeetrix.R.font.qx_qeet_sans_vf))
         assertNotNull(ResourcesCompat.getFont(context, com.qeetgroup.qeetrix.R.font.qx_fira_code_vf))
         assertEquals("Cancel", context.getString(com.qeetgroup.qeetrix.R.string.qx_cancel))
     }
@@ -58,7 +58,7 @@ class ConsumerAppTest {
     fun foundationsRenderAndRespond() {
         compose.onNodeWithText("Qeetrix consumer").assertIsDisplayed()
         compose.onNodeWithContentDescription("Home icon").assertIsDisplayed()
-        compose.onNodeWithContentDescription("Primary swatch").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Brand swatch").assertIsDisplayed()
         compose.onNodeWithText("Primary action").performClick()
         compose.onNodeWithText("Pressed 1 times").assertIsDisplayed()
         compose.onNode(hasSetTextAction() and hasText("Display name")).performTextInput("Ada")

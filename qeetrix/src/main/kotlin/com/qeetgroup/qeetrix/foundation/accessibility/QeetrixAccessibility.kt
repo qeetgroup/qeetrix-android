@@ -14,8 +14,8 @@ import kotlin.math.pow
 public object QeetrixAccessibility {
     /**
      * The minimum size of a touch target, 48 × 48 dp (Android accessibility guidance; it also exceeds
-     * WCAG 2.2's 24 × 24 CSS px target size). Not a Qeetrix token: the web's control heights
-     * ([com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity], 28–36 dp) are pointer-sized, so a
+     * WCAG 2.2's 24 × 24 CSS px target size, `size.target.min`). Not a Qeetrix token: the web's control
+     * heights ([com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity], 24–44 dp) are pointer-sized, so a
      * control drawn at those heights must still give its touch area this size.
      */
     public val MinimumTouchTarget: Dp = 48.dp
@@ -23,7 +23,7 @@ public object QeetrixAccessibility {
     /**
      * The WCAG 2.x contrast ratio of [foreground] over [background], from 1 to 21. A translucent
      * foreground is composited over the background first, in gamma-encoded sRGB, as browsers and
-     * qeetrix-ui's contrast gate do; the background is treated as opaque. Display P3 colours are
+     * @qeetrix/tokens' contrast tests do; the background is treated as opaque. Display P3 colours are
      * converted to sRGB first.
      */
     public fun contrastRatio(
@@ -57,19 +57,17 @@ public object QeetrixAccessibility {
 }
 
 /**
- * Focus indicator geometry (`focus.*`), in dp. The colour is
- * [com.qeetgroup.qeetrix.foundation.color.QeetrixColors.focusRing]; `focus.ring-style` is always
- * solid.
+ * The focus frame (`focus.ring.*`), in dp: keyboard focus is a 2 dp Ember frame in
+ * [com.qeetgroup.qeetrix.foundation.color.QeetrixColors.borderFocus], never removed and never replaced by
+ * colour alone (design rules §10). Buttons and fields draw it inside their edge; checkboxes, radios,
+ * switches, links, tags and tabs [RingOffset] outside; rows and menu items inside the row.
  */
 public object QeetrixFocus {
-    /** `focus.ring-width` */
+    /** `focus.ring.width` */
     public val RingWidth: Dp = QeetrixFocusTokens.RingWidth
 
-    /** `focus.outline-width` */
-    public val OutlineWidth: Dp = QeetrixFocusTokens.OutlineWidth
-
-    /** `focus.offset` — the gap between a control and its focus ring. */
-    public val Offset: Dp = QeetrixFocusTokens.Offset
+    /** `focus.ring.offset` — the gap between a control and a frame drawn outside it. */
+    public val RingOffset: Dp = QeetrixFocusTokens.RingOffset
 }
 
 /**

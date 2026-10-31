@@ -1,8 +1,9 @@
 package com.qeetgroup.qeetrix.components.button
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -12,16 +13,13 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -29,52 +27,139 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.R
 import com.qeetgroup.qeetrix.foundation.accessibility.qeetrixMinimumTouchTarget
-import com.qeetgroup.qeetrix.foundation.color.QeetrixOpacity
-import com.qeetgroup.qeetrix.foundation.elevation.QeetrixElevation
-import com.qeetgroup.qeetrix.foundation.elevation.qeetrixElevation
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixDuration
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixEasing
+import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
 import com.qeetgroup.qeetrix.foundation.motion.qeetrixAnimationSpec
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
-import com.qeetgroup.qeetrix.internal.qeetrixFocusRing
+import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
+import com.qeetgroup.qeetrix.internal.FocusFrame
+import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixButtonComponentTokens
 
-/** The geometry of one button size: the web size class, resolved. */
+/** The geometry of one button size (button.css `data-size`), resolved for the current density. */
 internal class ButtonMetrics(
-    /** The drawn height (`h-*`, or `size-*` for a square icon button). */
+    /** `block-size: size.control.*`. */
     val height: Dp,
-    /** True for the icon sizes: a square of [height]. */
-    val square: Boolean,
-    val corner: Dp,
-    /** `px-*`. */
-    val padding: Dp,
-    /** `ps-*`/`pe-*` beside a leading or trailing icon. */
-    val iconSidePadding: Dp,
-    /** `gap-*`. */
+    /** `padding-inline-start` before the label. */
+    val labelPadding: Dp,
+    /** `gap`: from the label to the icon zone's rule. */
     val gap: Dp,
-    /** The icon box (`[&_svg]:size-*`). */
+    /** The icon zone's `padding-inline`, on each side of the icon. */
+    val zonePadding: Dp,
+    /** The zone's rule: `block-size` of the `::before`. */
+    val ruleHeight: Dp,
+    /** control.ts `iconSize`: 16, 20 in `lg`. */
     val iconSize: Dp,
     val textStyle: TextStyle,
-)
+) {
+    /**
+     * The space above and below the label line: half of what `block-size` leaves around the role's line height
+     * at the default font size. At 100 % text the button is exactly `block-size` tall, as on the web; as the
+     * text grows the button grows around it, keeping that space instead of letting the label touch its edges.
+     */
+    val labelInset: Dp
+        get() = ((height - (textStyle.fontSize.value * textStyle.lineHeight.value).dp) / 2).coerceAtLeast(0.dp)
+}
 
-private class ButtonColors(
+/** button.css per size. */
+@Composable
+internal fun buttonMetrics(size: QeetrixButtonSize): ButtonMetrics {
+    val density = QeetrixTheme.density
+    val typography = QeetrixTheme.typography
+    return when (size) {
+        // block-size size.control.sm; label.sm; gap 8px; padding-inline 10px; zone 8px; rule size.icon.xs
+        QeetrixButtonSize.Sm -> {
+            ButtonMetrics(density.sizeControlSm, 10.dp, 8.dp, 8.dp, QeetrixSize.IconXs, QeetrixSize.IconSm, typography.labelSm)
+        }
+
+        // block-size size.control.md; label.md; gap 12px; padding-inline 14px; zone 10px; rule size.icon.sm
+        QeetrixButtonSize.Md -> {
+            ButtonMetrics(density.sizeControlMd, 14.dp, 12.dp, 10.dp, QeetrixSize.IconSm, QeetrixSize.IconSm, typography.labelMd)
+        }
+
+        // block-size size.control.lg; label.md; gap 14px; padding-inline 16px; zone 12px; rule size.icon.md
+        QeetrixButtonSize.Lg -> {
+            ButtonMetrics(density.sizeControlLg, 16.dp, 14.dp, 12.dp, QeetrixSize.IconMd, QeetrixSize.IconMd, typography.labelMd)
+        }
+    }
+}
+
+/** A button's fill and label colour in one state. */
+internal class ButtonColors(
     val background: Color,
     val content: Color,
-    val border: Color,
-    /** `shadow-xs`, which a press settles flat. */
-    val shadow: Boolean,
 )
 
 /**
- * The surface every Button-family control shares: the Qeet interaction language of qeetrix-ui's
- * `buttonVariants`. Rest is the variant's own surface; hover takes one step along its ladder and a press
- * the next, a resting hairline shadow settling flat (no ripple: the step is the feedback); keyboard focus
- * draws the focus ring; disabled fades (the primary turns graphite instead); loading keeps full colour,
- * ignores activation, keeps focus and reports a busy state.
+ * button.css's colours for a variant and tone in a state. A `solid` `neutral` button steps as `soft` does (06 §1, "a
+ * solid or soft neutral button looks like soft"), and a `ghost` `danger` press stays in the danger tint: the tokens
+ * have no `bg.danger.subtle-pressed`.
+ */
+@Composable
+internal fun buttonColors(
+    variant: QeetrixButtonVariant,
+    tone: QeetrixButtonTone,
+    enabled: Boolean,
+    hovered: Boolean,
+    pressed: Boolean,
+): ButtonColors {
+    val c = QeetrixTheme.colors
+
+    fun step(
+        rest: Color,
+        hover: Color,
+        press: Color,
+    ) = when {
+        pressed -> press
+        hovered -> hover
+        else -> rest
+    }
+    if (!enabled) {
+        // [data-disabled]:not([data-loading]): bg-disabled / text-disabled; a ghost keeps no fill.
+        return ButtonColors(if (variant == QeetrixButtonVariant.Ghost) Color.Transparent else c.bgDisabled, c.textDisabled)
+    }
+    return when {
+        variant == QeetrixButtonVariant.Ghost && tone == QeetrixButtonTone.Brand -> {
+            ButtonColors(step(Color.Transparent, c.bgBrandSubtle, c.bgBrandSubtlePressed), c.textBrand)
+        }
+
+        variant == QeetrixButtonVariant.Ghost && tone == QeetrixButtonTone.Danger -> {
+            // .qx-button[data-tone="danger"][data-variant="ghost"]:is(:hover, :active): bg-danger-subtle
+            ButtonColors(step(Color.Transparent, c.bgDangerSubtle, c.bgDangerSubtle), c.textDanger)
+        }
+
+        variant == QeetrixButtonVariant.Ghost -> {
+            // neutral: text-subtle; hover bg-neutral-subtle + text-default; active bg-neutral-subtle-pressed
+            ButtonColors(
+                step(Color.Transparent, c.bgNeutralSubtle, c.bgNeutralSubtlePressed),
+                if (hovered || pressed) c.textDefault else c.textSubtle,
+            )
+        }
+
+        tone == QeetrixButtonTone.Danger -> {
+            ButtonColors(step(c.bgDangerBold, c.bgDangerBoldHover, c.bgDangerBoldPressed), c.textOnBold)
+        }
+
+        variant == QeetrixButtonVariant.Soft || tone == QeetrixButtonTone.Neutral -> {
+            // .qx-button[data-tone="neutral"]:not([data-variant="ghost"]):hover / :active: bg-neutral-bold-hover / -pressed
+            ButtonColors(step(c.bgNeutralBold, c.bgNeutralBoldHover, c.bgNeutralBoldPressed), c.textInverse)
+        }
+
+        else -> {
+            ButtonColors(step(c.bgBrandBold, c.bgBrandBoldHover, c.bgBrandBoldPressed), c.textOnBrand)
+        }
+    }
+}
+
+/**
+ * The surface every Button-family control shares (`.qx-button`): the fill steps to its `-hover` and
+ * `-pressed` tokens with no ripple, scaling or movement (design rules §7), in `motion.duration.fast`;
+ * keyboard focus draws the 2 dp Ember frame inside the edge with a 1 dp surface gap; disabled takes the
+ * disabled colours and stays focusable, so the reason it is disabled can be read; loading keeps its
+ * colours, ignores activation, keeps focus and reports a busy state.
  *
  * The drawn control keeps the web's size; [qeetrixMinimumTouchTarget] reserves a 48 × 48 dp touch area
  * around it, as Android requires.
@@ -84,157 +169,61 @@ internal fun ButtonFrame(
     onClick: () -> Unit,
     modifier: Modifier,
     variant: QeetrixButtonVariant,
+    tone: QeetrixButtonTone,
     metrics: ButtonMetrics,
+    square: Boolean,
     enabled: Boolean,
     loading: Boolean,
     interactionSource: MutableInteractionSource?,
+    horizontalArrangement: Arrangement.Horizontal,
     startPadding: Dp,
-    endPadding: Dp,
     semantics: SemanticsPropertyReceiver.() -> Unit,
-    content: @Composable RowScope.(contentColor: Color, underline: Boolean) -> Unit,
+    onLongClick: (() -> Unit)? = null,
+    content: @Composable RowScope.(contentColor: Color) -> Unit,
 ) {
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val hovered by source.collectIsHoveredAsState()
     val pressed by source.collectIsPressedAsState()
-    // data-loading:pointer-events-none — no hover or press styles while busy.
-    val colors = buttonColors(variant, enabled = enabled, loading = loading, hovered = hovered && !loading, pressed = pressed && !loading)
-    val fade = !enabled && !loading && variant != QeetrixButtonVariant.Default // disabled:not-data-loading:opacity-disabled
-    val motion = qeetrixAnimationSpec<Color>(QeetrixEasing.Standard, QeetrixDuration.Fast) // duration-fast ease-standard
+    // [data-loading] keeps the resting look; no hover or press styles while busy or disabled.
+    val active = enabled && !loading
+    val colors = buttonColors(variant, tone, enabled = enabled || loading, hovered = hovered && active, pressed = pressed && active)
+    val motion = qeetrixAnimationSpec<Color>(QeetrixMotion.EasingStandard, QeetrixMotion.DurationFast)
     val background by animateColorAsState(colors.background, motion, label = "button-background")
     val contentColor by animateColorAsState(colors.content, motion, label = "button-content")
-    val border by animateColorAsState(colors.border, motion, label = "button-border")
-    val shape = RoundedCornerShape(metrics.corner)
     val busy = stringResource(R.string.qx_loading)
+    val shape = QeetrixShapes.Control
 
     Row(
         modifier =
             modifier
-                .clickable(
+                .combinedClickable(
                     interactionSource = source,
                     indication = null,
-                    enabled = enabled || loading,
+                    enabled = active || loading,
                     role = Role.Button,
-                    onClick = { if (!loading) onClick() }, // loading ignores activation but keeps focus
-                ).semantics {
+                    onLongClick = onLongClick,
+                    onClick = { if (active) onClick() }, // loading ignores activation but keeps focus
+                ).then(if (enabled || loading) Modifier else Modifier.focusable(interactionSource = source)) // focusableWhenDisabled
+                .semantics {
                     semantics()
                     if (loading) stateDescription = busy
                 }.qeetrixMinimumTouchTarget()
-                .qeetrixFocusRing(source, shape)
-                .then(if (fade) Modifier.alpha(QeetrixOpacity.Disabled) else Modifier)
-                .qeetrixElevation(if (colors.shadow) QeetrixElevation.RampXs else QeetrixElevation.Flat, shape, background)
-                .border(QeetrixStroke.Hairline, border, shape) // border (transparent unless outline)
+                .qeetrixFocusFrame(source, shape, FocusFrame.InsideWithGap)
+                .background(background, shape)
                 .then(
-                    if (metrics.square) {
+                    if (square) {
                         Modifier.size(metrics.height)
                     } else {
                         Modifier
                             .heightIn(min = metrics.height) // grows with the font scale instead of clipping
-                            .padding(start = startPadding + QeetrixStroke.Hairline, end = endPadding + QeetrixStroke.Hairline)
+                            .padding(start = startPadding, top = metrics.labelInset, bottom = metrics.labelInset)
                     },
                 ),
-        horizontalArrangement = Arrangement.spacedBy(metrics.gap, Alignment.CenterHorizontally),
+        horizontalArrangement = horizontalArrangement,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CompositionLocalProvider(LocalQeetrixContentColor provides contentColor) {
-            // hover:underline (link): shown on press too, as touch has no hover.
-            content(contentColor, variant == QeetrixButtonVariant.Link && (hovered || pressed) && !loading)
-        }
-    }
-}
-
-@Composable
-private fun buttonColors(
-    variant: QeetrixButtonVariant,
-    enabled: Boolean,
-    loading: Boolean,
-    hovered: Boolean,
-    pressed: Boolean,
-): ButtonColors {
-    val colors = QeetrixTheme.colors
-    val inherited = LocalQeetrixContentColor.current.takeOrElse { colors.textPrimary }
-    return when (variant) {
-        QeetrixButtonVariant.Default -> {
-            if (!enabled && !loading) {
-                // disabled:not-data-loading: bg-surface-interactive text-(--qx-color-text-disabled) opacity-100 shadow-none
-                ButtonColors(colors.surfaceInteractive, colors.textDisabled, Color.Transparent, shadow = false)
-            } else {
-                val background =
-                    when {
-                        pressed -> QeetrixButtonComponentTokens.PrimaryBackgroundActive
-                        hovered -> QeetrixButtonComponentTokens.PrimaryBackgroundHover
-                        else -> QeetrixButtonComponentTokens.PrimaryBackground
-                    }
-                ButtonColors(background, QeetrixButtonComponentTokens.PrimaryForeground, Color.Transparent, shadow = !pressed)
-            }
-        }
-
-        // border-(outline-border) bg-(outline-background) shadow-xs hover:bg-surface-interactive-hover active:bg-surface-interactive-active
-        QeetrixButtonVariant.Outline -> {
-            val background =
-                when {
-                    pressed -> colors.surfaceInteractiveActive
-                    hovered -> colors.surfaceInteractiveHover
-                    else -> QeetrixButtonComponentTokens.OutlineBackground
-                }
-            ButtonColors(
-                background,
-                if (hovered ||
-                    pressed
-                ) {
-                    colors.textPrimary
-                } else {
-                    inherited
-                },
-                QeetrixButtonComponentTokens.OutlineBorder,
-                shadow = !pressed,
-            )
-        }
-
-        // bg-surface-interactive text-secondary-foreground shadow-xs, hover/active ladder
-        QeetrixButtonVariant.Secondary -> {
-            val background =
-                when {
-                    pressed -> colors.surfaceInteractiveActive
-                    hovered -> colors.surfaceInteractiveHover
-                    else -> colors.surfaceInteractive
-                }
-            ButtonColors(background, colors.textOnSubtle, Color.Transparent, shadow = !pressed)
-        }
-
-        // transparent; hover:bg-surface-interactive-hover hover:text-foreground active:bg-surface-interactive-active
-        QeetrixButtonVariant.Ghost -> {
-            val background =
-                when {
-                    pressed -> colors.surfaceInteractiveActive
-                    hovered -> colors.surfaceInteractiveHover
-                    else -> Color.Transparent
-                }
-            ButtonColors(background, if (hovered || pressed) colors.textPrimary else inherited, Color.Transparent, shadow = false)
-        }
-
-        // bg-destructive-subtle text-destructive-text; hover/active: bg-destructive-strong text-on-feedback-strong
-        QeetrixButtonVariant.Destructive -> {
-            if (hovered || pressed) {
-                ButtonColors(colors.feedbackErrorStrong, colors.textOnFeedbackStrong, Color.Transparent, shadow = false)
-            } else {
-                ButtonColors(colors.feedbackErrorSubtle, colors.textDanger, Color.Transparent, shadow = false)
-            }
-        }
-
-        // text-link; hover:text-link-hover hover:underline. Touch has no hover, so a press shows it.
-        QeetrixButtonVariant.Link -> {
-            ButtonColors(
-                Color.Transparent,
-                if (hovered ||
-                    pressed
-                ) {
-                    colors.textLinkHover
-                } else {
-                    colors.textLink
-                },
-                Color.Transparent,
-                shadow = false,
-            )
+            content(contentColor)
         }
     }
 }

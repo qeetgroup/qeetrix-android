@@ -16,6 +16,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.setQeetrix
+import com.qeetgroup.qeetrix.foundation.layout.QeetrixBreakpoint
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -25,7 +26,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-/** The adaptive scaffold: a bar on a compact window, a rail from 600 dp, content state kept across the switch. */
+/** The adaptive scaffold: a bar on a compact window, a rail from `breakpoint.medium`, content state kept across the switch. */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixNavigationScaffoldTest {
     @get:Rule
@@ -38,17 +39,19 @@ class QeetrixNavigationScaffoldTest {
         )
 
     @Test
-    fun theLayoutFollowsTheWindowSizeClassBoundary() {
+    fun theLayoutFollowsTheMediumBreakpoint() {
+        assertEquals(600.dp, QeetrixBreakpoint.Medium)
         assertEquals(QeetrixNavigationLayout.Bar, QeetrixNavigationLayout.forWindowWidth(599.dp))
         assertEquals(QeetrixNavigationLayout.Rail, QeetrixNavigationLayout.forWindowWidth(600.dp))
         assertEquals(QeetrixNavigationLayout.Rail, QeetrixNavigationLayout.forWindowWidth(1280.dp))
+        assertEquals(listOf("bar", "rail"), QeetrixNavigationLayout.entries.map { it.value })
     }
 
     @Test
     @Config(qualifiers = "w411dp-h800dp")
     fun aCompactWindowHasTheBarBelowTheContent() {
         compose.setQeetrix {
-            QeetrixNavigationScaffold(items, selected = "home", onSelect = {}, modifier = Modifier.fillMaxSize()) {
+            QeetrixNavigationScaffold(items, value = "home", onValueChange = {}, modifier = Modifier.fillMaxSize()) {
                 Box(Modifier.fillMaxSize()) { QeetrixButton("Content", onClick = {}) }
             }
         }
@@ -59,9 +62,9 @@ class QeetrixNavigationScaffoldTest {
 
     @Test
     @Config(qualifiers = "w840dp-h600dp")
-    fun anExpandedWindowHasTheRailAtTheStart() {
+    fun aWideWindowHasTheRailAtTheStart() {
         compose.setQeetrix {
-            QeetrixNavigationScaffold(items, selected = "home", onSelect = {}, modifier = Modifier.fillMaxSize()) {
+            QeetrixNavigationScaffold(items, value = "home", onValueChange = {}, modifier = Modifier.fillMaxSize()) {
                 Box(Modifier.fillMaxSize()) { QeetrixButton("Content", onClick = {}) }
             }
         }
@@ -74,7 +77,7 @@ class QeetrixNavigationScaffoldTest {
     fun theContentKeepsItsStateWhenTheLayoutChanges() {
         var layout by mutableStateOf(QeetrixNavigationLayout.Bar)
         compose.setQeetrix {
-            QeetrixNavigationScaffold(items, selected = "home", onSelect = {}, modifier = Modifier.fillMaxSize(), layout = layout) {
+            QeetrixNavigationScaffold(items, value = "home", onValueChange = {}, modifier = Modifier.fillMaxSize(), layout = layout) {
                 var taps by remember { mutableIntStateOf(0) }
                 QeetrixButton("Tapped $taps", onClick = { taps++ })
             }

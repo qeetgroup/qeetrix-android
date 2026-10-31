@@ -1,57 +1,74 @@
-# Field and field set
+# Field
 
-`QeetrixField`, `QeetrixFieldSet` · `components.input` · web: [Field](https://ui.qeet.in/docs/components/field) ·
-sample: Forms & inputs → Field
+`QeetrixField`, `QeetrixFieldSet` · `components.input` · `@qeetrix/react`: Field, Fieldset
+([Input](https://ui.qeet.in/components/input)) · sample: Forms → Field
 
-The parts every Qeetrix input is made of — a label (with the required asterisk or "(optional)"), the
-control, a description and a message, 6 dp apart — and the group around related fields.
+The label, help text and error for a control Qeetrix does not provide, and a section of fields under a heading.
+Every Qeetrix input is built from the same parts — the label, the filled box, the description and the error —
+so every field reads and behaves the same.
 
 ```kotlin
-QeetrixField(label = "Tone", description = "How notifications sound.", required = true) {
-    ToneChooser(tone, onTone, Modifier.qeetrixFieldControl())   // a control Qeetrix does not provide
+QeetrixField(label = "Notification tone", description = "How alerts sound.", error = toneError) {
+    ToneSwatches(selected, onSelect, Modifier.qeetrixFieldControl())
 }
 
-QeetrixFieldSet("Notifications", description = "Choose how we reach you.", message = groupMessage) {
-    QeetrixCheckbox(email, { email = it }, label = "Email")
-    QeetrixCheckbox(push, { push = it }, label = "Push")
+QeetrixFieldSet("Billing address", description = "Where we send invoices.") {
+    QeetrixTextField(line1, label = "Address line 1")
+    QeetrixTextField(line2, label = "Address line 2", optional = true)
 }
 ```
 
-## Usage
+## API
 
-- **Qeetrix's inputs already carry a field.** Give `QeetrixTextField`, `QeetrixTextarea`,
-  `QeetrixPasswordInput`, `QeetrixOTPInput`, `QeetrixSelect` and `QeetrixNumberField` their `label`,
-  `description`, `message`, `required` and `optional` directly. Use `QeetrixField` only for a control
-  Qeetrix does not have.
-- **`qeetrixFieldControl()`** goes on the element accessibility services focus. It names the control by
-  the label ("Tone, required"), carries the error, and hides the visible label from TalkBack so it is read
-  once. A control that shows a value should expose it as its state description. Not for text fields.
-- **`QeetrixFieldSet`** groups fields or choices under a legend (`Legend` style, a heading) or a label
-  (`Label` style, as a radio group). Fields keep the density's field gap; checkbox, radio and switch rows
-  sit flush, each a 48 dp target. Its `message` is about the group ("Choose at least one") and every
-  checkbox and radio in it carries it. `enabled = false` disables every Qeetrix control inside.
-- Validation is your app's: compute a `QeetrixFieldMessage` and pass it. There is no form model.
+| `@qeetrix/react` | Android |
+|:--|:--|
+| `label` (required) | `label: String` (required) |
+| `description`, `error` | `description`, `error: String?` |
+| `invalid` | `invalid` — invalid without a message; the description stays |
+| `optional` | `optional` — appends "(optional)" (`qx_optional`) |
+| `hideLabel` | `hideLabel` — only for a toolbar search with a visible icon |
+| `help` | `help: String?` — an ⓘ button after the label opens it in a popover |
+| `disabled` | `enabled` (inverted) |
+| `children` (render function with aria props) | `content: QeetrixFieldScope.() -> Unit` + `Modifier.qeetrixFieldControl()` |
+| Fieldset `legend`, `description`, `disabled` | `QeetrixFieldSet(legend, description, enabled)` |
+
+## Look
+
+- **Label**: `label.sm` in `color.text.subtle`, 4 dp (`space.gap.xs`) above the control; disabled,
+  `color.text.disabled`. "(optional)" is `color.text.subtlest` at `body.sm`'s weight. No asterisks.
+- **Help text**: `body.sm`, `color.text.subtle`, 4 dp below; disabled, `color.text.subtlest` (it often says
+  why the field is disabled, and stays readable).
+- **Error**: a sharp 16 dp `circle-alert` in `color.icon.danger`, then the message in `body.sm` /
+  `color.text.danger`. It **replaces** the help text while it shows.
+- **Field set**: the legend in `title.sm` / `color.text.default`, its description in `body.sm`, and the fields,
+  all `space.form.gap` apart (12 / 16 / 20 dp with the density).
 
 ## Accessibility
 
-- A Qeetrix input's label is part of the control for TalkBack, as Compose's own text fields do it: the
-  label is drawn inside the control. Description and message follow the control in reading order.
-- `required` is read as "required" with the label (`qx_required`); the asterisk itself is not read.
-- An error message sets the control's error state and is announced at once (a live region); warnings and
-  successes are announced politely. Each tone also has its icon and words.
-- A legend is a heading, and the set is one traversal group.
+- `qeetrixFieldControl()` names the control by the label ("Notification tone, required" when `required`),
+  marks it with the error, and hides the visible label from TalkBack so it is read once. Without it, the label
+  is read as text just before the control.
+- The error is a live region announced at once; the description is not composed while it shows, so the
+  control is described by the error alone.
+- A field set's legend is a heading and the set is one traversal group; `enabled = false` disables every
+  Qeetrix control inside.
+- A choice question is not a field set: use [Radio group](RadioGroup.md) or a checkbox group
+  ([Checkbox](Checkbox.md)), whose question looks like every field's label.
 
 ## Theme and tokens
 
-`component.input.*` for every field boundary, background and state; `density.field-gap` between fields;
-the caption role for descriptions and messages.
+`color.text.subtle`, `color.text.subtlest`, `color.text.disabled`, `color.text.danger`, `color.icon.danger`,
+`typography.label.sm`, `typography.body.sm`, `typography.title.sm`, `space.gap.xs`, `space.form.gap`
+(through the density). Help: `color.surface.overlay`, `color.border.subtle`, `radius.overlay`, `shadow.overlay`,
+`space.inset.lg`, `space.gap.md`.
 
 ## Platform differences
 
-- **Association.** The web links label, description and message to the control by element ids. Compose
-  has no references between nodes, so a Qeetrix input draws its label inside its own control (and
-  `qeetrixFieldControl()` names another control); iOS passes them through the environment instead.
-- **"Required".** Android and iOS add the word to what is read; the web relies on the control's
-  `required`.
+- **Required.** The web leaves "required" to the native attribute; Compose has none, so the word is added to
+  the name TalkBack reads (`qx_required`).
+- **Help.** The web opens the popover on the label's inline-end side; on a phone there is no room, so it opens
+  below the ⓘ and closes on Back or a tap outside. The ⓘ is `circle-question-mark`, as on the web.
+- **Groups and errors.** A checkbox, radio or switch inside a field with an error carries that error for
+  TalkBack, as Base UI's `Field.Item` links it on the web.
 
 Related: [Text field](TextField.md), [Form](Form.md), [Checkbox](Checkbox.md), [Radio group](RadioGroup.md).

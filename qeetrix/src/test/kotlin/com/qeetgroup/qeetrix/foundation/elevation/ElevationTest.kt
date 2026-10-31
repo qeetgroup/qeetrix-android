@@ -40,11 +40,17 @@ class ElevationTest {
 
     @Test
     fun layersDifferByTheme() {
-        val light = QeetrixElevation.Raised.layers(dark = false)
-        val dark = QeetrixElevation.Raised.layers(dark = true)
+        val light = QeetrixShadow.Raised.layers(dark = false)
+        val dark = QeetrixShadow.Raised.layers(dark = true)
         assertEquals(3, light.size)
         assertTrue(light != dark)
-        assertEquals(emptyList<QeetrixShadowLayer>(), QeetrixElevation.Flat.layers(dark = false))
+        assertEquals(1, QeetrixShadow.Inset.layers(dark = false).size)
+        assertTrue(
+            QeetrixShadow.Inset
+                .layers(dark = false)
+                .single()
+                .inset,
+        )
     }
 
     /** Real pixels, drawn by Robolectric's native graphics: shadow below the shape, the fill inside it. */
@@ -57,7 +63,7 @@ class ElevationTest {
         compose.setContent {
             QeetrixTheme(QeetrixThemeMode.Light) {
                 Box(Modifier.testTag("frame").background(canvas).padding(24.dp)) {
-                    Box(Modifier.size(80.dp, 40.dp).qeetrixElevation(QeetrixElevation.Modal, QeetrixShapes.Surface, fill))
+                    Box(Modifier.size(80.dp, 40.dp).qeetrixShadow(QeetrixShadow.Modal, QeetrixShapes.Modal, fill))
                 }
             }
         }

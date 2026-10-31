@@ -2,112 +2,70 @@ package com.qeetgroup.qeetrix.components.switchcontrol
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import com.qeetgroup.qeetrix.components.input.ChoiceKind
+import com.qeetgroup.qeetrix.components.input.ChoiceRow
 import com.qeetgroup.qeetrix.components.input.LocalFieldGroup
-import com.qeetgroup.qeetrix.components.input.selectionRow
+import com.qeetgroup.qeetrix.components.input.selectionControlEdge
 import com.qeetgroup.qeetrix.foundation.accessibility.qeetrixMinimumTouchTarget
-import com.qeetgroup.qeetrix.foundation.color.QeetrixOpacity
-import com.qeetgroup.qeetrix.foundation.elevation.QeetrixElevation
-import com.qeetgroup.qeetrix.foundation.elevation.qeetrixElevation
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixDuration
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixEasing
+import com.qeetgroup.qeetrix.foundation.color.QeetrixColors
+import com.qeetgroup.qeetrix.foundation.haptics.QeetrixHapticRole
+import com.qeetgroup.qeetrix.foundation.haptics.QeetrixHaptics
+import com.qeetgroup.qeetrix.foundation.haptics.rememberQeetrixHaptics
+import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
 import com.qeetgroup.qeetrix.foundation.motion.qeetrixAnimationSpec
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
-import com.qeetgroup.qeetrix.foundation.typography.QeetrixTextRole
-import com.qeetgroup.qeetrix.internal.FontWeightMedium
-import com.qeetgroup.qeetrix.internal.QeetrixFont
-import com.qeetgroup.qeetrix.internal.QeetrixWebScale
-import com.qeetgroup.qeetrix.internal.qeetrixFocusRing
-import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
+import com.qeetgroup.qeetrix.foundation.shape.QeetrixRadius
+import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
+import com.qeetgroup.qeetrix.internal.FocusFrame
+import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixInputComponentTokens
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixSwitchComponentTokens
-
-/** The sizes of [QeetrixSwitch] (`value` is the web name). */
-public enum class QeetrixSwitchSize(
-    public val value: String,
-    internal val trackWidth: Dp,
-    internal val trackHeight: Dp,
-    internal val thumb: Dp,
-) {
-    /** A 32 × 18.4 dp track with a 16 dp thumb (`w-8 h-(switch-thumb-size)`, thumb `size-4`). */
-    Default("default", QeetrixWebScale.spacing(8f), QeetrixSwitchComponentTokens.ThumbSize, QeetrixWebScale.spacing(4f)),
-
-    /** A 24 × 14 dp track with a 12 dp thumb (`w-6 h-3.5`, thumb `size-3`). */
-    Sm("sm", QeetrixWebScale.spacing(6f), QeetrixWebScale.spacing(3.5f), QeetrixWebScale.spacing(3f)),
-}
 
 /**
- * An on/off control. The state never rests on hue alone: the thumb travels to the inline end when on
- * (mirrored right to left), and is a light disc on both tracks.
+ * A setting that turns on or off at once, with its [label] — `@qeetrix/react`'s Switch. A setting that waits for a
+ * Save button is a checkbox instead.
  *
- * It is a native toggle: accessibility services read it as a switch with its on/off state, and double-tap
- * toggles it. Pass `onCheckedChange = null` to show a state the user cannot change. Give it a name: use
- * the overload with a `label`, or put it in a row that is itself `toggleable`.
+ * - **Look** (design rules §9): a 32 × 18 dp track with 2 dp corners and a 12 dp square thumb with 1 dp corners.
+ *   Off: `color.bg.input` with a `color.border.strong` edge and a graphite thumb (`color.icon.subtle`) on the start
+ *   side. On: the Ember track and edge (`color.bg.brand.bold`) and a white thumb (`color.icon.on-brand`, white in dark
+ *   too) on the end side — mirrored right to left — so the state never rests on colour alone. The thumb moves in
+ *   `motion.duration.normal`; nothing moves under reduced motion.
+ * - **The label follows the switch**, 8 dp after it, and the whole row — with its [description] — is the target,
+ *   at least 48 dp tall (design rules §9).
+ * - **Felt.** A toggle plays [QeetrixHapticRole.Selection] (nothing where the system has touch feedback off).
+ * - **State is yours**: [checked] and [onCheckedChange]; `onCheckedChange = null` or [readOnly] shows a state that
+ *   cannot be changed. [invalid] turns the track's edge `color.border.danger`, on or off; [enabled] `false` takes
+ *   `color.bg.disabled`, a `color.border.disabled` edge and a `color.icon.disabled` thumb.
+ * - **Accessibility.** A native switch, read with its label, description and on/off state; double-tap toggles
+ *   it. Keyboard focus draws the 2 dp Ember frame 2 dp outside the track.
  *
- * The drawn switch keeps the web's size; a 48 × 48 dp touch area is reserved around it.
- *
- * @param invalid Draws the invalid boundary (`aria-invalid`), for a required choice left unset.
- */
-@Composable
-public fun QeetrixSwitch(
-    checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    size: QeetrixSwitchSize = QeetrixSwitchSize.Default,
-    invalid: Boolean = false,
-    interactionSource: MutableInteractionSource? = null,
-) {
-    val active = enabled && LocalFieldGroup.current.enabled
-    val source = interactionSource ?: remember { MutableInteractionSource() }
-    val interaction =
-        if (onCheckedChange != null) {
-            Modifier.toggleable(
-                value = checked,
-                interactionSource = source,
-                indication = null,
-                enabled = active,
-                role = Role.Switch,
-                onValueChange = onCheckedChange,
-            )
-        } else {
-            Modifier.semantics { toggleableState = ToggleableState(checked) }
-        }
-    Box(modifier.then(interaction).qeetrixMinimumTouchTarget(), contentAlignment = Alignment.Center) {
-        Track(checked, active, size, invalid, source)
-    }
-}
-
-/**
- * A switch with its [label] — and an optional [description] — as one control: the whole row toggles,
- * and accessibility services read the label, the description, the switch role and its state together.
- * The label sits at the start and the switch at the end, the Android settings convention.
+ * ```
+ * var autoRenew by rememberSaveable { mutableStateOf(true) }
+ * QeetrixSwitch(autoRenew, { autoRenew = it }, label = "Auto-renew", description = "Renews on the 1st of each month.")
+ * ```
  */
 @Composable
 public fun QeetrixSwitch(
@@ -117,99 +75,167 @@ public fun QeetrixSwitch(
     modifier: Modifier = Modifier,
     description: String? = null,
     enabled: Boolean = true,
-    size: QeetrixSwitchSize = QeetrixSwitchSize.Default,
+    readOnly: Boolean = false,
     invalid: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
 ) {
-    val active = enabled && LocalFieldGroup.current.enabled
+    val group = LocalFieldGroup.current
+    val active = enabled && group.enabled
     val source = interactionSource ?: remember { MutableInteractionSource() }
-    val interaction =
-        if (onCheckedChange != null) {
-            Modifier.toggleable(checked, source, indication = null, enabled = active, role = Role.Switch, onValueChange = onCheckedChange)
-        } else {
-            Modifier.semantics(mergeDescendants = true) { toggleableState = ToggleableState(checked) }
-        }
-    // Field orientation="horizontal": flex-row gap-2, items-start with a FieldContent.
-    Row(
-        modifier.selectionRow().then(interaction),
-        horizontalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(2f)),
-        verticalAlignment = if (description != null) Alignment.Top else Alignment.CenterVertically,
+    val interactive = onCheckedChange != null && !readOnly
+    val haptics = rememberQeetrixHaptics()
+    ChoiceRow(
+        kind = ChoiceKind.Switch,
+        label = label,
+        description = description,
+        icon = null,
+        enabled = active,
+        chosen = checked,
+        source = source,
+        modifier = modifier.switchToggle(checked, onCheckedChange.takeIf { interactive }?.felt(haptics), active, source, group.error),
     ) {
-        // FieldContent: flex-1 flex-col gap-0.5
-        Column(
-            Modifier.weight(1f).then(if (active) Modifier else Modifier.alpha(QeetrixOpacity.Disabled)),
-            verticalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(0.5f)),
-        ) {
-            // Block paragraphs as wide as the column, as on the web.
-            BasicText(label, Modifier.fillMaxWidth(), style = LabelStyle.copy(color = QeetrixTheme.colors.textPrimary))
-            if (description != null) {
-                BasicText(description, Modifier.fillMaxWidth(), style = DescriptionStyle.copy(color = QeetrixTheme.colors.textTertiary))
-            }
-        }
-        Box(Modifier.qeetrixMinimumTouchTarget(), contentAlignment = Alignment.Center) {
-            Track(checked, active, size, invalid, source)
-        }
+        SwitchTrack(checked, active, interactive, invalid || group.invalid, source)
     }
 }
 
+/**
+ * A switch with no visible label — react's Switch with an `aria-label`. Give it a name: put it in a row that is
+ * itself `toggleable`, or set a `contentDescription` on [modifier]. The drawn track keeps its 32 × 18 dp; a
+ * 48 × 48 dp touch area is reserved around it.
+ */
 @Composable
-private fun Track(
+public fun QeetrixSwitch(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    invalid: Boolean = false,
+    interactionSource: MutableInteractionSource? = null,
+) {
+    val group = LocalFieldGroup.current
+    val active = enabled && group.enabled
+    val source = interactionSource ?: remember { MutableInteractionSource() }
+    val interactive = onCheckedChange != null && !readOnly
+    val haptics = rememberQeetrixHaptics()
+    Box(
+        modifier
+            .switchToggle(checked, onCheckedChange.takeIf { interactive }?.felt(haptics), active, source, group.error)
+            .qeetrixMinimumTouchTarget(),
+        contentAlignment = Alignment.Center,
+    ) {
+        SwitchTrack(checked, active, interactive, invalid || group.invalid, source)
+    }
+}
+
+/** A toggle that is felt: [QeetrixHapticRole.Selection], then the app's change. */
+private fun ((Boolean) -> Unit).felt(haptics: QeetrixHaptics): (Boolean) -> Unit =
+    { checked ->
+        haptics.perform(QeetrixHapticRole.Selection)
+        this(checked)
+    }
+
+private fun Modifier.switchToggle(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    enabled: Boolean,
+    source: MutableInteractionSource,
+    error: String?,
+): Modifier {
+    val toggle =
+        if (onCheckedChange != null) {
+            toggleable(checked, source, indication = null, enabled = enabled, role = Role.Switch, onValueChange = onCheckedChange)
+        } else {
+            semantics(mergeDescendants = true) {
+                toggleableState = ToggleableState(checked)
+                role = Role.Switch
+            }
+        }
+    return toggle.then(if (error != null) Modifier.semantics { error(error) } else Modifier)
+}
+
+/**
+ * The track and thumb (switch.css, in its cascade order): rest `color.border.strong` on `color.bg.input`; hover
+ * `color.border.strong-hover`; on, the track and edge `color.bg.brand.bold` (`-hover` under the pointer); invalid
+ * `color.border.danger`, on or off and under the pointer too; disabled `color.bg.disabled` with
+ * `color.border.disabled`. The thumb is `color.icon.subtle` off and `color.icon.on-brand` on, white in both
+ * schemes as the checkbox's tick (`.qx-switch-thumb[data-checked]`, QTRX-162). The thumb sits 2 dp in
+ * from the start of the track's inside off (`inset-inline-start: 2px`) and 16 dp in on, centred on its height.
+ */
+@Composable
+private fun SwitchTrack(
     checked: Boolean,
     enabled: Boolean,
-    size: QeetrixSwitchSize,
+    interactive: Boolean,
     invalid: Boolean,
     source: MutableInteractionSource,
 ) {
+    val colors = QeetrixTheme.colors
     val hovered by source.collectIsHoveredAsState()
-    val motion = qeetrixAnimationSpec<Color>(QeetrixEasing.Standard, QeetrixDuration.Fast) // duration-fast ease-standard
-    val trackColor by animateColorAsState(
+    val hover = hovered && enabled && interactive // :hover:not([data-disabled], [data-readonly])
+    val border = selectionControlEdge(colors, enabled, checked, invalid, hover)
+    val fill =
         when {
-            !checked -> QeetrixSwitchComponentTokens.Track
-
-            // data-unchecked:bg-(switch-track)
-            hovered && enabled -> QeetrixSwitchComponentTokens.TrackCheckedHover
-
-            else -> QeetrixSwitchComponentTokens.TrackChecked
-        },
-        motion,
-        label = "switch-track",
+            !enabled -> colors.bgDisabled
+            checked -> if (hover) colors.bgBrandBoldHover else colors.bgBrandBold
+            else -> colors.bgInput
+        }
+    val thumbFill = switchThumb(colors, enabled, checked)
+    // Colours: transition background-color, border-color in duration.fast; the thumb's inset in duration.normal.
+    val colorMotion = qeetrixAnimationSpec<Color>(QeetrixMotion.EasingStandard, QeetrixMotion.DurationFast)
+    val edge by animateColorAsState(border, colorMotion, label = "switch-border")
+    val track by animateColorAsState(fill, colorMotion, label = "switch-track")
+    val thumb by animateColorAsState(thumbFill, colorMotion, label = "switch-thumb")
+    val inset by animateDpAsState(
+        if (checked) THUMB_ON else THUMB_OFF,
+        qeetrixAnimationSpec(QeetrixMotion.EasingStandard, QeetrixMotion.DurationNormal),
+        label = "switch-thumb-inset",
     )
-    val thumbColor by animateColorAsState(
-        if (checked) QeetrixSwitchComponentTokens.ThumbChecked else QeetrixSwitchComponentTokens.Thumb,
-        motion,
-        label = "switch-thumb",
-    )
-    // The thumb sits in the content box inside the 1 dp border; checked, it moves translate-x-[calc(100%-2px)].
-    val travel = size.thumb - QeetrixStroke.Thin
-    val x by animateDpAsState(
-        if (checked) travel else Dp(0f),
-        qeetrixAnimationSpec(QeetrixEasing.Standard, QeetrixDuration.Fast),
-        label = "switch-x",
-    )
-    val border = if (invalid) QeetrixInputComponentTokens.BorderInvalid else Color.Transparent // aria-invalid:border-(input-border-invalid)
-
+    val shape = QeetrixShapes.Sm // border-radius: radius.sm
     Box(
         Modifier
-            .qeetrixFocusRing(
-                source,
-                CircleShape,
-                color = if (invalid) QeetrixInputComponentTokens.BorderInvalid else QeetrixTheme.colors.focusRing,
-            ).then(if (enabled) Modifier else Modifier.alpha(QeetrixOpacity.Disabled)) // data-disabled:opacity-disabled
-            .size(size.trackWidth, size.trackHeight)
-            .qeetrixElevation(QeetrixElevation.Flat, CircleShape, trackColor) // rounded-full
-            .border(QeetrixStroke.Hairline, border, CircleShape),
-        contentAlignment = Alignment.CenterStart,
+            .qeetrixFocusFrame(source, shape, FocusFrame.Outside)
+            .size(TRACK_WIDTH, TRACK_HEIGHT)
+            .background(track, shape)
+            .border(QeetrixBorder.WidthDefault, edge, shape)
+            .padding(QeetrixBorder.WidthDefault), // the thumb is placed in the padding box, inside the 1 dp border
+        contentAlignment = Alignment.CenterStart, // inset-block-start: 50%; translate: 0 -50%
     ) {
         Box(
             Modifier
-                // Read at layout time, not recomposition, while it animates; offset mirrors right to left.
-                .offset { IntOffset((QeetrixStroke.Hairline + x).roundToPx(), 0) }
-                .size(size.thumb)
-                .qeetrixElevation(QeetrixElevation.RampXs, CircleShape, thumbColor), // rounded-full shadow-xs
+                // Read at layout time while it animates; offset {} mirrors right to left, as inset-inline-start does.
+                .offset { IntOffset(inset.roundToPx(), 0) }
+                .size(THUMB)
+                .background(thumb, ThumbShape),
         )
     }
 }
 
-// Label: text-sm leading-snug font-medium. FieldDescription: text-caption text-muted-foreground.
-private val LabelStyle = qeetrixTextStyle(QeetrixFont.Ui, QeetrixWebScale.TextSm.size, QeetrixWebScale.LEADING_SNUG, FontWeightMedium)
-private val DescriptionStyle = QeetrixTextRole.Caption.spec.let { qeetrixTextStyle(QeetrixFont.Ui, it.size, it.lineHeight) }
+/**
+ * `.qx-switch-thumb`: `color.icon.subtle` off, `color.icon.on-brand` on — white in both schemes, as the checkbox's
+ * tick on the same Ember (`[data-checked]`, QTRX-162) — and `color.icon.disabled` when disabled.
+ */
+internal fun switchThumb(
+    colors: QeetrixColors,
+    enabled: Boolean,
+    checked: Boolean,
+): Color =
+    when {
+        !enabled -> colors.iconDisabled
+        checked -> colors.iconOnBrand
+        else -> colors.iconSubtle
+    }
+
+/** switch.css `.qx-switch { inline-size: 32px; block-size: 18px }`. */
+private val TRACK_WIDTH = 32.dp
+private val TRACK_HEIGHT = 18.dp
+
+/** switch.css `.qx-switch-thumb { inline-size: 12px; block-size: 12px }`. */
+private val THUMB = 12.dp
+
+/** `.qx-switch-thumb { inset-inline-start: 2px }`; `[data-checked] { inset-inline-start: 16px }`. */
+private val THUMB_OFF = 2.dp
+private val THUMB_ON = 16.dp
+
+/** `.qx-switch-thumb { border-radius: calc(radius.sm / 2) }`: 1 dp. */
+private val ThumbShape = RoundedCornerShape(QeetrixRadius.Sm / 2)

@@ -2,6 +2,131 @@
 
 All notable changes to Qeetrix for Android. The library has no released version yet.
 
+## Unreleased — migration to `@qeetrix/react`, `@qeetrix/tokens` and `@qeetrix/icons` 2.0
+
+Every public API changed: the library now looks and behaves like `@qeetrix/react` 0.4.0, built from
+`@qeetrix/tokens` 0.0.13 and `@qeetrix/icons` 2.1.0, following the Qeetrix design rules (direction C, "Structured").
+Nothing had been published, so there is no deprecation path. The mapping from every old name to its new one, the
+decisions and the upstream gaps and bugs are in [MIGRATION_QEETRIX_REACT.md](Documentation/MIGRATION_QEETRIX_REACT.md);
+the decision is [0019](Documentation/Decisions/0019-migrate-to-qeetrix-react-tokens-and-icons.md). `Documentation/API/qeetrix.api`
+is the new baseline. The `0.1.0-rc.1` candidate predates this and is superseded.
+
+### Changed
+
+- **Pins and sync.** `Upstream/manifest.json` pins three npm tarballs, each checked against the registry's integrity hash:
+  `@qeetrix/tokens` (the DTCG build, copied whole, and the native fonts), `@qeetrix/react` (`dist/manifest.json` and the
+  compiled CSS of the 42 families Android maps, so a pin bump shows how each look changed) and `@qeetrix/icons` (its SVG
+  files and JSON catalogue). `@qeetrix/ui` is no longer an input.
+- **Tokens** are generated from the DTCG build, resolved as `qeetrix.resolver.json` says and checked against the published
+  light and dark documents: 202 generated, 137 excluded. Colours still convert per CSS Color 4 from OKLCH, and every colour
+  matches the hex the package records beside it. New foundation API: `QeetrixColors` (109 roles: `bg*`, `text*`, `icon*`,
+  `border*`, `surface*`, `overlay*`, `dataviz*`, `code*`), 18 `QeetrixTextRole`s, `QeetrixSpace`, `QeetrixSize`,
+  `QeetrixRadius` / `QeetrixShapes` (with `Field`, top corners only), `QeetrixBorder`, `QeetrixFocus`, `QeetrixDensity`
+  (`sizeControlSm/Md/Lg`, `sizeRow`, `spaceFormGap`, `iconStroke`), `QeetrixMotion` (durations, easings, springs),
+  `QeetrixShadow` and `Modifier.qeetrixShadow`, `QeetrixBreakpoint`, `QeetrixFontGeometry`; `QeetrixProvenance` reports the
+  three packages. Platform-neutral `Documentation/Foundations/token-values.json` records every token's source file, authored
+  value, references and resolved value.
+- **Typeface.** The fonts are the TrueType files `@qeetrix/tokens` ships for native platforms since 0.0.12 (QTRX-91), checked
+  against its `fonts/native.json`: `res/font/qx_qeet_sans_vf.ttf` (was `qx_cal_sans_vf.ttf`) and `qx_fira_code_vf.ttf`, all
+  axes kept, licences `QeetSans-OFL.txt` and `FiraCode-OFL.txt`. Each role takes the web's letter style: display Geo, headings
+  and titles Base, body, labels and code A11y.
+- **Icons** from `@qeetrix/icons` 2.1.0 (41; no pinned name was renamed in 2.0): sharp by default, round in navigation, filled for
+  the current item; horizontal arrows and chevrons mirror in right to left.
+- **Every component** re-specified to its `@qeetrix/react` counterpart: variant, tone and size names from react (for example
+  Button `variant` Solid/Soft/Ghost × `tone` Brand/Danger/Neutral × `size` Sm/Md/Lg, with a trailing icon zone), metrics and
+  states from its CSS, focus frames, current vs selected marks and motion from the design rules. Overlays take
+  `open`/`onOpenChange`; selections `value`/`onValueChange`. Strings follow react's message catalogue. Components with no
+  counterpart (Chip, ListItem, SectionHeader, the navigation bar, rail and scaffold) are kept and restyled.
+
+### Changed with `@qeetrix/react` 0.4.0, `@qeetrix/tokens` 0.0.13 and `@qeetrix/icons` 2.1.0
+
+The pins moved from 0.3.0 / 0.0.12 / 2.0.0 to take the fixes for Android's findings (QTRX-157 to 189; the migration
+record's §7 lists each).
+
+- **Tokens:** dark `borderSubtle` (`#2E2E2D`) and `borderDefault` (`#383837`) are visible on overlays; dark
+  `bgBrandBoldHover` is `#C5430A`; every line height is exact on the 4 px grid (`body.md` 14 / 20, where 20.0004 rounded
+  up to 21 px a line); each role's letter style comes from the tokens; the timeline marker is
+  `component.timeline.marker-size`, 28 dp.
+- **Sync:** icons are copied from `@qeetrix/icons`' SVG files and JSON catalogue; the JavaScript module reader is gone.
+  The drawings are unchanged.
+- **Looks** now from the released CSS:
+  - an invalid checkbox, radio or switch keeps its danger edge when checked, not only under the pointer;
+  - the switch's on thumb is `iconOnBrand`, white in dark too;
+  - a read-only field, select, number field or OTP code draws its line in `borderStrong`;
+  - the typing slot of an invalid OTP code shows the focus frame, and a read-only code has no fill;
+  - the progress and meter track is `surfaceSunken` in dark, and a light warning meter fills with `borderWarning`;
+  - a card header that ends the card or meets its footer has no rule of its own, and a body whose content emits nothing
+    takes no room;
+  - the avatar item's name and description wrap;
+  - menu items' and select options' icons, marks, shortcuts, meta and checks stay on the label's first line as it
+    wraps.
+
+  The button, accordion, tab and navigation looks Android already drew are now the CSS's.
+- **Quality scans:** findings Q-8, Q-9, Q-10 and Q-14 no longer happen and are no longer recorded; Q-15 stays (QTRX-164).
+
+### Added for the Android tickets (QTRX-101 to 137, 156, 193 to 200)
+
+Built and tested on the JVM (unit tests, the quality scans, Roborazzi renders), then tried one by one on the phone
+emulator (`qeetrix-api36`, Android 16) on 31 October 2026 — light, dark, 200 % text and right to left — each from its
+page in the sample app, which now has one for every new component.
+
+- **Foundations:** `QeetrixFormat` (numbers, currency, percent, relative time, dates, times, durations — the web's
+  `format` rules on Android's ICU, checked against 305 cases the web's rules write; QTRX-121), `QeetrixHapticRole` /
+  `rememberQeetrixHaptics` (QTRX-134).
+- **Components:** `QeetrixOTPCode` (101), `QeetrixProgressRing` (102), `QeetrixQRScanner` (103), `QeetrixAlert` (104),
+  `QeetrixSegmentedControl` (105), `QeetrixSwipeActions` (106), `QeetrixPullToRefresh` (107), `QeetrixDateField`,
+  `QeetrixDateRangeField` (120), `QeetrixRelativeTime` (121), `QeetrixCopyButton`, `QeetrixCopyField` (122),
+  `QeetrixSteps` (123), `QeetrixStat`, `QeetrixStatGroup` (124), `QeetrixQRCode` (the web's encoder, module for module;
+  125), `QeetrixAttachmentPicker`, `QeetrixFileRow`, `QeetrixFileLimits` (127), `QeetrixTimeField` (128),
+  `QeetrixAvatarGroup` (129), `QeetrixSlider`, `QeetrixRangeSlider` (130), `QeetrixCheckList`, `QeetrixCheckItem`
+  (131), `QeetrixBottomActionBar` (132), `QeetrixFullScreenForm` (133), `QeetrixPermissionPrimer` (135),
+  `QeetrixPageIndicator` (136), `QeetrixTabPanel` (194).
+- **Changed:** `QeetrixIconButton` shows its name in a tooltip on long press, hover or keyboard focus (156);
+  `QeetrixTopAppBar` takes `count`, `status`, `tabs` and a collapsing large title (`size`, `scrollState`; 196, 137);
+  `QeetrixTabs` takes `activateOnFocus` (194); `QeetrixNumberField` takes `currency`, `percent`, `grouping` and
+  `locale`, and `fractionDigits` is now nullable (193); a field's placeholder ends in an ellipsis at large text (197);
+  every paragraph — `QeetrixText` and the components' titles, descriptions, messages, placeholders and tooltips — takes
+  its direction from its text and its alignment from the layout, so an English sentence in a right-to-left screen ends in
+  its own full stop and no longer wraps early (199; Q-13 and L3 gone); arrows and chevrons mirror only where the call site asks —
+  `QeetrixIcon(mirrorInRightToLeft)`, `iconMirrorsInRightToLeft` on buttons — and the back button mirrors its own
+  (200); `QeetrixSwitch` plays the Selection haptic.
+- **Fixed:** Qeet Sans's optical size (`opsz`) was set in sp, which Compose resolves with the font scale of the context
+  that first loads the font and then caches for the whole process: text kept one font scale's optical size at another
+  (after the person changed the font size, or in a test after another test ran at 200 %, so renders depended on the
+  order the tests ran in). `QeetrixTheme` now builds the typography for the composition's font scale, each role's
+  `opsz` the size its text is drawn at in dp, Android 14's non-linear curve included (`TypographyTest`).
+- **Fixed on the device pass** (each with a test that fails without the fix):
+  - `QeetrixQRScanner`: the permission states hid "Type the key instead" and wired Not now to it; they sat at the top of
+    the scanner's area; the guidance overlapped the target in a short box; the controls sat on the translucent scrim
+    (white text on it over a white page is 2.8:1) and now carry their own fills.
+  - `QeetrixSwipeActions` and `QeetrixSlider`: in right to left the row moved against the finger, and the thumb stood at
+    its left-to-right place — both were offset with a modifier that mirrors on top of a position already mirrored.
+  - `QeetrixDateField` and the range and time fields: Material's 360 dp calendar cut off every Saturday in a phone's
+    dialog; Material colour roles left at their defaults leaked pink into the pickers.
+  - `QeetrixSteps`: a label broke mid-word at 200 % text; it now goes compact. `QeetrixAvatarGroup`: the +N count is
+    drawn at a font scale of 1, as the initials are. `QeetrixPageIndicator`: 24 dp of tappable room either side of the
+    dots. Icon button tooltips keep 8 dp inside the window. `QeetrixNumberField`: money keeps its currency's decimals
+    ("1.234,50 €"). `QeetrixFullScreenForm` and `QeetrixDialog`: the system bars' icons are set for the window (the
+    form's were white on white).
+- **Not done yet:** QTRX-126 (searchable picker), 190 (Select multiple / open / type-to-jump), 191 (Menu submenus,
+  context menu, side and align), 192 (Snackbar promise and stacking), 195 (side sheet), 198 (the bottom sheet without
+  Material's handle and motion).
+
+### Added
+
+`QeetrixHeading`, `QeetrixAvatarItem`, `QeetrixCheckboxGroup`, `QeetrixForm`, `QeetrixMeter`, `QeetrixMenuCheckboxItem`,
+`QeetrixMenuRadioGroup` / `QeetrixMenuRadioItem`, `QeetrixOptionGroup`, `QeetrixTimelineGroup`,
+`QeetrixCollapsibleTrigger` / `QeetrixCollapsiblePanel`; a quality-catalogue coverage test (every public composable has a
+specimen) and a bytecode check that no public API names a Material type.
+
+### Removed
+
+`QeetrixSpacing`, `QeetrixCorner`, `QeetrixStroke`, `QeetrixIconSize`, `QeetrixElevation`, `QeetrixDuration`,
+`QeetrixEasing`, `QeetrixFontWeight`, `QeetrixTextVariant`, `QeetrixTriStateCheckbox`, `QeetrixFieldMessage`,
+`QeetrixDataFailure`, `QeetrixDataLoadingRows` and the old variant and size enums; the internal component tokens, Tailwind
+metrics (`QeetrixWebScale`), the CSS resolver and the culori vectors in the generator; the icons `calendar`, `clock`,
+`database` and `loader-circle`.
+
 ## Unreleased — Phase 7 release preparation (candidate 0.1.0-rc.1)
 
 No public API changed (`apiCheck` passes against the Phase 6 baseline).

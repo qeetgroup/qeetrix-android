@@ -2,6 +2,10 @@ package com.qeetgroup.qeetrix.components.passwordinput
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.selectAll
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
@@ -11,6 +15,8 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -18,7 +24,6 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.TextRange
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
 import com.qeetgroup.qeetrix.components.setQeetrix
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -46,7 +51,9 @@ class QeetrixPasswordInputTest {
 
     @Test
     fun aNewPasswordAsksForANewPassword() {
-        compose.setQeetrix { QeetrixPasswordInput(TextFieldState(), label = "New password", purpose = QeetrixPasswordPurpose.New) }
+        compose.setQeetrix {
+            QeetrixPasswordInput(TextFieldState(), label = "New password", autoComplete = QeetrixPasswordAutoComplete.NewPassword)
+        }
         compose
             .onNodeWithText(
                 "New password",
@@ -61,16 +68,21 @@ class QeetrixPasswordInputTest {
         compose.runOnIdle { state.edit { selection = TextRange(3, 7) } }
         compose.onNodeWithText("Password").assertIsFocused()
 
-        compose.onNodeWithContentDescription("Show password").performClick()
-        compose.onNodeWithContentDescription("Hide password").assertExists()
+        // A pressed-state toggle, always named "Show password"; its state says what it did.
+        compose
+            .onNodeWithContentDescription("Show password")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Password hidden"))
+            .assertIsOff()
+            .performClick()
+            .assertIsOn()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Password shown"))
         compose.onNodeWithText("Password").assertIsFocused().assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Password))
         compose.runOnIdle {
             assertEquals(synthetic, state.text.toString())
             assertEquals(TextRange(3, 7), state.selection)
         }
 
-        compose.onNodeWithContentDescription("Hide password").performClick()
-        compose.onNodeWithContentDescription("Show password").assertExists()
+        compose.onNodeWithContentDescription("Show password").performClick().assertIsOff()
         compose.onNodeWithText("Password").assertIsFocused()
     }
 
@@ -93,7 +105,7 @@ class QeetrixPasswordInputTest {
                 state,
                 label = "Password",
                 description = "At least 12 characters.",
-                message = QeetrixFieldMessage("Too short."),
+                error = "Use at least 12 characters.",
             )
         }
         compose.onNodeWithText("Password").performTextInput(synthetic)
@@ -124,5 +136,33 @@ class QeetrixPasswordInputTest {
         compose.setQeetrix { QeetrixPasswordInput(TextFieldState(synthetic), label = "Password", enabled = false) }
         compose.onNodeWithText("Password").assertIsNotEnabled()
         compose.onNodeWithContentDescription("Show password").assertIsNotEnabled()
+    }
+
+    @Test
+    fun aSecretThatIsNotAPasswordIsLeftOutOfAutoFill() {
+        compose.setQeetrix {
+            QeetrixPasswordInput(
+                TextFieldState(),
+                label = "Client secret",
+                autoComplete = QeetrixPasswordAutoComplete.Off,
+            )
+        }
+        compose
+            .onNodeWithText("Client secret")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDataType, ContentDataType.None))
+    }
+
+    @Test
+    fun visibilityCanBeControlled() {
+        var visible by mutableStateOf(true)
+        compose.setQeetrix {
+            QeetrixPasswordInput(TextFieldState(synthetic), label = "Password", visible = visible, onVisibleChange = {
+                visible =
+                    it
+            })
+        }
+        compose.onNodeWithContentDescription("Show password").assertIsOn().performClick()
+        assertEquals(false, visible)
+        compose.onNodeWithContentDescription("Show password").assertIsOff()
     }
 }
