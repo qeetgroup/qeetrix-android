@@ -77,14 +77,15 @@ release gates, its device tests and the independent consumer app included
 - 🔄 **Migrated** from `@qeetrix/ui` to `@qeetrix/tokens`, `@qeetrix/react` and `@qeetrix/icons`, and on to their 0.0.13,
   0.4.0 and 2.1.0 releases: every component re-specified to its `@qeetrix/react` counterpart, the API changed
   ([MIGRATION_QEETRIX_REACT.md](Documentation/MIGRATION_QEETRIX_REACT.md)).
-- 🧱 **31 Android tickets built** (QTRX-101 to 107, 120 to 137 but 126, 156, 193, 194, 196, 197, 199 and 200): the
-  native components above, and changes to existing ones — icon-button tooltips, money and percentages in the number
-  field, tab panels, the top app bar's count, status, tabs and collapsing title, and right-to-left text.
+- 🧱 **33 Android tickets built** (QTRX-101 to 107, 120 to 137 but 126, 156 and 193 to 200): the native components
+  above, and changes to existing ones — icon-button tooltips, money and percentages in the number field, tab panels,
+  the top app bar's count, status, tabs and collapsing title, right-to-left text, a bottom sheet without Material and a
+  side sheet.
 - ✅ **Verified** on the JVM (unit and Compose tests, quality scans, screenshots) and, on 31 October 2026, component by
   component on an Android 16 phone emulator in light, dark, 200 % text and right to left, then on a tablet emulator;
   what that found is fixed ([CHANGELOG.md](CHANGELOG.md)).
 
-⏭️ **Next:** six deferred tickets (QTRX-126, 190, 191, 192, 195, 198) and the owner's choice of registry. The phase history is in [PHASES.md](PHASES.md).
+⏭️ **Next:** four deferred tickets (QTRX-126, 190, 191, 192) and the owner's choice of registry. The phase history is in [PHASES.md](PHASES.md).
 
 ## 🧰 Requirements
 
@@ -289,7 +290,7 @@ Grouped as the sample app and the [catalogue](Documentation/Components/README.md
 | ✍️ **Forms and inputs** | `QeetrixTextField`, `QeetrixTextarea`, `QeetrixPasswordInput`, `QeetrixNumberField`, `QeetrixSearchField`, `QeetrixSelect`, `QeetrixCheckbox` / `QeetrixCheckboxGroup`, `QeetrixRadioGroup`, `QeetrixSwitch`, `QeetrixSlider` / `QeetrixRangeSlider`, `QeetrixOTPInput`, `QeetrixOTPCode`, `QeetrixDateField` / `QeetrixDateRangeField` / `QeetrixTimeField`, `QeetrixAttachmentPicker` / `QeetrixFileRow`, `QeetrixQRScanner`, `QeetrixPermissionPrimer`, `QeetrixField` / `QeetrixFieldSet`, `QeetrixForm` |
 | 📊 **Data display** | `QeetrixText` / `QeetrixHeading`, `QeetrixAvatar` / `QeetrixAvatarItem`, `QeetrixAvatarGroup`, `QeetrixBadge`, `QeetrixChip` / `QeetrixChipGroup`, `QeetrixListItem`, `QeetrixSectionHeader`, `QeetrixSwipeActions`, `QeetrixDescriptionList`, `QeetrixTimeline`, `QeetrixStat` / `QeetrixStatGroup`, `QeetrixCheckList`, `QeetrixRelativeTime`, `QeetrixQRCode`, `QeetrixCopyField` |
 | 💬 **Feedback** | `QeetrixAlert`, `QeetrixProgress` / `QeetrixMeter`, `QeetrixProgressRing`, `QeetrixSpinner`, `QeetrixSkeleton`, `QeetrixSnackbar`, `QeetrixEmptyState`, `QeetrixDataState`, `QeetrixPullToRefresh` |
-| 🪟 **Overlays** | `QeetrixDialog`, `QeetrixAlertDialog`, `QeetrixConfirmationDialog`, `QeetrixFullScreenForm`, `QeetrixBottomSheet`, `QeetrixMenu` |
+| 🪟 **Overlays** | `QeetrixDialog`, `QeetrixAlertDialog`, `QeetrixConfirmationDialog`, `QeetrixFullScreenForm`, `QeetrixBottomSheet`, `QeetrixSideSheet`, `QeetrixMenu` |
 | 🧭 **Navigation** | `QeetrixTopAppBar`, `QeetrixTabs` / `QeetrixTabPanel`, `QeetrixNavigationBar`, `QeetrixNavigationRail`, `QeetrixNavigationScaffold`, `QeetrixSteps`, `QeetrixPageIndicator` |
 | 📐 **Layout** | `QeetrixCard`, `QeetrixAccordion`, `QeetrixSeparator` |
 
@@ -373,9 +374,9 @@ against a local publication.
 
 - 📦 **Not published.** Use it as a composite build until a new release candidate, the registry and a version are
   approved.
-- ⏳ **Five Android tickets deferred:** a searchable picker (QTRX-126); Select's multiple choice, open state and
+- ⏳ **Four Android tickets deferred:** a searchable picker (QTRX-126); Select's multiple choice, open state and
   type-to-jump (190); Menu's submenus, context menu, side and alignment (191); the snackbar's promise and stacking
-  (192); a side sheet (195).
+  (192).
 - 🧩 **Not every `@qeetrix/react` family** has an Android counterpart: no data table, charts, combobox, popover or
   navigation drawer ([0015](Documentation/Decisions/0015-navigation-overlays-and-feedback.md),
   [0016](Documentation/Decisions/0016-data-display-and-content-states.md)).

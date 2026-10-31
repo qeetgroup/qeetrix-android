@@ -60,6 +60,7 @@ import com.qeetgroup.qeetrix.sample.components.overlays.ConfirmationDialogSample
 import com.qeetgroup.qeetrix.sample.components.overlays.DialogSample
 import com.qeetgroup.qeetrix.sample.components.overlays.FullScreenFormSample
 import com.qeetgroup.qeetrix.sample.components.overlays.MenuSample
+import com.qeetgroup.qeetrix.sample.components.overlays.SideSheetSample
 import com.qeetgroup.qeetrix.sample.components.utilities.CopySample
 import com.qeetgroup.qeetrix.sample.components.utilities.PermissionPrimerSample
 
@@ -139,6 +140,7 @@ val SampleCatalog: List<SampleEntry> =
         SampleEntry("dialog", "Dialog", SampleCategory.Overlays) { DialogSample() },
         SampleEntry("full-screen-form", "Full-screen form", SampleCategory.Overlays) { FullScreenFormSample() },
         SampleEntry("bottom-sheet", "Bottom sheet", SampleCategory.Overlays) { BottomSheetSample() },
+        SampleEntry("side-sheet", "Side sheet", SampleCategory.Overlays) { SideSheetSample() },
         SampleEntry("menu", "Menu", SampleCategory.Overlays) { MenuSample() },
         SampleEntry("navigation-bar", "Navigation bar", SampleCategory.Navigation) { NavigationBarSample() },
         SampleEntry("navigation-rail", "Navigation rail", SampleCategory.Navigation) { NavigationRailSample() },

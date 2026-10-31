@@ -62,6 +62,7 @@ Grouped as the sample app groups its pages (`SampleCategory`); the sample has a 
 | Overlays | [Confirmation dialog](ConfirmationDialog.md) | `QeetrixConfirmationDialog` | `dialog` | Dialog with Cancel and a confirming Button |
 | Overlays | [Dialog](Dialog.md) | `QeetrixDialog` | `dialog` | Dialog, DialogContent, DialogBody, DialogFooter |
 | Overlays | [Bottom sheet](BottomSheet.md) | `QeetrixBottomSheet` | `drawer` | Drawer, as a bottom sheet |
+| Overlays | [Side sheet](SideSheet.md) | `QeetrixSideSheet` | `drawer` | Drawer, at the side (a bottom sheet on a phone) |
 | Overlays | [Full-screen form](FullScreenForm.md) | `QeetrixFullScreenForm` | `dialog` | none (Dialog's `fullscreen` size is the nearest) |
 | Overlays | [Menu](Menu.md) | `QeetrixMenu`, `QeetrixMenuItem`, `QeetrixMenuCheckboxItem`, `QeetrixMenuRadioGroup`, `QeetrixMenuRadioItem`, `QeetrixMenuGroupLabel`, `QeetrixMenuSeparator` | `dropdownmenu` | Menu and the same items |
 | Navigation | [Navigation bar](NavigationBar.md) | `QeetrixNavigationBar`, `QeetrixNavigationItem` | `navigation` | none (Sidebar's items, in a bottom bar) |

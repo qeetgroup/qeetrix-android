@@ -303,8 +303,8 @@ class QeetrixBottomSheetTest {
 
     @Test
     fun sizesAreTheDrawers() {
-        assertEquals(listOf("sm", "md", "lg"), QeetrixBottomSheetSize.entries.map { it.value })
-        assertEquals(listOf(400f, 560f, 800f), QeetrixBottomSheetSize.entries.map { it.width.value })
+        assertEquals(listOf("sm", "md", "lg"), QeetrixSheetSize.entries.map { it.value })
+        assertEquals(listOf(400f, 560f, 800f), QeetrixSheetSize.entries.map { it.width.value })
     }
 }
 

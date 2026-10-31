@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,10 +28,11 @@ import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
 /**
- * The widths of a [QeetrixBottomSheet] (`value` is `@qeetrix/react`'s Drawer `size`). On a phone the sheet spans
- * the window; on a larger one it is at most this wide, centred.
+ * The widths of a sheet (`value` is `@qeetrix/react`'s Drawer `size`). A [QeetrixBottomSheet] spans a phone's window
+ * and is at most this wide, centred, on a larger one; a [QeetrixSideSheet] is this wide, always leaving 48 dp of the
+ * screen beside it.
  */
-public enum class QeetrixBottomSheetSize(
+public enum class QeetrixSheetSize(
     public val value: String,
     internal val width: Dp,
 ) {
@@ -104,7 +106,7 @@ public fun QeetrixBottomSheet(
     title: String,
     modifier: Modifier = Modifier,
     description: String? = null,
-    size: QeetrixBottomSheetSize = QeetrixBottomSheetSize.Md,
+    size: QeetrixSheetSize = QeetrixSheetSize.Md,
     dismissible: Boolean = true,
     partiallyExpandable: Boolean = false,
     footerStart: (@Composable () -> Unit)? = null,
@@ -122,14 +124,15 @@ public fun QeetrixBottomSheet(
         modifier = modifier,
     ) { onClose ->
         DragHandle()
-        SheetLayout(title, description, onClose, footerStart, footer, Modifier.weight(1f, fill = false), content)
+        SheetLayout(title, description, onClose, footerStart, footer, Modifier.weight(1f, fill = false), content = content)
     }
 }
 
 /**
  * The sheet's parts below the handle — the ruled header, the scrolling body, the ruled footer, and the close
- * button over the header's end — outside the sheet, for the sheet and for screenshots. The handle's row takes
- * [HandleRow] of the header's top padding.
+ * button over the header's end — outside the sheet, for the sheets and for screenshots. Under a [handle] the handle's
+ * row takes [HandleRow] of the header's top padding; without one (a side sheet) the parts fill the sheet's height,
+ * the footer at its bottom.
  */
 @Composable
 internal fun SheetLayout(
@@ -139,19 +142,21 @@ internal fun SheetLayout(
     footerStart: (@Composable () -> Unit)?,
     footer: (@Composable () -> Unit)?,
     modifier: Modifier = Modifier,
+    handle: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val colors = QeetrixTheme.colors
+    val handleRow = if (handle) HandleRow else 0.dp
     CompositionLocalProvider(LocalQeetrixContentColor provides colors.textDefault) {
         Box(modifier.fillMaxWidth().semantics { paneTitle = title }) {
-            Column(Modifier.fillMaxWidth()) {
+            Column(if (handle) Modifier.fillMaxWidth() else Modifier.fillMaxSize()) {
                 // .qx-drawer-header: padding space.inset.xl, padding-inline-end 56px beside the close button
                 OverlayHeader(
                     title,
                     description,
                     Modifier.padding(
                         start = QeetrixSpace.InsetXl,
-                        top = QeetrixSpace.InsetXl - HandleRow,
+                        top = QeetrixSpace.InsetXl - handleRow,
                         end = if (onClose != null) CloseRoom else QeetrixSpace.InsetXl,
                         bottom = QeetrixSpace.InsetXl,
                     ),
@@ -161,7 +166,8 @@ internal fun SheetLayout(
                 // .qx-drawer-body: flex 1, overflow-y auto, padding space.inset.xl
                 Column(
                     Modifier
-                        .weight(1f, fill = false)
+                        .weight(1f, fill = !handle)
+                        .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
                         .padding(QeetrixSpace.InsetXl),
                     content = content,
@@ -176,7 +182,7 @@ internal fun SheetLayout(
                 }
             }
             // .qx-drawer-close: inset-block-start 20px, inset-inline-end 16px, from the sheet's edge above the handle row
-            if (onClose != null) OverlayClose(onClose, Modifier.align(Alignment.TopEnd), top = 20.dp - HandleRow, end = 16.dp)
+            if (onClose != null) OverlayClose(onClose, Modifier.align(Alignment.TopEnd), top = 20.dp - handleRow, end = 16.dp)
         }
     }
 }

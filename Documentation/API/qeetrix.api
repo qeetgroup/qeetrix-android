@@ -323,17 +323,30 @@ public final class com/qeetgroup/qeetrix/components/dialog/QeetrixFullScreenForm
 }
 
 public final class com/qeetgroup/qeetrix/components/drawer/QeetrixBottomSheetKt {
-	public static final fun QeetrixBottomSheet (ZLkotlin/jvm/functions/Function1;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/drawer/QeetrixBottomSheetSize;ZZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public static final fun QeetrixBottomSheet (ZLkotlin/jvm/functions/Function1;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSheetSize;ZZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
 }
 
-public final class com/qeetgroup/qeetrix/components/drawer/QeetrixBottomSheetSize : java/lang/Enum {
-	public static final field Lg Lcom/qeetgroup/qeetrix/components/drawer/QeetrixBottomSheetSize;
-	public static final field Md Lcom/qeetgroup/qeetrix/components/drawer/QeetrixBottomSheetSize;
-	public static final field Sm Lcom/qeetgroup/qeetrix/components/drawer/QeetrixBottomSheetSize;
+public final class com/qeetgroup/qeetrix/components/drawer/QeetrixSheetSize : java/lang/Enum {
+	public static final field Lg Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSheetSize;
+	public static final field Md Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSheetSize;
+	public static final field Sm Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSheetSize;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun getValue ()Ljava/lang/String;
-	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/drawer/QeetrixBottomSheetSize;
-	public static fun values ()[Lcom/qeetgroup/qeetrix/components/drawer/QeetrixBottomSheetSize;
+	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSheetSize;
+	public static fun values ()[Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSheetSize;
+}
+
+public final class com/qeetgroup/qeetrix/components/drawer/QeetrixSideSheetKt {
+	public static final fun QeetrixSideSheet (ZLkotlin/jvm/functions/Function1;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSideSheetSide;Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSheetSize;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+}
+
+public final class com/qeetgroup/qeetrix/components/drawer/QeetrixSideSheetSide : java/lang/Enum {
+	public static final field End Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSideSheetSide;
+	public static final field Start Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSideSheetSide;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSideSheetSide;
+	public static fun values ()[Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSideSheetSide;
 }
 
 public final class com/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuItemTone : java/lang/Enum {

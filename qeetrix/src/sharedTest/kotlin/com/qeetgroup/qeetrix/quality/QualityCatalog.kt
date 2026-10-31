@@ -82,6 +82,7 @@ import com.qeetgroup.qeetrix.components.dialog.arrangeActions
 import com.qeetgroup.qeetrix.components.dialog.confirmationActions
 import com.qeetgroup.qeetrix.components.drawer.DragHandle
 import com.qeetgroup.qeetrix.components.drawer.QeetrixBottomSheet
+import com.qeetgroup.qeetrix.components.drawer.QeetrixSideSheet
 import com.qeetgroup.qeetrix.components.drawer.SheetLayout
 import com.qeetgroup.qeetrix.components.dropdownmenu.MenuSurface
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenu
@@ -995,6 +996,23 @@ internal val QualityCatalog: List<QualitySpecimen> =
                 ) { QeetrixCheckbox(true, {}, label = "Overdue") }
             }
         },
+        QualitySpecimen("side-sheet") {
+            // QeetrixSideSheet's parts, drawn in place at a fixed height: no handle, the footer at the bottom.
+            Box(Modifier.width(320.dp).height(360.dp).background(QeetrixTheme.colors.surfaceOverlay)) {
+                SheetLayout(
+                    title = "Edit member",
+                    description = "Changes apply at the next sign-in.",
+                    onClose = {},
+                    footerStart = null,
+                    footer = {
+                        QeetrixButton("Cancel", onClick = {}, variant = QeetrixButtonVariant.Ghost)
+                        QeetrixButton("Save", onClick = {})
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                    handle = false,
+                ) { QeetrixCheckbox(true, {}, label = "Admin") }
+            }
+        },
         QualitySpecimen("menu") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 // The trigger as QeetrixMenu lays it out, closed…
@@ -1323,6 +1341,15 @@ internal val OverlayCatalog: List<QualitySpecimen> =
                 description = "Show only the invoices you need.",
                 footer = { QeetrixButton("Show results", onClick = {}) },
             ) { QeetrixCheckbox(true, {}, label = "Overdue") }
+        },
+        QualitySpecimen("side-sheet window") {
+            QeetrixSideSheet(
+                open = true,
+                onOpenChange = {},
+                title = "Edit member",
+                description = "Changes apply at the next sign-in.",
+                footer = { QeetrixButton("Save", onClick = {}) },
+            ) { QeetrixCheckbox(true, {}, label = "Admin") }
         },
         QualitySpecimen("menu window") {
             QeetrixMenu(open = true, onOpenChange = {}, trigger = {

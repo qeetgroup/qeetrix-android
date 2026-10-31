@@ -43,7 +43,7 @@ From the registry the owner approves ([MAVEN-DISTRIBUTION.md](MAVEN-DISTRIBUTION
 - **Navigation:** adaptive navigation scaffold (a bar below 600 dp of window width, a rail from 600 dp), navigation
   bar and rail, top app bar (count, status, tabs and a collapsing large title), tabs and tab panels, steps, page
   indicator.
-- **Overlays and feedback:** alert; alert, confirmation and custom dialogs; bottom sheet; menu with checkbox and radio
+- **Overlays and feedback:** alert; alert, confirmation and custom dialogs; bottom and side sheets; menu with checkbox and radio
   items; snackbar; permission primer; progress, progress ring, meter, spinner, skeleton.
 - **Data display:** list item and section header for lazy lists, swipe actions, pull to refresh, description list,
   accordion and collapsible, chips and chip groups, timeline, badge, avatar, avatar item and avatar group, card, stat

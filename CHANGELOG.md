@@ -124,8 +124,12 @@ page in the sample app, which now has one for every new component.
   expandable sheet opens fully under touch exploration and expands when focus moves into it. `modifier` now goes to
   the sheet's surface as it moves. The string `qx_drag_handle` is removed. The library now compiles against
   `androidx.activity` 1.8.2 for the sheet's back handling — the version Compose already brings to an app.
+- **`QeetrixSideSheet`** (QTRX-195): the Drawer at the end or start edge (`QeetrixSideSheetSide`), full height and
+  `min(size, 100vw - 48px)` wide, from `breakpoint.medium`; a `QeetrixBottomSheet` with the same content below it. It
+  shares the bottom sheet's window, motion, gestures and predictive back. **Renamed:** `QeetrixBottomSheetSize` is now
+  `QeetrixSheetSize`, the Drawer sizes both sheets take.
 - **Not done yet:** QTRX-126 (searchable picker), 190 (Select multiple / open / type-to-jump), 191 (Menu submenus,
-  context menu, side and align), 192 (Snackbar promise and stacking), 195 (side sheet).
+  context menu, side and align), 192 (Snackbar promise and stacking).
 
 ### Added
 

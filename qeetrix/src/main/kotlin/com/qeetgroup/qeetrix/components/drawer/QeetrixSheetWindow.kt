@@ -92,6 +92,17 @@ internal enum class SheetEdge {
 }
 
 /**
+ * Which way is towards this edge on the screen: +1 right or down, -1 left. The start edge is the left in left to right
+ * and the right in right to left; the end edge the other way.
+ */
+internal fun SheetEdge.towardsEdge(rightToLeft: Boolean): Int =
+    when (this) {
+        SheetEdge.Bottom -> 1
+        SheetEdge.Start -> if (rightToLeft) 1 else -1
+        SheetEdge.End -> if (rightToLeft) -1 else 1
+    }
+
+/**
  * Where a sheet stands: [offset] pixels moved towards its edge from fully open — 0 open, [extent] (its height, or its
  * width for a side sheet) gone — and [rest], where it opens to: 0, or half-way for a partially expandable bottom sheet.
  * The offset starts past the edge, so the sheet's first frame is drawn out of sight.
@@ -224,13 +235,7 @@ internal fun SheetWindow(
         val scope = rememberCoroutineScope()
         val density = LocalDensity.current
         val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-        // +1 when moving towards the edge is moving right or down on the screen, -1 when it is moving left.
-        val towardsEdge =
-            when (edge) {
-                SheetEdge.Bottom -> 1
-                SheetEdge.Start -> if (rtl) 1 else -1
-                SheetEdge.End -> if (rtl) -1 else 1
-            }
+        val towardsEdge = edge.towardsEdge(rtl)
         val threshold = with(density) { FLING_THRESHOLD.toPx() }
         val exploring =
             LocalContext.current.let { context ->

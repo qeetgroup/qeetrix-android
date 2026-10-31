@@ -1,6 +1,6 @@
 # Bottom sheet
 
-`QeetrixBottomSheet`, `QeetrixBottomSheetSize` · `components.drawer` · `@qeetrix/react`:
+`QeetrixBottomSheet`, `QeetrixSheetSize` · `components.drawer` · `@qeetrix/react`:
 [Drawer](https://ui.qeet.in/components/drawer) (`Drawer`, `DrawerContent`, `DrawerBody`, `DrawerFooter`) ·
 sample: Overlays → Bottom sheet
 
@@ -53,15 +53,17 @@ fading with it; at once under reduced motion.
 
 ## Platform differences
 
-- **Bottom, not side.** The web's Drawer is a full-height side panel (`side` start or end); Android shows the
-  same content as a bottom sheet, the platform's pattern, built on Compose foundation in its own window (until
-  QTRX-198 it was Material 3's `ModalBottomSheet`).
+- **Bottom, not side.** The web's Drawer is a full-height side panel (`side` start or end); on a phone Android shows
+  the same content as a bottom sheet, the platform's pattern, built on Compose foundation in its own window (until
+  QTRX-198 it was Material 3's `ModalBottomSheet`). For the side panel on wider windows, use
+  [`QeetrixSideSheet`](SideSheet.md) (QTRX-195), which is this sheet below `breakpoint.medium`.
 - **Handle.** The web has none; Android sheets show one, as a mark only.
 - **Gestures.** The sheet follows the finger and the fling, as Android's sheets do; the web's Drawer swipes too.
   A predictive back gesture shrinks it towards the bottom edge as it goes.
 - **Back** always asks to close it, dismissible or not.
 
-Tried on the tablet emulator (`qeetrix-tablet-api36`, Android 16) on 31 October 2026 after QTRX-198: 560 dp wide and
+Tried on the phone emulator (full width, a swipe down closes it) and the tablet emulator (`qeetrix-tablet-api36`,
+Android 16) on 31 October 2026 after QTRX-198 — on the tablet: 560 dp wide and
 centred, the handle only a mark (nothing for UI Automator or the Accessibility Test Framework to find); a swipe down
 closes it; a predictive back gesture shrinks it towards the bottom edge, a cancelled one lets it go back, a completed
 one closes it; the half-way sheet opens at half the window and expands to 85 % when dragged up. The library's device

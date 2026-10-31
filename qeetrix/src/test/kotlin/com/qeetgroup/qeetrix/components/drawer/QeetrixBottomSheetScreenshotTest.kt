@@ -64,7 +64,7 @@ class QeetrixBottomSheetScreenshotTest {
             }
         }
 
-    /** The sheet as the modal sheet draws it: Material's surface in `color.surface.overlay`, square, with the handle on top. */
+    /** The sheet as its window draws it: `color.surface.overlay`, square, with the handle on top. */
     @Composable
     private fun Sheet(content: @Composable () -> Unit) {
         Column(Modifier.fillMaxWidth().background(QeetrixTheme.colors.surfaceOverlay)) {

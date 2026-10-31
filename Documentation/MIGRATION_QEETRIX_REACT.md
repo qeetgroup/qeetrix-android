@@ -160,7 +160,7 @@ from react's CSS with the declaration beside each literal. Composable names, fil
 | QeetrixAlertDialog | Dialog (`intent` danger/warning) | `onDismissRequest`, `message`, `icon` | `open`/`onOpenChange`, `description`, `intent`, `size`, `dismissible` | Done |
 | QeetrixConfirmationDialog | Dialog + Cancel | `destructive`, `message`, `icon` | `open`/`onOpenChange`, `intent`, `description`, `dismissible`, `cancelLabel` | Done |
 | QeetrixDialogAction roles | Button roles in DialogFooter | Default/Cancel/Destructive | Primary (solid) / Secondary (soft) / Cancel (ghost) / Destructive (solid danger) | Done |
-| QeetrixBottomSheet | Drawer | `visible`, `onDismissRequest`, `title?`, `dismissOnGesture`, `showCloseButton` | `open`/`onOpenChange`, `title`, `dismissible`, `size` Sm/Md/Lg, `footerStart`, `footer`, `partiallyExpandable` | Partial (`side`) |
+| QeetrixBottomSheet | Drawer | `visible`, `onDismissRequest`, `title?`, `dismissOnGesture`, `showCloseButton` | `open`/`onOpenChange`, `title`, `dismissible`, `size` Sm/Md/Lg, `footerStart`, `footer`, `partiallyExpandable`; `side` through `QeetrixSideSheet` (QTRX-195) | Full |
 | QeetrixMenu | Menu | `expanded`/`onExpandedChange`, item `variant` Default/Destructive, `QeetrixMenuLabel` | `open`/`onOpenChange`; item `text`, `icon`, `shortcut`, `description`, `tone` Default/Danger, `closeOnClick`; `QeetrixMenuCheckboxItem`, `QeetrixMenuRadioGroup`/`RadioItem`, `QeetrixMenuGroupLabel` | Partial (submenus, ContextMenu, side/align) |
 | QeetrixSnackbar (Host, HostState) | Toast | `show(message, type Info/Success/Warning/Error…)`, 5 or 10 s | `show(title, tone Info/Success/Warning/Danger, description, actionLabel, timeout = 5 s)`, Danger stays | Partial (promise, stack) |
 | QeetrixEmptyState | EmptyState | `variant` (5), `size` Sm/Default/Lg | `icon`, `description`, `size` Page/Section, `tone` Neutral/Danger, `level`, `footer`, `actions` | Done |
@@ -325,7 +325,7 @@ and `value`). Both need reconciling before the files can be diffed directly.
   text and right to left, phone and tablet — are in `docs-redesign-mockups/migration/android/devices/` (31 October; the
   30 October set, before the bump, is under `2026-10-30/`). The sample takes `--ez rtl true` beside `--es route` for
   them. The emulator was unstable under the machine's load (two crashes, one hang); running it headless helped.
-- **Android tickets not done:** QTRX-126, 190, 191, 192 and 195 (see CHANGELOG).
+- **Android tickets not done:** QTRX-126, 190, 191 and 192 (see CHANGELOG).
 - **Material 3** is now used, internally, by the date and time fields (the platform's pickers in Qeetrix's colours, as
   QTRX-120 and 128 ask) and pull to refresh (its nested scroll); `MaterialBoundaryTest` lists the two files and no public
   API names a Material type. The bottom sheet no longer uses it (QTRX-198).
