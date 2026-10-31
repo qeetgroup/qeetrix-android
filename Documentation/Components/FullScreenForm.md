@@ -19,3 +19,7 @@ QeetrixFullScreenForm(open, { open = it }, title = "New account", confirmLabel =
 - **The system bars**: their icons are set for what is under them — dark over the form's surface in light mode, light in dark mode and over a tablet's scrim.
 
 Tried on the phone emulator (`qeetrix-api36`, Android 16) on 31 October 2026, in light, dark, 200 % text and right to left, from the sample app's page. Found there and fixed: the form's own window drew white status-bar icons on its white surface, so the clock and battery disappeared; the icons are now set for the window (`DialogSystemBars`, which `QeetrixDialog` uses too).
+Then as a form sheet on the tablet emulator (`qeetrix-tablet-api36`, 1280 × 800 dp): 560 dp wide, 90 % of the height,
+`radius.modal` corners. Found there and fixed: the form's window kept the platform's dim under the scrim, so the screen
+behind was darkened twice — `#3E3E3E` where a dialog's scrim gives `#999897`; it now turns the dim off as the dialogs do
+(`DialogScrimOnly`, `QeetrixFullScreenFormTest`).

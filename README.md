@@ -81,11 +81,10 @@ release gates, its device tests and the independent consumer app included
   native components above, and changes to existing ones — icon-button tooltips, money and percentages in the number
   field, tab panels, the top app bar's count, status, tabs and collapsing title, and right-to-left text.
 - ✅ **Verified** on the JVM (unit and Compose tests, quality scans, screenshots) and, on 31 October 2026, component by
-  component on an Android 16 phone emulator in light, dark, 200 % text and right to left; what that found is fixed
-  ([CHANGELOG.md](CHANGELOG.md)).
+  component on an Android 16 phone emulator in light, dark, 200 % text and right to left, then on a tablet emulator;
+  what that found is fixed ([CHANGELOG.md](CHANGELOG.md)).
 
-⏭️ **Next:** six deferred tickets (QTRX-126, 190, 191, 192, 195, 198), the tablet pass of the new components and the
-owner's choice of registry. The phase history is in [PHASES.md](PHASES.md).
+⏭️ **Next:** six deferred tickets (QTRX-126, 190, 191, 192, 195, 198) and the owner's choice of registry. The phase history is in [PHASES.md](PHASES.md).
 
 ## 🧰 Requirements
 

@@ -318,10 +318,12 @@ and `value`). Both need reconciling before the files can be diffed directly.
   the owner decides to keep it (a native difference) or remove it in favour of the choice tiles.
 - **Device testing.** The Android tickets' components were tried one by one on the phone emulator (`qeetrix-api36`) on
   31 October 2026, in light, dark, 200 % text and right to left, each from its sample page; what that found is fixed
-  and listed in the CHANGELOG. The tablet scaffold test ran on `qeetrix-tablet-api36` on 30 October. Still to do: the
-  tablet pass of the new components (the full-screen form as a sheet, the bottom action bar at `breakpoint.medium`),
-  and new device screenshots — those in `docs-redesign-mockups/migration/android/devices/` are from 30 October, before
-  the bump. The emulator was unstable under the machine's load (two crashes, one hang); running it headless helped.
+  and listed in the CHANGELOG. The same day they were tried on the tablet emulator (`qeetrix-tablet-api36`, 1280 × 800
+  dp), with the library's and the independent consumer's device tests: the bottom action bar's `fullWidth` actions ran
+  off the window's start edge from `breakpoint.medium`, and the full-screen form's sheet darkened the screen twice; both
+  are fixed (CHANGELOG › Fixed on the tablet pass). Still to do: new device screenshots — those in
+  `docs-redesign-mockups/migration/android/devices/` are from 30 October, before the bump. The emulator was unstable
+  under the machine's load (two crashes, one hang); running it headless helped.
 - **Android tickets not done:** QTRX-126, 190, 191, 192, 195 and 198 (see CHANGELOG).
 - **Material 3** is now used, internally, by the bottom sheet, the date and time fields (the platform's pickers in
   Qeetrix's colours, as QTRX-120 and 128 ask) and pull to refresh (its nested scroll); `MaterialBoundaryTest` lists the

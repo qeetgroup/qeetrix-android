@@ -108,6 +108,12 @@ page in the sample app, which now has one for every new component.
     dots. Icon button tooltips keep 8 dp inside the window. `QeetrixNumberField`: money keeps its currency's decimals
     ("1.234,50 €"). `QeetrixFullScreenForm` and `QeetrixDialog`: the system bars' icons are set for the window (the
     form's were white on white).
+- **Fixed on the tablet pass** (`qeetrix-tablet-api36`, 1280 × 800 dp; each with a test that fails without the fix):
+  - `QeetrixBottomActionBar`: from `breakpoint.medium` a `fullWidth` button took the bar's whole width, so the row
+    started off the window's start edge and the first action was out of sight. Each action is now its own width there,
+    and the bar shares or stacks as on a phone when they don't fit in a row.
+  - `QeetrixFullScreenForm`: as a form sheet its window kept the platform's dim under the scrim, darkening the screen
+    twice (`#3E3E3E` where the scrim gives `#999897`).
 - **Not done yet:** QTRX-126 (searchable picker), 190 (Select multiple / open / type-to-jump), 191 (Menu submenus,
   context menu, side and align), 192 (Snackbar promise and stacking), 195 (side sheet), 198 (the bottom sheet without
   Material's handle and motion).

@@ -28,12 +28,12 @@ Scripts/release-candidate 0.1.0-rc.2 --devices                       # publishes
 
 In the release-candidate run (`Scripts/release-candidate 0.1.0-rc.2 --devices --allow-dirty`, from commit `9291aa1`):
 
-| Check | API 36 phone |
-|:--|:--|
-| Resolves `com.qeetgroup:qeetrix:0.1.0-rc.2` through its module metadata (`releaseVariantReleaseRuntimePublication`) | ✓ |
-| Debug build; 12 Compose tests through the public API (`ConsumerAppTest`) | 12 / 12 |
-| R8-optimised release build: no missing-rule report; both fonts and the strings the app's components use survive shrinking | ✓ |
-| 4 UI Automator tests on the release build (`ReleaseSmokeTest`) | 4 / 4 |
+| Check | API 36 phone | API 36 tablet (separate run, same artifact) |
+|:--|:--|:--|
+| Resolves `com.qeetgroup:qeetrix:0.1.0-rc.2` through its module metadata (`releaseVariantReleaseRuntimePublication`) | ✓ | ✓ |
+| Debug build; 12 Compose tests through the public API (`ConsumerAppTest`) | 12 / 12 | 12 / 12 |
+| R8-optimised release build: no missing-rule report; both fonts and the strings the app's components use survive shrinking | ✓ | ✓ |
+| 4 UI Automator tests on the release build (`ReleaseSmokeTest`) | 4 / 4 | 4 / 4 |
 
 The consumer was moved to the new public API with the migration (`ConsumerApp.kt` and three test lines: the renamed font resource,
 variants and tones, spacing, colour roles and selection parameters); its scenarios are unchanged. The API 29 phone, landscape and the minimum toolchain were not run

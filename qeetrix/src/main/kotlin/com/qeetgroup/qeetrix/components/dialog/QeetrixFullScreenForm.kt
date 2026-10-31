@@ -48,6 +48,7 @@ import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.internal.DialogScrimOnly
 import com.qeetgroup.qeetrix.internal.DialogSystemBars
 import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.internal.windowAtLeast
@@ -92,6 +93,8 @@ public fun QeetrixFullScreenForm(
         properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
     ) {
         val colors = QeetrixTheme.colors
+        // On a tablet the scrim below replaces the window's dim, which would otherwise darken the screen twice.
+        DialogScrimOnly()
         // On a phone the form's surface is under the bars; on a tablet the scrim is.
         DialogSystemBars(darkIcons = !QeetrixTheme.isDark && !sheet)
         Box(

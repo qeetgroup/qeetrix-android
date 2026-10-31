@@ -24,7 +24,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -52,7 +51,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInputModeManager
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -63,7 +61,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.DialogWindowProvider
 import com.qeetgroup.qeetrix.R
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
@@ -78,6 +75,7 @@ import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.internal.DialogScrimOnly
 import com.qeetgroup.qeetrix.internal.DialogSystemBars
 import com.qeetgroup.qeetrix.internal.QeetrixActionRow
 import com.qeetgroup.qeetrix.internal.labelDirection
@@ -126,9 +124,8 @@ internal fun DialogWindow(
                 windowTitle = title,
             ),
     ) {
-        val view = LocalView.current
         // The scrim below replaces the window's dim, which would otherwise darken the screen twice.
-        SideEffect { (view.parent as? DialogWindowProvider)?.window?.setDimAmount(0f) }
+        DialogScrimOnly()
         // The bars are over the overlay surface (full screen) or the scrim on the page: dark icons unless in dark mode.
         DialogSystemBars(darkIcons = !QeetrixTheme.isDark)
         val transition = rememberTransition(visibility, label = "qeetrix-dialog")

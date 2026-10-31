@@ -32,7 +32,8 @@ import com.qeetgroup.qeetrix.theme.QeetrixTheme
  * - **At most one solid and one soft action** (design rules §7), the primary last. On a phone the bar shares its width
  *   equally between them — pass `fullWidth = true` so each fills its share — and stacks them, full width and in the
  *   same order, when a label wouldn't fit beside the other (at large text sizes). From `breakpoint.medium` the actions
- *   sit at the end, at their own width.
+ *   sit at the end at their own width, `fullWidth` or not, as long as they fit in a row; when they don't, they share
+ *   the width or stack as on a phone.
  * - **Look**: `color.surface.default`, `space.inset.lg` round the actions, `space.gap.sm` between them. A 1 dp
  *   `color.border.subtle` rule along the top appears only while content scrolls under the bar — pass the screen's
  *   [scroll] state — or always with [ruled].
@@ -76,11 +77,12 @@ public fun QeetrixBottomActionBar(
     ) { measurables, constraints ->
         val gap = QeetrixSpace.GapSm.roundToPx()
         val width = constraints.maxWidth
-        val loose = constraints.copy(minWidth = 0, minHeight = 0)
         if (measurables.isEmpty()) return@Layout layout(width, 0) {}
-        if (wide) {
+        // Each action's own width — a fullWidth button's content, not the bar — capped at the bar's.
+        val own = if (wide) measurables.map { it.maxIntrinsicWidth(constraints.maxHeight).coerceAtMost(width) } else null
+        if (own != null && own.sum() + gap * (own.size - 1) <= width) {
             // End-aligned, each action at its own width.
-            val placeables = measurables.map { it.measure(loose) }
+            val placeables = measurables.mapIndexed { index, measurable -> measurable.measure(Constraints.fixedWidth(own[index])) }
             val height = placeables.maxOf { it.height }
             layout(width, height) {
                 var x = width - (placeables.sumOf { it.width } + gap * (placeables.size - 1))

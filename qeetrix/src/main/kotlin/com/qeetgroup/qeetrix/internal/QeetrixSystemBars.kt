@@ -20,6 +20,17 @@ internal fun DialogSystemBars(darkIcons: Boolean) {
     SideEffect { (view.parent as? DialogWindowProvider)?.window?.setDarkSystemBarIcons(darkIcons) }
 }
 
+/**
+ * No platform dim behind the dialog window this is composed in: Qeetrix draws its own `color.overlay.scrim`, and the
+ * window's dim under it darkened the screen twice — a form sheet on a tablet showed `#3E3E3E` where the scrim gives
+ * `#999897` (tablet pass, 2026-10-31).
+ */
+@Composable
+internal fun DialogScrimOnly() {
+    val view = LocalView.current
+    SideEffect { (view.parent as? DialogWindowProvider)?.window?.setDimAmount(0f) }
+}
+
 internal fun Window.setDarkSystemBarIcons(dark: Boolean) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         val both = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS

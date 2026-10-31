@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -109,10 +110,19 @@ fun QRScannerSample() {
     }
 }
 
-/** The scanner's box on the page: 3:4, with the surface corners. A real screen gives it the whole window. */
+/**
+ * The scanner's box on the page: 3:4, at most a phone's 420 dp wide, with the surface corners. A real screen gives it
+ * the whole window. (At a tablet's page width a 3:4 box was taller than the window, so its states sat below the fold.)
+ */
 @Composable
 private fun ScannerBox(content: @Composable () -> Unit) {
-    Box(Modifier.fillMaxWidth().aspectRatio(3f / 4f).clip(QeetrixShapes.Surface)) { content() }
+    Box(
+        Modifier
+            .widthIn(max = 420.dp)
+            .fillMaxWidth()
+            .aspectRatio(3f / 4f)
+            .clip(QeetrixShapes.Surface),
+    ) { content() }
 }
 
 /** What the camera sees, drawn: a desk and a QR code on it. */

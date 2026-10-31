@@ -36,9 +36,9 @@ unverified ground.
 | Static checks | Lint: no issues in either module; ktlint clean; API baseline unchanged; tokens current | |
 | AAR | Valid; contents, manifest, metadata and resources as expected | [AAR-VERIFICATION.md](AAR-VERIFICATION.md) |
 | Maven metadata | POM and module metadata correct; release variant only; dependencies from Google Maven and Maven Central | [MAVEN-DISTRIBUTION.md](MAVEN-DISTRIBUTION.md) |
-| Independent consumer | Resolves by coordinates; debug and R8 release build; on the API 36 phone 12/12 Compose tests and 4/4 release smoke tests | [CONSUMER-INTEGRATION.md](CONSUMER-INTEGRATION.md) |
-| Library device tests | 16/16 on the API 36 phone | ATF over every catalogue component and overlay window, Back on overlays, layout, insets |
-| Components on a device | Every component added for the Android tickets tried one by one on the API 36 phone in light, dark, 200 % text and right to left; every defect found was fixed, each with a test | [CHANGELOG.md](../../CHANGELOG.md) › Fixed on the device pass |
+| Independent consumer | Resolves by coordinates; debug and R8 release build; on the API 36 phone and the API 36 tablet 12/12 Compose tests and 4/4 release smoke tests | [CONSUMER-INTEGRATION.md](CONSUMER-INTEGRATION.md) |
+| Library device tests | 16/16 on the API 36 phone; on the API 36 tablet 15/16 — the ATF check found rc2-2 — and 16/16 after its fix | ATF over every catalogue component and overlay window, Back on overlays, layout, insets |
+| Components on a device | Every component added for the Android tickets tried one by one on the API 36 phone in light, dark, 200 % text and right to left, then on the API 36 tablet; every defect found was fixed, each with a test | [CHANGELOG.md](../../CHANGELOG.md) › Fixed on the device pass, Fixed on the tablet pass |
 | Licences | All bundled assets OFL 1.1 / MIT / ISC, unmodified, texts included; 92 runtime dependencies Apache 2.0; SBOM of 95 components | [LICENSE-COMPLIANCE.md](LICENSE-COMPLIANCE.md) |
 | Security and privacy | No permissions, components, networking, logging or persistence of input in the AAR; the QR scanner's camera permission is the app's to declare and ask for | [SECURITY.md](../../SECURITY.md) |
 | Cross-platform | Token inputs and fonts byte-identical with qeetrix-ios; the same version and versioning policy | [CROSS_PLATFORM_CONTRACT.md](../CROSS_PLATFORM_CONTRACT.md) |
@@ -48,6 +48,8 @@ unverified ground.
 | # | Severity | Defect | Status |
 |:--|:--|:--|:--|
 | rc2-1 | P2 | The dependencies gate failed: `Scripts/dependency-inventory` wrote the SBOM's font and icon entries from a GitHub repository and tag the lock file no longer records — since the migration they come from `@qeetrix/tokens` and `@qeetrix/icons` on npm | Fixed: the entries name the npm package, version and the file taken, with the registry's integrity hash; the gate passes |
+| rc2-2 | P2 | On the tablet, `QeetrixBottomActionBar`'s `fullWidth` actions each took the bar's width from `breakpoint.medium`, so the row ran off the window's start edge and the first action was out of sight (ATF: a 24 dp touch target) | Fixed on `develop` after the candidate, with `QeetrixBottomActionBarTest`; not in the `0.1.0-rc.2` artifact |
+| rc2-3 | P3 | On the tablet, `QeetrixFullScreenForm`'s form sheet kept the window's dim under the scrim, darkening the screen twice (`#3E3E3E` where the scrim gives `#999897`) | Fixed on `develop` after the candidate, with `QeetrixFullScreenFormTest`; not in the `0.1.0-rc.2` artifact |
 
 ## Evidence
 
@@ -80,10 +82,11 @@ Builds are not claimed to be bit-for-bit reproducible.
 
 Before the internal pre-release:
 
-1. **Re-run** `Scripts/release-candidate 0.1.0-rc.2 --devices` from a clean commit.
+1. **Build the next candidate** (`0.1.0-rc.3`, with rc2-2 and rc2-3 fixed) with `Scripts/release-candidate --devices` from a
+   clean commit.
 2. **Choose the registry** (GitHub Packages, private, is recommended) and create the protected publishing environment
    and credential ([MAVEN-DISTRIBUTION.md](MAVEN-DISTRIBUTION.md)).
-3. **Approve the version** `0.1.0-rc.2`, publish it once, and tag the commit `v0.1.0-rc.2`.
+3. **Approve that version**, publish it once, and tag its commit.
 
 Before a production release: the four [conditions for GO](#conditions-for-go).
 
