@@ -21,7 +21,7 @@ legal advice.
 
 92 artifacts on the locked release runtime classpath, every one **Apache 2.0** as declared in its own POM
 (`Scripts/dependency-inventory`, which fails a release candidate on any other or unknown licence): AndroidX
-(Compose, Material 3 for the date and time pickers, pull to refresh and the bottom sheet, Activity, Lifecycle, Core and their dependencies), Kotlin's standard
+(Compose, Material 3 for the date and time pickers and pull to refresh, Activity, Lifecycle, Core and their dependencies), Kotlin's standard
 library, kotlinx-coroutines, JetBrains annotations and JSpecify. None is bundled in the AAR; the app resolves them.
 
 ## Tools (not distributed)

@@ -81,7 +81,7 @@ semantics tree, including the semantics of dialog and popup windows.
 | Tabs | A selectable group of tabs with their selection and count; disabled tabs unavailable | 48 dp touch area; each tab its own focus stop, its frame inside; the row grows with the text |
 | Alert, confirmation dialog | A dialog window titled by the dialog; the title is a heading and the pane title | Keyboard focus starts on the first (cancelling) action; actions run once; Back closes without an action |
 | Dialog | As the alert dialog; the close button is "Close" (`qx_close`) | Keyboard focus starts on the first field, else the first action; the body scrolls between the header and footer at large text sizes |
-| Bottom sheet | The handle ("Drag handle", `qx_drag_handle`) offers expand, collapse and dismiss actions; the title is a heading and the pane title | Back always closes it |
+| Bottom sheet | The handle is only a mark, not a control; the close button, Back and Escape close it; a partially expandable sheet opens fully under touch exploration and expands when focus moves in; the title is a heading and the pane title | Back always asks to close it |
 | Menu | Items read with their labels and descriptions; checkbox and radio items with their roles and states; disabled items unavailable; group labels are headings; shortcuts and separators are skipped | Keyboard focus starts on the first available item; arrow keys move; Escape closes and returns focus to the trigger; 48 dp rows |
 | Snackbar | One live region (assertive for `Danger`) with a Dismiss action; its buttons are their own controls | An action has no time limit while TalkBack is on; the timeout follows the accessibility setting |
 

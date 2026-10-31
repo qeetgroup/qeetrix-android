@@ -10,6 +10,9 @@ compose-bom = "2026.09.00"
 activity-compose = "1.13.0"
 # What activity-compose 1.13.0 already brings; the sample uses it directly.
 lifecycle-runtime-compose = "2.9.4"
+# The library's own: the version Compose UI and Material 3 already bring to an app (qeetrix/gradle.lockfile), so
+# compiling against it adds nothing to an app's classpath. For the sheets' predictive back (OnBackPressedCallback).
+androidx-activity = "1.8.2"
 kotlinx-serialization-json = "1.11.0"
 junit4 = "4.13.2"
 robolectric = "4.17"
@@ -29,8 +32,10 @@ compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
 compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 compose-animation-core = { group = "androidx.compose.animation", name = "animation-core" }
-# Implementation only, for one primitive: ModalBottomSheet (Documentation/Decisions/0015-navigation-overlays-and-feedback.md).
+# Implementation only, for the platform's date and time pickers and pull to refresh's nested scroll; no Material type is public
+# (Documentation/Decisions/0015-navigation-overlays-and-feedback.md).
 compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "androidx-activity" }
 compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }

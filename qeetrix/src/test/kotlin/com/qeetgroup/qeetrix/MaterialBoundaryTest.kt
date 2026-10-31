@@ -10,14 +10,14 @@ import java.util.jar.JarFile
 
 /**
  * Material 3 is an implementation detail of a few components (Documentation/Decisions/0015-navigation-overlays-and-feedback.md):
- * the bottom sheet's primitive, the platform's own date and time pickers (QTRX-120, QTRX-128 ask for them, themed by
- * Qeetrix) and pull to refresh's nested-scroll handling (QTRX-107, drawn by Qeetrix). Only those files may use it, and
- * nothing public may mention it. This keeps Material from becoming the design authority one convenient import at a time.
+ * the platform's own date and time pickers (QTRX-120, QTRX-128 ask for them, themed by Qeetrix) and pull to refresh's
+ * nested-scroll handling (QTRX-107, drawn by Qeetrix). The bottom sheet no longer is (QTRX-198). Only those files may use
+ * it, and nothing public may mention it. This keeps Material from becoming the design authority one convenient import at a time.
  */
 class MaterialBoundaryTest {
     private val sources = File("src/main/kotlin")
 
-    /** Any mention of Material's packages — an import, or a name written out in full — is in the bottom sheet's file. */
+    /** Any mention of Material's packages — an import, or a name written out in full — is in one of the allowed files. */
     @Test
     fun onlyTheAllowedComponentsUseMaterial() {
         assertTrue("run from the qeetrix module: ${sources.absolutePath}", sources.isDirectory)
@@ -31,7 +31,6 @@ class MaterialBoundaryTest {
         assertEquals(
             listOf(
                 "com/qeetgroup/qeetrix/components/datepicker/QeetrixDateField.kt",
-                "com/qeetgroup/qeetrix/components/drawer/QeetrixBottomSheet.kt",
                 "com/qeetgroup/qeetrix/components/list/QeetrixPullToRefresh.kt",
             ),
             using.sorted(),
@@ -40,7 +39,7 @@ class MaterialBoundaryTest {
 
     /**
      * The compiled library, as the test runs it: no public or protected class, method, constructor or field names a
-     * Material type — the bottom sheet's parameters, its size and every other declaration included. Checked on the
+     * Material type — the date fields' parameters and every other declaration included. Checked on the
      * bytecode, so it holds whatever the API baseline says; `internal` declarations are public in bytecode, so it is
      * stricter than the public API.
      */

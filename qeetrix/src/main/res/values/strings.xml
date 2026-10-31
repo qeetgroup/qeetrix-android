@@ -35,9 +35,6 @@
     <string name="qx_cancel">Cancel</string>
     <!-- pageHeader.back: the top app bar's back button. -->
     <string name="qx_back">Back</string>
-    <!-- The bottom sheet's grab handle, which carries its expand, collapse and dismiss actions for accessibility
-         services. The web's drawer has no handle; Android's sheets expose it, as Material's do. -->
-    <string name="qx_drag_handle">Drag handle</string>
     <!-- The state of an accordion trigger for TalkBack, read after its title. The web leaves this to the screen
          reader's reading of aria-expanded, which Compose has no property for; qeetrix-ios uses the same words. -->
     <string name="qx_expanded">Expanded</string>

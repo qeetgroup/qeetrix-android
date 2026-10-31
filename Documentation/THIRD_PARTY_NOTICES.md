@@ -1,8 +1,8 @@
 # Third-party notices
 
 What Qeetrix for Android redistributes, under which licence, and where the licence text ships. The
-library has no third-party runtime code beyond AndroidX — Compose, including Material 3 for the bottom sheet
-alone, and Activity (Apache 2.0, resolved by the app from Google's Maven repository, not bundled in the
+library has no third-party runtime code beyond AndroidX — Compose, including Material 3 for the date and time
+pickers and pull to refresh, and Activity (Apache 2.0, resolved by the app from Google's Maven repository, not bundled in the
 AAR).
 
 | Asset | Shipped as | Source | Licence | Licence text in the AAR |

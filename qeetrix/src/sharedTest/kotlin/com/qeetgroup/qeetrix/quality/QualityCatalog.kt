@@ -980,7 +980,7 @@ internal val QualityCatalog: List<QualitySpecimen> =
             )
         },
         QualitySpecimen("bottom-sheet") {
-            // QeetrixBottomSheet's handle and parts, drawn in place: Material's sheet is a window of its own.
+            // QeetrixBottomSheet's handle and parts, drawn in place: the sheet is a window of its own.
             Column(Modifier.fillMaxWidth().background(QeetrixTheme.colors.surfaceOverlay)) {
                 DragHandle()
                 SheetLayout(

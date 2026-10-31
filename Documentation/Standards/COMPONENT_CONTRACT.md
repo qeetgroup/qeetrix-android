@@ -112,10 +112,11 @@ there is no Gradle module per component or category ([0001](../Decisions/0001-si
 ## What a component must not do
 
 - Depend on Material 3 for its look. Foundation primitives are used underneath where they preserve
-  Qeetrix's design and accessibility (`BasicTextField`, `Dialog`, `Popup`). Material 3 itself is used for
-  one primitive only — `ModalBottomSheet`, inside `QeetrixBottomSheet` — with every colour and shape
-  supplied by Qeetrix and no Material type in the public API; `MaterialBoundaryTest` fails on any other
-  import ([0015](../Decisions/0015-navigation-overlays-and-feedback.md)).
+  Qeetrix's design and accessibility (`BasicTextField`, `Dialog`, `Popup`). Material 3 itself is used only
+  where the platform's own control is asked for — the date and time pickers, inside the date fields — and
+  for pull to refresh's nested scroll, with every colour and shape supplied by Qeetrix and no Material type
+  in the public API; `MaterialBoundaryTest` fails on any other import
+  ([0015](../Decisions/0015-navigation-overlays-and-feedback.md)).
 - Own navigation or global state: no router, back stack, Back handler, singleton or global service.
 - Own data: no fetching, caching, pagination, search index, filter engine or image loading, and no
   networking, database or image-loading dependency; collections are Compose's lazy layouts, not wrapped or

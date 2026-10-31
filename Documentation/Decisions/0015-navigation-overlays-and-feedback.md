@@ -39,6 +39,11 @@ exposing the bare platform pieces, so that products share no contract.
    the Qeetrix scrim (`component.dialog.scrim`) in place of the platform dim. Menus use Compose's `Popup`,
    sharing the select list's anchored placement and motion. The bottom sheet is Material 3's
    `ModalBottomSheet`, in its own window. There is no Qeetrix overlay layer or modal manager.
+   *Amended 2026-10-31 (QTRX-198):* the bottom sheet is now built on Compose foundation in a `Dialog` window, as
+   the dialogs are — anchored dragging, nested scrolling and predictive back written for it (`SheetWindow`) —
+   because Material's sheet made its 12 dp handle row a clickable control (finding Q-6) and moved on its own
+   motion. Point 4 below now covers the date and time fields' pickers and pull to refresh's nested scroll, which
+   came later (QTRX-120, 128, 107); the sheet's file no longer imports Material.
 4. **Material 3, for one primitive.** `material3` is an `implementation` dependency so that
    `QeetrixBottomSheet` can wrap `ModalBottomSheet` — the only foundation-level gap: dragging between
    anchors, nested scrolling, predictive back, and the handle's expand, collapse and dismiss actions.

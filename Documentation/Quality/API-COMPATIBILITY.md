@@ -18,8 +18,8 @@ rules are [PUBLIC_API.md](../Standards/PUBLIC_API.md) and [0013](../Decisions/00
 Every public declaration has explicit visibility and type (`explicitApi()`). There are **no public data
 classes**, so no `copy`/`componentN` methods that would break binary compatibility as properties are added. The two
 scopes (`QeetrixFieldScope`, `QeetrixMenuScope`) are `sealed` interfaces apps cannot implement. No public type is
-experimental; the one opt-in in the library (`ExperimentalMaterial3Api`, for the bottom sheet) is internal to one
-file and no Material type is public (`MaterialBoundaryTest`).
+experimental; the one opt-in in the library (`ExperimentalMaterial3Api`, for the platform's date and time pickers) is
+internal to one file and no Material type is public (`MaterialBoundaryTest`).
 
 ## How compatibility is checked
 

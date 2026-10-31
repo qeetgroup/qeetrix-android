@@ -242,11 +242,7 @@ private val SmallByDesign: List<String> =
 
 /**
  * Controls under 48 dp that are recorded findings, not by design, each excluded here by name until the component
- * changes: the control, and the finding.
+ * changes: the control, and the finding. None now: Q-6, Material's 12 dp clickable handle row on the bottom sheet, went
+ * with Material's sheet (QTRX-198).
  */
-private val SmallFindings: Map<String, String> =
-    mapOf(
-        "bottom-sheet window: Drag handle" to
-            "Q-6: Material's sheet makes the handle row a focusable, clickable control (expand, collapse, dismiss); " +
-            "QeetrixBottomSheet's handle row is 12 dp tall (HandleRow), with the scrim above it and the sheet's drag area below",
-    )
+private val SmallFindings: Map<String, String> = emptyMap()

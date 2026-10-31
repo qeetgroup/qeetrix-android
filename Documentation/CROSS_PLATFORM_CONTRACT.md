@@ -131,7 +131,7 @@ scrubbing; each radio option is its own keyboard focus stop rather than one stop
 | Screen header | `QeetrixTopAppBar` drawn by Qeetrix, with `QeetrixBackButton` | The system navigation bar, styled with `qeetrixNavigationBar(background:)` |
 | Alert and confirmation | Qeetrix's surface in Compose's dialog window; the confirmation is the alert with two fixed roles | The system alert and the system confirmation dialog (action sheet), in the system's style |
 | Custom dialog | `QeetrixDialog`, centred on every window size | Deferred: a sheet (a centred form sheet on iPad) |
-| Sheet | `QeetrixBottomSheet` (Material's sheet underneath, Qeetrix's surface); predictive back | `qeetrixSheet` with detents, the system sheet |
+| Sheet | `QeetrixBottomSheet` (Compose foundation in its own window, drawer.css's motion); predictive back | `qeetrixSheet` with detents, the system sheet |
 | Menu | Qeetrix's surface in a popup (`component.menu`) | The system menu |
 | Popover | Deferred: menu, dialog or bottom sheet | `qeetrixPopover`, a sheet on iPhone by default |
 | Transient feedback | `QeetrixSnackbar`; while TalkBack is on, an action has no time limit | `QeetrixToast`; while VoiceOver is on, the same |

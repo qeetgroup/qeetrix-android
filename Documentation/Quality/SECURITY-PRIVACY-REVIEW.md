@@ -36,7 +36,7 @@ the user types (only the password field's reveal flag), and logs nothing.
 ## Dependencies the library hands to apps
 
 From `qeetrix/gradle.lockfile`, `releaseRuntimeClasspath` (92 artifacts): Compose runtime, UI, foundation,
-animation and Material 3 (the bottom sheet only), with their AndroidX transitive dependencies (lifecycle,
+animation and Material 3 (the date and time pickers and pull to refresh), with their AndroidX transitive dependencies (lifecycle,
 savedstate, activity, core, collection, annotation, emoji2, window, autofill, profileinstaller, startup, tracing
 and others), kotlin-stdlib and kotlinx-coroutines and -serialization-core. Phase 6 added test-only dependencies
 (`ui-test-junit4-accessibility`, which brings the Accessibility Test Framework 4.1.1, Apache-2.0); the release

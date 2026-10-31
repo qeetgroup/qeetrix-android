@@ -114,9 +114,18 @@ page in the sample app, which now has one for every new component.
     and the bar shares or stacks as on a phone when they don't fit in a row.
   - `QeetrixFullScreenForm`: as a form sheet its window kept the platform's dim under the scrim, darkening the screen
     twice (`#3E3E3E` where the scrim gives `#999897`).
+- **`QeetrixBottomSheet` without Material** (QTRX-198): built on Compose foundation in its own window, as the dialogs
+  are, instead of wrapping Material 3's `ModalBottomSheet`. Its public API is unchanged. The handle is only a mark —
+  Material made its 12 dp row a focusable, clickable control (finding Q-6, now gone from the quality scans and the
+  device test) — and the close button, Back and Escape close the sheet. It moves on drawer.css's motion
+  (`motion.duration.slow` in on `motion.easing.enter`, `motion.duration.normal` out on `motion.easing.exit`, at once
+  under reduced motion), draws `shadow.modal`, follows the finger and the fling, scrolls its content before it moves,
+  shrinks with the predictive back gesture, and an app that keeps `open` after a swipe gets it back. A partially
+  expandable sheet opens fully under touch exploration and expands when focus moves into it. `modifier` now goes to
+  the sheet's surface as it moves. The string `qx_drag_handle` is removed. The library now compiles against
+  `androidx.activity` 1.8.2 for the sheet's back handling — the version Compose already brings to an app.
 - **Not done yet:** QTRX-126 (searchable picker), 190 (Select multiple / open / type-to-jump), 191 (Menu submenus,
-  context menu, side and align), 192 (Snackbar promise and stacking), 195 (side sheet), 198 (the bottom sheet without
-  Material's handle and motion).
+  context menu, side and align), 192 (Snackbar promise and stacking), 195 (side sheet).
 
 ### Added
 

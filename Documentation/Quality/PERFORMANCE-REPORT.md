@@ -45,7 +45,7 @@ Every animation was reviewed for per-frame work:
 | Switch | Thumb position in `offset {}` (layout only); track and thumb colours through composition while they change | Colour changes are short and one switch at a time |
 | Tabs | Indicator in `drawBehind`; label colour through composition while it changes | As switch |
 | Accordion | Compose's size animation | Opens at once with animations removed |
-| Bottom sheet | Material 3's sheet | Material's own |
+| Bottom sheet | Position read in layout (`layout {}` placement), scrim alpha in `drawBehind`, back-gesture scale in `graphicsLayer`: dragging and the slide never recompose | Arrives at once with animations removed (QTRX-198) |
 
 ## Memory and allocation
 

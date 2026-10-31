@@ -94,7 +94,7 @@ release gates, its device tests and the independent consumer app included
 | 🟣 Kotlin / Compose | Built with Kotlin 2.4.21 and Compose 1.12.1 (BOM 2026.09.00) |
 | 📲 An app using it | Compile SDK 37 and AGP 9.1 or newer (Compose 1.12 requires both); Kotlin 2.3 or newer ([compatibility matrix](Documentation/Releases/COMPATIBILITY-MATRIX.md)) |
 | 🛠️ Building this repository | Android Gradle Plugin 9.4.1, Gradle 9.6.1 (wrapper), JDK 17 or newer (21 recommended) |
-| 📚 Runtime dependencies | Compose runtime, UI, foundation and animation-core. Material 3, internally only, for the bottom sheet, the date and time pickers and pull to refresh — no Material type in the public API ([0015](Documentation/Decisions/0015-navigation-overlays-and-feedback.md)). No networking, database or image loading |
+| 📚 Runtime dependencies | Compose runtime, UI, foundation and animation-core. Material 3, internally only, for the date and time pickers and pull to refresh — no Material type in the public API ([0015](Documentation/Decisions/0015-navigation-overlays-and-feedback.md)). No networking, database or image loading |
 
 ## 📦 Using Qeetrix in an app
 
@@ -373,9 +373,9 @@ against a local publication.
 
 - 📦 **Not published.** Use it as a composite build until a new release candidate, the registry and a version are
   approved.
-- ⏳ **Six Android tickets deferred:** a searchable picker (QTRX-126); Select's multiple choice, open state and
+- ⏳ **Five Android tickets deferred:** a searchable picker (QTRX-126); Select's multiple choice, open state and
   type-to-jump (190); Menu's submenus, context menu, side and alignment (191); the snackbar's promise and stacking
-  (192); a side sheet (195); a bottom sheet without Material's handle and motion (198).
+  (192); a side sheet (195).
 - 🧩 **Not every `@qeetrix/react` family** has an Android counterpart: no data table, charts, combobox, popover or
   navigation drawer ([0015](Documentation/Decisions/0015-navigation-overlays-and-feedback.md),
   [0016](Documentation/Decisions/0016-data-display-and-content-states.md)).

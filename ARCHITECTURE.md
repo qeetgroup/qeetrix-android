@@ -181,9 +181,10 @@ component, and follows [COMPONENT_CONTRACT.md](Documentation/Standards/COMPONENT
 - **Built from foundation primitives**, not Material: `BasicText`, `BasicTextField` and
   `BasicSecureTextField` with a `TextFieldState`, `clickable` / `toggleable` / `selectable` with
   `indication = null` and the web's colour steps, `Popup` for the select list and the menu, `Dialog` windows for
-  the dialogs, `progressSemantics`, `Canvas` for the spinner and progress. The one exception is the bottom sheet,
-  which wraps Material 3's `ModalBottomSheet` with Qeetrix's surface; `MaterialBoundaryTest` keeps Material in that
-  one file.
+  the dialogs and the bottom sheet, `progressSemantics`, `Canvas` for the spinner and progress. The exceptions are the
+  date and time fields, which show the platform's own pickers (Material 3's) in Qeetrix's colours, and pull to
+  refresh's nested scroll; `MaterialBoundaryTest` keeps Material in those files. The bottom sheet wrapped Material 3's
+  `ModalBottomSheet` until QTRX-198.
 - **State is the app's.** Selections, `open` flags, expansion, queries, load states and values come in as
   parameters, under `@qeetrix/react`'s names; Qeetrix keeps only presentation state and owns no navigation, back
   stack, Back handler or data ([NAVIGATION_AND_OVERLAYS.md](Documentation/Standards/NAVIGATION_AND_OVERLAYS.md),

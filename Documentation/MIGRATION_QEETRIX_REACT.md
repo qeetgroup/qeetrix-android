@@ -293,10 +293,10 @@ reduced-motion rule) and G8 (Android strings, not an upstream gap).
 | B25 | QTRX-177, QTRX-178 | Select options, Menu items and AvatarItem ended in an ellipsis | react 0.4.0: they wrap, the side parts on the first line | Options and items already wrapped; their icon, mark, shortcut, meta and check now stay on the first line; AvatarItem wraps; Q-14 no longer happens and is removed |
 | B26 | QTRX-179 | DescriptionItem's `description` and `action` weren't in 07 | specs list them | Unchanged |
 
-Also recorded for the owner, Android's own and still open: Material 3's `ModalBottomSheet` makes its 12 dp drag-handle row a
-clickable control (Q-6) and moves on its own motion, not `motion.duration.slow` (QTRX-198); OTP slots at 200 % in a compact
-phone (Q-15, above). Done in the ticket work: paragraphs take their direction from their text in right to left (Q-13,
-QTRX-199), and a long placeholder ends in an ellipsis at large text (Q-5, QTRX-197).
+Also recorded for the owner, Android's own and still open: OTP slots at 200 % in a compact phone (Q-15, above). Done in the
+ticket work: paragraphs take their direction from their text in right to left (Q-13, QTRX-199), a long placeholder ends in
+an ellipsis at large text (Q-5, QTRX-197), and the bottom sheet is built on Compose foundation, so Material's 12 dp
+clickable drag-handle row (Q-6) is gone and the sheet moves on `motion.duration.slow` (QTRX-198).
 
 Found on the device pass (31 October 2026) and filed upstream: the dark Progress and Meter track is darker than every
 surface, 1.03:1 on the canvas (QTRX-213); a disabled pressed toggle keeps its bold fill and looks enabled (QTRX-214);
@@ -324,7 +324,7 @@ and `value`). Both need reconciling before the files can be diffed directly.
   are fixed (CHANGELOG › Fixed on the tablet pass). Still to do: new device screenshots — those in
   `docs-redesign-mockups/migration/android/devices/` are from 30 October, before the bump. The emulator was unstable
   under the machine's load (two crashes, one hang); running it headless helped.
-- **Android tickets not done:** QTRX-126, 190, 191, 192, 195 and 198 (see CHANGELOG).
-- **Material 3** is now used, internally, by the bottom sheet, the date and time fields (the platform's pickers in
-  Qeetrix's colours, as QTRX-120 and 128 ask) and pull to refresh (its nested scroll); `MaterialBoundaryTest` lists the
-  three files and no public API names a Material type.
+- **Android tickets not done:** QTRX-126, 190, 191, 192 and 195 (see CHANGELOG).
+- **Material 3** is now used, internally, by the date and time fields (the platform's pickers in Qeetrix's colours, as
+  QTRX-120 and 128 ask) and pull to refresh (its nested scroll); `MaterialBoundaryTest` lists the two files and no public
+  API names a Material type. The bottom sheet no longer uses it (QTRX-198).

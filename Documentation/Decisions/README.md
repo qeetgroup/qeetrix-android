@@ -6,7 +6,7 @@ after it is accepted; a later record supersedes it.
 | Record | Decision | Status |
 |:--|:--|:--|
 | [0001](0001-single-library-module.md) | One library module, `:qeetrix`, plus the `:sample` app | Accepted |
-| [0002](0002-gradle-build-and-dependency-policy.md) | Gradle build and dependency policy | Accepted; "no Material" replaced by 0015 for the bottom sheet |
+| [0002](0002-gradle-build-and-dependency-policy.md) | Gradle build and dependency policy | Accepted; "no Material" replaced by 0015 for the platform pickers and pull to refresh (the bottom sheet until QTRX-198) |
 | [0003](0003-repository-layout.md) | Repository layout | Accepted |
 | [0004](0004-tokens-from-the-published-qeetrix-ui-build.md) | Tokens come from the published `@qeetrix/ui` build | Superseded by 0019 |
 | [0005](0005-colour-conversion-per-css-color-4.md) | Colours are converted per CSS Color 4 | Accepted |

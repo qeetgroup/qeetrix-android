@@ -23,7 +23,7 @@ From the registry the owner approves ([MAVEN-DISTRIBUTION.md](MAVEN-DISTRIBUTION
 |:--|:--|
 | Android | 10 (API 29) or newer, phones and tablets |
 | An app's build | Compile SDK 37, Android Gradle Plugin 9.1 or newer (required by Compose 1.12), Kotlin 2.3 or newer |
-| Brings | Compose runtime, UI, foundation, animation-core 1.12.1 (public API types); Material 3 1.4.0 (internally, for the date and time pickers, pull to refresh and the bottom sheet; no Material type is public); Kotlin standard library 2.4.21 |
+| Brings | Compose runtime, UI, foundation, animation-core 1.12.1 (public API types); Material 3 1.4.0 (internally, for the date and time pickers and pull to refresh; no Material type is public); Kotlin standard library 2.4.21 |
 | Keep rules | None |
 
 ## What is in it

@@ -29,7 +29,7 @@ Dependencies an app receives, as published:
 | Scope | Artifacts |
 |:--|:--|
 | API (on the app's compile classpath — public Qeetrix signatures use their types) | `androidx.compose.runtime:runtime`, `androidx.compose.ui:ui`, `androidx.compose.animation:animation-core`, `androidx.compose.foundation:foundation` 1.12.1; `org.jetbrains.kotlin:kotlin-stdlib` 2.4.21 |
-| Runtime only | `androidx.compose.material3:material3` 1.4.0 (the bottom sheet's implementation; no Material type is public); the Compose BOM 2026.09.00 as a platform, aligning the app's Compose artifacts to at least the tested versions |
+| Runtime only | `androidx.compose.material3:material3` 1.4.0 and `androidx.activity:activity` 1.8.2 (the date and time pickers, pull to refresh and the sheets' back handling; no Material type is public); the Compose BOM 2026.09.00 as a platform, aligning the app's Compose artifacts to at least the tested versions |
 
 Everything comes from Google's Maven repository and Maven Central, which every Android app already uses.
 `Scripts/verify-publication` checks the coordinates, files, checksums, variants and dependency sources of a
