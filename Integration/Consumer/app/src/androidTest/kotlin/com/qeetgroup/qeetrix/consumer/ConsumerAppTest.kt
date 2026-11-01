@@ -91,16 +91,22 @@ class ConsumerAppTest {
         assertTrue("text height $before → $after", after > before * 1.5)
     }
 
+    /**
+     * The text's gap at the start becomes the same gap at the end: mirrored whatever the screen's width. (A fixed
+     * 100 px move failed on CI's 320 px emulator, where the text could move only 84 px.)
+     */
     @Test
     fun rightToLeftMirrorsTheLayout() {
         // Scrolled into view first: on a short landscape screen the switch below pushes it off.
-        fun titleLeft(): Float = compose.onNodeWithText("Body text in the Qeet typeface").performScrollTo().fetchSemanticsNode().boundsInRoot.left
-        val ltr = titleLeft()
+        fun title() = compose.onNodeWithText("Body text in the Qeet typeface").performScrollTo().fetchSemanticsNode().boundsInRoot
+        val width = compose.onRoot().fetchSemanticsNode().boundsInRoot.width
+        val ltr = title()
         compose.onNodeWithText("Right to left").performScrollTo().performClick()
         compose.onNodeWithText("Right to left").assertIsOn()
         compose.waitForIdle()
-        val rtl = titleLeft()
-        assertTrue("the text moves from the left ($ltr) to the right ($rtl)", rtl > ltr + 100)
+        val rtl = title()
+        assertTrue("the text moves right (${ltr.left} → ${rtl.left})", rtl.left > ltr.left)
+        assertEquals("the start gap (${ltr.left}) becomes the end gap (${width - rtl.right})", ltr.left, width - rtl.right, 2f)
     }
 
     @Test

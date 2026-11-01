@@ -11,21 +11,24 @@ import org.junit.Test
 import java.io.File
 import java.nio.file.Files
 
-/** `new-component` against the real repository (planning only) and against a temporary copy (writing). */
+/**
+ * `new-component` against the real repository (planning only) and against a temporary copy (writing), for a component
+ * the library does not have yet: `@qeetrix/react`'s Pagination. (It was Slider until QeetrixSlider was built, QTRX-130.)
+ */
 class ComponentScaffoldTest {
     private val root = File(System.getProperty("qeetrix.root"))
-    private val slider = Request("Slider", "Slider", "Forms & inputs")
+    private val pagination = Request("Pagination", "Pagination", "Navigation")
 
     @Test
     fun plansEveryFileForANewComponentWithoutWritingAny() {
-        val changes = ComponentScaffold(root).plan(slider)
+        val changes = ComponentScaffold(root).plan(pagination)
         assertEquals(
             listOf(
-                "create qeetrix/src/main/kotlin/com/qeetgroup/qeetrix/components/slider/QeetrixSlider.kt",
-                "create qeetrix/src/test/kotlin/com/qeetgroup/qeetrix/components/slider/QeetrixSliderTest.kt",
-                "create qeetrix/src/test/kotlin/com/qeetgroup/qeetrix/components/slider/QeetrixSliderScreenshotTest.kt",
-                "create sample/src/main/kotlin/com/qeetgroup/qeetrix/sample/components/forms/SliderSample.kt",
-                "create Documentation/Components/Slider.md",
+                "create qeetrix/src/main/kotlin/com/qeetgroup/qeetrix/components/pagination/QeetrixPagination.kt",
+                "create qeetrix/src/test/kotlin/com/qeetgroup/qeetrix/components/pagination/QeetrixPaginationTest.kt",
+                "create qeetrix/src/test/kotlin/com/qeetgroup/qeetrix/components/pagination/QeetrixPaginationScreenshotTest.kt",
+                "create sample/src/main/kotlin/com/qeetgroup/qeetrix/sample/components/navigation/PaginationSample.kt",
+                "create Documentation/Components/Pagination.md",
                 "update ${ComponentScaffold.CATALOG_PATH}",
                 "update ${ComponentScaffold.INDEX_PATH}",
             ),
@@ -34,14 +37,14 @@ class ComponentScaffoldTest {
         assertFalse(File(root, changes.first().path).exists())
         for (change in changes) assertFalse("${change.path} keeps a placeholder", "{{" in change.contents)
         val source = changes.first().contents
-        assertTrue("package com.qeetgroup.qeetrix.components.slider" in source)
-        assertTrue("public fun QeetrixSlider(modifier: Modifier = Modifier)" in source)
+        assertTrue("package com.qeetgroup.qeetrix.components.pagination" in source)
+        assertTrue("public fun QeetrixPagination(modifier: Modifier = Modifier)" in source)
         assertTrue("level = DeprecationLevel.ERROR" in source && "    scaffold()\n" in source)
     }
 
     @Test
     fun theSameRequestGivesTheSameBytes() {
-        assertEquals(ComponentScaffold(root).plan(slider), ComponentScaffold(root).plan(slider))
+        assertEquals(ComponentScaffold(root).plan(pagination), ComponentScaffold(root).plan(pagination))
     }
 
     @Test
@@ -58,11 +61,11 @@ class ComponentScaffoldTest {
     @Test
     fun namesFamiliesSlugsAndGroupsAreValidated() {
         fun failure(request: Request) = assertThrows(GeneratorError::class.java) { ComponentScaffold(root).plan(request) }.message.orEmpty()
-        assertTrue("UpperCamelCase" in failure(Request("Checkbox", "checkbox", "Forms & inputs")))
-        assertTrue("without the Qeetrix prefix" in failure(Request("Checkbox", "QeetrixCheckbox", "Forms & inputs")))
+        assertTrue("UpperCamelCase" in failure(Request("Checkbox", "checkbox", "Navigation")))
+        assertTrue("without the Qeetrix prefix" in failure(Request("Checkbox", "QeetrixCheckbox", "Navigation")))
         assertTrue("Unknown category \"Inputs\"" in failure(Request("Checkbox", "Checkbox", "Inputs")))
         // The family and part come from @qeetrix/react's component manifest.
-        assertTrue("No family \"tick-box\"" in failure(Request("TickBox", "TickBox", "Forms & inputs")))
+        assertTrue("No family \"tick-box\"" in failure(Request("TickBox", "TickBox", "Navigation")))
         assertTrue("card has no part \"IconButton\"" in failure(Request("Card", "IconButton", "Actions")))
     }
 
@@ -95,22 +98,24 @@ class ComponentScaffoldTest {
     fun writingTwiceChangesNothingTheSecondTime() {
         val copy = repositoryCopy()
         val scaffold = ComponentScaffold(copy)
-        scaffold.apply(scaffold.plan(slider))
+        scaffold.apply(scaffold.plan(pagination))
 
         val catalog = File(copy, ComponentScaffold.CATALOG_PATH).readText()
         assertTrue(
-            "        SampleEntry(\"slider\", \"Slider\", SampleCategory.Forms) { SliderSample() },\n" +
+            "        SampleEntry(\"pagination\", \"Pagination\", SampleCategory.Navigation) { PaginationSample() },\n" +
                 ComponentScaffold.CATALOG_MARKER in catalog,
         )
         val imports = catalog.lines().filter { it.startsWith("import ") }
-        assertTrue("import com.qeetgroup.qeetrix.sample.components.forms.SliderSample" in imports)
+        assertTrue("import com.qeetgroup.qeetrix.sample.components.navigation.PaginationSample" in imports)
         assertEquals(imports.sorted(), imports)
         val index = File(copy, ComponentScaffold.INDEX_PATH).readText().lines()
-        val row = index.indexOfFirst { "[Slider](Slider.md)" in it }
-        assertTrue(index[row - 1].startsWith("| Forms & inputs | [Textarea]"))
+        val row = index.indexOfFirst { "[Pagination](Pagination.md)" in it }
+        // At the end of its category's rows, whichever they are as the index grows.
+        assertTrue(index[row - 1].startsWith("| Navigation |"))
+        assertFalse(index[row + 1].startsWith("| Navigation |"))
 
         val written = copy.walkTopDown().filter { it.isFile }.associateWith { it.readText() }
-        assertThrows(GeneratorError::class.java) { scaffold.plan(slider) }
+        assertThrows(GeneratorError::class.java) { scaffold.plan(pagination) }
         assertEquals(written, copy.walkTopDown().filter { it.isFile }.associateWith { it.readText() })
     }
 
@@ -118,13 +123,13 @@ class ComponentScaffoldTest {
     fun aFileThatAppearsAfterPlanningIsNotOverwritten() {
         val copy = repositoryCopy()
         val scaffold = ComponentScaffold(copy)
-        val changes = scaffold.plan(slider)
+        val changes = scaffold.plan(pagination)
         val late = File(copy, changes.first { it.kind == Change.Kind.Create }.path)
         late.parentFile.mkdirs()
         late.writeText("mine")
         assertThrows(GeneratorError::class.java) { scaffold.apply(changes) }
         assertEquals("mine", late.readText())
-        assertFalse(File(copy, "Documentation/Components/Slider.md").exists())
+        assertFalse(File(copy, "Documentation/Components/Pagination.md").exists())
     }
 
     /** The files `new-component` reads, copied into a temporary repository. */
