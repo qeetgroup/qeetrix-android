@@ -29,6 +29,25 @@ class QeetrixSelectScreenshotTest {
             QeetrixOption("sg", "Singapore", enabled = false),
         )
 
+    /** Baselines in `src/test/screenshots/multiselect/`: the trigger listing two choices, and the open list of check boxes. */
+    @Test
+    fun multiple() =
+        captureStates("multiselect") {
+            ScreenshotStack {
+                QeetrixMultiSelect(setOf("in", "ae"), {}, countries, label = "Data regions")
+                OptionListSurface(
+                    listOf(SelectSection(null, countries)),
+                    { it == "in" || it == "ae" },
+                    focusSelected = false,
+                    title = "Data regions",
+                    onDismiss = {},
+                    onChoose = {},
+                    modifier = Modifier.width(280.dp),
+                    multiple = true,
+                )
+            }
+        }
+
     @Test
     fun states() =
         captureStates("select") {
@@ -69,7 +88,7 @@ class QeetrixSelectScreenshotTest {
                 // The open list: the popup's surface, drawn in place, with group labels.
                 OptionListSurface(
                     listOf(SelectSection("Asia", countries.take(2) + countries.last()), SelectSection("Europe", listOf(countries[2]))),
-                    "ae",
+                    { it == "ae" },
                     focusSelected = false,
                     title = "Country",
                     onDismiss = {},

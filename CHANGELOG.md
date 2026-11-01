@@ -128,8 +128,13 @@ page in the sample app, which now has one for every new component.
   `min(size, 100vw - 48px)` wide, from `breakpoint.medium`; a `QeetrixBottomSheet` with the same content below it. It
   shares the bottom sheet's window, motion, gestures and predictive back. **Renamed:** `QeetrixBottomSheetSize` is now
   `QeetrixSheetSize`, the Drawer sizes both sheets take.
-- **Not done yet:** QTRX-126 (searchable picker), 190 (Select multiple / open / type-to-jump), 191 (Menu submenus,
-  context menu, side and align), 192 (Snackbar promise and stacking).
+- **Select** (QTRX-190): `QeetrixMultiSelect` picks several options (react's `multiple`): a `Set` value, the trigger
+  listing the chosen labels in the list's order, check-box options, the list staying open while they are toggled.
+  `QeetrixSelect` and `QeetrixMultiSelect` take `open` / `onOpenChange` for an app that owns the open state. Typing on a
+  hardware keyboard jumps to the option whose label starts with what was typed — the focus in the open list, the
+  choice on a closed single select.
+- **Not done yet:** QTRX-126 (searchable picker), 191 (Menu submenus, context menu, side and align), 192 (Snackbar
+  promise and stacking).
 
 ### Added
 

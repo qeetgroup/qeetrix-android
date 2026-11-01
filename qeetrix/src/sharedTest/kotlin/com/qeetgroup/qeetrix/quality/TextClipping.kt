@@ -62,6 +62,8 @@ internal val EllipsizedByDesign: List<SpecimenText> =
         SpecimenText("navigation-bar"),
         SpecimenText("navigation-scaffold"),
         SpecimenText("select"),
+        // A multiple select's trigger lists the chosen labels on one line, cut with an ellipsis (06 Increment 5; QTRX-190).
+        SpecimenText("multi-select", "India, United Kingdom of Great Britain and Northern Ireland"),
         SpecimenText("copy", "https://hooks.acme.in/qeet/events/payroll"),
         // A single-line field's placeholder ends in an ellipsis where it doesn't fit (QTRX-197; once finding Q-5).
         SpecimenText("pseudo-expanded", pseudo("e.g. asha@acme.in")),

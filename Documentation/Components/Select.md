@@ -1,9 +1,10 @@
 # Select
 
-`QeetrixSelect` · `components.select` · `@qeetrix/react`: Select in a Field
+`QeetrixSelect`, `QeetrixMultiSelect` · `components.select` · `@qeetrix/react`: Select in a Field
 ([Select](https://ui.qeet.in/components/select)) · sample: Forms → Select
 
-Pick one option from a short list (up to about 15). The trigger looks like every field; the list opens below it.
+Pick one option — or, with `QeetrixMultiSelect`, several — from a short list (up to about 15). The trigger looks like
+every field; the list opens below it.
 
 ```kotlin
 var cycle by rememberSaveable { mutableStateOf<String?>(null) }
@@ -21,7 +22,9 @@ QeetrixSelect(cycle, { cycle = it }, listOf(QeetrixOption("monthly", "Monthly"),
 | `size`: `lg` (default) · `md` · `sm` | `size: QeetrixSelectSize` — `Lg`, `Md`, `Sm` |
 | `placeholder`, `disabled`, `readOnly`, `required` | `placeholder`, `enabled`, `readOnly`, `required` |
 | a Field around it | `label` (required), `description`, `error`, `invalid`, `optional`, `hideLabel`, `help` |
-| `multiple`, `open` / `onOpenChange` | not ported yet |
+| `multiple` (value an array) | `QeetrixMultiSelect(values: Set<T>, onValuesChange: (Set<T>) -> Unit, …)` — the same parameters otherwise |
+| `open` / `onOpenChange` | `open: Boolean?` / `onOpenChange: ((Boolean) -> Unit)?` — `null` leaves the state to the select |
+| typing to jump (06 §4) | the same, from a hardware keyboard |
 
 Old `selected` / `onSelect` / `options` became `value` / `onValueChange` / `items`; sizes `Default` / `Sm` became
 `Lg` / `Md` / `Sm`.
@@ -40,16 +43,33 @@ Old `selected` / `onSelect` / `options` became `value` / `onValueChange` / `item
   16 dp `check` in `color.icon.brand`; a `meta` in `body.sm` / `color.text.subtle`, tabular. A long label wraps and
   the row grows, the meta and the check staying on its first line (select.css 0.4.0, QTRX-177). Group labels
   `label.sm` / `color.text.subtle`.
+- **Several choices** (`QeetrixMultiSelect`): the trigger lists the chosen labels in the list's order, comma-separated,
+  cut with an ellipsis (06 Increment 5); each chosen option has the check; the list stays open while options are
+  toggled.
+
+## Typing to jump
+
+On a hardware keyboard, characters typed within a second build a prefix (06 §4). In the open list, the focus moves to
+the next option whose label starts with it; the same letter again moves on to the next option starting with it. On the
+closed trigger of a single select, the matching option is chosen, as in a native list. Disabled options are passed
+over.
 
 ## Accessibility
 
 The trigger is one drop-down list named by the label, with the chosen label as its text; opened from the keyboard
 the list focuses the chosen option. Options are selectable and read with their meta; the list's pane title is the
-label; group labels are headings. Escape, Back and a tap outside close it.
+label; group labels are headings. Escape, Back and a tap outside close it. In a `QeetrixMultiSelect` each option is a
+check box, read as checked or not, and the trigger's text is the chosen labels.
 
 ## Platform differences
 
 - **Option height.** At least 48 dp — Android's touch target — where the web's row is `size.control.md`.
-- **Typing to jump** to an option is not implemented.
+- **Unchecked options show no box** in a multiple select, as on the web: the check marks the chosen ones, and TalkBack
+  reads every option as a check box.
+
+Tried on the phone emulator (`qeetrix-api36`, Android 16) on 31 October 2026 after QTRX-190: the multiple select's list
+stays open while options are toggled and the field reads "Bengaluru, Mumbai, Frankfurt"; with key events, typing S in
+the open list moved the focus to Scale, S again to Starter, and Enter chose it, the app closing the list through
+`onOpenChange`.
 
 Related: [Radio group](RadioGroup.md) (a few visible options), [Field](Field.md).

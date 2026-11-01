@@ -143,7 +143,7 @@ class RightToLeftLabelTest {
                         QeetrixCheckbox(true, {}, label = "Remember this device", modifier = Modifier.width(300.dp))
                         OptionListSurface(
                             listOf(SelectSection(null, listOf(QeetrixOption("in", "India"), QeetrixOption("ae", "الإمارات")))),
-                            "in",
+                            { it == "in" },
                             focusSelected = false,
                             title = "Country",
                             onDismiss = {},

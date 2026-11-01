@@ -148,7 +148,7 @@ from react's CSS with the declaration beside each literal. Composable names, fil
 | QeetrixPasswordInput | PasswordInput | `purpose` Current/New, `showToggle` | `autoComplete` CurrentPassword/NewPassword/Off, `visible` + `onVisibleChange`, `capsLockWarning`, `icon`, adornments | Done (no hide-on-submit) |
 | QeetrixNumberField | NumberField | `range`, steppers at both ends | `min`, `max`, `step`, `largeStep`, `steppers` at the end, adornments, `fractionDigits` | Partial (`format`, `locale`) |
 | QeetrixOTPInput | OTPInput | `characters`, `groupSize`, `onComplete`, `label?` | `label`, `length`, `groups`, `size` Md/Lg, `validationType`, `onValueComplete`, `error`, `invalid`, `smsCodeAutofill` | Done |
-| QeetrixSelect | Select | `selected`/`onSelect`/`options`, `QeetrixSelectSize` Default/Sm | `value`/`onValueChange`/`items` (or `groups`), `size` Sm/Md/Lg (Lg default), Field props | Partial (`multiple`, `open`, type-ahead) |
+| QeetrixSelect | Select | `selected`/`onSelect`/`options`, `QeetrixSelectSize` Default/Sm | `value`/`onValueChange`/`items` (or `groups`), `size` Sm/Md/Lg (Lg default), Field props, `open`/`onOpenChange`, typing to jump; `multiple` as `QeetrixMultiSelect` (QTRX-190) | Full |
 | QeetrixOption (+ QeetrixOptionGroup) | Radio / Checkbox / SelectItem props | value, label, description, enabled | + `icon`, `meta` | Done |
 | QeetrixCheckbox | Checkbox | two overloads, `QeetrixTriStateCheckbox` | `checked`, `onCheckedChange?`, `label`, `description`, `icon`, `indeterminate`, `enabled`, `readOnly`, `invalid` | Done (no `parent`) |
 | QeetrixCheckboxGroup (new) | CheckboxGroup | (a FieldSet of checkboxes) | `value: Set<T>`, `onValueChange`, `options`, `label`, `description`, `error`, `orientation`, `variant` Default/Tile, `columns` | Done |
@@ -325,7 +325,7 @@ and `value`). Both need reconciling before the files can be diffed directly.
   text and right to left, phone and tablet — are in `docs-redesign-mockups/migration/android/devices/` (31 October; the
   30 October set, before the bump, is under `2026-10-30/`). The sample takes `--ez rtl true` beside `--es route` for
   them. The emulator was unstable under the machine's load (two crashes, one hang); running it headless helped.
-- **Android tickets not done:** QTRX-126, 190, 191 and 192 (see CHANGELOG).
+- **Android tickets not done:** QTRX-126, 191 and 192 (see CHANGELOG).
 - **Material 3** is now used, internally, by the date and time fields (the platform's pickers in Qeetrix's colours, as
   QTRX-120 and 128 ask) and pull to refresh (its nested scroll); `MaterialBoundaryTest` lists the two files and no public
   API names a Material type. The bottom sheet no longer uses it (QTRX-198).

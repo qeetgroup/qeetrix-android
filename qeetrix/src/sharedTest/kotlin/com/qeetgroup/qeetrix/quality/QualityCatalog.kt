@@ -157,6 +157,7 @@ import com.qeetgroup.qeetrix.components.scanner.QeetrixQRScanner
 import com.qeetgroup.qeetrix.components.scanner.QeetrixScannerState
 import com.qeetgroup.qeetrix.components.segmented.QeetrixSegmentedControl
 import com.qeetgroup.qeetrix.components.select.OptionListSurface
+import com.qeetgroup.qeetrix.components.select.QeetrixMultiSelect
 import com.qeetgroup.qeetrix.components.select.QeetrixSelect
 import com.qeetgroup.qeetrix.components.select.QeetrixSelectSize
 import com.qeetgroup.qeetrix.components.select.SelectSection
@@ -598,13 +599,29 @@ internal val QualityCatalog: List<QualitySpecimen> =
             // QeetrixSelect's open list, drawn in place: its popup is a window of its own.
             OptionListSurface(
                 listOf(SelectSection("Asia", Countries.take(2) + Countries.last()), SelectSection("Europe", listOf(Countries[2]))),
-                "ae",
+                { it == "ae" },
                 focusSelected = false,
                 title = "Country",
                 onDismiss = {},
                 onChoose = {},
                 modifier = Modifier.widthIn(max = 280.dp),
             )
+        },
+        QualitySpecimen("multi-select") {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // The trigger with two choices, and the open list of check boxes drawn in place.
+                QeetrixMultiSelect(setOf("in", "gb"), {}, Countries, label = "Data regions")
+                OptionListSurface(
+                    listOf(SelectSection(null, Countries)),
+                    { it == "in" || it == "gb" },
+                    focusSelected = false,
+                    title = "Data regions",
+                    onDismiss = {},
+                    onChoose = {},
+                    modifier = Modifier.widthIn(max = 280.dp),
+                    multiple = true,
+                )
+            }
         },
         QualitySpecimen("search-field") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
