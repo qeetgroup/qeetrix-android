@@ -171,7 +171,6 @@ public final class com/qeetgroup/qeetrix/components/button/QeetrixIconButtonKt {
 
 public final class com/qeetgroup/qeetrix/components/card/QeetrixCardKt {
 	public static final fun QeetrixCard (Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/card/QeetrixCardVariant;Lcom/qeetgroup/qeetrix/components/card/QeetrixCardTone;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
-	public static final fun QeetrixCard (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZZLjava/lang/String;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/card/QeetrixCardVariant;Lcom/qeetgroup/qeetrix/components/card/QeetrixCardTone;Lkotlin/jvm/functions/Function2;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
 }
 
 public final class com/qeetgroup/qeetrix/components/card/QeetrixCardTone : java/lang/Enum {

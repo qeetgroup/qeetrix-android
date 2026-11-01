@@ -358,9 +358,6 @@ internal val QualityCatalog: List<QualitySpecimen> =
                     tone = QeetrixCardTone.Danger,
                     footer = { QeetrixButton("Delete workspace", onClick = {}, tone = QeetrixButtonTone.Danger) },
                 )
-                QeetrixCard(onClick = {}, selected = true, title = "Team", description = "Up to 50 members, audit logs")
-                QeetrixCard(onClick = {}, title = "Security", description = "Passkeys and sessions")
-                QeetrixCard(onClick = {}, enabled = false, title = "Archived", description = "Read-only")
                 QeetrixCard { QeetrixText("A card with only a body.") }
             }
         },

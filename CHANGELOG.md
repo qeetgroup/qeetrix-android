@@ -157,6 +157,11 @@ specimen) and a bytecode check that no public API names a Material type.
 
 ### Removed
 
+The clickable `QeetrixCard(onClick, selected, enabled, …)` (QTRX-182): a card is not a click target (06-component-specs
+§9). A chosen card is a choice tile (`QeetrixRadioGroup` / `QeetrixCheckboxGroup` with `variant = Tile`), a card that
+opens a page keeps a button in its content, and places to go are `QeetrixListItem`s. The sample's home and workspace
+screens now list their places as rows.
+
 `QeetrixSpacing`, `QeetrixCorner`, `QeetrixStroke`, `QeetrixIconSize`, `QeetrixElevation`, `QeetrixDuration`,
 `QeetrixEasing`, `QeetrixFontWeight`, `QeetrixTextVariant`, `QeetrixTriStateCheckbox`, `QeetrixFieldMessage`,
 `QeetrixDataFailure`, `QeetrixDataLoadingRows` and the old variant and size enums; the internal component tokens, Tailwind

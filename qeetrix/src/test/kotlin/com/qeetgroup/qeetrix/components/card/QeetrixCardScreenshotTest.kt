@@ -17,7 +17,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-/** Reviewed baselines for [QeetrixCard] in `src/test/screenshots/card/`: header, body and footer, the variants, tones and the choice look. */
+/** Reviewed baselines for [QeetrixCard] in `src/test/screenshots/card/`: header, body and footer, the variants and tones. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = SCREENSHOT_QUALIFIERS)
@@ -48,9 +48,6 @@ class QeetrixCardScreenshotTest {
                     tone = QeetrixCardTone.Danger,
                     footer = { QeetrixButton("Delete workspace", onClick = {}, tone = QeetrixButtonTone.Danger) },
                 )
-                QeetrixCard(onClick = {}, selected = true, title = "Team", description = "Up to 50 members, audit logs")
-                QeetrixCard(onClick = {}, title = "Starter", description = "Up to 5 members")
-                QeetrixCard(onClick = {}, enabled = false, title = "Enterprise", description = "Contact sales")
                 QeetrixCard { QeetrixText("A card without a header: the body alone.") }
             }
         }

@@ -43,7 +43,7 @@ device check.
 | Button, Icon button | Button role; disabled is read as disabled, stays focusable and cannot be activated; loading keeps focus, ignores activation and adds the state "Loading" (`qx_loading`) | The label stays while loading; the icon button requires a `contentDescription`; 48 dp target at every size |
 | Text field | The label names the field; an error sets the error state and is announced at once (assertive); it replaces the help text | Read-only stays focusable; disabled does not; "required" is read with the label; `hideLabel` keeps the name |
 | Switch | Switch role with on/off state; the labelled row toggles as one control | Read-only (`readOnly`, or `onCheckedChange = null`) exposes the state without the action |
-| Card | The title is a heading; a clickable card is one button named by its text | `selected` only draws; the owner states selection (`Modifier.semantics { selected = … }`) |
+| Card | The title is a heading; a card is not a control (QTRX-182) | A chosen card is a choice tile, with the group's name and state |
 | Avatar, avatar item | One image named by `name`; `decorative` hides it; an avatar item is one element | Initials keep their size at any font scale |
 | Progress, Meter | Progress: progress semantics with its range and value, in progress without a value; a meter is read as its label and value, with its target | Named by `label` or `contentDescription` |
 | Spinner | Indeterminate progress named "Loading" (`qx_loading`) or `label`; `decorative` hides it | Not announced when it appears |

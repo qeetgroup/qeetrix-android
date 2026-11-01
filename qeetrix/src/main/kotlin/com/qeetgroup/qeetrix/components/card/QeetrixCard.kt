@@ -1,12 +1,7 @@
 package com.qeetgroup.qeetrix.components.card
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,8 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,23 +22,17 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
-import com.qeetgroup.qeetrix.foundation.motion.qeetrixAnimationSpec
 import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
-import com.qeetgroup.qeetrix.internal.FocusFrame
 import com.qeetgroup.qeetrix.internal.QeetrixActionRow
-import com.qeetgroup.qeetrix.internal.drawInsideRing
 import com.qeetgroup.qeetrix.internal.firstLineHeight
 import com.qeetgroup.qeetrix.internal.labelDirection
-import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import kotlin.math.max
@@ -91,6 +78,12 @@ public enum class QeetrixCardTone(
  * The title is a heading for accessibility services, so TalkBack's heading navigation reaches the card. The web
  * takes a heading `level` with the title; Android has no heading levels.
  *
+ * **A card is not a click target** (06-component-specs §9, QTRX-182). A card that is chosen — a plan, a sign-in method —
+ * is a choice tile: [com.qeetgroup.qeetrix.components.radiogroup.QeetrixRadioGroup] or
+ * [com.qeetgroup.qeetrix.components.checkbox.QeetrixCheckboxGroup] with `variant` Tile. A card that opens a page keeps
+ * that action in its content — a button in [actions] or [footer] — and a list of places to go is a list of
+ * [com.qeetgroup.qeetrix.components.list.QeetrixListItem]s.
+ *
  * ```
  * QeetrixCard(
  *     title = "Workspace",
@@ -114,54 +107,8 @@ public fun QeetrixCard(
     footer: (@Composable () -> Unit)? = null,
     content: (@Composable () -> Unit)? = null,
 ) {
-    CardSurface(modifier, title, description, variant, tone, actions, footer, interaction = null, content = content)
+    CardSurface(modifier, title, description, variant, tone, actions, footer, content)
 }
-
-/**
- * A [QeetrixCard] that is itself one control: a whole-card choice or link, such as a plan to choose or a project to
- * open. `@qeetrix/react` has no clickable Card (its spec names a separate SelectionCard, not built yet), so this one
- * takes the choice tile's look (RadioGroup and CheckboxGroup `variant="tile"`): `color.bg.neutral.subtle` under the
- * pointer, a step darker while pressed, and when [selected] `color.bg.selected` with a 2 dp `color.border.brand`
- * edge, drawn inside so nothing moves. Keyboard focus draws the 2 dp Ember frame round it.
- *
- * Accessibility services read its text as one button. [selected] only draws: the owner of a choice states it (a
- * `Modifier.semantics { selected = … }` on [modifier], and `selectableGroup()` on the column of cards). [enabled]
- * `false` takes the disabled text colours and ignores taps. A card with several actions is a static card with
- * buttons inside.
- */
-@Composable
-public fun QeetrixCard(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    selected: Boolean = false,
-    title: String? = null,
-    description: String? = null,
-    variant: QeetrixCardVariant = QeetrixCardVariant.Default,
-    tone: QeetrixCardTone = QeetrixCardTone.Neutral,
-    footer: (@Composable () -> Unit)? = null,
-    interactionSource: MutableInteractionSource? = null,
-    content: (@Composable () -> Unit)? = null,
-) {
-    CardSurface(
-        modifier,
-        title,
-        description,
-        variant,
-        tone,
-        actions = null,
-        footer = footer,
-        interaction = CardInteraction(onClick, enabled, selected, interactionSource),
-        content = content,
-    )
-}
-
-private class CardInteraction(
-    val onClick: () -> Unit,
-    val enabled: Boolean,
-    val selected: Boolean,
-    val source: MutableInteractionSource?,
-)
 
 @Composable
 private fun CardSurface(
@@ -172,77 +119,30 @@ private fun CardSurface(
     tone: QeetrixCardTone,
     actions: (@Composable () -> Unit)?,
     footer: (@Composable () -> Unit)?,
-    interaction: CardInteraction?,
     content: (@Composable () -> Unit)?,
 ) {
     val colors = QeetrixTheme.colors
     val shape = QeetrixShapes.Surface // .qx-card border-radius: radius.surface
-    val source = interaction?.let { it.source ?: remember { MutableInteractionSource() } }
-    val hovered = source?.collectIsHoveredAsState()?.value ?: false
-    val pressed = source?.collectIsPressedAsState()?.value ?: false
-    val active = interaction != null && interaction.enabled
-    val selected = interaction?.selected == true
-    val rest = if (variant == QeetrixCardVariant.Subdued) colors.surfaceSunken else colors.surfaceRaised // [data-variant="subdued"]
-    val fill =
-        when {
-            selected && active && (hovered || pressed) -> colors.bgSelectedHover
-            selected -> colors.bgSelected
-            active && pressed -> colors.bgNeutralSubtleHover
-            active && hovered -> colors.bgNeutralSubtle
-            else -> rest
-        }
-    val background by animateColorAsState(
-        fill,
-        qeetrixAnimationSpec(QeetrixMotion.EasingStandard, QeetrixMotion.DurationFast),
-        label = "card",
-    )
+    val background = if (variant == QeetrixCardVariant.Subdued) colors.surfaceSunken else colors.surfaceRaised // [data-variant="subdued"]
     // .qx-card border: border.width.default solid color.border.default; [data-tone="danger"] color.border.danger
     val edge = if (tone == QeetrixCardTone.Danger) colors.borderDanger else colors.borderDefault
-    val disabled = interaction != null && !interaction.enabled
-
-    var surface = modifier
-    if (interaction != null && source != null) {
-        surface =
-            surface
-                .qeetrixFocusFrame(source, shape, FocusFrame.Outside)
-                .clip(shape)
-                .clickable(
-                    interactionSource = source,
-                    indication = null,
-                    enabled = interaction.enabled,
-                    role = Role.Button,
-                    onClick = interaction.onClick,
-                )
-    } else {
-        surface = surface.clip(shape)
-    }
-    surface =
-        surface
+    val surface =
+        modifier
+            .clip(shape)
             .background(background)
             .border(QeetrixBorder.WidthDefault, edge, shape)
-            // The chosen tile's 2 dp border.brand edge, drawn inside over the 1 dp one, so nothing shifts.
-            .drawInsideRing(selected, shape, colors.borderBrand, QeetrixBorder.WidthStrong, gap = null)
             .padding(QeetrixBorder.WidthDefault) // the content box sits inside the border
 
-    val textColor = if (disabled) colors.textDisabled else colors.textDefault
-    CompositionLocalProvider(LocalQeetrixContentColor provides textColor) {
+    CompositionLocalProvider(LocalQeetrixContentColor provides colors.textDefault) {
         Column(surface) {
             val hasHeader = title != null || description != null || actions != null
             if (hasHeader) {
                 CardHeader(
                     title = title,
                     description = description,
-                    titleColor =
-                        when {
-                            disabled -> colors.textDisabled
-
-                            tone == QeetrixCardTone.Danger -> colors.textDanger
-
-                            // [data-tone="danger"] … .qx-heading
-                            else -> colors.textDefault
-                        },
-                    // A disabled tile's description stays readable in color.text.subtlest.
-                    descriptionColor = if (disabled) colors.textSubtlest else colors.textSubtle,
+                    // [data-tone="danger"] … .qx-heading
+                    titleColor = if (tone == QeetrixCardTone.Danger) colors.textDanger else colors.textDefault,
+                    descriptionColor = colors.textSubtle,
                     actions = actions,
                 )
             }
