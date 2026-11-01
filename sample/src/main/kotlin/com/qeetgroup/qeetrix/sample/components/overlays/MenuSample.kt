@@ -13,7 +13,9 @@ import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
 import com.qeetgroup.qeetrix.components.dialog.QeetrixConfirmationDialog
 import com.qeetgroup.qeetrix.components.dialog.QeetrixDialogIntent
+import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixContextMenu
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenu
+import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuAlign
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuCheckboxItem
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuGroupLabel
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuItem
@@ -21,6 +23,9 @@ import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuItemTone
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuRadioGroup
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuRadioItem
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuSeparator
+import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuSide
+import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuSubmenu
+import com.qeetgroup.qeetrix.components.list.QeetrixListItem
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SampleFlow
 import com.qeetgroup.qeetrix.sample.SampleNote
@@ -28,7 +33,7 @@ import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-/** Menus: a row menu with a destructive item after a separator, and a view menu with checkbox and radio items. */
+/** Menus: a row menu with a submenu and a destructive item, a view menu with checkbox and radio items, side and align, a context menu. */
 @Composable
 fun MenuSample() {
     SamplePage {
@@ -53,6 +58,10 @@ fun MenuSample() {
                     QeetrixMenuItem("Rename", onClick = { last = "Rename" }, icon = QeetrixIconName.Pencil, shortcut = "F2")
                     QeetrixMenuItem("Duplicate", onClick = { last = "Duplicate" }, icon = QeetrixIconName.Copy, shortcut = "Ctrl+D")
                     QeetrixMenuItem("Share", onClick = { last = "Share" }, icon = QeetrixIconName.Share2, enabled = false)
+                    QeetrixMenuSubmenu("Move to", icon = QeetrixIconName.Folder) {
+                        QeetrixMenuItem("Archive", onClick = { last = "Moved to Archive" })
+                        QeetrixMenuItem("Templates", onClick = { last = "Moved to Templates" })
+                    }
                     QeetrixMenuSeparator()
                     QeetrixMenuItem(
                         "Delete project",
@@ -72,7 +81,8 @@ fun MenuSample() {
             )
             SampleNote(
                 "Last: $last Choosing an item closes the menu, then runs it once — the delete item asks for confirmation " +
-                    "first. From a keyboard, the arrow keys move between items and Escape closes the menu.",
+                    "first. Move to opens a submenu beside its row. From a keyboard, the arrow keys move between items and " +
+                    "open the submenu; Escape closes one level.",
             )
         }
         SampleSection("Options") {
@@ -105,6 +115,42 @@ fun MenuSample() {
             SampleNote(
                 "Archived ${if (archived) "shown" else "hidden"}, rows ${if (compact) "compact" else "regular"}, sorted by $sort. " +
                     "Checkbox items keep the menu open, so several can be set in a row; choosing a sort closes it.",
+            )
+        }
+        SampleSection("Side and align") {
+            var open by remember { mutableStateOf(false) }
+            QeetrixMenu(
+                open = open,
+                onOpenChange = { open = it },
+                trigger = { QeetrixButton("Sort", onClick = { open = true }, variant = QeetrixButtonVariant.Soft) },
+                side = QeetrixMenuSide.Top,
+                align = QeetrixMenuAlign.End,
+            ) {
+                QeetrixMenuItem("Newest first", onClick = { last = "Newest first" })
+                QeetrixMenuItem("Oldest first", onClick = { last = "Oldest first" })
+            }
+            SampleNote("side = Top, align = End: above the button, its end on the button's end; it flips below when there is no room.")
+        }
+        SampleSection("Context menu") {
+            var open by remember { mutableStateOf(false) }
+            QeetrixContextMenu(
+                open = open,
+                onOpenChange = { open = it },
+                menu = {
+                    QeetrixMenuItem("Rename", onClick = { last = "Rename Q3 report" }, icon = QeetrixIconName.Pencil)
+                    QeetrixMenuItem(
+                        "Delete",
+                        onClick = { last = "Delete Q3 report" },
+                        icon = QeetrixIconName.Trash,
+                        tone = QeetrixMenuItemTone.Danger,
+                    )
+                },
+            ) {
+                QeetrixListItem("Q3 report.pdf", description = "Long-press for actions", onClick = { last = "Opened Q3 report" })
+            }
+            SampleNote(
+                "A long press opens the menu where you pressed — a right-click, or Shift+F10 from a keyboard, too. A tap opens the " +
+                    "file. TalkBack offers Open menu on the row.",
             )
         }
     }

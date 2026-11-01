@@ -52,5 +52,25 @@ class QeetrixMenuScreenshotTest {
         }
 }
 
+/** Baselines in `src/test/screenshots/menusubmenu/`: a submenu row, highlighted, with its chevron mirrored in right to left. */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(qualifiers = SCREENSHOT_QUALIFIERS)
+class QeetrixMenuSubmenuScreenshotTest {
+    @Test
+    fun states() =
+        captureStates("menusubmenu") {
+            ScreenshotStack {
+                CompositionLocalProvider(LocalHighlightedMenuItem provides "Move to") {
+                    MenuSurface(PopupWidth, focusFirst = false, onDismiss = {}) {
+                        QeetrixMenuItem("Rename", onClick = {}, icon = QeetrixIconName.Pencil)
+                        QeetrixMenuSubmenu("Move to", icon = QeetrixIconName.Folder) { QeetrixMenuItem("Archive", onClick = {}) }
+                        QeetrixMenuSubmenu("Share with", description = "People in this workspace") { QeetrixMenuItem("Asha", onClick = {}) }
+                    }
+                }
+            }
+        }
+}
+
 /** The popup's width range, as the menu gives it: `.qx-menu min-inline-size: 200px; max-inline-size: 320px`. */
 private val PopupWidth = Modifier.widthIn(min = 200.dp, max = 320.dp)

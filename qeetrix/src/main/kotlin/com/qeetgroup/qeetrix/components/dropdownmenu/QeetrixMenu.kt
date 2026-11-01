@@ -1,10 +1,15 @@
 package com.qeetgroup.qeetrix.components.dropdownmenu
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -45,26 +50,40 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.qeetgroup.qeetrix.R
 import com.qeetgroup.qeetrix.components.dialog.keyboardInput
 import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixAccessibility
 import com.qeetgroup.qeetrix.foundation.elevation.QeetrixShadow
@@ -78,12 +97,18 @@ import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.icons.QeetrixIconShape
 import com.qeetgroup.qeetrix.internal.AnchoredPopupPosition
 import com.qeetgroup.qeetrix.internal.FirstLineRow
+import com.qeetgroup.qeetrix.internal.FocusFrame
+import com.qeetgroup.qeetrix.internal.PointPopupPosition
 import com.qeetgroup.qeetrix.internal.PopupAlign
+import com.qeetgroup.qeetrix.internal.PopupSide
+import com.qeetgroup.qeetrix.internal.SubmenuPosition
 import com.qeetgroup.qeetrix.internal.firstLineHeight
 import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.internal.popupEnter
 import com.qeetgroup.qeetrix.internal.popupExit
+import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
+import kotlinx.coroutines.withTimeoutOrNull
 
 /** A menu item's meaning (`value` is `@qeetrix/react`'s MenuItem `tone`). */
 public enum class QeetrixMenuItemTone(
@@ -99,9 +124,34 @@ public enum class QeetrixMenuItemTone(
     Danger("danger"),
 }
 
+/** The side of its trigger a [QeetrixMenu] opens on (`value` is `@qeetrix/react`'s MenuContent `side`). */
+public enum class QeetrixMenuSide(
+    public val value: String,
+) {
+    /** Below the trigger, 4 dp from it. The default. */
+    Bottom("bottom"),
+
+    /** Above the trigger, for one near the bottom of the screen. */
+    Top("top"),
+}
+
+/** How a [QeetrixMenu] lines up with its trigger (`value` is `@qeetrix/react`'s MenuContent `align`). */
+public enum class QeetrixMenuAlign(
+    public val value: String,
+) {
+    /** Its start edge on the trigger's — the left in left to right. The default. */
+    Start("start"),
+
+    /** Centred on the trigger. */
+    Center("center"),
+
+    /** Its end edge on the trigger's — for a trigger at the end of a bar. */
+    End("end"),
+}
+
 /**
  * What [QeetrixMenu]'s content can hold: [QeetrixMenuItem], [QeetrixMenuCheckboxItem], [QeetrixMenuRadioGroup],
- * [QeetrixMenuGroupLabel] and [QeetrixMenuSeparator].
+ * [QeetrixMenuSubmenu], [QeetrixMenuGroupLabel] and [QeetrixMenuSeparator].
  */
 @Stable
 public sealed interface QeetrixMenuScope
@@ -113,8 +163,8 @@ public sealed interface QeetrixMenuRadioGroupScope<T> : QeetrixMenuScope
 /**
  * A list of actions or options that opens from a [trigger] — `@qeetrix/react`'s Menu: [QeetrixMenuItem]s,
  * checkbox and radio items, group labels and separators, on `color.surface.overlay` with a 1 dp
- * `color.border.subtle` edge, `radius.overlay` corners and `shadow.overlay`, below the trigger and 4 dp from it
- * (above it when there is no room below).
+ * `color.border.subtle` edge, `radius.overlay` corners and `shadow.overlay`, on the trigger's [side] and 4 dp from
+ * it — below by default, flipping to the other side when there is no room — lined up by [align].
  *
  * - **The app owns [open].** The [trigger] — usually a [com.qeetgroup.qeetrix.components.button.QeetrixIconButton]
  *   named for what it opens ("More options") — calls `onOpenChange(true)`. A tap outside, Back, Escape or choosing
@@ -133,6 +183,8 @@ public sealed interface QeetrixMenuRadioGroupScope<T> : QeetrixMenuScope
  * - **Accessibility.** Items are read with their labels and descriptions; a checkbox item is a checkbox and a radio
  *   item a radio button, with their states; a disabled item is read as unavailable; group labels are headings.
  *   Shortcuts are hidden from accessibility services, as on the web.
+ * - **Submenus** ([QeetrixMenuSubmenu]) open beside their row; [QeetrixContextMenu] opens the same content where an
+ *   area is long-pressed.
  *
  * For one value from a long list, use a select; for content anchored to a control, a sheet or a dialog.
  *
@@ -155,13 +207,121 @@ public fun QeetrixMenu(
     onOpenChange: (Boolean) -> Unit,
     trigger: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    side: QeetrixMenuSide = QeetrixMenuSide.Bottom,
+    align: QeetrixMenuAlign = QeetrixMenuAlign.Start,
     content: @Composable QeetrixMenuScope.() -> Unit,
 ) {
     var anchor by remember { mutableStateOf(IntRect.Zero) }
     val change by rememberUpdatedState(onOpenChange)
     Box(modifier.onGloballyPositioned { anchor = IntRect(it.positionInWindow().round(), it.size) }) {
         trigger()
-        MenuPopup(open, anchor, { change(false) }, content)
+        MenuPopup(
+            open,
+            anchor,
+            { change(false) },
+            content,
+            side = if (side == QeetrixMenuSide.Top) PopupSide.Top else PopupSide.Bottom,
+            align =
+                when (align) {
+                    QeetrixMenuAlign.Start -> PopupAlign.Start
+                    QeetrixMenuAlign.Center -> PopupAlign.Center
+                    QeetrixMenuAlign.End -> PopupAlign.End
+                },
+        )
+    }
+}
+
+/**
+ * A menu for an area — a row, a card, an image — that opens where it is long-pressed: `@qeetrix/react`'s ContextMenu.
+ * The same [QeetrixMenu] content ([menu]), on the same surface, at the point the [content] was pressed.
+ *
+ * - **Opening.** A long press (with Android's long-press haptic), a secondary click with a mouse, and Shift+F10 or the
+ *   context-menu key from a keyboard ask through `onOpenChange(true)`; a tap outside, Back, Escape or a choice close
+ *   it. A long press on a clickable row inside opens the menu instead of the row's click.
+ * - **Focus.** The area takes keyboard focus, with the Ember frame inside its edge (`.qx-context-menu-trigger`).
+ * - **Accessibility.** The area offers an "Open menu" action (`qx_open_menu`) for TalkBack's double-tap and hold. A
+ *   context menu is a shortcut: keep its actions reachable another way too, such as a menu button on the row.
+ *
+ * ```
+ * QeetrixContextMenu(open, { open = it }, menu = {
+ *     QeetrixMenuItem("Rename", onClick = ::rename)
+ *     QeetrixMenuItem("Delete", onClick = ::delete, tone = QeetrixMenuItemTone.Danger)
+ * }) {
+ *     QeetrixListItem(file.name, onClick = { open(file) })
+ * }
+ * ```
+ */
+@Composable
+public fun QeetrixContextMenu(
+    open: Boolean,
+    onOpenChange: (Boolean) -> Unit,
+    menu: @Composable QeetrixMenuScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable () -> Unit,
+) {
+    val change by rememberUpdatedState(onOpenChange)
+    var point by remember { mutableStateOf(IntOffset.Zero) }
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    val haptics = LocalHapticFeedback.current
+    val source = remember { MutableInteractionSource() }
+    val label = stringResource(R.string.qx_open_menu)
+    val openAt = { at: IntOffset ->
+        point = at
+        change(true)
+    }
+    Box(
+        modifier
+            .onSizeChanged { size = it }
+            .then(
+                if (enabled) {
+                    Modifier
+                        .pointerInput(Unit) {
+                            awaitEachGesture {
+                                // Watched in the initial pass, so a clickable row inside does not keep the press to itself.
+                                val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                                if (currentEvent.buttons.isSecondaryPressed) {
+                                    down.consume()
+                                    openAt(down.position.round())
+                                    return@awaitEachGesture
+                                }
+                                val released =
+                                    withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                                        waitForUpOrCancellation(PointerEventPass.Initial)
+                                    }
+                                if (released == null) {
+                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    openAt(down.position.round())
+                                    // The rest of the press is the menu's: the row inside sees it cancelled, not clicked.
+                                    do {
+                                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                                        event.changes.forEach { it.consume() }
+                                    } while (event.changes.any { it.pressed })
+                                }
+                            }
+                        }.onPreviewKeyEvent { event ->
+                            val menuKey = event.key == Key.Menu || (event.key == Key.F10 && event.isShiftPressed)
+                            if (event.type == KeyEventType.KeyDown && menuKey) {
+                                openAt(IntOffset(size.width / 2, size.height / 2))
+                                true
+                            } else {
+                                false
+                            }
+                        }.qeetrixFocusFrame(source, QeetrixShapes.None, FocusFrame.Inside)
+                        .focusable(interactionSource = source)
+                        .semantics(mergeDescendants = true) {
+                            onLongClick(label) {
+                                openAt(IntOffset(size.width / 2, size.height / 2))
+                                true
+                            }
+                        }
+                } else {
+                    Modifier
+                },
+            ),
+    ) {
+        content()
+        MenuPopup(open, IntRect(IntOffset.Zero, size), { change(false) }, menu, point = point)
     }
 }
 
@@ -302,6 +462,118 @@ public fun <T> QeetrixMenuRadioGroupScope<T>.QeetrixMenuRadioItem(
 }
 
 /**
+ * A row that opens a submenu (`@qeetrix/react`'s MenuSubmenu and MenuSubmenuTrigger): its [text], an optional [icon]
+ * and [description], and a trailing 16 dp `chevron-right` in `color.icon.subtle`, mirrored in right to left. The
+ * submenu — the same items, on the same surface — opens beside the row, its first item level with it, at the row's end
+ * or, when there is no room there, its start; on a phone's narrow window it opens over the menu.
+ *
+ * - **Opening** by a tap or Enter, or the arrow towards the row's end (right in left to right); the arrow back, Escape,
+ *   Back or a tap outside close the submenu alone, focus returning to its row. Choosing an item in it closes the whole
+ *   menu and runs the item.
+ * - The row stays highlighted while its submenu is open, and is read as expanded or collapsed.
+ */
+@Composable
+public fun QeetrixMenuScope.QeetrixMenuSubmenu(
+    text: String,
+    modifier: Modifier = Modifier,
+    icon: QeetrixIconName? = null,
+    description: String? = null,
+    enabled: Boolean = true,
+    content: @Composable QeetrixMenuScope.() -> Unit,
+) {
+    val menu = menuOf(this)
+    var open by remember { mutableStateOf(false) }
+    val row = remember { FocusRequester() }
+    val forward = if (LocalLayoutDirection.current == LayoutDirection.Rtl) Key.DirectionLeft else Key.DirectionRight
+    val state = stringResource(if (open) R.string.qx_expanded else R.string.qx_collapsed)
+    val back: () -> Unit = {
+        open = false
+        row.requestFocus()
+    }
+    Box {
+        MenuRow(
+            text = text,
+            modifier =
+                modifier
+                    .focusRequester(row)
+                    .onPreviewKeyEvent { event ->
+                        if (enabled && event.type == KeyEventType.KeyDown && event.key == forward) {
+                            open = true
+                            true
+                        } else {
+                            false
+                        }
+                    }.semantics { stateDescription = state },
+            enabled = enabled,
+            tone = QeetrixMenuItemTone.Default,
+            shortcut = null,
+            description = description,
+            interaction = { source -> Modifier.clickable(source, indication = null, enabled = enabled) { open = !open } },
+            leading =
+                icon?.let {
+                    { iconColor, _ ->
+                        QeetrixIcon(
+                            it,
+                            contentDescription = null,
+                            size = QeetrixSize.IconSm,
+                            shape = QeetrixIconShape.Sharp,
+                            tint = iconColor,
+                        )
+                    }
+                },
+            submenuOpen = open,
+        )
+        if (open) SubmenuPopup(menu, back, content)
+    }
+}
+
+/** A submenu's popup, beside its row: the same surface, its items routed to the whole menu, Escape and the arrow back closing it alone. */
+@Composable
+private fun SubmenuPopup(
+    parent: MenuScopeImpl,
+    onBack: () -> Unit,
+    content: @Composable QeetrixMenuScope.() -> Unit,
+) {
+    val scope = remember { MenuScopeImpl() }
+    // A choice in the submenu closes the whole menu.
+    scope.onDismiss = parent.onDismiss
+    val density = LocalDensity.current
+    val window = LocalWindowInfo.current.containerSize
+    val margin = with(density) { CollisionPadding.roundToPx() }
+    val shift = with(density) { (MenuPadding + QeetrixBorder.WidthDefault).roundToPx() }
+    val maxWidth = with(density) { minOf(MaxWidth, (window.width - 2 * margin).toDp()) }
+    val maxHeight = with(density) { (window.height - 2 * margin).coerceAtLeast(0).toDp() }
+    val backKey = if (LocalLayoutDirection.current == LayoutDirection.Rtl) Key.DirectionRight else Key.DirectionLeft
+    val visibility = remember { MutableTransitionState(false) }
+    visibility.targetState = true
+    Popup(
+        popupPositionProvider = remember(margin, shift) { SubmenuPosition(margin, shift) },
+        onDismissRequest = onBack,
+        properties = PopupProperties(focusable = true),
+    ) {
+        AnimatedVisibility(visibleState = visibility, enter = popupEnter(fromBottom = false), exit = ExitTransition.None) {
+            MenuSurface(
+                Modifier
+                    .widthIn(min = minOf(MinWidth, maxWidth), max = maxWidth)
+                    .heightIn(max = maxHeight)
+                    .onPreviewKeyEvent { event ->
+                        if (event.key == backKey) {
+                            if (event.type == KeyEventType.KeyDown) onBack()
+                            true
+                        } else {
+                            false
+                        }
+                    },
+                focusFirst = keyboardInput(),
+                onDismiss = onBack,
+                scope = scope,
+                content = content,
+            )
+        }
+    }
+}
+
+/**
  * A label over the items that follow it (`@qeetrix/react`'s MenuGroupLabel): `label.sm` in `color.text.subtle`,
  * `8px space.inset.md 4px` padding. Accessibility services read it as a heading.
  */
@@ -355,6 +627,7 @@ private fun MenuRow(
     description: String?,
     interaction: (MutableInteractionSource) -> Modifier,
     leading: (@Composable (icon: Color, text: Color) -> Unit)?,
+    submenuOpen: Boolean? = null,
 ) {
     val colors = QeetrixTheme.colors
     val typography = QeetrixTheme.typography
@@ -362,7 +635,7 @@ private fun MenuRow(
     val pressed by source.collectIsPressedAsState()
     val hovered by source.collectIsHoveredAsState()
     val focused by source.collectIsFocusedAsState()
-    val highlighted = enabled && (pressed || hovered || focused || LocalHighlightedMenuItem.current == text)
+    val highlighted = enabled && (pressed || hovered || focused || submenuOpen == true || LocalHighlightedMenuItem.current == text)
     val danger = tone == QeetrixMenuItemTone.Danger
     val textColor =
         when {
@@ -416,6 +689,19 @@ private fun MenuRow(
                         }
                     }
                 },
+                submenuOpen?.let {
+                    {
+                        // .qx-menu-submenu-icon: color.icon.subtle; [dir="rtl"] scale: -1 1
+                        QeetrixIcon(
+                            QeetrixIconName.ChevronRight,
+                            contentDescription = null,
+                            size = QeetrixSize.IconSm,
+                            shape = QeetrixIconShape.Sharp,
+                            tint = iconColor,
+                            mirrorInRightToLeft = true,
+                        )
+                    }
+                },
             ),
     ) {
         // .qx-menu-item-label: overflow-wrap anywhere — a long label wraps and the row grows (QTRX-177).
@@ -443,13 +729,19 @@ private fun Mark(content: @Composable () -> Unit) {
     Box(Modifier.size(QeetrixSize.IconSm), contentAlignment = Alignment.Center) { content() }
 }
 
-/** The open menu, in a focusable popup below the trigger: it fades and slides in from the trigger's side, and out again. */
+/**
+ * The open menu, in a focusable popup on the trigger's [side], lined up by [align] — or, for a context menu, at the
+ * [point] it was opened from: it fades and slides in from the trigger's side, and out again.
+ */
 @Composable
 private fun MenuPopup(
     open: Boolean,
     anchor: IntRect,
     onDismiss: () -> Unit,
     content: @Composable QeetrixMenuScope.() -> Unit,
+    side: PopupSide = PopupSide.Bottom,
+    align: PopupAlign = PopupAlign.Start,
+    point: IntOffset? = null,
 ) {
     val visibility = remember { MutableTransitionState(false) }
     visibility.targetState = open
@@ -467,11 +759,14 @@ private fun MenuPopup(
     val below = window.height - anchor.bottom - gap - margin
     val above = anchor.top - gap - margin
     val maxHeight = with(density) { maxOf(above, below, 0).toDp() } // max-block-size: var(--available-height)
-    val opensAbove = above > below
+    val opensAbove = point == null && if (side == PopupSide.Top) above > 0 else above > below
     val maxWidth = with(density) { minOf(MaxWidth, (window.width - 2 * margin).toDp()) } // max-inline-size: min(320px, --available-width)
 
     Popup(
-        popupPositionProvider = remember(gap, margin) { AnchoredPopupPosition(gap, margin, PopupAlign.Start) },
+        popupPositionProvider =
+            remember(gap, margin, side, align, point) {
+                if (point != null) PointPopupPosition(point, margin) else AnchoredPopupPosition(gap, margin, align, side)
+            },
         onDismissRequest = { if (visibility.targetState) onDismiss() },
         properties = PopupProperties(focusable = true),
     ) {

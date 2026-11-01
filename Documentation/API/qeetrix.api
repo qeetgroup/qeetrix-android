@@ -349,6 +349,16 @@ public final class com/qeetgroup/qeetrix/components/drawer/QeetrixSideSheetSide 
 	public static fun values ()[Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSideSheetSide;
 }
 
+public final class com/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuAlign : java/lang/Enum {
+	public static final field Center Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuAlign;
+	public static final field End Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuAlign;
+	public static final field Start Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuAlign;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuAlign;
+	public static fun values ()[Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuAlign;
+}
+
 public final class com/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuItemTone : java/lang/Enum {
 	public static final field Danger Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuItemTone;
 	public static final field Default Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuItemTone;
@@ -359,19 +369,30 @@ public final class com/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuItem
 }
 
 public final class com/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuKt {
-	public static final fun QeetrixMenu (ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixContextMenu (ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixMenu (ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuSide;Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuAlign;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static final fun QeetrixMenuCheckboxItem (Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuScope;Ljava/lang/String;ZLkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;ZZLandroidx/compose/runtime/Composer;II)V
 	public static final fun QeetrixMenuGroupLabel (Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuScope;Ljava/lang/String;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
 	public static final fun QeetrixMenuItem (Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuScope;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;Ljava/lang/String;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuItemTone;ZZLandroidx/compose/runtime/Composer;II)V
 	public static final fun QeetrixMenuRadioGroup (Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuScope;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static final fun QeetrixMenuRadioItem (Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuRadioGroupScope;Ljava/lang/String;Ljava/lang/Object;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;ZZLandroidx/compose/runtime/Composer;II)V
 	public static final fun QeetrixMenuSeparator (Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuScope;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixMenuSubmenu (Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuScope;Ljava/lang/String;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;Ljava/lang/String;ZLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 }
 
 public abstract interface class com/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuRadioGroupScope : com/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuScope {
 }
 
 public abstract interface class com/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuScope {
+}
+
+public final class com/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuSide : java/lang/Enum {
+	public static final field Bottom Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuSide;
+	public static final field Top Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuSide;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuSide;
+	public static fun values ()[Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuSide;
 }
 
 public final class com/qeetgroup/qeetrix/components/emptystate/QeetrixDataStateKt {

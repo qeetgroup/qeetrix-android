@@ -137,7 +137,12 @@ page in the sample app, which now has one for every new component.
   opens a sheet (a side sheet from `breakpoint.medium`) with a search field over the options, filtering by label or
   meta, group labels kept over their matches, the choice marked, one choice or several (Done closes), and "No matches"
   when nothing does. New strings `qx_no_matches`, `qx_no_matches_description`.
-- **Not done yet:** QTRX-191 (Menu submenus, context menu, side and align), 192 (Snackbar promise and stacking).
+- **Menu** (QTRX-191): `QeetrixMenuSubmenu` opens a submenu beside its row (a trailing chevron, mirrored in right to
+  left; the arrow keys open and close it; a choice in it closes the whole menu); `QeetrixContextMenu` opens the menu at
+  the point an area is long-pressed, right-clicked or given Shift+F10 / the context-menu key, with an "Open menu"
+  accessibility action (new string `qx_open_menu`); `QeetrixMenu` takes `side` (`QeetrixMenuSide` Bottom/Top) and
+  `align` (`QeetrixMenuAlign` Start/Center/End).
+- **Not done yet:** QTRX-192 (Snackbar promise and stacking).
 
 ### Added
 

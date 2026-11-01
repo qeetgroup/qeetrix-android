@@ -1,7 +1,8 @@
 # Menu
 
 `QeetrixMenu`, `QeetrixMenuItem`, `QeetrixMenuCheckboxItem`, `QeetrixMenuRadioGroup`, `QeetrixMenuRadioItem`,
-`QeetrixMenuGroupLabel`, `QeetrixMenuSeparator`, `QeetrixMenuItemTone` · `components.dropdownmenu` ·
+`QeetrixMenuSubmenu`, `QeetrixMenuGroupLabel`, `QeetrixMenuSeparator`, `QeetrixMenuItemTone`, `QeetrixMenuSide`,
+`QeetrixMenuAlign`, `QeetrixContextMenu` · `components.dropdownmenu` ·
 `@qeetrix/react`: [Menu](https://ui.qeet.in/components/menu) · sample: Overlays → Menu
 
 A list of actions or options that opens from a trigger.
@@ -22,11 +23,19 @@ QeetrixMenu(
 ## Usage
 
 - **The app owns `open`.** The trigger opens it; a tap outside, Back, Escape or choosing an item calls
-  `onOpenChange(false)`. It opens below the trigger, 4 dp away, or above it when there is no room.
+  `onOpenChange(false)`. It opens on the trigger's `side` (`Bottom`, the default, or `Top`), 4 dp away, flipping to
+  the other side when there is no room, and lines up by `align` (`Start`, `Center` or `End`, in the reading direction).
 - **Items**: `QeetrixMenuItem` (an action: `icon`, `shortcut`, `description`, `tone`, `enabled`, `closeOnClick`);
   `QeetrixMenuCheckboxItem` (`checked` / `onCheckedChange`; keeps the menu open by default); radio items in a
   `QeetrixMenuRadioGroup` (`value` / `onValueChange`; close the menu by default); `QeetrixMenuGroupLabel` and
   `QeetrixMenuSeparator`.
+- **Submenus**: `QeetrixMenuSubmenu(text, icon, description, enabled) { … }` — a row with a trailing chevron that opens
+  the same kind of content beside it (at its end, or its start when there is no room; over the menu on a phone's
+  narrow window). A choice in it closes the whole menu; Escape, Back, a tap outside or the arrow back close the
+  submenu alone.
+- **Context menu**: `QeetrixContextMenu(open, onOpenChange, menu = { … }) { content }` opens the same content at the
+  point an area is long-pressed — or right-clicked, or Shift+F10 / the context-menu key on it. A long press on a
+  clickable row inside opens the menu, not the row. Keep its actions reachable another way too: it is a shortcut.
 - **Choosing** closes the menu (when the item closes it) and then runs it, once per opening.
 - Keep about seven items per group; put destructive items last, after a separator. No forms or links to other
   screens in a menu.
@@ -37,7 +46,10 @@ QeetrixMenu(
   item a radio button, with their states; disabled items are read as unavailable; group labels are headings.
   Shortcuts are hidden from accessibility services, as on the web.
 - Opened from a keyboard, focus starts on the first available item; arrow keys move, Enter chooses, Escape
-  closes and focus returns to the trigger.
+  closes and focus returns to the trigger. The arrow towards a submenu row's end opens its submenu, the arrow back
+  closes it, focus returning to the row; the row is read as expanded or collapsed.
+- A context menu's area takes keyboard focus (the Ember frame inside its edge) and offers TalkBack an "Open menu"
+  action (`qx_open_menu`); a long press plays Android's long-press haptic.
 
 ## Theme and tokens
 
@@ -48,7 +60,8 @@ icons 16 dp sharp in `color.icon.subtle`; shortcuts `code.sm` `color.text.subtle
 (`border.width.strong`) `color.border.brand` start edge. Danger: `color.text.danger` / `color.icon.danger`;
 disabled: `color.text.disabled` / `color.icon.disabled`. Group labels `label.sm` `color.text.subtle`; separators
 1 dp `color.border.subtle`, 4 dp above and below. Motion: fade and a 4 dp slide over `motion.duration.normal`,
-out over `motion.duration.fast`.
+out over `motion.duration.fast`. A submenu row's chevron is 16 dp `chevron-right` in `color.icon.subtle`, mirrored in
+right to left; the row stays highlighted while its submenu is open.
 
 ## Platform differences
 
@@ -57,8 +70,16 @@ out over `motion.duration.fast`.
   on the label's first line.
 - **Highlight, not a frame.** The web's menu marks keyboard focus with the highlight, not the 2 dp focus frame
   the design rules list for menu items (§10); Android does the same.
-- **Not implemented:** submenus (`MenuSubmenu`), context menus (`ContextMenu`, long-press), `MenuGroup`, and the
-  `side` / `align` / `sideOffset` positioning props.
+- **Submenus open on a tap or the arrow key**, not on hover alone; on a phone a submenu that fits on neither side
+  opens over its menu.
+- **Context menus open on a long press** — the touch form of the web's right-click — and at the press point.
+- **Not implemented:** `MenuGroup` (use a group label and separators) and `sideOffset` (4 dp, the web's default);
+  `side` takes the top and bottom the CSS styles.
+
+Tried on the phone emulator (`qeetrix-api36`, Android 16) on 1 November 2026 after QTRX-191: "Move to" stays
+highlighted while its submenu opens beside it, and choosing in the submenu closes everything and runs once; a long press
+on a list row opens the context menu at the press point without opening the row; `side = Top`, `align = End` opens above
+its button, held inside the window's margin where the end alignment would leave it.
 - Back is the popup window's own; Qeetrix only adds Escape.
 
 Related: [Dialog](Dialog.md), [Bottom sheet](BottomSheet.md).

@@ -57,6 +57,8 @@
     <string name="qx_clear_search">Clear search</string>
     <!-- A searchable select's empty state, when no option matches what was typed. The web's Combobox has no message yet. -->
     <string name="qx_no_matches">No matches</string>
+    <!-- A context menu's area: the action TalkBack offers for opening its menu (double-tap and hold). -->
+    <string name="qx_open_menu">Open menu</string>
     <!-- The empty state's line under it: what was typed, in typographic quotes. -->
     <string name="qx_no_matches_description">Nothing matches “%1$s”.</string>
     <!-- copyButton.copy: a copy button's name when it has no label of its own. -->

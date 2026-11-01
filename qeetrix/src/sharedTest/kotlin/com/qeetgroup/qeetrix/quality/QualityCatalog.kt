@@ -85,6 +85,7 @@ import com.qeetgroup.qeetrix.components.drawer.QeetrixBottomSheet
 import com.qeetgroup.qeetrix.components.drawer.QeetrixSideSheet
 import com.qeetgroup.qeetrix.components.drawer.SheetLayout
 import com.qeetgroup.qeetrix.components.dropdownmenu.MenuSurface
+import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixContextMenu
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenu
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuCheckboxItem
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuGroupLabel
@@ -94,6 +95,7 @@ import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuRadioGroup
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuRadioItem
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuScope
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuSeparator
+import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuSubmenu
 import com.qeetgroup.qeetrix.components.emptystate.QeetrixDataState
 import com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyState
 import com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyStateSize
@@ -1053,6 +1055,12 @@ internal val QualityCatalog: List<QualitySpecimen> =
                 MenuSurface(Modifier.widthIn(min = 200.dp, max = 320.dp), focusFirst = false, onDismiss = {}) { MenuItems() }
             }
         },
+        QualitySpecimen("context-menu") {
+            // The area a context menu opens from, closed: it takes focus and offers "Open menu".
+            QeetrixContextMenu(open = false, onOpenChange = {}, menu = { MenuItems() }) {
+                QeetrixListItem("Q3 report.pdf", description = "Updated today", onClick = {})
+            }
+        },
         QualitySpecimen("relative-time") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 val now = java.time.Instant.parse("2026-10-30T12:00:00Z")
@@ -1305,6 +1313,7 @@ private fun QeetrixMenuScope.MenuItems() {
     QeetrixMenuItem("Rename", onClick = {}, icon = QeetrixIconName.Pencil, shortcut = "F2")
     QeetrixMenuItem("Duplicate", onClick = {}, icon = QeetrixIconName.Copy, description = "Members and settings, not the data")
     QeetrixMenuItem("Share", onClick = {}, icon = QeetrixIconName.Share2, enabled = false)
+    QeetrixMenuSubmenu("Move to", icon = QeetrixIconName.Folder) { QeetrixMenuItem("Archive", onClick = {}) }
     QeetrixMenuSeparator()
     QeetrixMenuCheckboxItem("Show archived", checked = true, onCheckedChange = {})
     QeetrixMenuCheckboxItem("Compact rows", checked = false, onCheckedChange = {}, enabled = false)
