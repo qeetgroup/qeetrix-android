@@ -407,7 +407,7 @@ against a local publication.
 accessibility and review; 🔒 [SECURITY.md](SECURITY.md) the library's scope, supported versions and how to report a
 vulnerability.
 
-📜 The library's own code is Qeet Group's (the repository is private and carries no open-source licence).
+📜 The library's own code is Qeet Group's. The repository is public but carries no licence: anyone can read it, nothing grants a right to use it.
 It bundles Qeet Sans (Cal Sans) and Fira Code (SIL OFL 1.1), from `@qeetrix/tokens`, and `@qeetrix/icons`
 drawings (MIT, based on Lucide, ISC): see [Documentation/THIRD_PARTY_NOTICES.md](Documentation/THIRD_PARTY_NOTICES.md).
 

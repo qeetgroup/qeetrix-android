@@ -82,7 +82,7 @@ Scripts/verify-publication build/release-candidate/maven 0.1.0-rc.2 qeetrix/buil
 
 The owner's decision; the options are compared in [0018](../Decisions/0018-maven-distribution.md). The
 recommendation for the first internal consumers is **GitHub Packages, private**: the code and its access control
-are already there. An app then adds the repository `https://maven.pkg.github.com/qeetgroup/qeetrix-android` with a
+are already there. The repository is public (checked 1 November 2026), and GitHub Packages' Maven registry gives a package its repository's visibility, so a package published from it would be public too — which needs a licence first. A private package needs the repository made private, or another private registry. An app then adds the repository `https://maven.pkg.github.com/qeetgroup/qeetrix-android` with a
 GitHub user and a token that has `read:packages` (from `~/.gradle/gradle.properties` or the CI's secrets, never the
 app's repository). **This has not been tried**: no package exists yet.
 

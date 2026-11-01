@@ -64,8 +64,8 @@ release of the latest minor version ([RELEASE-POLICY.md](Documentation/Releases/
 
 ## Reporting a vulnerability
 
-This repository is private. Report a vulnerability **privately to a repository administrator**. Do not
-describe it in an issue or a pull request.
+This repository is public. Report a vulnerability **privately to a repository administrator**. Do not
+describe it in an issue or a pull request, which anyone can read.
 
 Include:
 

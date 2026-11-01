@@ -84,7 +84,8 @@ Before the internal pre-release:
 
 1. **Build the next candidate** (`0.1.0-rc.3`, with rc2-2 and rc2-3 fixed) with `Scripts/release-candidate --devices` from a
    clean commit.
-2. **Choose the registry** (GitHub Packages, private, is recommended) and create the protected publishing environment
+2. **Choose the registry** (GitHub Packages, private, is recommended — but the repository is public, so a package from
+   it would be public too: make the repository private, or choose a licence first) and create the protected publishing environment
    and credential ([MAVEN-DISTRIBUTION.md](MAVEN-DISTRIBUTION.md)).
 3. **Approve that version**, publish it once, and tag its commit.
 

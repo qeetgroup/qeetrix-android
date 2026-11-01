@@ -14,7 +14,9 @@ a consumer would use it: `:sample` depends on `project(":qeetrix")`.
 What the organisation already does: its other Gradle projects use the group `com.qeetgroup` (qeet-pay-server,
 qeet-people-server), and this repository's README already documents `com.qeetgroup:qeetrix` for composite builds.
 The web design system is published publicly to npm as `@qeetrix/ui`, marked `UNLICENSED`; qeetrix-android and
-qeetrix-ios are private repositories with no licence.
+qeetrix-ios are private repositories with no licence. *Amended 2026-11-01:* qeetrix-android is now public, still with
+no licence, so a GitHub Packages Maven package published from it would be public; the private recommendation now needs
+the repository made private, or another private registry.
 
 ## Decision
 
