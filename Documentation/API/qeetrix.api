@@ -1016,6 +1016,7 @@ public final class com/qeetgroup/qeetrix/components/toast/QeetrixSnackbarHostSta
 	public fun <init> ()V
 	public final fun dismiss ()V
 	public final fun isShowing ()Z
+	public final fun promise (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun show-myKFqkg (Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/toast/QeetrixSnackbarTone;Ljava/lang/String;Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun show-myKFqkg$default (Lcom/qeetgroup/qeetrix/components/toast/QeetrixSnackbarHostState;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/toast/QeetrixSnackbarTone;Ljava/lang/String;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
@@ -1025,8 +1026,8 @@ public final class com/qeetgroup/qeetrix/components/toast/QeetrixSnackbarHostSta
 }
 
 public final class com/qeetgroup/qeetrix/components/toast/QeetrixSnackbarKt {
-	public static final fun QeetrixSnackbar (Ljava/lang/String;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/components/toast/QeetrixSnackbarTone;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
-	public static final fun QeetrixSnackbarHost (Lcom/qeetgroup/qeetrix/components/toast/QeetrixSnackbarHostState;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixSnackbar (Ljava/lang/String;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/components/toast/QeetrixSnackbarTone;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ZLandroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixSnackbarHost (Lcom/qeetgroup/qeetrix/components/toast/QeetrixSnackbarHostState;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;Ljava/lang/Integer;Landroidx/compose/runtime/Composer;II)V
 	public static final fun rememberQeetrixSnackbarHostState (Landroidx/compose/runtime/Composer;I)Lcom/qeetgroup/qeetrix/components/toast/QeetrixSnackbarHostState;
 }
 

@@ -896,6 +896,8 @@ internal val QualityCatalog: List<QualitySpecimen> =
         },
         QualitySpecimen("snackbar") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Work in progress (promise): a spinner in the icon's place.
+                QeetrixSnackbar("Sending the invoice…", onDismiss = {}, loading = true)
                 QeetrixSnackbar("Conversation archived", actionLabel = "Undo", onAction = {}, onDismiss = {})
                 QeetrixSnackbar(
                     "Invoice sent",

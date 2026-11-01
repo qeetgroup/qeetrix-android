@@ -64,7 +64,7 @@ record's §7 lists each).
   The button, accordion, tab and navigation looks Android already drew are now the CSS's.
 - **Quality scans:** findings Q-8, Q-9, Q-10 and Q-14 no longer happen and are no longer recorded; Q-15 stays (QTRX-164).
 
-### Added for the Android tickets (QTRX-101 to 137, 156, 193 to 200)
+### Added for the Android tickets (QTRX-101 to 137, 156, 190 to 200) — all 37
 
 Built and tested on the JVM (unit tests, the quality scans, Roborazzi renders), then tried one by one on the phone
 emulator (`qeetrix-api36`, Android 16) on 31 October 2026 — light, dark, 200 % text and right to left — each from its
@@ -142,7 +142,11 @@ page in the sample app, which now has one for every new component.
   the point an area is long-pressed, right-clicked or given Shift+F10 / the context-menu key, with an "Open menu"
   accessibility action (new string `qx_open_menu`); `QeetrixMenu` takes `side` (`QeetrixMenuSide` Bottom/Top) and
   `align` (`QeetrixMenuAlign` Start/Center/End).
-- **Not done yet:** QTRX-192 (Snackbar promise and stacking).
+- **Snackbar** (QTRX-192): `QeetrixSnackbarHostState.promise(loading, success, error) { work }` — a spinner while the
+  work runs, then success or a danger snackbar that stays, in place; the work's result returned at once, its failure
+  rethrown. `QeetrixSnackbarHost` stacks up to three from `breakpoint.medium` (newest at the bottom, `space.gap.sm`
+  apart, as the web) and keeps one at a time on a phone; `limit` overrides it. `QeetrixSnackbar` takes `loading`.
+  `dismiss()` closes every snackbar on screen.
 
 ### Added
 

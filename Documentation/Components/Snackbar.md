@@ -31,8 +31,11 @@ Box(Modifier.fillMaxSize()) {
 - **Timing.** 5 s (`DefaultTimeout`) unless `timeout` says otherwise (`Duration.INFINITE` keeps it), lengthened by
   the person's accessibility timeout. A `Danger` snackbar stays until it is used or closed (design rules §13);
   while TalkBack is on, a snackbar with an action stays too.
-- **One at a time.** A new snackbar replaces the one on screen; showing the same one again restarts its time
-  without announcing it twice.
+- **How many.** On a phone one at a time: a new snackbar replaces the one on screen. From `breakpoint.medium` up to
+  three stack, newest at the bottom; `QeetrixSnackbarHost(limit = …)` sets the number. Showing the same one again
+  restarts its time without announcing it twice. `dismiss()` closes every snackbar on screen.
+- **Work in progress.** `promise(loading, success, error) { work }` shows a spinner while the work runs, then says how
+  it went; it returns the work's result at once and rethrows a failure after showing it.
 - **Lifecycle.** `show()` runs in the caller's coroutine: when the screen's scope is cancelled, its snackbar goes.
 - **Never show secrets.** A snackbar is on screen and read aloud. A failure the person must fix belongs inline.
 
@@ -55,11 +58,20 @@ triangle-alert, circle-alert); padding 12 / 8 / 12 / 14 dp, `space.gap.md` gaps;
 
 - **Name.** Android calls transient in-app feedback a snackbar; it is the Toast's Android form, in the Toast
   family's package.
-- **No stack.** The web stacks up to three toasts, 8 dp apart; Android shows one at a time, as Android's
-  snackbars and iOS's toasts do.
-- **Not implemented:** `toast.promise` (the pending spinner), `update`, swipe to dismiss, and the region's
-  "Notifications" landmark (Android has no landmarks).
+- **Stacking by width** (QTRX-192). On a phone one snackbar at a time, as Android's snackbars and iOS's toasts are:
+  a new one replaces the last. From `breakpoint.medium` up to three stack, newest at the bottom, `space.gap.sm` apart,
+  as the web's ToastProvider (limit 3); over the limit the oldest goes. `QeetrixSnackbarHost(limit = …)` sets it.
+- **Promise** (QTRX-192): `QeetrixSnackbarHostState.promise(loading, success, error) { work }` shows a 16 dp spinner
+  in the icon's place while the work runs, then success for the usual time or danger until it is closed, in place
+  (announced again as its words change); it returns the work's result at once and rethrows its failure, as the web's
+  promise rejects. Replaced while pending (a phone's one at a time), its outcome still appears.
+- **Not implemented:** `update`, swipe to dismiss, and the region's "Notifications" landmark (Android has no
+  landmarks).
 - **Close label.** "Dismiss" (`qx_dismiss`, the web's `toast.close`).
 - **System Toast.** For a message that must outlive the app's window, use `android.widget.Toast`.
+
+Tried on the phone emulator (`qeetrix-api36`, Android 16) on 1 November 2026 after QTRX-192: "Sending the invoice…"
+with its spinner while the work ran, then "Invoice INV-2042 sent" with the success edge; a failing send turned into a
+danger snackbar that stayed until closed.
 
 Related: [Progress](Progress.md).

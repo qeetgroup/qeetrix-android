@@ -1,16 +1,14 @@
 package com.qeetgroup.qeetrix.components.toast
 
 import android.view.accessibility.AccessibilityManager
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,8 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,10 +60,13 @@ import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
+import com.qeetgroup.qeetrix.components.spinner.QeetrixSpinner
+import com.qeetgroup.qeetrix.components.spinner.QeetrixSpinnerSize
 import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixAccessibility
 import com.qeetgroup.qeetrix.foundation.color.QeetrixColors
 import com.qeetgroup.qeetrix.foundation.elevation.QeetrixShadow
 import com.qeetgroup.qeetrix.foundation.elevation.qeetrixShadow
+import com.qeetgroup.qeetrix.foundation.layout.QeetrixBreakpoint
 import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
 import com.qeetgroup.qeetrix.foundation.motion.qeetrixAnimationSpec
 import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
@@ -74,11 +78,15 @@ import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.icons.QeetrixIconShape
 import com.qeetgroup.qeetrix.internal.firstLineHeight
 import com.qeetgroup.qeetrix.internal.labelDirection
+import com.qeetgroup.qeetrix.internal.windowAtLeast
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import androidx.compose.ui.platform.AccessibilityManager as ComposeAccessibilityManager
@@ -140,10 +148,13 @@ public enum class QeetrixSnackbarResult {
  * `useToast()`. Remember one per screen with [rememberQeetrixSnackbarHostState] and call [show] from that screen's
  * coroutine scope; there is no global snackbar service.
  *
- * **One at a time.** A new snackbar replaces the one on screen at once — its [show] returns
- * [QeetrixSnackbarResult.Dismissed] — and nothing queues, so feedback is never late or stale. Showing the snackbar
- * that is already on screen again (the same title, tone, description, action and timeout) keeps it and restarts its
- * time instead of announcing it twice.
+ * **How many at once** is the host's limit: on a phone one at a time, as Android's own snackbars are; from
+ * `breakpoint.medium` up to three, stacked as the web's toasts are ([QeetrixSnackbarHost]'s `limit`). A snackbar over
+ * the limit replaces the oldest at once — its [show] returns [QeetrixSnackbarResult.Dismissed] — and nothing queues, so
+ * feedback is never late or stale. Showing a snackbar that is already on screen again (the same title, tone,
+ * description, action and timeout) keeps it and restarts its time instead of announcing it twice.
+ *
+ * **Work in progress**: [promise] shows a snackbar with a spinner while its work runs, then says how it went.
  *
  * **Timing** follows the web's Toast: [DefaultTimeout] (5 s) unless a snackbar sets its own, lengthened to the
  * person's "Time to take action" accessibility setting; a [QeetrixSnackbarTone.Danger] snackbar stays until it is
@@ -156,14 +167,33 @@ public enum class QeetrixSnackbarResult {
  */
 @Stable
 public class QeetrixSnackbarHostState {
-    internal var current: SnackbarRequest? by mutableStateOf(null)
-        private set
+    /** The snackbars on screen, oldest first. */
+    internal val stack = mutableStateListOf<SnackbarRequest>()
+
+    /** The newest snackbar on screen. */
+    internal val current: SnackbarRequest? get() = stack.lastOrNull()
 
     /** Set by the host from the accessibility settings of the window it is in. */
     internal var timing: SnackbarTiming = SnackbarTiming.Unknown
 
+    /** Set by the host: how many snackbars it shows at once. One until a host says otherwise. */
+    internal var limit: Int = 1
+
+    /** Set by the host: where a settled [promise] snackbar spends its time on screen, after its work has returned. */
+    internal var hostScope: CoroutineScope? = null
+
     /** Whether a snackbar is showing. */
-    public val isShowing: Boolean get() = current != null
+    public val isShowing: Boolean get() = stack.isNotEmpty()
+
+    /** Puts [request] on screen, ending the oldest snackbars over the limit. */
+    private fun add(request: SnackbarRequest) {
+        stack.add(request)
+        while (stack.size > limit.coerceAtLeast(1)) {
+            val oldest = stack.first()
+            oldest.finish(QeetrixSnackbarResult.Dismissed)
+            stack.remove(oldest)
+        }
+    }
 
     /**
      * Shows a snackbar — [title], what happened in a few words, read first; an optional one-line [description]; its
@@ -179,27 +209,90 @@ public class QeetrixSnackbarHostState {
         actionLabel: String? = null,
         timeout: Duration = DefaultTimeout,
     ): QeetrixSnackbarResult {
-        val onScreen = current
-        if (onScreen != null && onScreen.isSameAs(title, tone, description, actionLabel, timeout)) {
+        val onScreen = stack.firstOrNull { it.isSameAs(title, tone, description, actionLabel, timeout) }
+        if (onScreen != null) {
             onScreen.restart()
             return onScreen.result.await()
         }
-        onScreen?.finish(QeetrixSnackbarResult.Dismissed)
         val request = SnackbarRequest(title, tone, description, actionLabel, timeout)
-        current = request
+        add(request)
         try {
             request.runTimer { timing.timeoutMillis(request) }
             return request.result.await()
         } finally {
             // Ended, replaced or cancelled with its caller: it never stays behind.
             request.finish(QeetrixSnackbarResult.Dismissed)
-            if (current === request) current = null
+            stack.remove(request)
         }
     }
 
-    /** Closes the snackbar on screen, if any; its [show] returns [QeetrixSnackbarResult.Dismissed]. */
+    /**
+     * Shows [loading] with a spinner in the icon's place while [block] runs — `@qeetrix/react`'s `toast.promise` — then
+     * turns it into a [QeetrixSnackbarTone.Success] snackbar saying [success] of the result, for the usual time, or a
+     * [QeetrixSnackbarTone.Danger] one saying [error] of what went wrong, which stays until it is closed. Returns
+     * [block]'s result as soon as it has one, and rethrows its failure after showing it, as the web's promise rejects;
+     * cancelled, it leaves without a word. The settled snackbar spends its time on screen in the host's scope, so the
+     * caller can move on — when no host is on screen, it is not shown.
+     *
+     * ```
+     * val invoice = snackbars.promise("Sending the invoice…", success = { "Invoice ${it.number} sent" },
+     *     error = { "Couldn't send the invoice" }) { api.send(draft) }
+     * ```
+     */
+    public suspend fun <R> promise(
+        loading: String,
+        success: (R) -> String,
+        error: (Throwable) -> String,
+        block: suspend () -> R,
+    ): R {
+        val request = SnackbarRequest(loading, QeetrixSnackbarTone.Info, null, null, Duration.INFINITE, pending = true)
+        add(request)
+        val outcome =
+            try {
+                block()
+            } catch (cancelled: CancellationException) {
+                request.finish(QeetrixSnackbarResult.Dismissed)
+                stack.remove(request)
+                throw cancelled
+            } catch (failure: Throwable) {
+                settle(request, QeetrixSnackbarTone.Danger, error(failure))
+                throw failure
+            }
+        settle(request, QeetrixSnackbarTone.Success, success(outcome))
+        return outcome
+    }
+
+    /** Turns a pending snackbar into its outcome — a fresh one when it was replaced or closed while pending — and times it. */
+    private fun settle(
+        request: SnackbarRequest,
+        tone: QeetrixSnackbarTone,
+        title: String,
+    ) {
+        val shown =
+            if (request.result.isCompleted) {
+                SnackbarRequest(title, tone, null, null, DefaultTimeout).also { add(it) }
+            } else {
+                request.also { it.settle(tone, title) }
+            }
+        val scope = hostScope
+        if (scope == null) {
+            shown.finish(QeetrixSnackbarResult.Dismissed)
+            stack.remove(shown)
+            return
+        }
+        scope.launch {
+            try {
+                shown.runTimer { timing.timeoutMillis(shown) }
+            } finally {
+                shown.finish(QeetrixSnackbarResult.Dismissed)
+                stack.remove(shown)
+            }
+        }
+    }
+
+    /** Closes every snackbar on screen; their [show]s return [QeetrixSnackbarResult.Dismissed]. */
     public fun dismiss() {
-        current?.finish(QeetrixSnackbarResult.Dismissed)
+        stack.toList().forEach { it.finish(QeetrixSnackbarResult.Dismissed) }
     }
 
     /** The defaults of [show]. */
@@ -217,8 +310,12 @@ public fun rememberQeetrixSnackbarHostState(): QeetrixSnackbarHostState = rememb
  * Where a screen's snackbars appear — `@qeetrix/react`'s ToastProvider region, scoped to the screen: put it at the
  * bottom of the screen's layout, over the content (in a `Box`, aligned to the bottom), and show snackbars through its
  * [state]. A snackbar is at most 360 dp wide, `space.inset.lg` from the bottom and end edges (toast.css's viewport); on
- * a phone it spans the width less those margins. It fades in and rises 4 dp in `motion.duration.normal`, and leaves
+ * a phone it spans the width less those margins. Each fades in and rises 4 dp in `motion.duration.normal`, and leaves
  * the same way one step faster; nothing moves under reduced motion.
+ *
+ * [limit] is how many it shows at once — by default one below `breakpoint.medium` (a phone, as Android's own snackbars)
+ * and three from it, stacked newest at the bottom, `space.gap.sm` apart, as the web's toasts. A new snackbar over the
+ * limit replaces the oldest.
  *
  * [windowInsets] (by default the bottom and horizontal safe-drawing insets) keeps snackbars above the navigation bar
  * and the keyboard; inside a navigation scaffold those are already consumed by its bar.
@@ -243,11 +340,18 @@ public fun QeetrixSnackbarHost(
     state: QeetrixSnackbarHostState,
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
+    limit: Int? = null,
 ) {
     val compose = LocalAccessibilityManager.current
     val context = LocalContext.current
     val platform = remember(context) { context.getSystemService(AccessibilityManager::class.java) }
-    SideEffect { state.timing = SnackbarTiming(compose, platform) }
+    val scope = rememberCoroutineScope()
+    val shown = limit ?: if (windowAtLeast(QeetrixBreakpoint.Medium)) WIDE_LIMIT else 1
+    SideEffect {
+        state.timing = SnackbarTiming(compose, platform)
+        state.limit = shown
+        state.hostScope = scope
+    }
     val reduce = QeetrixTheme.reduceMotion
     // .qx-toast: in over normal on enter; [data-ending-style] out over fast on exit; translate 0 4px either way.
     val enterFade = qeetrixAnimationSpec<Float>(QeetrixMotion.EasingEnter, QeetrixMotion.DurationNormal)
@@ -255,37 +359,36 @@ public fun QeetrixSnackbarHost(
     val exitFade = qeetrixAnimationSpec<Float>(QeetrixMotion.EasingExit, QeetrixMotion.DurationFast)
     val exitSlide = qeetrixAnimationSpec<IntOffset>(QeetrixMotion.EasingExit, QeetrixMotion.DurationFast)
     val rise = with(LocalDensity.current) { SnackbarRise.roundToPx() }
-    Box(
+    val enter = if (reduce) EnterTransition.None else fadeIn(enterFade) + slideInVertically(enterSlide) { rise }
+    val exit = if (reduce) ExitTransition.None else fadeOut(exitFade) + slideOutVertically(exitSlide) { rise }
+    // Each snackbar on screen, and each still leaving, with its own enter and exit; oldest first, so the newest is lowest.
+    val visibility = remember(state) { LinkedHashMap<SnackbarRequest, MutableTransitionState<Boolean>>() }
+    for (request in state.stack) visibility.getOrPut(request) { MutableTransitionState(false) }
+    for ((request, entry) in visibility) entry.targetState = request in state.stack
+    val gone = visibility.filterValues { !it.targetState && !it.currentState && it.isIdle }.keys
+    SideEffect { gone.forEach { visibility.remove(it) } }
+    Column(
         modifier
             .fillMaxWidth()
             .windowInsetsPadding(windowInsets)
             .padding(QeetrixSpace.InsetLg), // inset-block-end, inset-inline-end: space.inset.lg; 100vw − 32px
-        contentAlignment = Alignment.BottomEnd,
+        verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm, Alignment.Bottom), // gap: space.gap.sm; column-reverse
+        horizontalAlignment = Alignment.End,
     ) {
-        AnimatedContent(
-            targetState = state.current,
-            transitionSpec = {
-                if (reduce) {
-                    ContentTransform(EnterTransition.None, ExitTransition.None, sizeTransform = null)
-                } else {
-                    (fadeIn(enterFade) + slideInVertically(enterSlide) { rise })
-                        .togetherWith(fadeOut(exitFade) + slideOutVertically(exitSlide) { rise })
-                        .using(SizeTransform(clip = false))
+        for ((request, entry) in visibility.entries.toList()) {
+            key(request) {
+                AnimatedVisibility(visibleState = entry, enter = enter, exit = exit, label = "snackbar") {
+                    QeetrixSnackbar(
+                        title = request.title,
+                        modifier = Modifier.widthIn(max = MaxWidth).fillMaxWidth(),
+                        tone = request.tone,
+                        description = request.description,
+                        actionLabel = request.actionLabel,
+                        onAction = { request.finish(QeetrixSnackbarResult.ActionPerformed) },
+                        onDismiss = { request.finish(QeetrixSnackbarResult.Dismissed) },
+                        loading = request.pending,
+                    )
                 }
-            },
-            contentAlignment = Alignment.BottomEnd,
-            label = "snackbar",
-        ) { request ->
-            if (request != null) {
-                QeetrixSnackbar(
-                    title = request.title,
-                    modifier = Modifier.widthIn(max = MaxWidth).fillMaxWidth(),
-                    tone = request.tone,
-                    description = request.description,
-                    actionLabel = request.actionLabel,
-                    onAction = { request.finish(QeetrixSnackbarResult.ActionPerformed) },
-                    onDismiss = { request.finish(QeetrixSnackbarResult.Dismissed) },
-                )
             }
         }
     }
@@ -300,7 +403,8 @@ public fun QeetrixSnackbarHost(
  *
  * It is announced when it appears — at once for [QeetrixSnackbarTone.Danger], politely otherwise — as one message, and
  * offers accessibility services a dismiss action; its action and close buttons are their own controls, each with a
- * 48 dp touch area around the drawn button.
+ * 48 dp touch area around the drawn button. With [loading], a 16 dp spinner takes the icon's place
+ * (`.qx-toast-spinner`), for work in progress ([QeetrixSnackbarHostState.promise]).
  */
 @Composable
 public fun QeetrixSnackbar(
@@ -311,6 +415,7 @@ public fun QeetrixSnackbar(
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
     onDismiss: (() -> Unit)? = null,
+    loading: Boolean = false,
 ) {
     val colors = QeetrixTheme.colors
     val typography = QeetrixTheme.typography
@@ -347,15 +452,21 @@ public fun QeetrixSnackbar(
             horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd), // gap: space.gap.md
             verticalAlignment = Alignment.Top, // align-items: flex-start
         ) {
-            QeetrixIcon(
-                tone.icon,
-                contentDescription = null,
-                // margin-block-start: 4px — the 16 px icon centred on the title's 24 px line, at any font scale
-                modifier = Modifier.padding(top = ((firstLineHeight(titleStyle) - QeetrixSize.IconSm) / 2).coerceAtLeast(0.dp)),
-                size = QeetrixSize.IconSm,
-                shape = QeetrixIconShape.Sharp,
-                tint = status,
-            )
+            // margin-block-start: 4px — the 16 px icon centred on the title's 24 px line, at any font scale
+            val iconTop = Modifier.padding(top = ((firstLineHeight(titleStyle) - QeetrixSize.IconSm) / 2).coerceAtLeast(0.dp))
+            if (loading) {
+                // .qx-toast-spinner: inline-size and block-size size.icon.sm
+                QeetrixSpinner(iconTop, size = QeetrixSpinnerSize.Md, decorative = true)
+            } else {
+                QeetrixIcon(
+                    tone.icon,
+                    contentDescription = null,
+                    modifier = iconTop,
+                    size = QeetrixSize.IconSm,
+                    shape = QeetrixIconShape.Sharp,
+                    tint = status,
+                )
+            }
             // .qx-toast-content: flex 1, gap 2px
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 BasicText(title, style = titleStyle.copy(color = colors.textDefault).labelDirection(alignToLayout = true))
@@ -413,14 +524,37 @@ private fun Modifier.drawnSize(
 
 /** One snackbar request: what to show, how it ends (once), and a signal that restarts its time. */
 internal class SnackbarRequest(
-    val title: String,
-    val tone: QeetrixSnackbarTone,
+    title: String,
+    tone: QeetrixSnackbarTone,
     val description: String?,
     val actionLabel: String?,
-    val timeout: Duration,
+    timeout: Duration,
+    pending: Boolean = false,
 ) {
+    var title by mutableStateOf(title)
+        private set
+    var tone by mutableStateOf(tone)
+        private set
+    var timeout: Duration = timeout
+        private set
+
+    /** Work in progress: a spinner in the icon's place, and no time limit until it settles. */
+    var pending by mutableStateOf(pending)
+        private set
+
     val result = CompletableDeferred<QeetrixSnackbarResult>()
     private val restarts = Channel<Unit>(Channel.CONFLATED)
+
+    /** A pending snackbar becomes its outcome, in place: announced again as its words change, timed as any other. */
+    fun settle(
+        tone: QeetrixSnackbarTone,
+        title: String,
+    ) {
+        this.tone = tone
+        this.title = title
+        timeout = QeetrixSnackbarHostState.DefaultTimeout
+        pending = false
+    }
 
     fun isSameAs(
         title: String,
@@ -429,7 +563,8 @@ internal class SnackbarRequest(
         actionLabel: String?,
         timeout: Duration,
     ): Boolean =
-        this.title == title &&
+        !pending &&
+            this.title == title &&
             this.tone == tone &&
             this.description == description &&
             this.actionLabel == actionLabel &&
@@ -477,8 +612,8 @@ internal class SnackbarTiming(
 ) {
     /** `null` keeps the snackbar until it is used or closed. */
     fun timeoutMillis(request: SnackbarRequest): Long? {
-        // toast.tsx: danger toasts never time out (timeout 0); neither does a timeout of 0 or forever.
-        if (request.tone == QeetrixSnackbarTone.Danger) return null
+        // toast.tsx: danger toasts never time out (timeout 0); neither does a timeout of 0 or forever, nor pending work.
+        if (request.pending || request.tone == QeetrixSnackbarTone.Danger) return null
         if (request.timeout.isInfinite() || request.timeout <= Duration.ZERO) return null
         val hasAction = request.actionLabel != null
         // An action must not time out under a screen reader: Android's own snackbars stay, as iOS's toasts do.
@@ -493,6 +628,9 @@ internal class SnackbarTiming(
         val Unknown = SnackbarTiming(null, null)
     }
 }
+
+/** How many snackbars a host shows at once from `breakpoint.medium`: three, the web's ToastProvider limit. */
+private const val WIDE_LIMIT = 3
 
 /** `.qx-toast-viewport inline-size: min(360px, 100vw − 32px)`. */
 private val MaxWidth = 360.dp

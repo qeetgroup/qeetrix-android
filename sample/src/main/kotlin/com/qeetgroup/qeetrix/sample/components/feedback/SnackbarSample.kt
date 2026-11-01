@@ -25,6 +25,7 @@ import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /** Snackbars: the four tones, an action with its result, repeats and replacement, and the system Toast's place. */
@@ -59,8 +60,9 @@ fun SnackbarSample() {
                 }, variant = QeetrixButtonVariant.Ghost)
             }
             SampleNote(
-                "$outcome One snackbar at a time: a new one replaces the last, and showing the same one again restarts its " +
-                    "time without a second announcement. Each closes after 5 s except a danger one, which stays until it is " +
+                "$outcome On a phone one snackbar at a time: a new one replaces the last; on a tablet up to three stack, " +
+                    "newest at the bottom. Showing the same one again restarts its time without a second announcement. " +
+                    "Each closes after 5 s except a danger one, which stays until it is " +
                     "used or closed; a snackbar with an action also stays while TalkBack is on.",
             )
         }
@@ -71,6 +73,36 @@ fun SnackbarSample() {
                     outcome = if (result == QeetrixSnackbarResult.ActionPerformed) "Undone: the conversation is back." else "Archived."
                 }
             })
+        }
+        SampleSection("Work in progress") {
+            SampleFlow {
+                QeetrixButton("Send an invoice", onClick = {
+                    scope.launch {
+                        val number =
+                            snackbars.promise("Sending the invoice…", success = { "Invoice $it sent" }, error = { "Couldn't send" }) {
+                                delay(2_000)
+                                "INV-2042"
+                            }
+                        outcome = "Sent $number."
+                    }
+                }, variant = QeetrixButtonVariant.Soft)
+                QeetrixButton("Send, and fail", onClick = {
+                    scope.launch {
+                        runCatching {
+                            snackbars.promise<Unit>(
+                                "Sending the invoice…",
+                                success = { "Sent" },
+                                error = { "Couldn't send: ${it.message}" },
+                            ) {
+                                delay(2_000)
+                                error("the bank is offline")
+                            }
+                        }
+                        outcome = "The failure stays on screen until it is closed."
+                    }
+                }, variant = QeetrixButtonVariant.Ghost)
+            }
+            SampleNote("A spinner while the work runs, then how it went: success for 5 s, or danger until it is closed.")
         }
         SampleSection("Drawn on its own") {
             QeetrixSnackbar("Copied", tone = QeetrixSnackbarTone.Success)

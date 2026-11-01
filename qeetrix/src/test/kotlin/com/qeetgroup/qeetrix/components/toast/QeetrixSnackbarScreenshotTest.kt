@@ -41,4 +41,14 @@ class QeetrixSnackbarScreenshotTest {
                 QeetrixSnackbar("Copied")
             }
         }
+
+    /** Baselines in `src/test/screenshots/snackbarpending/`: work in progress, its spinner in the icon's place (QTRX-192). */
+    @Test
+    fun pending() =
+        captureStates("snackbarpending") {
+            ScreenshotStack {
+                QeetrixSnackbar("Sending the invoice…", onDismiss = {}, loading = true)
+                QeetrixSnackbar("Invoice INV-2041 sent", tone = QeetrixSnackbarTone.Success, onDismiss = {})
+            }
+        }
 }

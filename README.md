@@ -77,15 +77,16 @@ release gates, its device tests and the independent consumer app included
 - 🔄 **Migrated** from `@qeetrix/ui` to `@qeetrix/tokens`, `@qeetrix/react` and `@qeetrix/icons`, and on to their 0.0.13,
   0.4.0 and 2.1.0 releases: every component re-specified to its `@qeetrix/react` counterpart, the API changed
   ([MIGRATION_QEETRIX_REACT.md](Documentation/MIGRATION_QEETRIX_REACT.md)).
-- 🧱 **36 Android tickets built** (QTRX-101 to 107, 120 to 137, 156, 190, 191 and 193 to 200): the native components
-  above, and changes to existing ones — icon-button tooltips, money and percentages in the number field, tab panels, the
-  top app bar's count, status, tabs and collapsing title, right-to-left text, a bottom sheet without Material, a side
-  sheet, Select's multiple choice, open state and type-to-jump, a searchable select, and menu submenus and context menus.
+- 🧱 **All 37 Android tickets built** (QTRX-101 to 107, 120 to 137, 156 and 190 to 200): the native components above,
+  and changes to existing ones — icon-button tooltips, money and percentages in the number field, tab panels, the top
+  app bar's count, status, tabs and collapsing title, right-to-left text, a bottom sheet without Material, a side sheet,
+  Select's multiple choice, open state and type-to-jump, a searchable select, menu submenus and context menus, and
+  snackbars for work in progress that stack on a tablet.
 - ✅ **Verified** on the JVM (unit and Compose tests, quality scans, screenshots) and, on 31 October 2026, component by
   component on an Android 16 phone emulator in light, dark, 200 % text and right to left, then on a tablet emulator;
   what that found is fixed ([CHANGELOG.md](CHANGELOG.md)).
 
-⏭️ **Next:** one deferred ticket (QTRX-192) and the owner's choice of registry. The phase history is in [PHASES.md](PHASES.md).
+⏭️ **Next:** the owner's choice of registry and a first version, and a manual TalkBack pass on a phone. The phase history is in [PHASES.md](PHASES.md).
 
 ## 🧰 Requirements
 
@@ -374,7 +375,6 @@ against a local publication.
 
 - 📦 **Not published.** Use it as a composite build until a new release candidate, the registry and a version are
   approved.
-- ⏳ **One Android ticket deferred:** the snackbar's promise and stacking (QTRX-192).
 - 🧩 **Not every `@qeetrix/react` family** has an Android counterpart: no data table, charts, popover or
   navigation drawer ([0015](Documentation/Decisions/0015-navigation-overlays-and-feedback.md),
   [0016](Documentation/Decisions/0016-data-display-and-content-states.md)).
