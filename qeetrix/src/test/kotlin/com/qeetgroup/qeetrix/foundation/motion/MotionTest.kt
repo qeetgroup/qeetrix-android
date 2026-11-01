@@ -22,18 +22,17 @@ class MotionTest {
 
     @Test
     fun aSpecUsesTheTokenDurationAndEasing() {
-        val spec = QeetrixMotion.spec<Float>(QeetrixEasing.Standard, QeetrixDuration.Normal, reduceMotion = false) as TweenSpec
+        val spec = QeetrixMotion.spec<Float>(QeetrixMotion.EasingStandard, QeetrixMotion.DurationNormal, reduceMotion = false) as TweenSpec
         assertEquals(200, spec.durationMillis)
-        assertEquals(QeetrixEasing.Standard, spec.easing)
+        assertEquals(QeetrixMotion.EasingStandard, spec.easing)
     }
 
     @Test
-    fun reducedMotionReplacesDurationAndEasing() {
-        // motion.reduced.duration is 0 in 2.1.6, so the change is immediate.
-        assertEquals(0, QeetrixMotion.ReducedDuration)
-        assertEquals(LinearEasing, QeetrixMotion.ReducedEasing)
-        assertTrue(QeetrixMotion.spec<Float>(QeetrixEasing.Enter, QeetrixDuration.Slow, reduceMotion = true) is SnapSpec)
-        assertTrue(QeetrixMotion.spec<Float>(QeetrixEasing.Enter, QeetrixDuration.Instant, reduceMotion = false) is SnapSpec)
+    fun reducedMotionMakesEveryDurationZero() {
+        // Under prefers-reduced-motion every --qx-motion-duration-* is 0ms (tokens.css), so the change is immediate.
+        assertTrue(QeetrixMotion.spec<Float>(QeetrixMotion.EasingEnter, QeetrixMotion.DurationSlow, reduceMotion = true) is SnapSpec)
+        assertTrue(QeetrixMotion.spec<Float>(QeetrixMotion.EasingEnter, QeetrixMotion.DurationInstant, reduceMotion = false) is SnapSpec)
+        assertEquals(LinearEasing, QeetrixMotion.EasingLinear)
     }
 
     @Test

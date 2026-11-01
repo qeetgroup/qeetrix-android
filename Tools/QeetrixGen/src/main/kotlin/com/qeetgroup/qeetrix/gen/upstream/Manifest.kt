@@ -13,44 +13,72 @@ import java.io.File
 
 /**
  * `Upstream/manifest.json`: what qeetrix-android is built from. Edited by hand to move a pin; the
- * same pins as qeetrix-ios's `Upstream/pins.json`, with Android destinations.
+ * same pins as qeetrix-ios, with Android destinations. Every artifact is an npm-published tarball:
+ * `@qeetrix/tokens` (the DTCG tokens and the native TrueType fonts), `@qeetrix/react` (the component
+ * manifest and the CSS the components are specified by) and `@qeetrix/icons` (the drawings and their
+ * manifest).
  */
 data class Manifest(
-    val uiPackage: String,
-    val uiVersion: String,
-    /** Package-relative source path → repository-relative destination. */
-    val uiFiles: Map<String, String>,
-    /** The `component.<group>` token groups Android implements — the same groups as qeetrix-ios. */
-    val componentTokens: List<String>,
+    val tokens: TokensPin,
+    val react: ReactPin,
     val fonts: List<FontPin>,
+    /** `fonts/native.json` in the `@qeetrix/tokens` tarball: each TTF's axes, size and sha256, and its WOFF2. */
+    val nativeFonts: String,
     val icons: IconPins,
 ) {
+    /** A package on the npm registry at an exact version. */
+    interface NpmPin {
+        val packageName: String
+        val version: String
+    }
+
+    data class TokensPin(
+        override val packageName: String,
+        override val version: String,
+        /** The tarball directory holding the DTCG build (`package/dist/dtcg`), copied whole. */
+        val dtcg: String,
+        val destination: String,
+        /** The `component.<group>` token groups Android implements — the same groups as qeetrix-ios. */
+        val componentTokens: List<String>,
+    ) : NpmPin
+
+    data class ReactPin(
+        override val packageName: String,
+        override val version: String,
+        /** The component manifest (`dist/manifest.json`) inside the tarball. */
+        val manifest: String,
+        val manifestDestination: String,
+        /** The tarball directory holding each family's compiled CSS. */
+        val css: String,
+        val cssDestination: String,
+        /** The families whose CSS Android's components are specified by (`button`, `experimental/sidebar`, …). */
+        val families: List<String>,
+    ) : NpmPin
+
     data class FontPin(
         /** The family key the typography roles use: `sans` or `mono`. */
         val family: String,
         /** The family name the web's CSS uses for it, e.g. `Qeet Sans`. */
         val webFamily: String,
-        /** The WOFF2 inside the `@qeetrix/ui` tarball that the TTF must match. */
-        val webFile: String,
-        val repository: String,
-        val tag: String,
-        /** A release asset holding the files, or null to read them from the tagged tree. */
-        val releaseAsset: String?,
+        /** The full variable TrueType font inside the `@qeetrix/tokens` tarball, listed in its `native.json`. */
         val ttf: String,
-        val woff2: String,
-        val license: String,
+        /** The variation axes the TTF must have. */
+        val axes: List<String>,
         val destination: String,
         val licenseDestination: String,
     )
 
     data class IconPins(
-        val repository: String,
-        val packageName: String,
-        val version: String,
-        val commit: String,
+        override val packageName: String,
+        override val version: String,
+        /** The icon catalogue as JSON (`dist/manifest.json`) inside the tarball. */
+        val manifest: String,
+        /** The tarball directory of plain SVG drawings, `<shape>-<variant>/<id>.svg`. */
+        val svg: String,
+        val license: String,
         val licenseDestination: String,
         val names: List<String>,
-    )
+    ) : NpmPin
 
     companion object {
         const val PATH = "Upstream/manifest.json"
@@ -65,62 +93,104 @@ data class Manifest(
                 context: String,
             ): String =
                 (this[key] as? JsonPrimitive)?.takeIf { it.isString }?.content ?: throw GeneratorError("$PATH: $context needs \"$key\".")
-            val ui = json["qeetrixUI"]?.jsonObject ?: throw GeneratorError("$PATH: missing qeetrixUI.")
+
+            fun JsonObject.strings(
+                key: String,
+                context: String,
+            ): List<String> =
+                (this[key] as? JsonArray)?.map { it.jsonPrimitive.content } ?: throw GeneratorError("$PATH: $context needs \"$key\".")
+
+            fun JsonObject.section(key: String): JsonObject = this[key] as? JsonObject ?: throw GeneratorError("$PATH: missing $key.")
+
+            val tokens = json.section("qeetrixTokens")
+            val react = json.section("qeetrixReact")
+            val icons = json.section("qeetrixIcons")
             val fonts = json["fonts"]?.jsonArray ?: throw GeneratorError("$PATH: missing fonts.")
-            val icons = json["qeetrixIcons"]?.jsonObject ?: throw GeneratorError("$PATH: missing qeetrixIcons.")
             return Manifest(
-                uiPackage = ui.string("package", "qeetrixUI"),
-                uiVersion = ui.string("version", "qeetrixUI"),
-                uiFiles =
-                    (ui["files"] as? JsonObject ?: throw GeneratorError("$PATH: qeetrixUI needs files."))
-                        .mapValues { it.value.jsonPrimitive.content },
-                componentTokens = ui["componentTokens"]?.jsonArray?.map { it.jsonPrimitive.content }.orEmpty(),
+                tokens =
+                    TokensPin(
+                        packageName = tokens.string("package", "qeetrixTokens"),
+                        version = tokens.string("version", "qeetrixTokens"),
+                        dtcg = tokens.string("dtcg", "qeetrixTokens"),
+                        destination = tokens.string("destination", "qeetrixTokens"),
+                        componentTokens = tokens.strings("componentTokens", "qeetrixTokens"),
+                    ),
+                react =
+                    ReactPin(
+                        packageName = react.string("package", "qeetrixReact"),
+                        version = react.string("version", "qeetrixReact"),
+                        manifest = react.string("manifest", "qeetrixReact"),
+                        manifestDestination = react.string("manifestDestination", "qeetrixReact"),
+                        css = react.string("css", "qeetrixReact"),
+                        cssDestination = react.string("cssDestination", "qeetrixReact"),
+                        families = react.strings("families", "qeetrixReact"),
+                    ),
                 fonts =
                     fonts.map { element ->
                         val font = element.jsonObject
                         FontPin(
                             family = font.string("family", "a font"),
                             webFamily = font.string("webFamily", "a font"),
-                            webFile = font.string("webFile", "a font"),
-                            repository = font.string("repository", "a font"),
-                            tag = font.string("tag", "a font"),
-                            releaseAsset = (font["releaseAsset"] as? JsonPrimitive)?.content,
                             ttf = font.string("ttf", "a font"),
-                            woff2 = font.string("woff2", "a font"),
-                            license = font.string("license", "a font"),
+                            axes = font.strings("axes", "a font"),
                             destination = font.string("destination", "a font"),
                             licenseDestination = font.string("licenseDestination", "a font"),
                         )
                     },
+                nativeFonts = json.string("nativeFonts", "the manifest"),
                 icons =
                     IconPins(
-                        repository = icons.string("repository", "qeetrixIcons"),
                         packageName = icons.string("package", "qeetrixIcons"),
                         version = icons.string("version", "qeetrixIcons"),
-                        commit = icons.string("commit", "qeetrixIcons"),
+                        manifest = icons.string("manifest", "qeetrixIcons"),
+                        svg = icons.string("svg", "qeetrixIcons"),
+                        license = icons.string("license", "qeetrixIcons"),
                         licenseDestination = icons.string("licenseDestination", "qeetrixIcons"),
-                        names =
-                            icons["icons"]?.jsonArray?.map { it.jsonPrimitive.content }
-                                ?: throw GeneratorError("$PATH: qeetrixIcons needs icons."),
+                        names = icons.strings("icons", "qeetrixIcons"),
                     ),
             )
         }
     }
 }
 
+/** One fetched npm package: the registry's record of exactly which tarball it is. */
+data class LockedPackage(
+    val packageName: String,
+    val version: String,
+    val gitHead: String,
+    val integrity: String,
+) {
+    fun toJson(): JsonObject =
+        JsonObject(
+            linkedMapOf(
+                "package" to JsonPrimitive(packageName),
+                "version" to JsonPrimitive(version),
+                "gitHead" to JsonPrimitive(gitHead),
+                "integrity" to JsonPrimitive(integrity),
+            ),
+        )
+
+    companion object {
+        fun from(
+            json: JsonObject,
+            context: String,
+        ): LockedPackage {
+            fun s(key: String) = json[key]?.jsonPrimitive?.content ?: throw GeneratorError("${Lock.PATH}: $context is missing $key.")
+            return LockedPackage(s("package"), s("version"), s("gitHead"), s("integrity"))
+        }
+    }
+}
+
 /**
- * `Upstream/manifest.lock.json`, written only by the sync: exactly which upstream artifacts the
- * snapshot came from, and the sha256 of every file taken from them.
+ * `Upstream/manifest.lock.json`, written only by the sync: exactly which upstream tarballs the
+ * snapshot came from, how the fonts were converted, and the sha256 of every file taken from them.
  */
 data class Lock(
-    val uiPackage: String,
-    val uiVersion: String,
-    val uiGitHead: String,
-    val uiIntegrity: String,
-    val iconsRepository: String,
-    val iconsPackage: String,
-    val iconsVersion: String,
-    val iconsCommit: String,
+    val tokens: LockedPackage,
+    val react: LockedPackage,
+    val icons: LockedPackage,
+    /** The fontTools version `native.json` says made the TTFs from the web's WOFF2. */
+    val fontTools: String,
     val fonts: List<LockedFont>,
     /** Repository-relative path → sha256, sorted by path. */
     val files: Map<String, String>,
@@ -128,12 +198,13 @@ data class Lock(
     data class LockedFont(
         val family: String,
         val webFamily: String,
-        val repository: String,
-        val tag: String,
-        val destination: String,
+        /** The TTF inside the `@qeetrix/tokens` tarball. */
+        val ttf: String,
         val ttfSha256: String,
+        /** The web's WOFF2 the TTF was made from, per `native.json`. */
+        val woff2: String,
         val woff2Sha256: String,
-        val webFile: String,
+        val destination: String,
     )
 
     fun toJson(): JsonElement =
@@ -141,26 +212,12 @@ data class Lock(
             linkedMapOf(
                 "\$comment" to
                     JsonPrimitive(
-                        "Written by Scripts/sync-tokens — do not edit. Records exactly which upstream artifacts this library is built from and the sha256 of every file taken from them; Scripts/verify-tokens fails if any of those files changes without a sync.",
+                        "Written by Scripts/sync-tokens — do not edit. Records exactly which npm tarballs this library is built from (the registry's integrity hash and git head), the native fonts @qeetrix/tokens ships (each TTF's sha256 and the web WOFF2 it was made from, per its fonts/native.json) and the sha256 of every file taken from them; Scripts/verify-tokens fails if any of those files changes without a sync.",
                     ),
-                "qeetrixUI" to
-                    JsonObject(
-                        linkedMapOf(
-                            "package" to JsonPrimitive(uiPackage),
-                            "version" to JsonPrimitive(uiVersion),
-                            "gitHead" to JsonPrimitive(uiGitHead),
-                            "integrity" to JsonPrimitive(uiIntegrity),
-                        ),
-                    ),
-                "qeetrixIcons" to
-                    JsonObject(
-                        linkedMapOf(
-                            "repository" to JsonPrimitive(iconsRepository),
-                            "package" to JsonPrimitive(iconsPackage),
-                            "version" to JsonPrimitive(iconsVersion),
-                            "commit" to JsonPrimitive(iconsCommit),
-                        ),
-                    ),
+                "qeetrixTokens" to tokens.toJson(),
+                "qeetrixReact" to react.toJson(),
+                "qeetrixIcons" to icons.toJson(),
+                "fontTools" to JsonPrimitive(fontTools),
                 "fonts" to
                     JsonArray(
                         fonts.map {
@@ -168,12 +225,11 @@ data class Lock(
                                 linkedMapOf(
                                     "family" to JsonPrimitive(it.family),
                                     "webFamily" to JsonPrimitive(it.webFamily),
-                                    "repository" to JsonPrimitive(it.repository),
-                                    "tag" to JsonPrimitive(it.tag),
-                                    "destination" to JsonPrimitive(it.destination),
+                                    "ttf" to JsonPrimitive(it.ttf),
                                     "ttfSHA256" to JsonPrimitive(it.ttfSha256),
+                                    "woff2" to JsonPrimitive(it.woff2),
                                     "woff2SHA256" to JsonPrimitive(it.woff2Sha256),
-                                    "webFile" to JsonPrimitive(it.webFile),
+                                    "destination" to JsonPrimitive(it.destination),
                                 ),
                             )
                         },
@@ -196,29 +252,24 @@ data class Lock(
             val json = Json.parseToJsonElement(file.readText()).jsonObject
 
             fun JsonObject.s(key: String) = this[key]?.jsonPrimitive?.content ?: throw GeneratorError("$PATH: missing $key.")
-            val ui = json["qeetrixUI"]!!.jsonObject
-            val icons = json["qeetrixIcons"]!!.jsonObject
+
+            fun section(key: String) = json[key] as? JsonObject ?: throw GeneratorError("$PATH: missing $key — run Scripts/sync-tokens.")
             return Lock(
-                uiPackage = ui.s("package"),
-                uiVersion = ui.s("version"),
-                uiGitHead = ui.s("gitHead"),
-                uiIntegrity = ui.s("integrity"),
-                iconsRepository = icons.s("repository"),
-                iconsPackage = icons.s("package"),
-                iconsVersion = icons.s("version"),
-                iconsCommit = icons.s("commit"),
+                tokens = LockedPackage.from(section("qeetrixTokens"), "qeetrixTokens"),
+                react = LockedPackage.from(section("qeetrixReact"), "qeetrixReact"),
+                icons = LockedPackage.from(section("qeetrixIcons"), "qeetrixIcons"),
+                fontTools = json.s("fontTools"),
                 fonts =
                     json["fonts"]!!.jsonArray.map {
                         val font = it.jsonObject
                         LockedFont(
-                            font.s("family"),
-                            font.s("webFamily"),
-                            font.s("repository"),
-                            font.s("tag"),
-                            font.s("destination"),
-                            font.s("ttfSHA256"),
-                            font.s("woff2SHA256"),
-                            font.s("webFile"),
+                            family = font.s("family"),
+                            webFamily = font.s("webFamily"),
+                            ttf = font.s("ttf"),
+                            ttfSha256 = font.s("ttfSHA256"),
+                            woff2 = font.s("woff2"),
+                            woff2Sha256 = font.s("woff2SHA256"),
+                            destination = font.s("destination"),
                         )
                     },
                 files = json["files"]!!.jsonObject.mapValues { it.value.jsonPrimitive.content }.toSortedMap(),

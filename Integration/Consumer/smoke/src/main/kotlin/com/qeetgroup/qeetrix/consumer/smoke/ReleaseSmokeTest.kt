@@ -74,7 +74,7 @@ class ReleaseSmokeTest {
     fun foundationsRenderAndRespond() {
         // Waits, as every check here does: Compose publishes its accessibility tree after the first frame.
         assertTrue("no Home icon", device.wait(Until.hasObject(By.desc("Home icon")), 5_000))
-        assertTrue("no Primary swatch", device.wait(Until.hasObject(By.desc("Primary swatch")), 5_000))
+        assertTrue("no Brand swatch", device.wait(Until.hasObject(By.desc("Brand swatch")), 5_000))
         tap("Primary action")
         assertShown("Pressed 1 times")
         capture("foundations_light")

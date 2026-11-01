@@ -1,285 +1,218 @@
 package com.qeetgroup.qeetrix.components.drawer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.qeetgroup.qeetrix.R
-import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
-import com.qeetgroup.qeetrix.components.button.QeetrixIconButtonSize
+import com.qeetgroup.qeetrix.components.dialog.OverlayClose
+import com.qeetgroup.qeetrix.components.dialog.OverlayFooter
+import com.qeetgroup.qeetrix.components.dialog.OverlayHeader
+import com.qeetgroup.qeetrix.components.separator.QeetrixSeparator
 import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
-import com.qeetgroup.qeetrix.icons.QeetrixIconName
-import com.qeetgroup.qeetrix.internal.QeetrixFont
-import com.qeetgroup.qeetrix.internal.QeetrixWebScale
-import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixDialogComponentTokens
 
 /**
- * A modal sheet that rises from the bottom edge — the web's `Drawer`, "the mobile bottom sheet": a grab
- * handle, an optional [title] and [description], the [content], scrolling when it is long, and an optional
- * [footer] of buttons. It holds supplementary content and actions — details, filters, a short form, a list
- * of choices — and the screen behind stays where it was.
+ * The widths of a sheet (`value` is `@qeetrix/react`'s Drawer `size`). A [QeetrixBottomSheet] spans a phone's window
+ * and is at most this wide, centred, on a larger one; a [QeetrixSideSheet] is this wide, always leaving 48 dp of the
+ * screen beside it.
+ */
+public enum class QeetrixSheetSize(
+    public val value: String,
+    internal val width: Dp,
+) {
+    /** 400 dp (`.qx-drawer[data-size="sm"] inline-size: min(400px, …)`). */
+    Sm("sm", 400.dp),
+
+    /** 560 dp (`.qx-drawer inline-size: min(560px, …)`). The default. */
+    Md("md", 560.dp),
+
+    /** 800 dp (`[data-size="lg"] min(800px, …)`). */
+    Lg("lg", 800.dp),
+}
+
+/**
+ * A modal sheet that rises from the bottom edge — Android's form of `@qeetrix/react`'s Drawer, the panel for
+ * details or an edit form beside the screen it belongs to: a grab handle, a ruled header with the [title]
+ * (`title.md`) and optional [description], the [content], scrolling when it is long, and an optional ruled
+ * [footer] of buttons, end-aligned with the tertiary action first.
  *
- * - **Presented by [visible]**, from the app's own state. Set it to `false` to close the sheet: it slides
- *   away, and leaves the composition once it is gone. [onDismissRequest] is called when the person closes it
- *   — a swipe down, a tap outside, Back, the close button — and should set [visible] to `false`. Opening it
- *   again while it is still closing turns it round.
- * - **Native.** It is Compose's modal bottom sheet in its own window: it follows the finger and the fling,
- *   scrolls its content before it moves itself, animates with Android's predictive back gesture, keeps
- *   focus inside, and moves up with the keyboard. The handle carries the expand, collapse and dismiss
- *   actions for accessibility services ("Drag handle", `qx_drag_handle`).
- * - **Height.** The sheet takes its content's height, at most 85 % of the window's (`max-h-[85dvh]`), and
- *   at most 640 dp wide on a large window. With [partiallyExpandable] a tall sheet opens half-way and
- *   expands when it is dragged up.
- * - **[dismissOnGesture]** `false` stops a swipe down or a tap outside from closing the sheet, for a step
- *   the person has to finish or cancel deliberately. Back still closes it — Android never traps Back — and
- *   so does the close button; keep unsaved work in [onDismissRequest] (a draft, or a confirmation) rather
- *   than refusing to close.
- * - **Drawing.** The web drawer: the dialog surface (`component.dialog.*`) rounded on top, a rule along its
- *   top edge, a 40 × 4 dp handle in `border.strong`, a 16 dp header, and the scrim behind. No shadow: over the
- *   scrim it would not be seen, and Material's sheet cannot draw one.
- * - **[modifier]** goes to Material's sheet, which applies it before moving the sheet into place: use it for
- *   semantics and test tags. A drawing modifier (a background, a border) would be drawn where the sheet starts,
- *   at the top of the window, not where it is.
+ * - **The app owns [open].** The sheet asks to close through `onOpenChange(false)` — a swipe or fling down, a tap
+ *   on the scrim, Back, Escape, the close button — and slides away; when the app sets [open] to `false` it slides
+ *   away too, and leaves the composition once it is gone. Opening it again while it is still closing turns it
+ *   round.
+ * - **Native.** Its own window, so focus stays inside and the screen behind cannot be reached: it follows the
+ *   finger and the fling, scrolls its content before it moves itself, shrinks with Android's predictive back
+ *   gesture and moves up with the keyboard.
+ * - **[dismissible]** (default `true`): `false` stops a swipe down and a tap outside from closing it and
+ *   removes the close button, for a panel only its own actions should close, such as an unsaved form. Back
+ *   still asks to close — Android never traps Back — so keep unsaved work in `onOpenChange` (a draft, or a
+ *   confirmation) rather than refusing to close.
+ * - **Height and width.** The sheet takes its content's height, at most 85 % of the window's; with
+ *   [partiallyExpandable] a tall sheet opens half-way and expands when it is dragged up, when its content is
+ *   scrolled, or when focus moves into it — and opens fully while touch exploration (TalkBack) is on. [size] caps
+ *   its width on a large window.
+ * - **Drawing.** The drawer's look (drawer.css): `color.surface.overlay` with square corners under `shadow.modal`,
+ *   over the `color.overlay.scrim` backdrop; the header's `space.inset.xl` padding and its 1 dp
+ *   `color.border.subtle` rule; the body's `space.inset.xl` padding; the footer's rule above and `space.inset.lg` ×
+ *   `space.inset.xl` padding. The handle, a 40 × 4 dp `color.border.strong` mark with 2 dp corners, sits in the
+ *   header's top padding, so the title is still 24 dp from the sheet's edge. It is only a mark: the whole sheet
+ *   drags, and the close button and Back close it, so it is neither a control nor announced.
+ * - **Motion** (drawer.css): in over `motion.duration.slow` on `motion.easing.enter`, out over
+ *   `motion.duration.normal` on `motion.easing.exit`, the scrim fading with it; at once under reduced motion.
+ * - **[modifier]** goes to the sheet's surface, as it moves: use it for semantics and test tags.
  *
- * The app keeps the business state; the sheet only shows it. Use a [com.qeetgroup.qeetrix.components.dialog.QeetrixDialog]
- * for a task that should take the person's whole attention.
+ * Use a [com.qeetgroup.qeetrix.components.dialog.QeetrixDialog] for a task that should take the person's whole
+ * attention.
  *
  * ```
- * var filtering by rememberSaveable { mutableStateOf(false) }
  * QeetrixBottomSheet(
- *     visible = filtering,
- *     onDismissRequest = { filtering = false },
+ *     open = filtering,
+ *     onOpenChange = { filtering = it },
  *     title = "Filter invoices",
- *     footer = { QeetrixButton("Show results", onClick = { filtering = false }, modifier = Modifier.fillMaxWidth()) },
+ *     footer = {
+ *         QeetrixButton("Clear", onClick = ::clear, variant = QeetrixButtonVariant.Ghost)
+ *         QeetrixButton("Show results", onClick = { filtering = false })
+ *     },
  * ) {
- *     QeetrixRadioGroup(status, { status = it }, statusOptions, label = "Status")
+ *     // the filters
  * }
  * ```
+ *
+ * @param title Names the sheet: its heading and its pane title, announced as it opens.
+ * @param footerStart A quiet link or a one-line summary at the footer's start, the actions staying at its end;
+ *   it takes its own line when there is no room. It inherits `color.text.subtle`; draw text in it at
+ *   `QeetrixTextSize.Sm`.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun QeetrixBottomSheet(
-    visible: Boolean,
-    onDismissRequest: () -> Unit,
+    open: Boolean,
+    onOpenChange: (Boolean) -> Unit,
+    title: String,
     modifier: Modifier = Modifier,
-    title: String? = null,
     description: String? = null,
+    size: QeetrixSheetSize = QeetrixSheetSize.Md,
+    dismissible: Boolean = true,
     partiallyExpandable: Boolean = false,
-    dismissOnGesture: Boolean = true,
-    showCloseButton: Boolean = true,
-    footer: (@Composable ColumnScope.() -> Unit)? = null,
+    footerStart: (@Composable () -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val gestures by rememberUpdatedState(dismissOnGesture)
-    // A swipe that would hide the sheet is refused when gestures may not dismiss it; Back and the code below
-    // still hide it.
-    val sheetState =
-        rememberModalBottomSheetState(
-            skipPartiallyExpanded = !partiallyExpandable,
-            confirmValueChange = { it != SheetValue.Hidden || gestures },
-        )
-    val dismiss by rememberUpdatedState(onDismissRequest)
-    // Whether the sheet is in the composition: from the moment it is asked for until it has finished leaving.
-    var showing by remember { mutableStateOf(false) }
-    LaunchedEffect(visible) {
-        if (visible) {
-            // Composing the sheet shows it; one still leaving is turned round.
-            if (showing) sheetState.show() else showing = true
-        } else if (showing) {
-            sheetState.hide()
-            showing = false
-        }
-    }
-    if (!showing) return
-
-    val shape = RoundedCornerShape(topStart = QeetrixDialogComponentTokens.Corner, topEnd = QeetrixDialogComponentTokens.Corner)
-    val maxHeight = LocalWindowInfo.current.containerDpSize.height * MAX_HEIGHT_FRACTION
-    val close = if (showCloseButton) onDismissRequest else null
-    ModalBottomSheet(
-        onDismissRequest = {
-            showing = false
-            dismiss()
-        },
-        // Nothing of Qeetrix's drawing goes on this modifier: Material applies it before it moves the sheet into place,
-        // so it would draw where the sheet starts, at the top of the window (Phase 7, seen on API 29 and 36). The rule
-        // along the top edge is drawn by the handle, inside the sheet.
+    SheetWindow(
+        open = open,
+        onOpenChange = onOpenChange,
+        title = title,
+        edge = SheetEdge.Bottom,
+        size = size.width,
+        dismissible = dismissible,
+        partiallyExpandable = partiallyExpandable,
         modifier = modifier,
-        sheetState = sheetState,
-        sheetMaxWidth = QeetrixWebScale.BreakpointSm,
-        shape = shape,
-        containerColor = QeetrixDialogComponentTokens.Background,
-        contentColor = QeetrixDialogComponentTokens.Foreground,
-        tonalElevation = 0.dp,
-        scrimColor = QeetrixDialogComponentTokens.Scrim,
-        dragHandle = { DragHandle() },
-        contentWindowInsets = { WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom) },
-        properties = ModalBottomSheetProperties(shouldDismissOnBackPress = true, shouldDismissOnClickOutside = dismissOnGesture),
-    ) {
-        SheetLayout(title, description, close, footer, Modifier.heightIn(max = maxHeight), content)
+    ) { onClose ->
+        DragHandle()
+        SheetLayout(title, description, onClose, footerStart, footer, Modifier.weight(1f, fill = false), content = content)
     }
 }
 
 /**
- * The sheet's parts below the handle — the header, the scrolling body and the footer, and the close button
- * over the header's end — outside the sheet, for the sheet and for screenshots.
+ * The sheet's parts below the handle — the ruled header, the scrolling body, the ruled footer, and the close
+ * button over the header's end — outside the sheet, for the sheets and for screenshots. Under a [handle] the handle's
+ * row takes [HandleRow] of the header's top padding; without one (a side sheet) the parts fill the sheet's height,
+ * the footer at its bottom.
  */
 @Composable
 internal fun SheetLayout(
-    title: String?,
+    title: String,
     description: String?,
     onClose: (() -> Unit)?,
-    footer: (@Composable ColumnScope.() -> Unit)?,
+    footerStart: (@Composable () -> Unit)?,
+    footer: (@Composable () -> Unit)?,
     modifier: Modifier = Modifier,
+    handle: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    CompositionLocalProvider(LocalQeetrixContentColor provides QeetrixDialogComponentTokens.Foreground) {
-        Box(modifier.fillMaxWidth()) {
-            Column(Modifier.fillMaxWidth()) {
-                if (title != null || description != null) {
-                    // SheetHeader: flex flex-col gap-1 p-4; pe-12 beside the close button
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(QeetrixWebScale.spacing(4f))
-                            .padding(end = if (onClose != null) QeetrixWebScale.spacing(8f) else QeetrixWebScale.spacing(0f)),
-                        verticalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(1f)),
-                    ) {
-                        if (title != null) {
-                            BasicText(
-                                title,
-                                Modifier.semantics { heading() },
-                                style = QeetrixTheme.typography.heading.copy(color = QeetrixTheme.colors.textPrimary),
-                            )
-                        }
-                        if (description != null) {
-                            BasicText(description, style = descriptionStyle())
-                        }
-                    }
-                } else if (onClose != null) {
-                    // No header: the close button's 48 dp row, clear of the content.
-                    Box(Modifier.heightIn(min = QeetrixWebScale.spacing(13f)))
-                }
-                // SheetBody: -my-1 min-h-0 flex-1 overflow-y-auto px-4 py-1
+    val colors = QeetrixTheme.colors
+    val handleRow = if (handle) HandleRow else 0.dp
+    CompositionLocalProvider(LocalQeetrixContentColor provides colors.textDefault) {
+        Box(modifier.fillMaxWidth().semantics { paneTitle = title }) {
+            Column(if (handle) Modifier.fillMaxWidth() else Modifier.fillMaxSize()) {
+                // .qx-drawer-header: padding space.inset.xl, padding-inline-end 56px beside the close button
+                OverlayHeader(
+                    title,
+                    description,
+                    Modifier.padding(
+                        start = QeetrixSpace.InsetXl,
+                        top = QeetrixSpace.InsetXl - handleRow,
+                        end = if (onClose != null) CloseRoom else QeetrixSpace.InsetXl,
+                        bottom = QeetrixSpace.InsetXl,
+                    ),
+                )
+                // border-block-end: border.width.default solid color.border.subtle
+                QeetrixSeparator()
+                // .qx-drawer-body: flex 1, overflow-y auto, padding space.inset.xl
                 Column(
                     Modifier
-                        .weight(1f, fill = false)
+                        .weight(1f, fill = !handle)
+                        .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
-                        .padding(horizontal = QeetrixWebScale.spacing(4f), vertical = QeetrixWebScale.spacing(1f)),
+                        .padding(QeetrixSpace.InsetXl),
                     content = content,
                 )
-                if (footer != null) {
-                    // SheetFooter: mt-auto flex flex-col gap-2 p-4
-                    Column(
-                        Modifier.fillMaxWidth().padding(QeetrixWebScale.spacing(4f)),
-                        verticalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(2f)),
-                        content = footer,
-                    )
-                } else {
-                    Box(Modifier.heightIn(min = QeetrixWebScale.spacing(4f)))
+                if (footer != null || footerStart != null) {
+                    // .qx-drawer-footer: a rule above, padding space.inset.lg space.inset.xl
+                    QeetrixSeparator()
+                    OverlayFooter(
+                        footerStart,
+                        Modifier.padding(horizontal = QeetrixSpace.InsetXl, vertical = QeetrixSpace.InsetLg),
+                    ) { footer?.invoke() }
                 }
             }
-            if (onClose != null) {
-                // ghost icon-sm, absolute inset-e-3.5 top-7.5 — centred on the title's first line, below the handle
-                QeetrixIconButton(
-                    QeetrixIconName.X,
-                    stringResource(R.string.qx_close),
-                    onClick = onClose,
-                    modifier = Modifier.align(Alignment.TopEnd).padding(QeetrixWebScale.spacing(1f)),
-                    size = QeetrixIconButtonSize.Sm,
-                )
-            }
+            // .qx-drawer-close: inset-block-start 20px, inset-inline-end 16px, from the sheet's edge above the handle row
+            if (onClose != null) OverlayClose(onClose, Modifier.align(Alignment.TopEnd), top = 20.dp - handleRow, end = 16.dp)
         }
     }
 }
 
 /**
- * The grab handle: `mx-auto mb-1 h-1 w-10 rounded-full bg-border-strong`, below the sheet's `pt-2`. The
- * sheet gives it the expand, collapse and dismiss actions; it is named so accessibility services can offer
- * them.
+ * The grab handle: a 40 × 4 dp mark in `color.border.strong` with `radius.sm` corners — the small-mark corner —
+ * 8 dp below the sheet's edge. The web's drawer has none; Android's sheets show one as the sign that the sheet
+ * moves. It is drawn only: the whole sheet drags, the close button and Back close it, and an accessibility
+ * service has nothing to find here (Material's 12 dp clickable handle row was finding Q-6).
  */
 @Composable
 internal fun DragHandle() {
-    val name = stringResource(R.string.qx_drag_handle)
-    val rule = QeetrixDialogComponentTokens.Border
     Box(
         Modifier
             .fillMaxWidth()
-            .drawWithCache {
-                // border-t: the hairline along the sheet's top edge and into its rounded corners, drawn in the handle's
-                // row because it is the top of what moves with the sheet.
-                val stroke = QeetrixStroke.Hairline.toPx()
-                val inset = stroke / 2
-                val radius = QeetrixDialogComponentTokens.Corner.toPx()
-                val arc = 2 * (radius - inset)
-                val edge =
-                    Path().apply {
-                        moveTo(inset, radius)
-                        arcTo(Rect(inset, inset, inset + arc, inset + arc), 180f, 90f, false)
-                        lineTo(size.width - radius, inset)
-                        arcTo(Rect(size.width - inset - arc, inset, size.width - inset, inset + arc), 270f, 90f, false)
-                    }
-                onDrawBehind { drawPath(edge, rule, style = Stroke(stroke)) }
-            }.padding(top = QeetrixWebScale.spacing(2f), bottom = QeetrixWebScale.spacing(1f))
-            .semantics { contentDescription = name },
+            .padding(top = HandleRow - HandleSize.height),
         contentAlignment = Alignment.Center,
     ) {
-        Box(
-            Modifier
-                .size(QeetrixWebScale.spacing(10f), QeetrixWebScale.spacing(1f))
-                .background(QeetrixTheme.colors.borderStrong, QeetrixShapes.Pill),
-        )
+        Box(Modifier.size(HandleSize.width, HandleSize.height).background(QeetrixTheme.colors.borderStrong, QeetrixShapes.Sm))
     }
 }
 
-/** text-sm text-muted-foreground. */
-@Composable
-private fun descriptionStyle(): TextStyle = DescriptionStyle.copy(color = QeetrixTheme.colors.textTertiary)
+/** The handle's 40 × 4 dp mark. */
+private object HandleSize {
+    val width = 40.dp
+    val height = 4.dp
+}
 
-private val DescriptionStyle = qeetrixTextStyle(QeetrixFont.Sans, QeetrixWebScale.TextSm)
+/** The handle's row: 8 dp above the 4 dp mark, taken from the header's top padding. */
+internal val HandleRow = 12.dp
 
-/** max-h-[85dvh]. */
-private const val MAX_HEIGHT_FRACTION = 0.85f
+/** `.qx-drawer[data-dismissible] .qx-drawer-header { padding-inline-end: 56px }`. */
+private val CloseRoom = 56.dp

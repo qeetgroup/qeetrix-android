@@ -1,0 +1,5 @@
+@layer qx.state {
+  :where([class^="qx-"], [class*=" qx-"])[hidden]:not([hidden="until-found"]) {
+    display: none;
+  }
+}

@@ -18,8 +18,8 @@ rules are [PUBLIC_API.md](../Standards/PUBLIC_API.md) and [0013](../Decisions/00
 Every public declaration has explicit visibility and type (`explicitApi()`). There are **no public data
 classes**, so no `copy`/`componentN` methods that would break binary compatibility as properties are added. The two
 scopes (`QeetrixFieldScope`, `QeetrixMenuScope`) are `sealed` interfaces apps cannot implement. No public type is
-experimental; the one opt-in in the library (`ExperimentalMaterial3Api`, for the bottom sheet) is internal to one
-file and no Material type is public (`MaterialBoundaryTest`).
+experimental; the one opt-in in the library (`ExperimentalMaterial3Api`, for the platform's date and time pickers) is
+internal to one file and no Material type is public (`MaterialBoundaryTest`).
 
 ## How compatibility is checked
 
@@ -41,8 +41,8 @@ run two validators on one baseline; the decision is in [0017](../Decisions/0017-
 - **Renaming or reordering parameters is source-breaking** for named or positional callers.
 - **Enum entries**: adding one is additive for the library but can break an app's exhaustive `when`; the CHANGELOG
   says so.
-- **`@Immutable` option types** (`QeetrixOption`, `QeetrixTab`, `QeetrixNavigationItem`, `QeetrixDialogAction`,
-  `QeetrixFieldMessage`) promise that their properties never change. Their generic `value` is the app's identity for
+- **`@Immutable` option types** (`QeetrixOption`, `QeetrixOptionGroup`, `QeetrixTab`, `QeetrixNavigationItem`,
+  `QeetrixDialogAction`; in Phase 6 also `QeetrixFieldMessage`, since removed) promise that their properties never change. Their generic `value` is the app's identity for
   an option: pass immutable values (enums, ids, strings) — a mutable value breaks the contract the annotation states.
 - Nothing is published yet, so there are no consumers to migrate; these rules apply from the first release.
 

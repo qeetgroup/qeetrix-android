@@ -1,6 +1,6 @@
 # {{title}}
 
-`Qeetrix{{Component}}` · `components.{{package}}` · web: [{{name}}](https://ui.qeet.in/docs/components/{{slug}}) ·
+`Qeetrix{{Component}}` · `components.{{package}}` · `@qeetrix/react`: [{{name}}](https://ui.qeet.in/components/{{slug}}) ·
 sample: {{category}} → {{title}}
 
 {{description}}

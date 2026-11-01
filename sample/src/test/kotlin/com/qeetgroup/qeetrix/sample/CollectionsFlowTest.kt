@@ -148,7 +148,7 @@ class CollectionsFlowTest {
         compose.onNodeWithText("Simulate a failed load").performClick()
         compose.onNode(hasContentDescription("Loading")).assertExists()
         finishLoading()
-        compose.onNodeWithText("Members couldn't be loaded. Check your connection.").assertExists()
+        compose.onNodeWithText("Members couldn't be loaded").assertExists()
         compose.onNodeWithText("Asha Rao").assertDoesNotExist()
         compose.onNodeWithText("Try again").performClick()
         finishLoading()

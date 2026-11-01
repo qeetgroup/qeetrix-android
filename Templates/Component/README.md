@@ -4,16 +4,19 @@
 [COMPONENT_CONTRACT.md](../../Documentation/Standards/COMPONENT_CONTRACT.md):
 
 ```sh
-Scripts/new-component <Family> <Component> --category "<ui.qeet.in group>" [--slug <web slug>] [--dry-run] [--root <repository>]
+Scripts/new-component <Family> <Component> --category "<group>" [--slug <part>] [--dry-run] [--root <repository>]
 
 Scripts/new-component Slider Slider --category "Forms & inputs" --dry-run
-Scripts/new-component Input InputGroup --category "Forms & inputs" --slug input-group
+Scripts/new-component Toggle ToggleGroup --category "Actions" --dry-run
+Scripts/new-component Slider RangeSlider --category "Forms & inputs" --slug Slider --dry-run
 ```
 
-`<Family>` is the component's family in the pinned `component-manifest.json` (its `category` field);
-`--slug` defaults to the component name in kebab case and must be a manifest slug of that family.
-`--category` is one of ui.qeet.in's groups: Actions, Forms & inputs, Date & time, Data display,
-Feedback, Overlays, Navigation, Layout, Utilities.
+`<Family>` is the component's `@qeetrix/react` family in the pinned
+`Upstream/qeetrix-react/component-manifest.json`, in UpperCamelCase (the manifest's `name`: `button` → `Button`,
+`date-picker` → `DatePicker`). `--slug` is the part of that family the component implements (one of its `parts`,
+such as `IconButton`); it defaults to the component name, and its kebab case is the ui.qeet.in slug. `--category` is
+one of the sample's groups: Actions, Forms & inputs, Date & time, Data display, Feedback, Overlays, Navigation,
+Layout, Utilities.
 
 | Template | Becomes |
 |:--|:--|
@@ -24,15 +27,18 @@ Feedback, Overlays, Navigation, Layout, Utilities.
 | `Component.md.template` | `Documentation/Components/<Component>.md` |
 
 It also registers the sample page in `SampleCatalog.kt` (above its `new-component` marker), lists the
-component in `Documentation/Components/README.md` under its group, and — when qeetrix-ui defines
-`component.<slug or family>` tokens Android has not adopted — adds that group to
+component in `Documentation/Components/README.md` under its group, and — when `@qeetrix/tokens` defines
+`component.<slug or family>` tokens Android has not adopted — adds that group to `qeetrixTokens.componentTokens` in
 `Upstream/manifest.json` (run `Scripts/generate-tokens` afterwards). `<package>` is the family in
-lower case, with `control` appended to a Java keyword (`switch` → `switchcontrol`).
+lower case, with `control` appended to a Java keyword (`switch` → `switchcontrol`). A family Android implements for
+the first time also needs its CSS: add it to `qeetrixReact.families` in `Upstream/manifest.json` and run
+`Scripts/sync-tokens`, then restate the values the component draws from `Upstream/qeetrix-react/css/<family>.css`,
+with the CSS beside each one.
 
 ## Guarantees
 
-- **Validated.** Names are UpperCamelCase ASCII without the `Qeetrix` prefix; the family, slug and
-  group must exist upstream.
+- **Validated.** Names are UpperCamelCase ASCII without the `Qeetrix` prefix; the family and its part must exist
+  in the pinned `@qeetrix/react` manifest, and the group must be one of the sample's.
 - **Never overwrites.** The whole change set is planned first. If any file exists, `Qeetrix<Component>`
   is already declared, or the catalogue or index already lists it, the run stops with every reason and
   changes nothing. Each file is checked again just before it is written.
@@ -46,8 +52,8 @@ The component and its sample page call a `scaffold()` marked `@Deprecated(level 
 build fails with the reason until they are implemented. The behaviour test fails with a reminder until
 it is replaced, and the screenshot test has no baseline, so verification fails until images are
 recorded and reviewed. Nothing in the scaffold passes for the wrong reason, and it adds no tokens class:
-component tokens are generated only from qeetrix-ui's own groups.
+component tokens are generated only from `@qeetrix/tokens`' own groups.
 
 Placeholders: `{{Family}}`, `{{Component}}`, `{{component}}` (lower case, the screenshot folder),
-`{{package}}`, `{{slug}}`, `{{title}}` (sentence case), `{{name}}` and `{{description}}` (from the
-manifest), `{{category}}`, `{{categoryPackage}}`, `{{tokens}}` and `{{tokensDoc}}`.
+`{{package}}`, `{{slug}}`, `{{title}}` (sentence case), `{{name}}` (the `@qeetrix/react` part) and
+`{{description}}` ("The Android counterpart of `@qeetrix/react`'s …", from the manifest's entry, status and `since`), `{{category}}`, `{{categoryPackage}}`, `{{tokens}}` and `{{tokensDoc}}`.

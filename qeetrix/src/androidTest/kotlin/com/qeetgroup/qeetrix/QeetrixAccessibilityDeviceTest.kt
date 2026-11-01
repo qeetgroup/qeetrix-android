@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.accessibility.enableAccessibilityChecks
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onRoot
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.qeetgroup.qeetrix.quality.LocalizedCatalog
+import com.qeetgroup.qeetrix.quality.OverlayCatalog
 import com.qeetgroup.qeetrix.quality.QualityCatalog
 import com.qeetgroup.qeetrix.quality.QualitySpecimen
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
@@ -69,7 +72,8 @@ class QeetrixAccessibilityDeviceTest {
         var mode by mutableStateOf(QeetrixThemeMode.Light)
         compose.setContent {
             QeetrixTheme(mode) {
-                Box(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) { specimen.content() }
+                // Bounded as the JVM scans' window is (SpecimenMaxHeight), inside the scroll.
+                Box(Modifier.verticalScroll(rememberScrollState()).heightIn(max = SpecimenMaxHeight).padding(16.dp)) { specimen.content() }
             }
         }
         assertChecksAreLive { specimen = it }
@@ -89,6 +93,39 @@ class QeetrixAccessibilityDeviceTest {
             }
         }
         assertTrue(failures.joinToString("\n", prefix = "${failures.size} specimens with findings:\n"), failures.isEmpty())
+    }
+
+    /**
+     * The overlays as apps open them, each in its own window ([OverlayCatalog]): the checks run on every window's
+     * root, in light and dark. Nothing is excluded: the recorded finding Q-6, Material's 12 dp clickable handle row on
+     * the bottom sheet, went with Material's sheet (QTRX-198).
+     */
+    @Test
+    fun everyOverlayWindowPassesTheAccessibilityTestFramework() {
+        compose.enableAccessibilityChecks()
+        var specimen by mutableStateOf(control)
+        var mode by mutableStateOf(QeetrixThemeMode.Light)
+        compose.setContent { QeetrixTheme(mode) { specimen.content() } }
+        assertChecksAreLive { specimen = it }
+        val failures = mutableListOf<String>()
+        for (each in OverlayCatalog) {
+            for (theme in listOf(QeetrixThemeMode.Light, QeetrixThemeMode.Dark)) {
+                compose.runOnIdle {
+                    specimen = each
+                    mode = theme
+                }
+                compose.waitForIdle()
+                val roots = compose.onAllNodes(isRoot())
+                for (index in roots.fetchSemanticsNodes().indices) {
+                    try {
+                        roots[index].tryPerformAccessibilityChecks()
+                    } catch (failure: Throwable) {
+                        failures += "${each.name} (${theme.value}, window $index): ${failure.message?.lines()?.joinToString(" | ")}"
+                    }
+                }
+            }
+        }
+        assertTrue(failures.joinToString("\n", prefix = "${failures.size} windows with findings:\n"), failures.isEmpty())
     }
 }
 

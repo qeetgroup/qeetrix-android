@@ -9,9 +9,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatar
 import com.qeetgroup.qeetrix.components.badge.QeetrixBadge
-import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeVariant
+import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
 import com.qeetgroup.qeetrix.components.checkbox.QeetrixCheckbox
@@ -19,7 +20,6 @@ import com.qeetgroup.qeetrix.components.list.QeetrixListItem
 import com.qeetgroup.qeetrix.components.list.QeetrixListItemIcon
 import com.qeetgroup.qeetrix.components.list.QeetrixSectionHeader
 import com.qeetgroup.qeetrix.components.separator.QeetrixSeparator
-import com.qeetgroup.qeetrix.components.separator.QeetrixSeparatorVariant
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
@@ -41,7 +41,7 @@ private val Files =
         SampleFile("f3", "Onboarding checklist.docx", "Only you", "120 KB"),
     )
 
-/** List rows: text, an icon tile, an avatar, metadata, trailing content, selection, a section header, disabled. */
+/** List rows: text, an icon tile, an avatar, metadata, trailing content, selection, section headers, disabled. */
 @Composable
 fun ListItemSample() {
     SamplePage {
@@ -55,23 +55,23 @@ fun ListItemSample() {
                     onClick = { opened = "Quarterly report.pdf" },
                     leading = { QeetrixListItemIcon(QeetrixIconName.FileText) },
                 )
-                QeetrixSeparator(variant = QeetrixSeparatorVariant.Muted)
+                QeetrixSeparator()
                 QeetrixListItem(
                     title = "Ada Lovelace",
                     description = "ada@example.com",
                     onClick = { opened = "Ada Lovelace" },
                     // The title already names her: the avatar stays silent.
-                    leading = { QeetrixAvatar("Ada Lovelace", contentDescription = null) },
+                    leading = { QeetrixAvatar("Ada Lovelace", decorative = true) },
                 ) {
-                    QeetrixBadge("Owner", variant = QeetrixBadgeVariant.Brand)
+                    QeetrixBadge("Owner", tone = QeetrixBadgeTone.Brand)
                 }
-                QeetrixSeparator(variant = QeetrixSeparatorVariant.Muted)
+                QeetrixSeparator()
                 QeetrixListItem(
                     title = "Weekly digest",
                     description = "Every Monday at 09:00",
                     leading = { QeetrixListItemIcon(QeetrixIconName.Mail) },
                 ) {
-                    QeetrixIconButton(QeetrixIconName.Ellipsis, contentDescription = "More for Weekly digest", onClick = {})
+                    QeetrixIconButton(QeetrixIconName.Ellipsis, "More for Weekly digest", onClick = {}, tone = QeetrixButtonTone.Neutral)
                 }
             }
             SampleNote(opened?.let { "Opened $it." } ?: "Tap a row: it reports the click, and the app decides what opens.")
@@ -95,25 +95,29 @@ fun ListItemSample() {
                     }
                 }
             }
-            SampleNote("${selected.size} selected. A selected row is tinted and edged with the brand, and read as selected.")
+            SampleNote(
+                "${selected.size} selected. A selected row takes the Ember tint and is read as selected; the checkbox " +
+                    "makes the choice more than a colour. The Ember bar is for the current item, not a selection.",
+            )
         }
-        SampleSection("Section header") {
+        SampleSection("Section headers") {
             SampleSurface {
-                QeetrixSectionHeader("Members", description = "People with access to this workspace.") {
-                    QeetrixButton("Invite", onClick = {}, variant = QeetrixButtonVariant.Link, size = QeetrixButtonSize.Sm)
+                QeetrixSectionHeader("Members", ruled = false, description = "People with access to this workspace.") {
+                    QeetrixButton("Invite", onClick = {}, variant = QeetrixButtonVariant.Ghost, size = QeetrixButtonSize.Sm)
                 }
+                QeetrixListItem("Grace Hopper", description = "Editor", leading = { QeetrixAvatar("Grace Hopper", decorative = true) })
+                QeetrixListItem("Alan Turing", description = "Viewer", leading = { QeetrixAvatar("Alan Turing", decorative = true) })
+                QeetrixSectionHeader("Pending invitations")
                 QeetrixListItem(
-                    "Grace Hopper",
-                    description = "Editor",
-                    leading = { QeetrixAvatar("Grace Hopper", contentDescription = null) },
-                )
-                QeetrixListItem(
-                    "Alan Turing",
-                    description = "Viewer",
-                    leading = { QeetrixAvatar("Alan Turing", contentDescription = null) },
+                    "Ada Lovelace",
+                    description = "Invited yesterday",
+                    leading = { QeetrixAvatar("Ada Lovelace", decorative = true) },
                 )
             }
-            SampleNote("The title is a heading: TalkBack's heading navigation moves between groups.")
+            SampleNote(
+                "A group label in small tracked capitals under a rule, as the web Sidebar labels its groups. TalkBack reads " +
+                    "the words as written, as a heading, so heading navigation moves between groups.",
+            )
         }
         SampleSection("Disabled") {
             SampleSurface {

@@ -28,7 +28,7 @@ class QeetrixSpinnerTest {
         compose
             .onNodeWithContentDescription("Loading")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.ProgressBarRangeInfo, ProgressBarRangeInfo.Indeterminate))
-            .assertHeightIsEqualTo(20.dp)
+            .assertHeightIsEqualTo(16.dp)
     }
 
     @Test
@@ -36,11 +36,14 @@ class QeetrixSpinnerTest {
         compose.mainClock.autoAdvance = false
         compose.setQeetrix { QeetrixSpinner(label = "Fetching invoices", size = QeetrixSpinnerSize.Xl) }
         compose.mainClock.advanceTimeBy(100)
-        compose.onNodeWithContentDescription("Fetching invoices").assertHeightIsEqualTo(32.dp)
+        compose.onNodeWithContentDescription("Fetching invoices").assertHeightIsEqualTo(24.dp)
     }
 
     @Test
     fun sizesAreTheWebs() {
-        assertEquals(listOf(16f, 20f, 24f, 32f), QeetrixSpinnerSize.entries.map { it.side.value })
+        // spinner.css: sm 14, md 16, lg 20, xl 24.
+        assertEquals(listOf(14f, 16f, 20f, 24f), QeetrixSpinnerSize.entries.map { it.side.value })
+        assertEquals(listOf("sm", "md", "lg", "xl"), QeetrixSpinnerSize.entries.map { it.value })
+        assertEquals(800, com.qeetgroup.qeetrix.internal.SpinnerTurnMillis)
     }
 }

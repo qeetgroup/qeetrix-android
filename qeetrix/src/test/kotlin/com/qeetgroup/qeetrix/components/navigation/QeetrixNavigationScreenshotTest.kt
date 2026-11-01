@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
@@ -35,19 +36,18 @@ class QeetrixNavigationScreenshotTest {
             ScreenshotStack {
                 QeetrixTopAppBar(
                     title = "Invoice INV-2041",
-                    subtitle = "Draft",
+                    description = "Draft",
                     navigationIcon = { QeetrixBackButton(onClick = {}) },
                     actions = {
-                        QeetrixIconButton(QeetrixIconName.Share2, "Share", onClick = {})
-                        QeetrixIconButton(QeetrixIconName.EllipsisVertical, "More options", onClick = {})
+                        QeetrixIconButton(QeetrixIconName.Share2, "Share", onClick = {}, tone = QeetrixButtonTone.Neutral)
+                        QeetrixIconButton(QeetrixIconName.EllipsisVertical, "More options", onClick = {}, tone = QeetrixButtonTone.Neutral)
                     },
-                    scrolled = true,
                 )
                 QeetrixTopAppBar(title = "Settings")
-                QeetrixNavigationBar(items, selected = "inbox", onSelect = {})
-                Box(Modifier.height(300.dp)) {
-                    QeetrixNavigationRail(items, selected = "home", onSelect = {}) {
-                        QeetrixIconButton(QeetrixIconName.Plus, "New message", onClick = {}, variant = QeetrixButtonVariant.Default)
+                QeetrixNavigationBar(items, value = "inbox", onValueChange = {})
+                Box(Modifier.height(320.dp)) {
+                    QeetrixNavigationRail(items, value = "activity", onValueChange = {}) {
+                        QeetrixIconButton(QeetrixIconName.Plus, "New message", onClick = {}, variant = QeetrixButtonVariant.Solid)
                     }
                 }
             }

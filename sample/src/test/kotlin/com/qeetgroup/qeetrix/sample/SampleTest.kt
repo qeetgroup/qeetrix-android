@@ -10,18 +10,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -101,7 +101,10 @@ class SampleTest {
         compose.mainClock.autoAdvance = false
         compose.onNodeWithText("Save changes").assertIsEnabled().performClick()
         compose.mainClock.advanceTimeBy(100) // past the tap delay inside a scrolling container
-        compose.onNodeWithContentDescription("Saving…").assertExists()
+        // Loading keeps the label and reports its state.
+        compose
+            .onNode(hasText("Save changes") and SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Loading"))
+            .assertExists()
         compose.onNodeWithText("Reset").assertIsNotEnabled()
 
         compose.mainClock.advanceTimeBy(1_600)
@@ -116,14 +119,18 @@ class SampleTest {
                 DisplaySettings(QeetrixThemeMode.Light),
             ) { Column(Modifier.verticalScroll(rememberScrollState())) { FormSample() } }
         }
-        compose.onNodeWithText("Save profile").performScrollTo().performClick()
-        compose.onNodeWithText("There is a problem").assertExists()
-        compose.onNodeWithText("Full name").assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, "Enter your name."))
-        // Each link moves focus to its field — a text field and a select alike.
-        compose.onAllNodes(hasText("Enter your name.") and hasClickAction())[0].performScrollTo().performClick()
-        compose.onNodeWithText("Full name").assertIsFocused()
-        compose.onAllNodes(hasText("Choose your role.") and hasClickAction())[0].performScrollTo().performClick()
-        compose.onNode(hasText("Role") and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.DropdownList)).assertIsFocused()
+        compose.onNodeWithText("Save").performScrollTo().performClick()
+        compose.onNodeWithText("Fix these to continue").assertExists()
+        val gstinError = "Enter a GSTIN, like 27AAPFU0939F1ZV."
+        compose.onNode(hasText("GSTIN") and hasSetTextAction()).assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, gstinError))
+        // Each link moves focus to its field; an item without a field to go to is plain text.
+        compose.onAllNodes(hasText(gstinError) and hasClickAction())[0].performScrollTo().performClick()
+        compose.onNode(hasText("GSTIN") and hasSetTextAction()).assertIsFocused()
+        compose.onAllNodes(hasText("Enter a PAN, like AAPFU0939F.") and hasClickAction())[0].performScrollTo().performClick()
+        compose.onNode(hasText("PAN") and hasSetTextAction()).assertIsFocused()
+        // The billing cycle has no field to focus, so its summary item is plain text: the field's error and the item.
+        compose.onAllNodes(hasText("Choose a billing cycle.")).assertCountEquals(2)
+        compose.onAllNodes(hasText("Choose a billing cycle.") and hasClickAction()).assertCountEquals(0)
     }
 
     @Test

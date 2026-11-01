@@ -20,33 +20,43 @@ class QeetrixButtonScreenshotTest {
     fun states() =
         captureStates("button") {
             ScreenshotStack {
+                for (tone in QeetrixButtonTone.entries) {
+                    ScreenshotFlow {
+                        for (variant in QeetrixButtonVariant.entries) {
+                            QeetrixButton("${variant.value} ${tone.value}", onClick = {}, variant = variant, tone = tone)
+                        }
+                    }
+                }
                 ScreenshotFlow {
-                    for (variant in QeetrixButtonVariant.entries) {
+                    for (size in QeetrixButtonSize.entries) {
                         QeetrixButton(
-                            variant.value,
+                            "Size ${size.value}",
                             onClick = {},
-                            variant = variant,
+                            size = size,
+                            icon = QeetrixIconName.Plus,
                         )
                     }
                 }
-                ScreenshotFlow { for (size in QeetrixButtonSize.entries) QeetrixButton("Size ${size.value}", onClick = {}, size = size) }
+                ScreenshotFlow {
+                    QeetrixButton("Create invoice", onClick = {}, icon = QeetrixIconName.Plus)
+                    QeetrixButton("Export", onClick = {}, variant = QeetrixButtonVariant.Soft, icon = QeetrixIconName.Share2)
+                    QeetrixButton("Learn more", onClick = {
+                    }, variant = QeetrixButtonVariant.Ghost, icon = QeetrixIconName.ChevronRight, iconMirrorsInRightToLeft = true)
+                }
                 ScreenshotFlow {
                     QeetrixButton("Disabled", onClick = {}, enabled = false)
-                    QeetrixButton("Disabled", onClick = {}, enabled = false, variant = QeetrixButtonVariant.Outline)
+                    QeetrixButton("Disabled", onClick = {}, enabled = false, variant = QeetrixButtonVariant.Ghost)
                     QeetrixButton("Saving", onClick = {}, loading = true)
                     QeetrixButton(
-                        "Save changes",
+                        "Save draft",
                         onClick = {},
                         loading = true,
-                        loadingLabel = "Saving…",
-                        variant = QeetrixButtonVariant.Secondary,
+                        variant = QeetrixButtonVariant.Soft,
+                        icon = QeetrixIconName.Check,
                     )
                 }
-                ScreenshotFlow {
-                    QeetrixButton("Send", onClick = {}, leadingIcon = QeetrixIconName.Send)
-                    QeetrixButton("Next", onClick = {}, variant = QeetrixButtonVariant.Outline, trailingIcon = QeetrixIconName.Send)
-                    QeetrixButton("Delete", onClick = {}, variant = QeetrixButtonVariant.Destructive, leadingIcon = QeetrixIconName.X)
-                }
+                QeetrixButton("Continue", onClick = {
+                }, size = QeetrixButtonSize.Lg, fullWidth = true, icon = QeetrixIconName.ChevronRight, iconMirrorsInRightToLeft = true)
             }
         }
 }

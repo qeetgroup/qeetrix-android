@@ -1,6 +1,6 @@
 package com.qeetgroup.qeetrix.components.list
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,15 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
-import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import com.qeetgroup.qeetrix.components.accordion.QeetrixAccordion
 import com.qeetgroup.qeetrix.components.accordion.QeetrixAccordionItem
-import com.qeetgroup.qeetrix.components.badge.QeetrixChip
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.junit.Assert.assertEquals
@@ -35,9 +34,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /**
- * Collections as an app builds them: rows keyed by the app's ids keep their own state and the app's selection
- * through insertions, removals and reordering, survive state restoration, and a change to one row recomposes
- * only that row.
+ * Collections as an app builds them: sections found by the app's ids keep their state and the app's selection
+ * through insertions, removals and reordering, survive state restoration, and a change to one row recomposes only
+ * that row.
  */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixCollectionTest {
@@ -50,16 +49,15 @@ class QeetrixCollectionTest {
     )
 
     @Test
-    fun keyedRowsKeepTheirStateThroughInsertionRemovalAndReordering() {
+    fun accordionSectionsInALazyListKeepTheirStateThroughInsertionRemovalAndReordering() {
         val items = mutableStateListOf(Item("a", "Alpha"), Item("b", "Beta"), Item("c", "Gamma"))
+        var open by mutableStateOf(listOf<String>())
         compose.setContent {
             QeetrixTheme {
-                LazyColumn {
-                    items(items, key = { it.id }) { item ->
-                        // State held inside the row, which the lazy list keys by the item's id.
-                        var open by rememberSaveable { mutableStateOf(false) }
-                        QeetrixAccordionItem(item.title, expanded = open, onExpandedChange = { open = it }) {
-                            QeetrixText("${item.title} details")
+                QeetrixAccordion(value = open, onValueChange = { open = it }, modifier = Modifier.fillMaxSize(), multiple = true) {
+                    LazyColumn(Modifier.weight(1f)) {
+                        items(items, key = { it.id }) { item ->
+                            QeetrixAccordionItem(item.id, item.title) { QeetrixText("${item.title} details") }
                         }
                     }
                 }
@@ -79,6 +77,7 @@ class QeetrixCollectionTest {
         compose.onNodeWithText("Beta details").assertExists()
         compose.onNodeWithText("Gamma details").assertDoesNotExist()
         compose.onNodeWithText("Zeta details").assertDoesNotExist()
+        assertEquals(listOf("b"), open)
     }
 
     @Test
@@ -112,13 +111,11 @@ class QeetrixCollectionTest {
         val restoration = StateRestorationTester(compose)
         restoration.setContent {
             QeetrixTheme {
-                var open by rememberSaveable { mutableStateOf(setOf<String>()) }
+                var open by rememberSaveable { mutableStateOf(listOf<String>()) }
                 var chosen by rememberSaveable { mutableStateOf(false) }
-                Column {
-                    QeetrixAccordionItem("Billing", expanded = "billing" in open, onExpandedChange = {
-                        open = if (it) open + "billing" else open - "billing"
-                    }) { QeetrixText("Invoices") }
-                    QeetrixChip("Unread", selected = chosen, onSelectedChange = { chosen = it })
+                QeetrixAccordion(value = open, onValueChange = { open = it }) {
+                    QeetrixAccordionItem("billing", "Billing") { QeetrixText("Invoices") }
+                    QeetrixListItem("Unread", selected = chosen, onClick = { chosen = !chosen })
                 }
             }
         }
@@ -126,7 +123,7 @@ class QeetrixCollectionTest {
         compose.onNodeWithText("Unread").performClick()
         restoration.emulateSavedInstanceStateRestore()
         compose.onNodeWithText("Invoices").assertExists()
-        compose.onNodeWithText("Unread").assertIsOn()
+        compose.onNodeWithText("Unread").assertIsSelected()
     }
 
     @Test

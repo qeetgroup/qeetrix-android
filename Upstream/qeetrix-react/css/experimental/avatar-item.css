@@ -1,0 +1,37 @@
+@layer qx.base, qx.components, qx.state;
+@import "../base.css";
+@import "../state.css";
+@import "../avatar.css";
+
+@layer qx.components {
+  .qx-avatar-item {
+    align-items: center;
+    gap: var(--qx-space-gap-sm);
+    min-inline-size: 0;
+    display: flex;
+  }
+  
+  .qx-avatar-item-text {
+    flex-direction: column;
+    min-inline-size: 0;
+    display: flex;
+  }
+  
+  .qx-avatar-item-name, .qx-avatar-item-description {
+    overflow-wrap: anywhere;
+  }
+  
+  .qx-avatar-item-name {
+    font: var(--qx-typography-label-md);
+    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+    line-height: calc(var(--qx-typography-body-sm-font-size) *
+      var(--qx-typography-body-sm-line-height));
+    color: var(--qx-color-text-default);
+  }
+  
+  .qx-avatar-item-description {
+    font: var(--qx-typography-body-sm);
+    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+    color: var(--qx-color-text-subtle);
+  }
+}

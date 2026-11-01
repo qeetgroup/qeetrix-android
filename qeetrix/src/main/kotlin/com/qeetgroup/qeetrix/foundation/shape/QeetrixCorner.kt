@@ -5,69 +5,73 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixCornerTokens
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixRadiusTokens
 
 /**
- * Corner radii (`corner.*`), in dp. The role tokens ([Control], [Field], [Chip], [Surface],
- * [Overlay]) are what components use; the steps below them are the raw corner scale.
- *
- * `corner.circle` (50% on the web) is a shape rather than a length: use [QeetrixShapes.Circle].
+ * Corner radii (`radius.*`), in dp. Qeetrix is square (design rules §3): 4 dp on controls and
+ * surfaces, 2 dp on small marks; only people (avatars) and status (tags) are round.
  */
-public object QeetrixCorner {
-    /** `corner.control` — buttons and other controls. */
-    public val Control: Dp = QeetrixCornerTokens.Control
+public object QeetrixRadius {
+    /** `radius.none` — tables, tab lists, sections, rules. */
+    public val None: Dp = QeetrixRadiusTokens.None
 
-    /** `corner.field` — text fields and selects. */
-    public val Field: Dp = QeetrixCornerTokens.Field
+    /** `radius.sm` — small marks: checkboxes, switch tracks. */
+    public val Sm: Dp = QeetrixRadiusTokens.Sm
 
-    /** `corner.chip` — chips, badges and tags. */
-    public val Chip: Dp = QeetrixCornerTokens.Chip
+    /** `radius.tooltip` */
+    public val Tooltip: Dp = QeetrixRadiusTokens.Tooltip
 
-    /** `corner.surface` — cards and panels. */
-    public val Surface: Dp = QeetrixCornerTokens.Surface
+    /** `radius.control` — buttons, fields (top corners only), selects: every control. */
+    public val Control: Dp = QeetrixRadiusTokens.Control
 
-    /** `corner.overlay` — menus, popovers and dialogs. */
-    public val Overlay: Dp = QeetrixCornerTokens.Overlay
+    /** `radius.surface` — cards, panels. */
+    public val Surface: Dp = QeetrixRadiusTokens.Surface
 
-    /** `corner.pill` — fully rounded ends; Compose clamps it to half the shorter side, as CSS does. */
-    public val Pill: Dp = QeetrixCornerTokens.Pill
+    /** `radius.overlay` — menus, popovers, the select list. */
+    public val Overlay: Dp = QeetrixRadiusTokens.Overlay
 
-    /** `corner.none` */
-    public val None: Dp = QeetrixCornerTokens.None
+    /** `radius.modal` — dialogs, sheets. */
+    public val Modal: Dp = QeetrixRadiusTokens.Modal
 
-    /** `corner.base` — the radius the scale derives from. */
-    public val Base: Dp = QeetrixCornerTokens.Base
+    /** `radius.chip` — status tags: a pill. Compose clamps it to half the shorter side, as CSS does. */
+    public val Chip: Dp = QeetrixRadiusTokens.Chip
 
-    /** `corner.xs` */
-    public val Xs: Dp = QeetrixCornerTokens.Xs
-
-    /** `corner.sm` */
-    public val Sm: Dp = QeetrixCornerTokens.Sm
+    /** `radius.full` — avatars, radios, presence dots: a circle or pill. */
+    public val Full: Dp = QeetrixRadiusTokens.Full
 }
 
-/** The corner tokens as Compose shapes, for `Modifier.clip`, `background` and `border`. */
+/** The radius tokens as Compose shapes, for `Modifier.clip`, `background` and `border`. */
 public object QeetrixShapes {
-    /** [QeetrixCorner.Control] */
-    public val Control: Shape = RoundedCornerShape(QeetrixCorner.Control)
-
-    /** [QeetrixCorner.Field] */
-    public val Field: Shape = RoundedCornerShape(QeetrixCorner.Field)
-
-    /** [QeetrixCorner.Chip] */
-    public val Chip: Shape = RoundedCornerShape(QeetrixCorner.Chip)
-
-    /** [QeetrixCorner.Surface] */
-    public val Surface: Shape = RoundedCornerShape(QeetrixCorner.Surface)
-
-    /** [QeetrixCorner.Overlay] */
-    public val Overlay: Shape = RoundedCornerShape(QeetrixCorner.Overlay)
-
-    /** [QeetrixCorner.Pill] */
-    public val Pill: Shape = RoundedCornerShape(QeetrixCorner.Pill)
-
-    /** `corner.circle`: a circle, or an ellipse in a non-square box, as `border-radius: 50%` draws. */
-    public val Circle: Shape = CircleShape
-
-    /** [QeetrixCorner.None] */
+    /** [QeetrixRadius.None] */
     public val None: Shape = RectangleShape
+
+    /** [QeetrixRadius.Sm] */
+    public val Sm: Shape = RoundedCornerShape(QeetrixRadius.Sm)
+
+    /** [QeetrixRadius.Tooltip] */
+    public val Tooltip: Shape = RoundedCornerShape(QeetrixRadius.Tooltip)
+
+    /** [QeetrixRadius.Control] */
+    public val Control: Shape = RoundedCornerShape(QeetrixRadius.Control)
+
+    /**
+     * A filled field: [QeetrixRadius.Control] on the top corners, square at the bottom line
+     * (design rules §3, §8).
+     */
+    public val Field: Shape = RoundedCornerShape(topStart = QeetrixRadius.Control, topEnd = QeetrixRadius.Control)
+
+    /** [QeetrixRadius.Surface] */
+    public val Surface: Shape = RoundedCornerShape(QeetrixRadius.Surface)
+
+    /** [QeetrixRadius.Overlay] */
+    public val Overlay: Shape = RoundedCornerShape(QeetrixRadius.Overlay)
+
+    /** [QeetrixRadius.Modal] */
+    public val Modal: Shape = RoundedCornerShape(QeetrixRadius.Modal)
+
+    /** [QeetrixRadius.Chip]: a pill. */
+    public val Chip: Shape = RoundedCornerShape(QeetrixRadius.Chip)
+
+    /** [QeetrixRadius.Full]: a circle, or a pill in a non-square box. */
+    public val Full: Shape = CircleShape
 }

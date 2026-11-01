@@ -1,7 +1,7 @@
 package com.qeetgroup.qeetrix.components.numberfield
 
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessageTone
+import com.qeetgroup.qeetrix.components.input.rememberFocusedSource
+import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
 import com.qeetgroup.qeetrix.screenshot.ScreenshotStack
 import com.qeetgroup.qeetrix.screenshot.captureStates
@@ -21,17 +21,35 @@ class QeetrixNumberFieldScreenshotTest {
     fun states() =
         captureStates("numberfield") {
             ScreenshotStack {
-                QeetrixNumberField(1, {}, label = "Seats", range = 1..250, description = "The decrease button stops at 1.")
-                QeetrixNumberField(BigDecimal("12345.5"), {}, label = "Budget", fractionDigits = 2)
-                QeetrixNumberField(null as Int?, {}, label = "Quantity", placeholder = "0")
+                QeetrixNumberField(5, {}, label = "Seats", min = 1, max = 250)
+                QeetrixNumberField(1, {}, label = "At the minimum", min = 1, max = 250, description = "Decrease is off at the minimum.")
                 QeetrixNumberField(
-                    260,
+                    BigDecimal("1250000"),
                     {},
-                    label = "Members",
-                    message = QeetrixFieldMessage("Your plan includes 250.", QeetrixFieldMessageTone.Warning),
+                    label = "Amount",
+                    startAdornment = { QeetrixText("₹") },
+                    steppers = false,
+                    fractionDigits = 2,
                 )
-                QeetrixNumberField(5, {}, label = "Read-only", readOnly = true)
-                QeetrixNumberField(5, {}, label = "Disabled", enabled = false)
+                QeetrixNumberField(
+                    BigDecimal("12.5"),
+                    {},
+                    label = "Discount",
+                    endAdornment = { QeetrixText("%") },
+                    fractionDigits = 1,
+                    step = BigDecimal("0.5"),
+                    interactionSource = rememberFocusedSource(),
+                )
+                QeetrixNumberField(
+                    value = null as Int?,
+                    onValueChange = {},
+                    label = "Session length",
+                    placeholder = "e.g. 30",
+                    endAdornment = { QeetrixText("minutes") },
+                    error = "Enter a length between 5 and 120 minutes.",
+                )
+                QeetrixNumberField(30, {}, label = "Read-only", readOnly = true)
+                QeetrixNumberField(30, {}, label = "Disabled", enabled = false)
             }
         }
 }

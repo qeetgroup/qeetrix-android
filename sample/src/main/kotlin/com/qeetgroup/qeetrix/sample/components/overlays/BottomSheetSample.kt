@@ -1,88 +1,106 @@
 package com.qeetgroup.qeetrix.sample.components.overlays
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.drawer.QeetrixBottomSheet
-import com.qeetgroup.qeetrix.components.input.QeetrixOption
-import com.qeetgroup.qeetrix.components.input.QeetrixTextarea
-import com.qeetgroup.qeetrix.components.radiogroup.QeetrixRadioGroup
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
+import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.sample.SampleFlow
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-private val StatusOptions =
-    listOf(
-        QeetrixOption("all", "All invoices"),
-        QeetrixOption("overdue", "Overdue", "Past their due date"),
-        QeetrixOption("paid", "Paid"),
-        QeetrixOption("draft", "Drafts"),
-    )
+private val Statuses = listOf("All invoices", "Overdue", "Paid", "Drafts")
 
-/** Bottom sheets: filters with a footer, a long sheet that opens half-way, and one gestures cannot close. */
+/** Bottom sheets: filters with a ruled footer, a long sheet that opens half-way, and one only its actions close. */
 @Composable
 fun BottomSheetSample() {
     SamplePage {
         SampleSection("Filters") {
             var filtering by rememberSaveable { mutableStateOf(false) }
-            var status by rememberSaveable { mutableStateOf("all") }
-            var draft by rememberSaveable { mutableStateOf("all") }
+            var status by rememberSaveable { mutableStateOf(Statuses.first()) }
+            var draft by rememberSaveable { mutableStateOf(status) }
             QeetrixButton("Filter invoices", onClick = {
                 draft = status
                 filtering = true
-            }, variant = QeetrixButtonVariant.Outline)
+            }, variant = QeetrixButtonVariant.Soft)
             QeetrixBottomSheet(
-                visible = filtering,
-                onDismissRequest = { filtering = false },
+                open = filtering,
+                onOpenChange = { filtering = it },
                 title = "Filter invoices",
                 description = "Show only the invoices you need.",
+                footerStart = { QeetrixText("Showing: $draft", size = QeetrixTextSize.Sm) },
                 footer = {
+                    QeetrixButton("Clear", onClick = { draft = Statuses.first() }, variant = QeetrixButtonVariant.Ghost)
                     QeetrixButton("Show results", onClick = {
                         status = draft
                         filtering = false
-                    }, modifier = Modifier.fillMaxWidth())
+                    })
                 },
             ) {
-                QeetrixRadioGroup(draft, { draft = it }, StatusOptions, label = "Status")
+                // A sample stand-in for a radio group: the chosen status carries the check.
+                SampleFlow {
+                    for (each in Statuses) {
+                        QeetrixButton(
+                            each,
+                            onClick = { draft = each },
+                            variant = QeetrixButtonVariant.Ghost,
+                            icon = if (each == draft) QeetrixIconName.Check else null,
+                        )
+                    }
+                }
             }
-            val shown = StatusOptions.first { it.value == status }.label
-            SampleNote("Showing: $shown. Swipe down, tap outside, press Back or Close to leave without applying.")
+            SampleNote("Showing: $status. Swipe down, tap outside, press Back or Close to leave without applying.")
         }
         SampleSection("Long content, opening half-way") {
             var open by rememberSaveable { mutableStateOf(false) }
-            QeetrixButton("Release notes", onClick = { open = true }, variant = QeetrixButtonVariant.Outline)
-            QeetrixBottomSheet(visible = open, onDismissRequest = { open = false }, title = "What's new", partiallyExpandable = true) {
-                for (version in 12 downTo 1) {
-                    QeetrixText("Version 2.$version", variant = QeetrixTextVariant.Large)
-                    QeetrixText("Faster sync, clearer invoices and fixes reported by teams like yours.", variant = QeetrixTextVariant.Muted)
+            QeetrixButton("Release notes", onClick = { open = true }, variant = QeetrixButtonVariant.Soft)
+            QeetrixBottomSheet(open = open, onOpenChange = { open = it }, title = "What's new", partiallyExpandable = true) {
+                Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapLg)) {
+                    for (version in 12 downTo 1) {
+                        Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs)) {
+                            QeetrixText("Version 2.$version", size = QeetrixTextSize.Lg)
+                            QeetrixText(
+                                "Faster sync, clearer invoices and fixes reported by teams like yours.",
+                                tone = QeetrixTextTone.Subtle,
+                            )
+                        }
+                    }
                 }
             }
             SampleNote("Drag the sheet up to expand it; it scrolls its content before it moves itself.")
         }
-        SampleSection("A step to finish deliberately") {
+        SampleSection("Closed by its own actions") {
             var open by rememberSaveable { mutableStateOf(false) }
-            QeetrixButton("Give feedback", onClick = { open = true }, variant = QeetrixButtonVariant.Outline)
+            QeetrixButton("Give feedback", onClick = { open = true }, variant = QeetrixButtonVariant.Soft)
             QeetrixBottomSheet(
-                visible = open,
-                onDismissRequest = { open = false },
+                open = open,
+                onOpenChange = { open = it },
                 title = "Send feedback",
-                dismissOnGesture = false,
-                footer = { QeetrixButton("Send", onClick = { open = false }, modifier = Modifier.fillMaxWidth()) },
+                dismissible = false,
+                footer = {
+                    QeetrixButton("Discard", onClick = { open = false }, variant = QeetrixButtonVariant.Ghost)
+                    QeetrixButton("Send", onClick = { open = false })
+                },
             ) {
-                QeetrixTextarea(rememberTextFieldState(), label = "What could be better?")
+                QeetrixText("Tell us what could be better. Your workspace name is sent with it.")
             }
-            SampleNote("Swiping down and tapping outside do nothing here; Back and Close still leave, so the sheet is never a trap.")
+            SampleNote(
+                "Not dismissible: no close button, and swiping down or tapping outside does nothing. Back still leaves, so the " +
+                    "sheet is never a trap.",
+            )
         }
     }
 }

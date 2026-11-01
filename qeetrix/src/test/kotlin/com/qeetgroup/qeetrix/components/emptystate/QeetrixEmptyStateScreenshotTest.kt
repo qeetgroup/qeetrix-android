@@ -3,6 +3,7 @@ package com.qeetgroup.qeetrix.components.emptystate
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
 import com.qeetgroup.qeetrix.screenshot.ScreenshotConfig
@@ -16,8 +17,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Baselines in `src/test/screenshots/emptystate/`: every variant's tile at the small size, the default size with
- * actions, the large size; and a data state's loading and failure branches.
+ * Baselines in `src/test/screenshots/emptystate/`: the page size with actions and a footer, the section size, the
+ * danger tone; and a data state's loading (the error's height held) and error states.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -27,34 +28,27 @@ class QeetrixEmptyStateScreenshotTest {
     fun states() =
         captureStates("emptystate") {
             ScreenshotStack {
-                for (variant in QeetrixEmptyStateVariant.entries) {
-                    QeetrixEmptyState(
-                        variant.value,
-                        description = "What happened, and what to do.",
-                        variant = variant,
-                        size = QeetrixEmptyStateSize.Sm,
-                        icon =
-                            QeetrixIconName.FileText.takeIf {
-                                variant ==
-                                    QeetrixEmptyStateVariant.FirstUse ||
-                                    variant == QeetrixEmptyStateVariant.Default
-                            },
-                    )
-                }
                 QeetrixEmptyState(
                     "No invoices yet",
-                    description = "Invoices appear here once you bill a customer.",
-                    variant = QeetrixEmptyStateVariant.FirstUse,
                     icon = QeetrixIconName.FileText,
+                    description = "Invoices appear here once you bill a customer.",
+                    footer = { QeetrixText("Or import them from a CSV file", size = QeetrixTextSize.Sm) },
                 ) {
-                    QeetrixButton("Create invoice", onClick = {})
-                    QeetrixButton("Import", onClick = {}, variant = QeetrixButtonVariant.Outline)
+                    QeetrixButton("Create invoice", onClick = {}, icon = QeetrixIconName.Plus)
+                    QeetrixButton("Import", onClick = {}, variant = QeetrixButtonVariant.Ghost)
                 }
                 QeetrixEmptyState(
-                    "Your inbox is clear",
-                    description = "New messages appear here.",
-                    size = QeetrixEmptyStateSize.Lg,
-                    icon = QeetrixIconName.Inbox,
+                    "No results",
+                    icon = QeetrixIconName.SearchX,
+                    description = "Nothing matches “quarterly”. Check the spelling or clear the filters.",
+                    size = QeetrixEmptyStateSize.Section,
+                ) { QeetrixButton("Clear filters", onClick = {}, variant = QeetrixButtonVariant.Ghost) }
+                QeetrixEmptyState(
+                    "You can't see this project",
+                    icon = QeetrixIconName.Lock,
+                    description = "Ask its owner, Ada Lovelace, for access.",
+                    size = QeetrixEmptyStateSize.Section,
+                    tone = QeetrixEmptyStateTone.Danger,
                 )
             }
         }
@@ -64,9 +58,8 @@ class QeetrixEmptyStateScreenshotTest {
         for (config in ScreenshotConfig.entries) {
             captureQeetrix("emptystate", "datastate", config) {
                 ScreenshotStack {
-                    QeetrixDataState(loading = true, empty = false, emptyContent = {}) {}
-                    QeetrixDataState(loading = false, empty = false, failure = QeetrixDataFailure(onRetry = {}), emptyContent = {}) {}
-                    QeetrixDataState(loading = false, empty = false, emptyContent = {}) { QeetrixText("The data") }
+                    QeetrixDataState(loading = true, onRetry = {}) {}
+                    QeetrixDataState(loading = false, error = true, onRetry = {}) {}
                 }
             }
         }

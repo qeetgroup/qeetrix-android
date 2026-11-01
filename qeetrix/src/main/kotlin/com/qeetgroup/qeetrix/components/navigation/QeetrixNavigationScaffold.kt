@@ -2,15 +2,18 @@ package com.qeetgroup.qeetrix.components.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.qeetgroup.qeetrix.foundation.layout.QeetrixBreakpoint
+import com.qeetgroup.qeetrix.internal.windowAtLeast
 
 /** How [QeetrixNavigationScaffold] presents its destinations (`value` is the same string on every platform). */
 public enum class QeetrixNavigationLayout(
@@ -19,41 +22,42 @@ public enum class QeetrixNavigationLayout(
     /** A [QeetrixNavigationBar] along the bottom: a compact window. */
     Bar("bar"),
 
-    /** A [QeetrixNavigationRail] along the inline start: a medium or expanded window. */
+    /** A [QeetrixNavigationRail] along the inline start: a medium or wider window. */
     Rail("rail"),
     ;
 
     public companion object {
         /**
-         * The layout for a window [width]: [Bar] below 600 dp, [Rail] from 600 dp — the compact and medium
-         * width classes of Android's `WindowSizeClass` (`WIDTH_DP_MEDIUM_LOWER_BOUND`). It is the window's
-         * width that counts, not the kind of device: a phone in landscape, a tablet in split screen and a
+         * The layout for a window [width]: [Bar] below `breakpoint.medium` (600 dp), [Rail] from it — the compact and
+         * medium width classes of Android's `WindowSizeClass`, and the web's `--qx-viewport-medium`. It is the
+         * window's width that counts, not the kind of device: a phone in landscape, a tablet in split screen and a
          * resized desktop window all follow the same rule.
          */
-        public fun forWindowWidth(width: Dp): QeetrixNavigationLayout = if (width >= MediumWidth) Rail else Bar
+        public fun forWindowWidth(width: Dp): QeetrixNavigationLayout = if (width >= QeetrixBreakpoint.Medium) Rail else Bar
     }
 }
 
 /**
- * A screen with its top-level destinations — a [QeetrixNavigationBar] on a compact window and a
- * [QeetrixNavigationRail] from the medium width up, switching as the window is resized, folded or rotated.
+ * A screen with its top-level destinations — `@qeetrix/react`'s AppShell frame (its navigation column and main
+ * region) as Android adapts it: a [QeetrixNavigationBar] on a compact window and a [QeetrixNavigationRail] from
+ * `breakpoint.medium` up, switching as the window is resized, folded or rotated. The web's top bar, panels and drawer
+ * belong to consoles; a screen's own bar is [QeetrixTopAppBar], inside [content].
  *
- * - **Only presentation.** The app's [content] is the current destination; [selected] and [onSelect] are
- *   the app's, exactly as for the bar and the rail. Back, deep links and saved navigation state stay with
- *   the app's navigation library.
+ * - **Only presentation.** The app's [content] is the current destination; [value] and [onValueChange] are the
+ *   app's, exactly as for the bar and the rail. Back, deep links and saved navigation state stay with the app's
+ *   navigation library.
  * - **[layout]** fixes the presentation; by default it follows the window width
  *   ([QeetrixNavigationLayout.forWindowWidth]).
- * - **Content keeps its state** when the layout changes: it stays in one place in the composition, so its
- *   scroll positions and `remember`ed values survive a fold or a resize.
- * - **Insets.** The bar or the rail pads itself for the system bars; the content is told those insets are
- *   consumed, so a `windowInsetsPadding(WindowInsets.safeDrawing)` inside it does not pad twice.
+ * - **Content keeps its state** when the layout changes: it stays in one place in the composition, so its scroll
+ *   positions and `remember`ed values survive a fold or a resize.
+ * - **Insets.** The bar or the rail pads itself for the system bars. The content is told the inset of the edge the
+ *   navigation covers is consumed — the bottom above a bar, the start beside a rail — so a
+ *   `windowInsetsPadding(WindowInsets.safeDrawing)` inside it does not pad that edge twice; its other edges still meet
+ *   the window's, and the content keeps clear of them itself, as [QeetrixTopAppBar] does by default.
  * - [railHeader] is the rail's [QeetrixNavigationRail] header; a bar has none.
  *
- * This is a small adapter over the bar and the rail rather than Material's `NavigationSuiteScaffold`, which
- * draws Material's navigation components (Documentation/Decisions/0015-navigation-overlays-and-feedback.md).
- *
  * ```
- * QeetrixNavigationScaffold(items, selected = destination, onSelect = { destination = it }) {
+ * QeetrixNavigationScaffold(items, value = destination, onValueChange = { destination = it }) {
  *     when (destination) {
  *         Destination.Home -> HomeScreen()
  *         Destination.Inbox -> InboxScreen()
@@ -65,15 +69,26 @@ public enum class QeetrixNavigationLayout(
 @Composable
 public fun <T> QeetrixNavigationScaffold(
     items: List<QeetrixNavigationItem<T>>,
-    selected: T,
-    onSelect: (T) -> Unit,
+    value: T,
+    onValueChange: (T) -> Unit,
     modifier: Modifier = Modifier,
-    layout: QeetrixNavigationLayout = QeetrixNavigationLayout.forWindowWidth(windowWidth()),
+    layout: QeetrixNavigationLayout =
+        if (windowAtLeast(
+                QeetrixBreakpoint.Medium,
+            )
+        ) {
+            QeetrixNavigationLayout.Rail
+        } else {
+            QeetrixNavigationLayout.Bar
+        },
     railHeader: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     val rail = layout == QeetrixNavigationLayout.Rail
-    val insets = if (rail) QeetrixNavigationRailInsets else QeetrixNavigationBarInsets
+    // Only the edge the navigation covers. The rail pads for the top and bottom too, but the content beside it still
+    // runs under the status and navigation bars, as the content above a bar runs to the window's sides: consuming the
+    // navigation's whole insets put a top app bar beside the rail under the status bar (found on an API 36 tablet).
+    val insets = WindowInsets.safeDrawing.only(if (rail) WindowInsetsSides.Start else WindowInsetsSides.Bottom)
     Layout(
         contents =
             listOf(
@@ -81,9 +96,9 @@ public fun <T> QeetrixNavigationScaffold(
                 { Box(Modifier.consumeWindowInsets(insets)) { content() } },
                 {
                     if (rail) {
-                        QeetrixNavigationRail(items, selected, onSelect, header = railHeader)
+                        QeetrixNavigationRail(items, value, onValueChange, header = railHeader)
                     } else {
-                        QeetrixNavigationBar(items, selected, onSelect)
+                        QeetrixNavigationBar(items, value, onValueChange)
                     }
                 },
             ),
@@ -114,11 +129,3 @@ public fun <T> QeetrixNavigationScaffold(
         }
     }
 }
-
-/** The current window's width. */
-@Composable
-@ReadOnlyComposable
-private fun windowWidth(): Dp = LocalWindowInfo.current.containerDpSize.width
-
-/** `WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND`: where a compact window ends. */
-private val MediumWidth = 600.dp

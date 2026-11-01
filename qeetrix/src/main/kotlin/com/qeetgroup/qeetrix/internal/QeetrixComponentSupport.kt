@@ -16,78 +16,82 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixFocus
-import com.qeetgroup.qeetrix.foundation.typography.QeetrixTextRole
-import com.qeetgroup.qeetrix.foundation.typography.QeetrixTypography
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixFontWeightTokens
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixTypographyTokens
 
 /**
- * A text style the way a web component class list builds one: a font utility (`font-heading`,
- * `font-sans`, `font-ui`, `font-mono` — the role whose family and letter style it takes), a size and
- * line height, and a weight. Built from the same fonts and axes as [QeetrixTypography].
+ * The three weights `@qeetrix/react` sets on top of a role (text.css `data-weight`): each is a role's own
+ * weight — regular `body.md`, medium `label.md`, semibold `title.md` — so a weight change stays on the
+ * roles' scale. Every role's font family is built at these weights, so `style.copy(fontWeight = …)` lands
+ * on a real instance with the role's letter style.
  */
-internal fun qeetrixTextStyle(
-    font: QeetrixTextRole,
-    size: Float,
-    lineHeight: Float,
-    weight: Int = QeetrixFontWeightTokens.Regular,
-): TextStyle = QeetrixTypography.style(font.spec.copy(size = size, lineHeight = lineHeight, weight = weight))
-
-/** [qeetrixTextStyle] for a Tailwind type step (`text-sm`, `text-xs`, …). */
-internal fun qeetrixTextStyle(
-    font: QeetrixTextRole,
-    step: QeetrixWebScale.TextStep,
-    weight: Int = QeetrixFontWeightTokens.Regular,
-): TextStyle = qeetrixTextStyle(font, step.size, step.lineHeight, weight)
-
-/** The font utility a web class list names, as the role whose family and letter style it sets. */
-internal object QeetrixFont {
-    /** `font-heading` — Qeet Sans, Base letter style. */
-    val Heading = QeetrixTextRole.Heading
-
-    /** `font-sans` — Qeet Sans, UI letter style, for reading copy. */
-    val Sans = QeetrixTextRole.Body
-
-    /** `font-ui` — Qeet Sans, UI letter style, for interface text. */
-    val Ui = QeetrixTextRole.Label
-
-    /** `font-mono` — Fira Code. */
-    val Mono = QeetrixTextRole.Code
+internal object QeetrixTextWeight {
+    val Regular: FontWeight = FontWeight(QeetrixTypographyTokens.BodyMd.weight)
+    val Medium: FontWeight = FontWeight(QeetrixTypographyTokens.LabelMd.weight)
+    val Semibold: FontWeight = FontWeight(QeetrixTypographyTokens.TitleMd.weight)
 }
 
-/** The weight of `font-medium`. */
-internal val FontWeightMedium: Int = QeetrixFontWeightTokens.Medium
-
-/** The weight of `font-semibold`. */
-internal val FontWeightSemibold: Int = QeetrixFontWeightTokens.Semibold
-
-/** Whether the window is at least [breakpoint] wide — a web `sm:`/`md:` media query, in dp. */
+/** Whether the window is at least [breakpoint] wide — the web's `@media (--qx-viewport-*)`, in dp. */
 @Composable
 @ReadOnlyComposable
 internal fun windowAtLeast(breakpoint: Dp): Boolean = LocalWindowInfo.current.containerDpSize.width >= breakpoint
 
 /**
- * The Qeet focus ring (`focus-visible:focus-ring`): an outline of `focus.outline-width` in the ring
- * colour, `focus.offset` outside the shape, drawn while the element has keyboard focus. In touch mode
- * Android does not move focus to clickable elements, so the ring only appears for keyboard, D-pad and
- * switch access, as `:focus-visible` does on the web.
+ * Where a component draws the Qeetrix focus frame — a 2 dp Ember frame (`focus.ring.width`,
+ * `color.border.focus`) — per design rules §10.
+ */
+internal enum class FocusFrame {
+    /** Checkboxes, radios, switches, links, tags, tabs: outside the shape, `focus.ring.offset` away. */
+    Outside,
+
+    /** Fields, table rows, menu items: inside the edge. */
+    Inside,
+
+    /**
+     * Buttons: inside the edge, with a 1 dp `color.surface.default` gap between the frame and the fill —
+     * button.css's `outline-offset: -focus.ring.width` over an inset `focus.ring.width + border.width.default`
+     * surface shadow.
+     */
+    InsideWithGap,
+}
+
+/**
+ * The Qeetrix focus frame, drawn while the element has keyboard focus. In touch mode Android does not
+ * move focus to clickable elements, so the frame only appears for keyboard, D-pad and switch access, as
+ * `:focus-visible` does on the web; it is never removed and never replaced by colour alone.
  */
 @Composable
-internal fun Modifier.qeetrixFocusRing(
+internal fun Modifier.qeetrixFocusFrame(
     interactionSource: InteractionSource,
     shape: Shape,
-    color: Color = QeetrixTheme.colors.focusRing,
-    width: Dp = QeetrixFocus.OutlineWidth,
-    offset: Dp = QeetrixFocus.Offset,
+    placement: FocusFrame,
 ): Modifier {
     val focused by interactionSource.collectIsFocusedAsState()
-    return drawOutlineRing(focused, shape, color, width, offset)
+    return focusFrame(focused, shape, placement, QeetrixTheme.colors.borderFocus, QeetrixTheme.colors.surfaceDefault)
 }
+
+/** [qeetrixFocusFrame] for a [visible] flag the caller tracks itself. */
+internal fun Modifier.focusFrame(
+    visible: Boolean,
+    shape: Shape,
+    placement: FocusFrame,
+    color: Color,
+    gapColor: Color,
+    width: Dp = QeetrixFocus.RingWidth,
+    offset: Dp = QeetrixFocus.RingOffset,
+): Modifier =
+    when (placement) {
+        FocusFrame.Outside -> drawOutlineRing(visible, shape, color, width, offset)
+        FocusFrame.Inside -> drawInsideRing(visible, shape, color, width, gap = null)
+        FocusFrame.InsideWithGap -> drawInsideRing(visible, shape, color, width, gap = gapColor)
+    }
 
 /** An outline [width] wide, [offset] outside [shape], when [visible]. */
 internal fun Modifier.drawOutlineRing(
@@ -105,6 +109,37 @@ internal fun Modifier.drawOutlineRing(
         translate(-inset, -inset) {
             drawOutline(outline, color, style = Stroke(width.toPx()))
         }
+    }
+
+/**
+ * A frame [width] wide just inside [shape]'s edge, over the content, when [visible]; with a [gap] colour, a
+ * `border.width.default` band of it runs inside the frame, between the frame and the fill.
+ */
+internal fun Modifier.drawInsideRing(
+    visible: Boolean,
+    shape: Shape,
+    color: Color,
+    width: Dp,
+    gap: Color?,
+): Modifier =
+    drawWithContent {
+        drawContent()
+        if (!visible) return@drawWithContent
+        val frame = width.toPx()
+
+        fun band(
+            inset: Float,
+            stroke: Float,
+            paint: Color,
+        ) {
+            val middle = inset + stroke / 2
+            val bandSize = Size(size.width - 2 * middle, size.height - 2 * middle)
+            if (bandSize.width <= 0f || bandSize.height <= 0f) return
+            val outline = shape.createOutline(bandSize, layoutDirection, this)
+            translate(middle, middle) { drawOutline(outline, paint, style = Stroke(stroke)) }
+        }
+        if (gap != null) band(frame, QeetrixBorder.WidthDefault.toPx(), gap)
+        band(0f, frame, color)
     }
 
 /**

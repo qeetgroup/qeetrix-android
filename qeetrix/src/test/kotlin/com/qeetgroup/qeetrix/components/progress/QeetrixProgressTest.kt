@@ -14,27 +14,46 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.text.NumberFormat
+import java.util.Locale
 
+/** Progress and Meter: their values and ranges, what is shown and read out, and the web's names. */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixProgressTest {
     @get:Rule
     val compose = createComposeRule()
 
     @Test
-    fun determinateProgressReportsItsValueAndShowsItFormatted() {
-        compose.setQeetrix { QeetrixProgress(0.42f, label = "Uploading") }
+    fun progressReportsItsValueInItsRangeAndShowsItsPercentage() {
+        compose.setQeetrix { QeetrixProgress(42f, label = "Uploading", showValue = true) }
         compose
             .onNodeWithContentDescription("Uploading")
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ProgressBarRangeInfo, ProgressBarRangeInfo(0.42f, 0f..1f)))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ProgressBarRangeInfo, ProgressBarRangeInfo(42f, 0f..100f)))
         compose.onNodeWithText("42%", useUnmergedTree = true).assertExists()
     }
 
     @Test
+    fun theValueIsHiddenUnlessShowValue() {
+        compose.setQeetrix { QeetrixProgress(42f, label = "Uploading") }
+        compose.onNodeWithText("42%", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun aFormatWritesTheValueItselfAndIsReadOut() {
+        val gigabytes = NumberFormat.getNumberInstance(Locale.US).apply { maximumFractionDigits = 1 }
+        compose.setQeetrix { QeetrixProgress(2.4f, max = 8f, label = "Downloading", showValue = true, format = gigabytes) }
+        compose
+            .onNodeWithContentDescription("Downloading")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "2.4"))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ProgressBarRangeInfo, ProgressBarRangeInfo(2.4f, 0f..8f)))
+    }
+
+    @Test
     fun valuesOutsideTheRangeAreClamped() {
-        compose.setQeetrix { QeetrixProgress(1.7f, contentDescription = "Sync") }
+        compose.setQeetrix { QeetrixProgress(170f, contentDescription = "Sync") }
         compose
             .onNodeWithContentDescription("Sync")
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ProgressBarRangeInfo, ProgressBarRangeInfo(1f, 0f..1f)))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ProgressBarRangeInfo, ProgressBarRangeInfo(100f, 0f..100f)))
     }
 
     @Test
@@ -47,8 +66,8 @@ class QeetrixProgressTest {
 
     @Test
     fun unknownProgressIsIndeterminateAndShowsNoValue() {
-        compose.mainClock.autoAdvance = false // the segment sweeps forever
-        compose.setQeetrix { QeetrixProgress(null, label = "Preparing export") }
+        compose.mainClock.autoAdvance = false // the segment slides forever
+        compose.setQeetrix { QeetrixProgress(null, label = "Preparing export", showValue = true) }
         compose.mainClock.advanceTimeBy(700)
         compose
             .onNodeWithContentDescription("Preparing export")
@@ -57,8 +76,19 @@ class QeetrixProgressTest {
     }
 
     @Test
-    fun sizesAreTheWebs() {
-        assertEquals(listOf("sm", "md", "lg"), QeetrixProgressSize.entries.map { it.value })
-        assertEquals(listOf(4f, 8f, 12f), QeetrixProgressSize.entries.map { it.thickness.value })
+    fun aMeterIsReadAsItsLabelAndValueWithItsTarget() {
+        compose.setQeetrix { QeetrixMeter(40f, label = "People with two-step", showValue = true, target = 80f) }
+        compose
+            .onNodeWithContentDescription("People with two-step")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "40%, target 80%"))
+            // Not a task: no progress bar for accessibility services.
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ProgressBarRangeInfo))
+        compose.onNodeWithText("40%", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun tonesAreTheWebs() {
+        assertEquals(listOf("brand", "success", "danger"), QeetrixProgressTone.entries.map { it.value })
+        assertEquals(listOf("brand", "neutral", "info", "success", "warning", "danger"), QeetrixMeterTone.entries.map { it.value })
     }
 }

@@ -43,7 +43,7 @@ class QeetrixBottomSheetDeviceTest {
         compose.setContent {
             QeetrixTheme(QeetrixThemeMode.Light) {
                 Box(Modifier.fillMaxSize().background(QeetrixTheme.colors.surfaceCanvas))
-                QeetrixBottomSheet(visible = true, onDismissRequest = {}, title = "Share invoice") {
+                QeetrixBottomSheet(open = true, onOpenChange = {}, title = "Share invoice") {
                     QeetrixButton("Copy link", onClick = {})
                 }
             }

@@ -7,25 +7,30 @@ import androidx.compose.ui.unit.Dp
 import com.qeetgroup.qeetrix.TestSupport
 import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixFocus
 import com.qeetgroup.qeetrix.foundation.color.QeetrixOpacity
-import com.qeetgroup.qeetrix.foundation.elevation.QeetrixElevation
-import com.qeetgroup.qeetrix.foundation.shape.QeetrixCorner
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixIconSize
+import com.qeetgroup.qeetrix.foundation.elevation.QeetrixShadow
+import com.qeetgroup.qeetrix.foundation.layout.QeetrixBreakpoint
+import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
+import com.qeetgroup.qeetrix.foundation.shape.QeetrixRadius
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixIconStroke
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.foundation.typography.QeetrixFontGeometry
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixBorderTokens
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixBreakpointTokens
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixColorTokenPaths
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixCornerTokens
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixDarkColors
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixElevationTokenPaths
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixDensityContexts
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixFocusTokens
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixFontGeometryTokens
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixIconSizeTokens
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixIconStrokeTokens
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixLightColors
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixOpacityTokens
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixRadiusTokens
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixShadowTokenPaths
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixSizeTokens
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixSpaceTokens
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixStrokeWidthTokens
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -39,8 +44,8 @@ import kotlin.reflect.full.declaredMemberProperties
 
 /**
  * The Kotlin that ships against the generator's value table: every colour the library hands out is the
- * colour the generator computed (which agrees with qeetrix-ios and with the web's own converter, see
- * Tools/QeetrixGen tests), and every generated token is reachable through the public API.
+ * colour the generator computed (which agrees with the hex @qeetrix/tokens records, see Tools/QeetrixGen
+ * tests), and every generated token is reachable through the public API.
  * (Robolectric only for the real org.json; nothing here draws.)
  */
 @RunWith(RobolectricTestRunner::class)
@@ -48,7 +53,7 @@ class TokenParityTest {
     @Test
     fun everyColourTokenIsExposedInUpstreamOrder() {
         assertEquals(TestSupport.paths("color"), QeetrixColorTokenPaths.map { it.first })
-        assertEquals(84, QeetrixColorTokenPaths.size)
+        assertEquals(109, QeetrixColorTokenPaths.size)
     }
 
     @Test
@@ -66,19 +71,20 @@ class TokenParityTest {
 
     @Test
     fun outOfSrgbColoursAreDisplayP3() {
-        assertEquals(ColorSpaces.DisplayP3, QeetrixLightColors.dataCategorical2.colorSpace)
-        assertEquals(ColorSpaces.DisplayP3, QeetrixLightColors.ratingFilled.colorSpace)
-        assertEquals(ColorSpaces.Srgb, QeetrixLightColors.textPrimary.colorSpace)
-        // The brand values, exact.
-        assertEquals(0xFFB73D10.toInt(), QeetrixLightColors.textBrand.toArgb())
-        assertEquals(0xFFD04800.toInt(), QeetrixLightColors.textBrandDisplay.toArgb())
-        assertEquals(0xFFF26D0E.toInt(), QeetrixDarkColors.textBrand.toArgb())
+        assertEquals(ColorSpaces.DisplayP3, QeetrixLightColors.datavizCategorical2.colorSpace)
+        assertEquals(ColorSpaces.Srgb, QeetrixLightColors.textDefault.colorSpace)
+        // The brand values, exact, from @qeetrix/tokens' README: Ember #d04800 in both schemes, brand text
+        // #9b3314 (light) and #ff9646 (dark).
+        assertEquals(0xFFD04800.toInt(), QeetrixLightColors.bgBrandBold.toArgb())
+        assertEquals(0xFFD04800.toInt(), QeetrixDarkColors.bgBrandBold.toArgb())
+        assertEquals(0xFF9B3314.toInt(), QeetrixLightColors.textBrand.toArgb())
+        assertEquals(0xFFFF9646.toInt(), QeetrixDarkColors.textBrand.toArgb())
     }
 
     @Test
-    fun elevationsMatchTheGenerator() {
-        assertEquals(QeetrixElevation.entries.map { it.token }, QeetrixElevationTokenPaths.map { it.first })
-        for ((path, elevation) in QeetrixElevationTokenPaths) {
+    fun shadowsMatchTheGenerator() {
+        assertEquals(QeetrixShadow.entries.map { it.token }.toSet(), QeetrixShadowTokenPaths.map { it.first }.toSet())
+        for ((path, elevation) in QeetrixShadowTokenPaths) {
             assertEquals(path, elevation.token)
             for ((theme, dark) in listOf("light" to false, "dark" to true)) {
                 val expected = TestSupport.value(path, theme) as JSONArray
@@ -105,13 +111,14 @@ class TokenParityTest {
     fun everyScaleTokenIsPublicWithItsValue() {
         val pairs: List<Triple<KClass<*>, KClass<*>, String>> =
             listOf(
-                Triple(QeetrixSpaceTokens::class, QeetrixSpacing::class, "space"),
-                Triple(QeetrixCornerTokens::class, QeetrixCorner::class, "corner"),
-                Triple(QeetrixStrokeWidthTokens::class, QeetrixStroke::class, "stroke.width"),
+                Triple(QeetrixSpaceTokens::class, QeetrixSpace::class, "space"),
+                Triple(QeetrixSizeTokens::class, QeetrixSize::class, "size"),
+                Triple(QeetrixRadiusTokens::class, QeetrixRadius::class, "radius"),
+                Triple(QeetrixBorderTokens::class, QeetrixBorder::class, "border"),
                 Triple(QeetrixFocusTokens::class, QeetrixFocus::class, "focus"),
-                Triple(QeetrixOpacityTokens::class, QeetrixOpacity::class, "state.opacity"),
-                Triple(QeetrixIconSizeTokens::class, QeetrixIconSize::class, "icon.size"),
+                Triple(QeetrixOpacityTokens::class, QeetrixOpacity::class, "opacity"),
                 Triple(QeetrixIconStrokeTokens::class, QeetrixIconStroke::class, "icon.stroke"),
+                Triple(QeetrixBreakpointTokens::class, QeetrixBreakpoint::class, "breakpoint"),
                 Triple(QeetrixFontGeometryTokens::class, QeetrixFontGeometry::class, "font.geometry"),
             )
         for ((generated, public, prefix) in pairs) {
@@ -119,35 +126,76 @@ class TokenParityTest {
             val publicValues = values(public)
             assertEquals("$prefix: public names", generatedValues.keys, publicValues.keys)
             assertEquals("$prefix: public values", generatedValues, publicValues)
+            // Every token under the prefix that does not follow the density (those are QeetrixDensity's).
             val paths =
                 TestSupport.tokenValues
                     .keys()
                     .asSequence()
-                    .filter {
-                        it.startsWith("$prefix.") &&
-                            it.count { c -> c == '.' } == prefix.count { c -> c == '.' } + 1
-                    }.toList()
+                    .filter { it.startsWith("$prefix.") && !TestSupport.tokenValues.getJSONObject(it).has("densities") }
+                    .toList()
             assertEquals("$prefix: token count", paths.size, generatedValues.size)
             for (path in paths) {
                 val expected = TestSupport.value(path)
-                val number = if (expected is JSONObject) expected.getDouble("dp") else (expected as Number).toDouble()
-                val name = pascal(path.removePrefix("$prefix."))
+                val number = if (expected is JSONObject) expected.getDouble("px") else (expected as Number).toDouble()
+                val name = pascal(path.removePrefix("$prefix.").split('.'))
                 assertEquals(path, number.toFloat(), asDouble(generatedValues[name]).toFloat(), 1e-6f)
             }
         }
     }
 
+    /** Every token the density modifier changes is a [QeetrixDensity] property, with its value at every density. */
+    @Test
+    fun densityTokensMatchTheGenerator() {
+        assertEquals(QeetrixDensity.entries.toSet(), QeetrixDensityContexts.map { it.second }.toSet())
+        val readers: Map<String, (QeetrixDensity) -> Dp> =
+            mapOf(
+                "size.control.sm" to { it.sizeControlSm },
+                "size.control.md" to { it.sizeControlMd },
+                "size.control.lg" to { it.sizeControlLg },
+                "size.row" to { it.sizeRow },
+                "space.form.gap" to { it.spaceFormGap },
+            )
+        val following =
+            TestSupport.tokenValues
+                .keys()
+                .asSequence()
+                .filter { TestSupport.tokenValues.getJSONObject(it).has("densities") }
+        assertEquals(readers.keys, following.toSet())
+        for ((path, read) in readers) {
+            val densities = TestSupport.tokenValues.getJSONObject(path).getJSONObject("densities")
+            for ((name, density) in QeetrixDensityContexts) {
+                assertEquals("$path ($name)", densities.getJSONObject(name).getDouble("px").toFloat(), read(density).value, 1e-6f)
+                assertEquals(name, density.value)
+            }
+        }
+    }
+
+    @Test
+    fun motionMatchesTheGenerator() {
+        assertEquals(TestSupport.number("motion.duration.fast"), QeetrixMotion.DurationFast.toDouble(), 0.0)
+        assertEquals(TestSupport.number("motion.duration.slower"), QeetrixMotion.DurationSlower.toDouble(), 0.0)
+        assertEquals(TestSupport.number("motion.spring.snappy.stiffness"), QeetrixMotion.SpringSnappy.stiffness.toDouble(), 1e-6)
+        assertEquals(TestSupport.number("motion.spring.gentle.damping-ratio"), QeetrixMotion.SpringGentle.dampingRatio.toDouble(), 1e-6)
+    }
+
     @Test
     fun provenanceMatchesTheLock() {
         val lock = JSONObject(File(TestSupport.root, "Upstream/manifest.lock.json").readText())
-        val ui = lock.getJSONObject("qeetrixUI")
-        assertEquals(ui.getString("version"), QeetrixProvenance.tokensVersion)
-        assertEquals(ui.getString("gitHead"), QeetrixProvenance.tokensGitHead)
-        assertEquals(ui.getString("integrity"), QeetrixProvenance.tokensIntegrity)
-        assertEquals(lock.getJSONObject("qeetrixIcons").getString("commit"), QeetrixProvenance.iconsCommit)
+        for ((key, provenance) in listOf(
+            "qeetrixTokens" to QeetrixProvenance.tokens,
+            "qeetrixReact" to QeetrixProvenance.react,
+            "qeetrixIcons" to QeetrixProvenance.icons,
+        )) {
+            val locked = lock.getJSONObject(key)
+            assertEquals(locked.getString("package"), provenance.packageName)
+            assertEquals(locked.getString("version"), provenance.version)
+            assertEquals(locked.getString("gitHead"), provenance.gitHead)
+            assertEquals(locked.getString("integrity"), provenance.integrity)
+        }
         val fonts = lock.getJSONArray("fonts")
         for (index in 0 until fonts.length()) {
             assertEquals(fonts.getJSONObject(index).getString("ttfSHA256"), QeetrixProvenance.fonts[index].sha256)
+            assertEquals(fonts.getJSONObject(index).getString("woff2SHA256"), QeetrixProvenance.fonts[index].woff2Sha256)
         }
         assertEquals(TestSupport.tokenValues.length(), QeetrixProvenance.generatedTokens)
     }
@@ -157,9 +205,9 @@ class TokenParityTest {
         return type.declaredMemberProperties.associate { property -> property.name to property.getter.call(instance) }
     }
 
-    /** The shared naming rule (Tools/QeetrixGen KotlinNames): `2xl` → `Xl2`, `0` → `Zero`, `ring-width` → `RingWidth`. */
-    private fun pascal(segment: String): String {
-        val words = segment.split('-')
+    /** The shared naming rule (Tools/QeetrixGen KotlinNames): `inset.md` → `InsetMd`, `ring-width` → `RingWidth`. */
+    private fun pascal(segments: List<String>): String {
+        val words = segments.flatMap { it.split('-') }
         val first =
             words.first().let { word ->
                 when {

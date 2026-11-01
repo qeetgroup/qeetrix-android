@@ -13,81 +13,68 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.badge.QeetrixBadge
-import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeVariant
+import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
-import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.card.QeetrixCard
-import com.qeetgroup.qeetrix.components.card.QeetrixCardSize
+import com.qeetgroup.qeetrix.components.card.QeetrixCardTone
 import com.qeetgroup.qeetrix.components.card.QeetrixCardVariant
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-/** Cards: the slots, the variants and sizes, a selectable list of cards, and nesting. */
+/** Cards: the ruled header, body and footer, the subdued variant, a danger zone, and a column of choice cards. */
 @Composable
 fun CardSample() {
     SamplePage {
-        SampleSection("Header, content and footer") {
+        SampleSection("Header, body and footer") {
             QeetrixCard(
                 title = "Workspace",
                 description = "3 members",
-                action = { QeetrixBadge("Pro", variant = QeetrixBadgeVariant.Brand) },
+                actions = { QeetrixBadge("Pro", tone = QeetrixBadgeTone.Brand) },
                 footer = {
-                    QeetrixButton("Manage", onClick = {}, variant = QeetrixButtonVariant.Outline, size = QeetrixButtonSize.Sm)
+                    QeetrixButton("Cancel", onClick = {}, variant = QeetrixButtonVariant.Ghost)
+                    QeetrixButton("Manage", onClick = {})
                 },
             ) {
                 QeetrixText("Created 12 March. Billing renews on 12 April.")
             }
-            SampleNote("The title is a heading for TalkBack. Every slot is optional.")
+            SampleNote("Ruled, flat and square: 1 dp lines and tone, no shadow. The title is a heading for TalkBack.")
         }
-        SampleSection("Variants and sizes") {
-            QeetrixCard(title = "Default", description = "A raised surface")
-            QeetrixCard(variant = QeetrixCardVariant.Outline, title = "Outline", description = "A border, no shadow")
-            QeetrixCard(variant = QeetrixCardVariant.Elevated, title = "Elevated", description = "One step further forward")
-            QeetrixCard(size = QeetrixCardSize.Sm, title = "Small", description = "Tighter padding and a smaller title")
+        SampleSection("Variant and tone") {
+            QeetrixCard(variant = QeetrixCardVariant.Subdued, title = "Subdued", description = "A secondary panel beside the main content")
+            QeetrixCard(
+                title = "Delete workspace",
+                description = "Removes every project and member. This can't be undone.",
+                tone = QeetrixCardTone.Danger,
+                footer = { QeetrixButton("Delete workspace", onClick = {}, tone = QeetrixButtonTone.Danger) },
+            )
+            SampleNote("A danger zone takes the danger border and title; its words still say what it does.")
         }
-        SampleSection("Selectable cards") {
+        SampleSection("Choice cards") {
             var plan by rememberSaveable { mutableStateOf("team") }
-            Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.M)) {
+            Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd)) {
                 for ((id, title, description) in Plans) {
                     QeetrixCard(
                         onClick = { plan = id },
-                        // The card draws the selection; the app, which owns the choice, states it.
+                        // The card draws the choice; the app, which owns it, states it.
                         modifier = Modifier.semantics { selected = plan == id },
-                        variant = QeetrixCardVariant.Outline,
                         selected = plan == id,
                         title = title,
                         description = description,
                     )
                 }
-                QeetrixCard(
-                    onClick = {},
-                    enabled = false,
-                    variant = QeetrixCardVariant.Outline,
-                    title = "Enterprise",
-                    description = "Contact sales",
-                )
+                QeetrixCard(onClick = {}, enabled = false, title = "Enterprise", description = "Contact sales")
             }
             SampleNote(
-                "A clickable card is one button for TalkBack, named by its title and description. selected only " +
-                    "draws the 2 dp brand boundary, so these cards also state selected or not selected for " +
-                    "TalkBack, and their column is a selectable group. The last card is disabled.",
+                "A clickable card is one button for TalkBack, named by its title and description. It takes the choice " +
+                    "tile's look: a neutral tint under the pointer, the Ember tint and a 2 dp Ember edge when chosen. The " +
+                    "last card is disabled.",
             )
-        }
-        SampleSection("Nested") {
-            QeetrixCard(title = "Billing") {
-                QeetrixCard(
-                    variant = QeetrixCardVariant.Outline,
-                    size = QeetrixCardSize.Sm,
-                    title = "Visa ending 4242",
-                    description = "Expires 08/28",
-                )
-            }
-            SampleNote("A card inside a card drops its shadow, so surfaces never stack two deep.")
         }
     }
 }

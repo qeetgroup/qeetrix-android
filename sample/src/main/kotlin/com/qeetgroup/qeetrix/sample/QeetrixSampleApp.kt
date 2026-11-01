@@ -6,9 +6,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,17 +28,20 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.badge.QeetrixChipGroup
 import com.qeetgroup.qeetrix.components.card.QeetrixCard
-import com.qeetgroup.qeetrix.components.card.QeetrixCardSize
+import com.qeetgroup.qeetrix.components.input.QeetrixField
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
 import com.qeetgroup.qeetrix.components.navigation.QeetrixBackButton
 import com.qeetgroup.qeetrix.components.navigation.QeetrixTopAppBar
 import com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch
+import com.qeetgroup.qeetrix.components.typography.QeetrixHeading
+import com.qeetgroup.qeetrix.components.typography.QeetrixHeadingSize
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.sample.composition.AccountPreferencesScreen
 import com.qeetgroup.qeetrix.sample.composition.CollectionsScreen
 import com.qeetgroup.qeetrix.sample.composition.CompositionScreen
@@ -63,15 +71,19 @@ data class DisplaySettings(
  * The sample's root: display settings that apply to every page, and one level of navigation from the
  * home screen to a page (system back returns). Settings are stored as the values an app would store —
  * the theme mode and density as their upstream strings — and survive configuration changes and process
- * death.
+ * death. [startRoute] opens a page first (a catalogue id such as `otp-code`), and [startRightToLeft] starts with the
+ * right-to-left layout on, for trying one on a device.
  */
 @Composable
-fun QeetrixSampleApp() {
+fun QeetrixSampleApp(
+    startRoute: String? = null,
+    startRightToLeft: Boolean = false,
+) {
     var modeValue by rememberSaveable { mutableStateOf(QeetrixThemeMode.System.value) }
     var densityValue by rememberSaveable { mutableStateOf(QeetrixDensity.Default.value) }
-    var rightToLeft by rememberSaveable { mutableStateOf(false) }
+    var rightToLeft by rememberSaveable { mutableStateOf(startRightToLeft) }
     var largeText by rememberSaveable { mutableStateOf(false) }
-    var route by rememberSaveable { mutableStateOf(HOME) }
+    var route by rememberSaveable { mutableStateOf(startRoute ?: HOME) }
 
     val settings =
         DisplaySettings(
@@ -85,7 +97,8 @@ fun QeetrixSampleApp() {
         val back = { route = HOME }
         when (route) {
             FOUNDATIONS -> {
-                SampleScaffold("Foundations", back) { FoundationsScreen() }
+                // Its own layout for wide windows: two columns from breakpoint.medium.
+                SampleScaffold("Foundations", back, wide = true) { FoundationsScreen() }
             }
 
             COMPOSITION -> {
@@ -145,31 +158,46 @@ fun SampleDisplay(
 }
 
 /**
- * The page frame: a [QeetrixTopAppBar] with the page title and a back button (except on the home screen),
- * then the scrolling page. The bar draws under the status bar and keeps its content clear of it; its rule
- * appears once the page scrolls under it.
+ * The page frame: a [QeetrixTopAppBar] with the page title and a back button (except on the home screen), then
+ * the scrolling page with the phone's 16 dp gutter (`space.inset.lg`). The bar draws under the status bar and
+ * keeps its content clear of it, so the page below it consumes the top inset and keeps clear of the other edges only.
+ * On a large window the page is a column of at most [NarrowPage] at its start, as the web's narrow page content, unless
+ * it is [wide] and lays itself out for the width.
  */
 @Composable
 private fun SampleScaffold(
     title: String?,
     onBack: (() -> Unit)?,
+    wide: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val scroll = rememberScrollState()
+    val bar = title != null && onBack != null
     Column(Modifier.fillMaxSize().background(QeetrixTheme.colors.surfaceCanvas)) {
-        if (title != null && onBack != null) {
-            QeetrixTopAppBar(title, navigationIcon = { QeetrixBackButton(onClick = onBack) }, scrolled = scroll.canScrollBackward)
+        if (bar) {
+            QeetrixTopAppBar(title, navigationIcon = { QeetrixBackButton(onClick = onBack) })
         }
+        val insets =
+            if (bar) WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom) else WindowInsets.safeDrawing
         Column(
             Modifier
                 .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.safeDrawing)
-                .verticalScroll(scroll)
-                .padding(QeetrixSpacing.L),
-            content = content,
-        )
+                // The bar has kept clear of the status bar and cutout, so the page consumes that inset: a component on it
+                // that keeps clear of the window's edges itself (the navigation rail) then adds no status-bar gap.
+                .then(if (bar) Modifier.consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)) else Modifier)
+                .windowInsetsPadding(insets)
+                .verticalScroll(rememberScrollState())
+                .padding(QeetrixSpace.InsetLg),
+        ) {
+            Column((if (wide) Modifier else Modifier.widthIn(max = NarrowPage)).fillMaxWidth(), content = content)
+        }
     }
 }
+
+/**
+ * `.qx-page-content[data-width="narrow"] { max-inline-size: 800px }` (page-header.css): on a tablet a page stretched to
+ * the window's 1280 dp put field ends and row metadata a screen apart (found on the API 36 tablet).
+ */
+private val NarrowPage = 800.dp
 
 @Composable
 private fun HomeScreen(
@@ -178,43 +206,42 @@ private fun HomeScreen(
     onOpen: (String) -> Unit,
 ) {
     SamplePage {
-        Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xs)) {
-            QeetrixText("Qeetrix for Android", variant = QeetrixTextVariant.H2)
+        Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs)) {
+            QeetrixHeading("Qeetrix for Android", level = 1, size = QeetrixHeadingSize.HeadingSm)
             QeetrixText(
-                "${QeetrixProvenance.tokensPackage} ${QeetrixProvenance.tokensVersion} · " +
+                "${QeetrixProvenance.react.packageName} ${QeetrixProvenance.react.version} · " +
+                    "${QeetrixProvenance.tokens.packageName} ${QeetrixProvenance.tokens.version} · " +
+                    "${QeetrixProvenance.icons.packageName} ${QeetrixProvenance.icons.version} · " +
                     "font scale ${"%.2f".format(LocalDensity.current.fontScale)}",
-                variant = QeetrixTextVariant.Muted,
+                tone = QeetrixTextTone.Subtle,
             )
         }
         DisplayCard(settings, onSettingsChange)
         SampleSection("Overview") {
             QeetrixCard(
                 onClick = { onOpen(FOUNDATIONS) },
-                size = QeetrixCardSize.Sm,
                 title = "Foundations",
-                description = "Colours, typography, spacing, corners, elevation and icons: the tokens themselves.",
+                description =
+                    "Colour roles, type roles, space, radius, borders, shadows, motion, densities and icons: the tokens " +
+                        "themselves.",
             )
             QeetrixCard(
                 onClick = { onOpen(COMPOSITION) },
-                size = QeetrixCardSize.Sm,
                 title = "Composition",
                 description = "Several components working together in one settings form, with live state.",
             )
             QeetrixCard(
                 onClick = { onOpen(ACCOUNT_PREFERENCES) },
-                size = QeetrixCardSize.Sm,
                 title = "Account preferences",
                 description = "Every input in one generic form: profile, a password change with a code, preferences, feedback.",
             )
             QeetrixCard(
                 onClick = { onOpen(WORKSPACE) },
-                size = QeetrixCardSize.Sm,
                 title = "Workspace",
                 description = "Navigation, a top app bar, a menu, a dialog, a confirmation, a bottom sheet and snackbars in one flow.",
             )
             QeetrixCard(
                 onClick = { onOpen(COLLECTIONS) },
-                size = QeetrixCardSize.Sm,
                 title = "Collections",
                 description = "Search, filter chips, sections, selectable rows, loading, empty and failed states, and a detail screen.",
             )
@@ -224,7 +251,7 @@ private fun HomeScreen(
             if (entries.isEmpty()) continue
             SampleSection(category.title) {
                 for (entry in entries) {
-                    QeetrixCard(onClick = { onOpen(entry.id) }, size = QeetrixCardSize.Sm, title = entry.title)
+                    QeetrixCard(onClick = { onOpen(entry.id) }, title = entry.title)
                 }
             }
         }
@@ -237,7 +264,7 @@ private fun DisplayCard(
     onChange: (DisplaySettings) -> Unit,
 ) {
     QeetrixCard(title = "Display", description = "Applies to every page.") {
-        Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.M)) {
+        Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.spaceFormGap)) {
             Choice("Theme", QeetrixThemeMode.entries, settings.mode, { it.value }) { onChange(settings.copy(mode = it)) }
             Choice("Control density", QeetrixDensity.entries, settings.density, { it.value }) { onChange(settings.copy(density = it)) }
             QeetrixSwitch(
@@ -256,7 +283,7 @@ private fun DisplayCard(
     }
 }
 
-/** A single choice from a few options, as chips: its visible label, then the group it names. */
+/** A single choice from a few options, as chips under a field label: the field names the group for TalkBack. */
 @Composable
 private fun <T> Choice(
     label: String,
@@ -265,8 +292,13 @@ private fun <T> Choice(
     name: (T) -> String,
     onSelect: (T) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xs)) {
-        QeetrixText(label, variant = QeetrixTextVariant.Small)
-        QeetrixChipGroup(label = label, selected = selected, onSelect = onSelect, options = options.map { QeetrixOption(it, name(it)) })
+    QeetrixField(label = label) {
+        QeetrixChipGroup(
+            label = label,
+            value = selected,
+            onValueChange = onSelect,
+            options = options.map { QeetrixOption(it, name(it)) },
+            modifier = Modifier.qeetrixFieldControl(),
+        )
     }
 }

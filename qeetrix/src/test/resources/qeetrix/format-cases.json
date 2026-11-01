@@ -1,0 +1,2002 @@
+{
+ "$comment": "Expected strings for QeetrixFormat: @qeetrix/react 0.4.0's format rules (dist/format/format.js: formatNumber, formatCurrency, formatRelativeTime, formatDate, formatDateTime), restated in Tools/FormatCases/format-cases.mjs and run on Node 24.15.0's Intl (ICU 78.2, CLDR 48.0). Relative cases give the moment's distance from now in ms; date cases an instant (shown in Asia/Kolkata unless a zone is named) or a calendar date. Duration cases are Intl.DurationFormat's, which the web has no wrapper for yet. Regenerate with: node Tools/FormatCases/format-cases.mjs > qeetrix/src/test/resources/qeetrix/format-cases.json",
+ "icu": "78.2",
+ "cldr": "48.0",
+ "cases": [
+  {
+   "fn": "number",
+   "locale": "en-IN",
+   "value": 0,
+   "out": "0"
+  },
+  {
+   "fn": "number",
+   "locale": "en-IN",
+   "value": 7,
+   "out": "7"
+  },
+  {
+   "fn": "number",
+   "locale": "en-IN",
+   "value": 1234.5,
+   "out": "1,234.5"
+  },
+  {
+   "fn": "number",
+   "locale": "en-IN",
+   "value": 1234567,
+   "out": "12,34,567"
+  },
+  {
+   "fn": "number",
+   "locale": "en-IN",
+   "value": -98765.4321,
+   "out": "-98,765.432"
+  },
+  {
+   "fn": "number",
+   "locale": "en-IN",
+   "value": 0.5,
+   "out": "0.5"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-IN",
+   "value": 124500,
+   "currency": "INR",
+   "out": "₹1,24,500.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-IN",
+   "value": 124500,
+   "currency": "USD",
+   "out": "$1,24,500.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-IN",
+   "value": 99.5,
+   "currency": "INR",
+   "out": "₹99.50"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-IN",
+   "value": 99.5,
+   "currency": "USD",
+   "out": "$99.50"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-IN",
+   "value": 0,
+   "currency": "INR",
+   "out": "₹0.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-IN",
+   "value": 0,
+   "currency": "USD",
+   "out": "$0.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-IN",
+   "value": 1234567.891,
+   "currency": "INR",
+   "out": "₹12,34,567.89"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-IN",
+   "value": 1234567.891,
+   "currency": "USD",
+   "out": "$12,34,567.89"
+  },
+  {
+   "fn": "currencyWhole",
+   "locale": "en-IN",
+   "value": 124500,
+   "currency": "INR",
+   "out": "₹1,24,500"
+  },
+  {
+   "fn": "percent",
+   "locale": "en-IN",
+   "value": 0.25,
+   "out": "25%"
+  },
+  {
+   "fn": "percent",
+   "locale": "en-IN",
+   "value": 0.031,
+   "out": "3%"
+  },
+  {
+   "fn": "percent",
+   "locale": "en-IN",
+   "value": 1.5,
+   "out": "150%"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": 0,
+   "out": "now"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -10000,
+   "out": "10 seconds ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -45000,
+   "out": "45 seconds ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -59600,
+   "out": "1 minute ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -120000,
+   "out": "2 minutes ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -3580000,
+   "out": "1 hour ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -10800000,
+   "out": "3 hours ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -82800000,
+   "out": "23 hours ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -86400000,
+   "out": "yesterday"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -172800000,
+   "out": "2 days ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": 259200000,
+   "out": "in 3 days"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -518400000,
+   "out": "6 days ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -691200000,
+   "out": "last week"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -2332800000,
+   "out": "4 weeks ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -2592000000,
+   "out": "4 weeks ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -3888000000,
+   "out": "2 months ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -31449600000,
+   "out": "last year"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": -34560000000,
+   "out": "last year"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": 63072000000,
+   "out": "in 2 years"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": 60000,
+   "out": "in 1 minute"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-IN",
+   "delta": 3600000,
+   "out": "in 1 hour"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "dateStyle": "short",
+   "out": "25/10/26"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "en-IN",
+   "date": "2026-10-25",
+   "dateStyle": "short",
+   "out": "25/10/26"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "out": "25 Oct 2026"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "en-IN",
+   "date": "2026-10-25",
+   "dateStyle": "medium",
+   "out": "25 Oct 2026"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "dateStyle": "long",
+   "out": "25 October 2026"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "en-IN",
+   "date": "2026-10-25",
+   "dateStyle": "long",
+   "out": "25 October 2026"
+  },
+  {
+   "fn": "dateTimeInstant",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "timeStyle": "short",
+   "out": "25 Oct 2026, 2:30 pm"
+  },
+  {
+   "fn": "dateTimeInstant",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "timeStyle": "medium",
+   "out": "25 Oct 2026, 2:30:00 pm"
+  },
+  {
+   "fn": "dateTimeInstantZone",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "zone": "America/New_York",
+   "out": "25 Oct 2026, 5:00 am"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 3900,
+   "style": "long",
+   "out": "1 hour, 5 minutes"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 172803,
+   "style": "long",
+   "out": "2 days, 3 seconds"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 45,
+   "style": "long",
+   "out": "45 seconds"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 90061,
+   "style": "long",
+   "out": "1 day, 1 hour, 1 minute, 1 second"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 3900,
+   "style": "short",
+   "out": "1 hr, 5 mins"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 172803,
+   "style": "short",
+   "out": "2 days, 3 secs"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 45,
+   "style": "short",
+   "out": "45 secs"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 90061,
+   "style": "short",
+   "out": "1 day, 1 hr, 1 min, 1 sec"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 3900,
+   "style": "narrow",
+   "out": "1h 5m"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 172803,
+   "style": "narrow",
+   "out": "2d 3s"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 45,
+   "style": "narrow",
+   "out": "45s"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-IN",
+   "seconds": 90061,
+   "style": "narrow",
+   "out": "1d 1h 1m 1s"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "en-IN",
+   "epochMillis": 1798747200000,
+   "dateStyle": "medium",
+   "out": "1 Jan 2027"
+  },
+  {
+   "fn": "number",
+   "locale": "hi-IN",
+   "value": 0,
+   "out": "0"
+  },
+  {
+   "fn": "number",
+   "locale": "hi-IN",
+   "value": 7,
+   "out": "7"
+  },
+  {
+   "fn": "number",
+   "locale": "hi-IN",
+   "value": 1234.5,
+   "out": "1,234.5"
+  },
+  {
+   "fn": "number",
+   "locale": "hi-IN",
+   "value": 1234567,
+   "out": "12,34,567"
+  },
+  {
+   "fn": "number",
+   "locale": "hi-IN",
+   "value": -98765.4321,
+   "out": "-98,765.432"
+  },
+  {
+   "fn": "number",
+   "locale": "hi-IN",
+   "value": 0.5,
+   "out": "0.5"
+  },
+  {
+   "fn": "currency",
+   "locale": "hi-IN",
+   "value": 124500,
+   "currency": "INR",
+   "out": "₹1,24,500.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "hi-IN",
+   "value": 124500,
+   "currency": "USD",
+   "out": "$1,24,500.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "hi-IN",
+   "value": 99.5,
+   "currency": "INR",
+   "out": "₹99.50"
+  },
+  {
+   "fn": "currency",
+   "locale": "hi-IN",
+   "value": 99.5,
+   "currency": "USD",
+   "out": "$99.50"
+  },
+  {
+   "fn": "currency",
+   "locale": "hi-IN",
+   "value": 0,
+   "currency": "INR",
+   "out": "₹0.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "hi-IN",
+   "value": 0,
+   "currency": "USD",
+   "out": "$0.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "hi-IN",
+   "value": 1234567.891,
+   "currency": "INR",
+   "out": "₹12,34,567.89"
+  },
+  {
+   "fn": "currency",
+   "locale": "hi-IN",
+   "value": 1234567.891,
+   "currency": "USD",
+   "out": "$12,34,567.89"
+  },
+  {
+   "fn": "currencyWhole",
+   "locale": "hi-IN",
+   "value": 124500,
+   "currency": "INR",
+   "out": "₹1,24,500"
+  },
+  {
+   "fn": "percent",
+   "locale": "hi-IN",
+   "value": 0.25,
+   "out": "25%"
+  },
+  {
+   "fn": "percent",
+   "locale": "hi-IN",
+   "value": 0.031,
+   "out": "3%"
+  },
+  {
+   "fn": "percent",
+   "locale": "hi-IN",
+   "value": 1.5,
+   "out": "150%"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": 0,
+   "out": "अब"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -10000,
+   "out": "10 सेकंड पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -45000,
+   "out": "45 सेकंड पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -59600,
+   "out": "1 मिनट पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -120000,
+   "out": "2 मिनट पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -3580000,
+   "out": "1 घंटे पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -10800000,
+   "out": "3 घंटे पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -82800000,
+   "out": "23 घंटे पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -86400000,
+   "out": "कल"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -172800000,
+   "out": "परसों"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": 259200000,
+   "out": "3 दिन में"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -518400000,
+   "out": "6 दिन पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -691200000,
+   "out": "पिछला सप्ताह"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -2332800000,
+   "out": "4 सप्ताह पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -2592000000,
+   "out": "4 सप्ताह पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -3888000000,
+   "out": "2 माह पहले"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -31449600000,
+   "out": "पिछला वर्ष"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": -34560000000,
+   "out": "पिछला वर्ष"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": 63072000000,
+   "out": "2 वर्ष में"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": 60000,
+   "out": "1 मिनट में"
+  },
+  {
+   "fn": "relative",
+   "locale": "hi-IN",
+   "delta": 3600000,
+   "out": "1 घंटे में"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "dateStyle": "short",
+   "out": "25/10/26"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "hi-IN",
+   "date": "2026-10-25",
+   "dateStyle": "short",
+   "out": "25/10/26"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "out": "25 अक्टू॰ 2026"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "hi-IN",
+   "date": "2026-10-25",
+   "dateStyle": "medium",
+   "out": "25 अक्टू॰ 2026"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "dateStyle": "long",
+   "out": "25 अक्टूबर 2026"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "hi-IN",
+   "date": "2026-10-25",
+   "dateStyle": "long",
+   "out": "25 अक्टूबर 2026"
+  },
+  {
+   "fn": "dateTimeInstant",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "timeStyle": "short",
+   "out": "25 अक्टू॰ 2026, 2:30 pm"
+  },
+  {
+   "fn": "dateTimeInstant",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "timeStyle": "medium",
+   "out": "25 अक्टू॰ 2026, 2:30:00 pm"
+  },
+  {
+   "fn": "dateTimeInstantZone",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "zone": "America/New_York",
+   "out": "25 अक्टू॰ 2026, 5:00 am"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 3900,
+   "style": "long",
+   "out": "1 घंटा और 5 मिनट"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 172803,
+   "style": "long",
+   "out": "2 दिन और 3 सेकंड"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 45,
+   "style": "long",
+   "out": "45 सेकंड"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 90061,
+   "style": "long",
+   "out": "1 दिन, 1 घंटा, 1 मिनट, और 1 सेकंड"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 3900,
+   "style": "short",
+   "out": "1 घं॰, 5 मि॰"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 172803,
+   "style": "short",
+   "out": "2 दिन, 3 से॰"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 45,
+   "style": "short",
+   "out": "45 से॰"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 90061,
+   "style": "short",
+   "out": "1 दिन, 1 घं॰, 1 मि॰, 1 से॰"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 3900,
+   "style": "narrow",
+   "out": "1 घं 5 मि"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 172803,
+   "style": "narrow",
+   "out": "2 दि 3 से"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 45,
+   "style": "narrow",
+   "out": "45 से"
+  },
+  {
+   "fn": "duration",
+   "locale": "hi-IN",
+   "seconds": 90061,
+   "style": "narrow",
+   "out": "1 दि, 1 घं, 1 मि 1 से"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "hi-IN",
+   "epochMillis": 1798747200000,
+   "dateStyle": "medium",
+   "out": "1 जन॰ 2027"
+  },
+  {
+   "fn": "number",
+   "locale": "en-US",
+   "value": 0,
+   "out": "0"
+  },
+  {
+   "fn": "number",
+   "locale": "en-US",
+   "value": 7,
+   "out": "7"
+  },
+  {
+   "fn": "number",
+   "locale": "en-US",
+   "value": 1234.5,
+   "out": "1,234.5"
+  },
+  {
+   "fn": "number",
+   "locale": "en-US",
+   "value": 1234567,
+   "out": "1,234,567"
+  },
+  {
+   "fn": "number",
+   "locale": "en-US",
+   "value": -98765.4321,
+   "out": "-98,765.432"
+  },
+  {
+   "fn": "number",
+   "locale": "en-US",
+   "value": 0.5,
+   "out": "0.5"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-US",
+   "value": 124500,
+   "currency": "INR",
+   "out": "₹124,500.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-US",
+   "value": 124500,
+   "currency": "USD",
+   "out": "$124,500.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-US",
+   "value": 99.5,
+   "currency": "INR",
+   "out": "₹99.50"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-US",
+   "value": 99.5,
+   "currency": "USD",
+   "out": "$99.50"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-US",
+   "value": 0,
+   "currency": "INR",
+   "out": "₹0.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-US",
+   "value": 0,
+   "currency": "USD",
+   "out": "$0.00"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-US",
+   "value": 1234567.891,
+   "currency": "INR",
+   "out": "₹1,234,567.89"
+  },
+  {
+   "fn": "currency",
+   "locale": "en-US",
+   "value": 1234567.891,
+   "currency": "USD",
+   "out": "$1,234,567.89"
+  },
+  {
+   "fn": "currencyWhole",
+   "locale": "en-US",
+   "value": 124500,
+   "currency": "INR",
+   "out": "₹124,500"
+  },
+  {
+   "fn": "percent",
+   "locale": "en-US",
+   "value": 0.25,
+   "out": "25%"
+  },
+  {
+   "fn": "percent",
+   "locale": "en-US",
+   "value": 0.031,
+   "out": "3%"
+  },
+  {
+   "fn": "percent",
+   "locale": "en-US",
+   "value": 1.5,
+   "out": "150%"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": 0,
+   "out": "now"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -10000,
+   "out": "10 seconds ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -45000,
+   "out": "45 seconds ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -59600,
+   "out": "1 minute ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -120000,
+   "out": "2 minutes ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -3580000,
+   "out": "1 hour ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -10800000,
+   "out": "3 hours ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -82800000,
+   "out": "23 hours ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -86400000,
+   "out": "yesterday"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -172800000,
+   "out": "2 days ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": 259200000,
+   "out": "in 3 days"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -518400000,
+   "out": "6 days ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -691200000,
+   "out": "last week"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -2332800000,
+   "out": "4 weeks ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -2592000000,
+   "out": "4 weeks ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -3888000000,
+   "out": "2 months ago"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -31449600000,
+   "out": "last year"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": -34560000000,
+   "out": "last year"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": 63072000000,
+   "out": "in 2 years"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": 60000,
+   "out": "in 1 minute"
+  },
+  {
+   "fn": "relative",
+   "locale": "en-US",
+   "delta": 3600000,
+   "out": "in 1 hour"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "dateStyle": "short",
+   "out": "10/25/26"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "en-US",
+   "date": "2026-10-25",
+   "dateStyle": "short",
+   "out": "10/25/26"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "out": "Oct 25, 2026"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "en-US",
+   "date": "2026-10-25",
+   "dateStyle": "medium",
+   "out": "Oct 25, 2026"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "dateStyle": "long",
+   "out": "October 25, 2026"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "en-US",
+   "date": "2026-10-25",
+   "dateStyle": "long",
+   "out": "October 25, 2026"
+  },
+  {
+   "fn": "dateTimeInstant",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "timeStyle": "short",
+   "out": "Oct 25, 2026, 2:30 PM"
+  },
+  {
+   "fn": "dateTimeInstant",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "timeStyle": "medium",
+   "out": "Oct 25, 2026, 2:30:00 PM"
+  },
+  {
+   "fn": "dateTimeInstantZone",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "zone": "America/New_York",
+   "out": "Oct 25, 2026, 5:00 AM"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 3900,
+   "style": "long",
+   "out": "1 hour, 5 minutes"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 172803,
+   "style": "long",
+   "out": "2 days, 3 seconds"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 45,
+   "style": "long",
+   "out": "45 seconds"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 90061,
+   "style": "long",
+   "out": "1 day, 1 hour, 1 minute, 1 second"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 3900,
+   "style": "short",
+   "out": "1 hr, 5 min"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 172803,
+   "style": "short",
+   "out": "2 days, 3 sec"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 45,
+   "style": "short",
+   "out": "45 sec"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 90061,
+   "style": "short",
+   "out": "1 day, 1 hr, 1 min, 1 sec"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 3900,
+   "style": "narrow",
+   "out": "1h 5m"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 172803,
+   "style": "narrow",
+   "out": "2d 3s"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 45,
+   "style": "narrow",
+   "out": "45s"
+  },
+  {
+   "fn": "duration",
+   "locale": "en-US",
+   "seconds": 90061,
+   "style": "narrow",
+   "out": "1d 1h 1m 1s"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "en-US",
+   "epochMillis": 1798747200000,
+   "dateStyle": "medium",
+   "out": "Jan 1, 2027"
+  },
+  {
+   "fn": "number",
+   "locale": "ar-EG",
+   "value": 0,
+   "out": "٠"
+  },
+  {
+   "fn": "number",
+   "locale": "ar-EG",
+   "value": 7,
+   "out": "٧"
+  },
+  {
+   "fn": "number",
+   "locale": "ar-EG",
+   "value": 1234.5,
+   "out": "١٬٢٣٤٫٥"
+  },
+  {
+   "fn": "number",
+   "locale": "ar-EG",
+   "value": 1234567,
+   "out": "١٬٢٣٤٬٥٦٧"
+  },
+  {
+   "fn": "number",
+   "locale": "ar-EG",
+   "value": -98765.4321,
+   "out": "؜-٩٨٬٧٦٥٫٤٣٢"
+  },
+  {
+   "fn": "number",
+   "locale": "ar-EG",
+   "value": 0.5,
+   "out": "٠٫٥"
+  },
+  {
+   "fn": "currency",
+   "locale": "ar-EG",
+   "value": 124500,
+   "currency": "INR",
+   "out": "‏١٢٤٬٥٠٠٫٠٠ ₹"
+  },
+  {
+   "fn": "currency",
+   "locale": "ar-EG",
+   "value": 124500,
+   "currency": "USD",
+   "out": "‏١٢٤٬٥٠٠٫٠٠ US$"
+  },
+  {
+   "fn": "currency",
+   "locale": "ar-EG",
+   "value": 99.5,
+   "currency": "INR",
+   "out": "‏٩٩٫٥٠ ₹"
+  },
+  {
+   "fn": "currency",
+   "locale": "ar-EG",
+   "value": 99.5,
+   "currency": "USD",
+   "out": "‏٩٩٫٥٠ US$"
+  },
+  {
+   "fn": "currency",
+   "locale": "ar-EG",
+   "value": 0,
+   "currency": "INR",
+   "out": "‏٠٫٠٠ ₹"
+  },
+  {
+   "fn": "currency",
+   "locale": "ar-EG",
+   "value": 0,
+   "currency": "USD",
+   "out": "‏٠٫٠٠ US$"
+  },
+  {
+   "fn": "currency",
+   "locale": "ar-EG",
+   "value": 1234567.891,
+   "currency": "INR",
+   "out": "‏١٬٢٣٤٬٥٦٧٫٨٩ ₹"
+  },
+  {
+   "fn": "currency",
+   "locale": "ar-EG",
+   "value": 1234567.891,
+   "currency": "USD",
+   "out": "‏١٬٢٣٤٬٥٦٧٫٨٩ US$"
+  },
+  {
+   "fn": "currencyWhole",
+   "locale": "ar-EG",
+   "value": 124500,
+   "currency": "INR",
+   "out": "‏١٢٤٬٥٠٠ ₹"
+  },
+  {
+   "fn": "percent",
+   "locale": "ar-EG",
+   "value": 0.25,
+   "out": "٢٥٪؜"
+  },
+  {
+   "fn": "percent",
+   "locale": "ar-EG",
+   "value": 0.031,
+   "out": "٣٪؜"
+  },
+  {
+   "fn": "percent",
+   "locale": "ar-EG",
+   "value": 1.5,
+   "out": "١٥٠٪؜"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": 0,
+   "out": "الآن"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -10000,
+   "out": "قبل ١٠ ثوانِ"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -45000,
+   "out": "قبل ٤٥ ثانية"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -59600,
+   "out": "قبل دقيقة واحدة"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -120000,
+   "out": "قبل دقيقتين"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -3580000,
+   "out": "قبل ساعة واحدة"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -10800000,
+   "out": "قبل ٣ ساعات"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -82800000,
+   "out": "قبل ٢٣ ساعة"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -86400000,
+   "out": "أمس"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -172800000,
+   "out": "أول أمس"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": 259200000,
+   "out": "خلال ٣ أيام"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -518400000,
+   "out": "قبل ٦ أيام"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -691200000,
+   "out": "الأسبوع الماضي"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -2332800000,
+   "out": "قبل ٤ أسابيع"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -2592000000,
+   "out": "قبل ٤ أسابيع"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -3888000000,
+   "out": "قبل شهرين"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -31449600000,
+   "out": "السنة الماضية"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": -34560000000,
+   "out": "السنة الماضية"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": 63072000000,
+   "out": "خلال سنتين"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": 60000,
+   "out": "خلال دقيقة واحدة"
+  },
+  {
+   "fn": "relative",
+   "locale": "ar-EG",
+   "delta": 3600000,
+   "out": "خلال ساعة واحدة"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "dateStyle": "short",
+   "out": "٢٥‏/١٠‏/٢٠٢٦"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "ar-EG",
+   "date": "2026-10-25",
+   "dateStyle": "short",
+   "out": "٢٥‏/١٠‏/٢٠٢٦"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "out": "٢٥‏/١٠‏/٢٠٢٦"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "ar-EG",
+   "date": "2026-10-25",
+   "dateStyle": "medium",
+   "out": "٢٥‏/١٠‏/٢٠٢٦"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "dateStyle": "long",
+   "out": "٢٥ أكتوبر ٢٠٢٦"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "ar-EG",
+   "date": "2026-10-25",
+   "dateStyle": "long",
+   "out": "٢٥ أكتوبر ٢٠٢٦"
+  },
+  {
+   "fn": "dateTimeInstant",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "timeStyle": "short",
+   "out": "٢٥‏/١٠‏/٢٠٢٦، ٢:٣٠ م"
+  },
+  {
+   "fn": "dateTimeInstant",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "timeStyle": "medium",
+   "out": "٢٥‏/١٠‏/٢٠٢٦، ٢:٣٠:٠٠ م"
+  },
+  {
+   "fn": "dateTimeInstantZone",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "zone": "America/New_York",
+   "out": "٢٥‏/١٠‏/٢٠٢٦، ٥:٠٠ ص"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 3900,
+   "style": "long",
+   "out": "ساعة و٥ دقائق"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 172803,
+   "style": "long",
+   "out": "يومان و٣ ثوان"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 45,
+   "style": "long",
+   "out": "٤٥ ثانية"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 90061,
+   "style": "long",
+   "out": "يوم، وساعة، ودقيقة، وثانية"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 3900,
+   "style": "short",
+   "out": "١ س و٥ د"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 172803,
+   "style": "short",
+   "out": "يومان و٣ ث"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 45,
+   "style": "short",
+   "out": "٤٥ ث"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 90061,
+   "style": "short",
+   "out": "يوم، و١ س، و١ د، و١ ث"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 3900,
+   "style": "narrow",
+   "out": "١ س و٥ د"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 172803,
+   "style": "narrow",
+   "out": "٢ ي و٣ ث"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 45,
+   "style": "narrow",
+   "out": "٤٥ ث"
+  },
+  {
+   "fn": "duration",
+   "locale": "ar-EG",
+   "seconds": 90061,
+   "style": "narrow",
+   "out": "١ ي و١ س و١ د و١ ث"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "ar-EG",
+   "epochMillis": 1798747200000,
+   "dateStyle": "medium",
+   "out": "٠١‏/٠١‏/٢٠٢٧"
+  },
+  {
+   "fn": "number",
+   "locale": "de-DE",
+   "value": 0,
+   "out": "0"
+  },
+  {
+   "fn": "number",
+   "locale": "de-DE",
+   "value": 7,
+   "out": "7"
+  },
+  {
+   "fn": "number",
+   "locale": "de-DE",
+   "value": 1234.5,
+   "out": "1.234,5"
+  },
+  {
+   "fn": "number",
+   "locale": "de-DE",
+   "value": 1234567,
+   "out": "1.234.567"
+  },
+  {
+   "fn": "number",
+   "locale": "de-DE",
+   "value": -98765.4321,
+   "out": "-98.765,432"
+  },
+  {
+   "fn": "number",
+   "locale": "de-DE",
+   "value": 0.5,
+   "out": "0,5"
+  },
+  {
+   "fn": "currency",
+   "locale": "de-DE",
+   "value": 124500,
+   "currency": "INR",
+   "out": "124.500,00 ₹"
+  },
+  {
+   "fn": "currency",
+   "locale": "de-DE",
+   "value": 124500,
+   "currency": "USD",
+   "out": "124.500,00 $"
+  },
+  {
+   "fn": "currency",
+   "locale": "de-DE",
+   "value": 99.5,
+   "currency": "INR",
+   "out": "99,50 ₹"
+  },
+  {
+   "fn": "currency",
+   "locale": "de-DE",
+   "value": 99.5,
+   "currency": "USD",
+   "out": "99,50 $"
+  },
+  {
+   "fn": "currency",
+   "locale": "de-DE",
+   "value": 0,
+   "currency": "INR",
+   "out": "0,00 ₹"
+  },
+  {
+   "fn": "currency",
+   "locale": "de-DE",
+   "value": 0,
+   "currency": "USD",
+   "out": "0,00 $"
+  },
+  {
+   "fn": "currency",
+   "locale": "de-DE",
+   "value": 1234567.891,
+   "currency": "INR",
+   "out": "1.234.567,89 ₹"
+  },
+  {
+   "fn": "currency",
+   "locale": "de-DE",
+   "value": 1234567.891,
+   "currency": "USD",
+   "out": "1.234.567,89 $"
+  },
+  {
+   "fn": "currencyWhole",
+   "locale": "de-DE",
+   "value": 124500,
+   "currency": "INR",
+   "out": "124.500 ₹"
+  },
+  {
+   "fn": "percent",
+   "locale": "de-DE",
+   "value": 0.25,
+   "out": "25 %"
+  },
+  {
+   "fn": "percent",
+   "locale": "de-DE",
+   "value": 0.031,
+   "out": "3 %"
+  },
+  {
+   "fn": "percent",
+   "locale": "de-DE",
+   "value": 1.5,
+   "out": "150 %"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": 0,
+   "out": "jetzt"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -10000,
+   "out": "vor 10 Sekunden"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -45000,
+   "out": "vor 45 Sekunden"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -59600,
+   "out": "vor 1 Minute"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -120000,
+   "out": "vor 2 Minuten"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -3580000,
+   "out": "vor 1 Stunde"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -10800000,
+   "out": "vor 3 Stunden"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -82800000,
+   "out": "vor 23 Stunden"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -86400000,
+   "out": "gestern"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -172800000,
+   "out": "vorgestern"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": 259200000,
+   "out": "in 3 Tagen"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -518400000,
+   "out": "vor 6 Tagen"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -691200000,
+   "out": "letzte Woche"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -2332800000,
+   "out": "vor 4 Wochen"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -2592000000,
+   "out": "vor 4 Wochen"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -3888000000,
+   "out": "vor 2 Monaten"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -31449600000,
+   "out": "letztes Jahr"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": -34560000000,
+   "out": "letztes Jahr"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": 63072000000,
+   "out": "in 2 Jahren"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": 60000,
+   "out": "in 1 Minute"
+  },
+  {
+   "fn": "relative",
+   "locale": "de-DE",
+   "delta": 3600000,
+   "out": "in 1 Stunde"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "dateStyle": "short",
+   "out": "25.10.26"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "de-DE",
+   "date": "2026-10-25",
+   "dateStyle": "short",
+   "out": "25.10.26"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "out": "25.10.2026"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "de-DE",
+   "date": "2026-10-25",
+   "dateStyle": "medium",
+   "out": "25.10.2026"
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "dateStyle": "long",
+   "out": "25. Oktober 2026"
+  },
+  {
+   "fn": "plainDate",
+   "locale": "de-DE",
+   "date": "2026-10-25",
+   "dateStyle": "long",
+   "out": "25. Oktober 2026"
+  },
+  {
+   "fn": "dateTimeInstant",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "timeStyle": "short",
+   "out": "25.10.2026, 14:30"
+  },
+  {
+   "fn": "dateTimeInstant",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "dateStyle": "medium",
+   "timeStyle": "medium",
+   "out": "25.10.2026, 14:30:00"
+  },
+  {
+   "fn": "dateTimeInstantZone",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "zone": "America/New_York",
+   "out": "25.10.2026, 05:00"
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 3900,
+   "style": "long",
+   "out": "1 Stunde, 5 Minuten"
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 172803,
+   "style": "long",
+   "out": "2 Tage, 3 Sekunden"
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 45,
+   "style": "long",
+   "out": "45 Sekunden"
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 90061,
+   "style": "long",
+   "out": "1 Tag, 1 Stunde, 1 Minute und 1 Sekunde"
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 3900,
+   "style": "short",
+   "out": "1 Std., 5 Min."
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 172803,
+   "style": "short",
+   "out": "2 Tg., 3 Sek."
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 45,
+   "style": "short",
+   "out": "45 Sek."
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 90061,
+   "style": "short",
+   "out": "1 Tg., 1 Std., 1 Min. und 1 Sek."
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 3900,
+   "style": "narrow",
+   "out": "1h, 5 Min."
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 172803,
+   "style": "narrow",
+   "out": "2 T, 3 Sek."
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 45,
+   "style": "narrow",
+   "out": "45 Sek."
+  },
+  {
+   "fn": "duration",
+   "locale": "de-DE",
+   "seconds": 90061,
+   "style": "narrow",
+   "out": "1 T, 1h, 1 Min. und 1 Sek."
+  },
+  {
+   "fn": "dateInstant",
+   "locale": "de-DE",
+   "epochMillis": 1798747200000,
+   "dateStyle": "medium",
+   "out": "01.01.2027"
+  }
+ ]
+}

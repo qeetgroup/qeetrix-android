@@ -26,10 +26,10 @@ Updated 2026-10-20 at the end of Phase 7.
 
 | # | Gap | Owner | Note |
 |:--|:--|:--|:--|
-| D1 | **Translations of the 21 built-in strings** | Product and localization | English only; no translation was invented ([LOCALIZATION-RTL-REPORT.md](LOCALIZATION-RTL-REPORT.md)) |
+| D1 | **Translations of the 85 built-in strings and 1 plural** | Product and localization | English only; no translation was invented ([LOCALIZATION-RTL-REPORT.md](LOCALIZATION-RTL-REPORT.md)) |
 | D2 | **Increased-contrast colour values** | qeetrix-ui (upstream) | Android follows the web's tokens; there are no high-contrast tokens to follow yet |
-| D3 | **Registry and first version** | The owner | Phase 7 built and verified `0.1.0-rc.1` and recommends a private GitHub Packages registry; nothing is published or tagged ([0018](../Decisions/0018-maven-distribution.md)) |
-| D4 | **Commits** | The owner | Phases 4–7 are built on a local branch, uncommitted, so no release-candidate run has a clean revision yet; screenshots stay out of git by policy |
+| D3 | **Registry and first version** | The owner | `0.1.0-rc.2` is built and verified (`0.1.0-rc.1` before it); Phase 7 recommends a private GitHub Packages registry; nothing is published or tagged ([0018](../Decisions/0018-maven-distribution.md)) |
+| D4 | **Commits** | The owner | The work is committed and pushed (`develop`); `0.1.0-rc.2` was built from that commit with only an editor folder and an evidence-script fix uncommitted, so a clean re-run is still owed; screenshots stay out of git by policy |
 | D5 | **A licence for Qeetrix's own code** | The owner | Not needed inside Qeet Group; needed for any public or partner distribution ([LICENSE-COMPLIANCE.md](../Releases/LICENSE-COMPLIANCE.md)) |
 | D6 | **Qeet ID Auth as the first consumer** | The Qeet ID team | It is an Expo / React Native app and cannot use a Compose library as it stands; a native Android module or a native app would be needed. Integration with it is unverified ([CONSUMER-INTEGRATION.md](../Releases/CONSUMER-INTEGRATION.md)) |
 

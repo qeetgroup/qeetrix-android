@@ -1,284 +1,207 @@
 package com.qeetgroup.qeetrix.components.emptystate
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.qeetgroup.qeetrix.foundation.shape.QeetrixCorner
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
+import com.qeetgroup.qeetrix.components.typography.QeetrixHeading
+import com.qeetgroup.qeetrix.components.typography.QeetrixHeadingSize
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
+import com.qeetgroup.qeetrix.foundation.typography.QeetrixTextRole
 import com.qeetgroup.qeetrix.icons.QeetrixIcon
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
-import com.qeetgroup.qeetrix.internal.FontWeightSemibold
-import com.qeetgroup.qeetrix.internal.QeetrixFont
-import com.qeetgroup.qeetrix.internal.QeetrixWebScale
-import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
+import com.qeetgroup.qeetrix.icons.QeetrixIconShape
+import com.qeetgroup.qeetrix.internal.labelDirection
+import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
-/**
- * Why there is nothing to show (`value` is the web name). The variant sets the icon tile's tone and default
- * icon; the words and the actions are always the app's.
- */
-public enum class QeetrixEmptyStateVariant(
-    public val value: String,
-) {
-    /** A neutral empty collection: "No invoices yet". */
-    Default("default"),
-
-    /**
-     * An invitation to create the first thing — the only variant with the brand tint. Pair it with a primary
-     * [com.qeetgroup.qeetrix.components.button.QeetrixButton].
-     */
-    FirstUse("first-use"),
-
-    /** The data exists and a search or filter excluded it. Shows search-x; offer a way to clear. */
-    NoResults("no-results"),
-
-    /** The data exists and the person can't see it. Shows lock; say who can grant access. */
-    NoPermission("no-permission"),
-
-    /** Loading failed. Only the tile takes the destructive tint, so the failure reads as recoverable; shows triangle-alert. */
-    Error("error"),
-}
-
-/** How much room a [QeetrixEmptyState] takes (`value` is the web name). */
+/** How much room a [QeetrixEmptyState] takes (`value` is `@qeetrix/react`'s EmptyState `size`). */
 public enum class QeetrixEmptyStateSize(
     public val value: String,
+    internal val title: QeetrixTextRole,
+    internal val paddingY: Dp,
 ) {
-    /** For a section of a screen, a side panel or a list's body. */
-    Sm("sm"),
+    /** A whole view: the title in `title.md`, `space.layout.lg` (48 dp) above and below. The default. */
+    Page("page", QeetrixTextRole.TitleMd, QeetrixSpace.LayoutLg),
 
-    /** For a collection's whole area. The default. */
-    Default("default"),
+    /** Inside a card or a table: the title in `title.sm`, `space.inset.xl` (24 dp) above and below. */
+    Section("section", QeetrixTextRole.TitleSm, QeetrixSpace.InsetXl),
+}
 
-    /** For a whole screen. */
-    Lg("lg"),
+/** The colour of a [QeetrixEmptyState]'s icon (`value` is `@qeetrix/react`'s EmptyState `tone`). */
+public enum class QeetrixEmptyStateTone(
+    public val value: String,
+) {
+    /** `color.icon.subtle`: nothing yet, no results. The default. */
+    Neutral("neutral"),
+
+    /** `color.icon.danger`: an error, such as a load that failed. */
+    Danger("danger"),
 }
 
 /**
- * What a surface shows when it has nothing to show: an icon on a tinted tile, a [title], a [description]
- * and [actions] — the web's `EmptyState`.
+ * The message where content would be: nothing yet, no results, or an error — `@qeetrix/react`'s EmptyState. An
+ * optional 24 dp sharp [icon], a [title] that says what is missing or what went wrong in a few words, a
+ * [description] of one or two sentences, the [actions] (one primary at most), and under them an optional [footer]:
+ * a link to the docs, or a second way in ("Or import users from a CSV file").
  *
  * ```
  * QeetrixEmptyState(
  *     title = "No invoices yet",
  *     description = "Invoices appear here once you bill a customer.",
- *     variant = QeetrixEmptyStateVariant.FirstUse,
  *     icon = QeetrixIconName.FileText,
  * ) {
- *     QeetrixButton("Create invoice", onClick = ::createInvoice)
+ *     QeetrixButton("Create invoice", onClick = ::createInvoice, icon = QeetrixIconName.Plus)
  * }
  * ```
  *
  * - **It renders what you give it.** Whether a surface is empty because there is no data, because a filter
- *   excluded it, because the person lacks permission or because loading failed is the app's to decide — and
- *   so is what an action does. Never put a raw error, a status code or a stack trace in the description: say
- *   what happened and what the person can do.
- * - **Accessibility.** The title is a heading; the description is read after it; the tile is decorative;
- *   actions are their own controls.
- * - **Layout.** Centred, with the web's padding for each [size]; the description is at most 384 dp wide;
- *   actions wrap onto more lines when they don't fit. Text follows the font scale.
+ *   excluded it, because the person lacks permission or because loading failed is the app's to decide — and so is
+ *   what an action does. Never put a raw error, a status code or a stack trace in the description: say what
+ *   happened and what the person can do.
+ * - **Layout.** Centred, at most 480 dp wide, `space.gap.sm` between its parts and `space.inset.lg` at the sides;
+ *   the actions wrap onto more lines, centred, when they don't fit. Text follows the font scale.
+ * - **Accessibility.** With a [level] the title is a heading — set one when this is the screen's main message;
+ *   without it the title is styled text, as on the web. The icon is decorative; actions are their own controls.
  *
- * For the loading, failure and empty branches of one surface together, use [QeetrixDataState].
+ * For the loading, failure and empty states of one surface together, use [QeetrixDataState].
  *
- * @param icon The tile's icon. `null` uses the variant's: search-x, lock or triangle-alert for no results,
- *   no permission and an error; none for the others.
- * @param actions Buttons under the description, in a centred row that wraps.
+ * @param level A heading level (1–6) for the title. Android has no heading levels, so any level makes the title a
+ *   heading for accessibility services; it does not change the look, which [size] sets.
+ * @param footer Under the actions, in `color.text.subtle`: draw its text at `QeetrixTextSize.Sm` (`body.sm`).
+ * @param actions Buttons under the description, in a centred row that wraps: one primary at most (design rules §7).
  */
 @Composable
 public fun QeetrixEmptyState(
     title: String,
     modifier: Modifier = Modifier,
-    description: String? = null,
-    variant: QeetrixEmptyStateVariant = QeetrixEmptyStateVariant.Default,
-    size: QeetrixEmptyStateSize = QeetrixEmptyStateSize.Default,
     icon: QeetrixIconName? = null,
+    description: String? = null,
+    size: QeetrixEmptyStateSize = QeetrixEmptyStateSize.Page,
+    tone: QeetrixEmptyStateTone = QeetrixEmptyStateTone.Neutral,
+    level: Int? = null,
+    footer: (@Composable () -> Unit)? = null,
     actions: (@Composable () -> Unit)? = null,
 ) {
-    EmptyStateContent(title, description, variant, size, icon, announce = false, modifier, actions)
+    EmptyStateContent(title, description, icon, size, tone, level, announce = false, modifier, footer, actions)
 }
 
 /**
- * The empty state's layout, also without a title (a data state's failure). With [announce], the description
- * is an assertive live region, read out as it appears — the web failure's `role="alert"`.
+ * The empty state's layout (`.qx-empty-state`). With [announce] its title and description are one assertive live
+ * region, read out as they appear — a data state's failure, the web's `role="alert"`.
  */
 @Composable
 internal fun EmptyStateContent(
-    title: String?,
+    title: String,
     description: String?,
-    variant: QeetrixEmptyStateVariant,
-    size: QeetrixEmptyStateSize,
     icon: QeetrixIconName?,
+    size: QeetrixEmptyStateSize,
+    tone: QeetrixEmptyStateTone,
+    level: Int?,
     announce: Boolean,
     modifier: Modifier,
+    footer: (@Composable () -> Unit)?,
     actions: (@Composable () -> Unit)?,
 ) {
-    val metrics = EmptyStateMetrics.of(size)
+    require(level == null || level in 1..6) { "A heading level is 1 to 6, not $level." }
     val colors = QeetrixTheme.colors
-    Column(
-        modifier.fillMaxWidth().padding(horizontal = metrics.paddingX, vertical = metrics.paddingY),
-        verticalArrangement = Arrangement.spacedBy(metrics.gap),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        val glyph = icon ?: defaultIcon(variant)
-        if (glyph != null) EmptyStateTile(glyph, variant, metrics, Modifier.padding(bottom = metrics.tileMargin))
-        if (title != null) {
-            // Text fills its line and is centred in it, rather than measured to its content: content-width text
-            // in a right-to-left paragraph can wrap its last word.
-            BasicText(
-                title,
-                Modifier.fillMaxWidth().semantics { heading() },
-                style = metrics.titleStyle.copy(color = colors.textPrimary, textAlign = TextAlign.Center),
-            )
-        }
-        if (description != null) {
-            BasicText(
-                description,
-                Modifier
-                    .widthIn(max = DescriptionMaxWidth)
-                    .fillMaxWidth()
-                    .then(if (announce) Modifier.semantics { liveRegion = LiveRegionMode.Assertive } else Modifier),
-                style = DescriptionStyle.copy(color = colors.textTertiary, textAlign = TextAlign.Center), // text-muted-foreground
-            )
-        }
-        if (actions != null) {
-            // flex flex-wrap justify-center gap-2
-            FlowRow(
-                Modifier.padding(top = metrics.actionsMargin - metrics.gap),
-                horizontalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(2f), Alignment.CenterHorizontally),
-                verticalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(2f)),
-            ) { actions() }
-        }
-    }
-}
-
-/**
- * The icon on its tinted tile, with an inset subtle ring: graphite for most reasons, the brand for a first
- * use, the destructive tint for an error. Decorative: the title says it.
- */
-@Composable
-private fun EmptyStateTile(
-    icon: QeetrixIconName,
-    variant: QeetrixEmptyStateVariant,
-    metrics: EmptyStateMetrics,
-    modifier: Modifier,
-) {
-    val colors = QeetrixTheme.colors
-    val (background, foreground) =
-        when (variant) {
-            // bg-surface-sunken text-muted-foreground
-            QeetrixEmptyStateVariant.Default,
-            QeetrixEmptyStateVariant.NoResults,
-            QeetrixEmptyStateVariant.NoPermission,
-            -> colors.surfaceSunken to colors.textTertiary
-
-            QeetrixEmptyStateVariant.FirstUse -> colors.surfaceBrandSubtle to colors.textBrand
-
-            // bg-brand-subtle text-brand
-
-            // bg-destructive-subtle text-destructive-text
-            QeetrixEmptyStateVariant.Error -> colors.feedbackErrorSubtle to colors.textDanger
-        }
-    val shape = RoundedCornerShape(QeetrixCorner.Surface) // rounded-xl
-    Box(
-        modifier
-            .size(metrics.tileSize)
-            .background(background, shape)
-            .border(QeetrixStroke.Hairline, colors.borderSubtle, shape), // ring-1 ring-inset ring-border-subtle
-        contentAlignment = Alignment.Center,
-    ) {
-        QeetrixIcon(icon, contentDescription = null, size = metrics.iconSize, tint = foreground)
-    }
-}
-
-private fun defaultIcon(variant: QeetrixEmptyStateVariant): QeetrixIconName? =
-    when (variant) {
-        QeetrixEmptyStateVariant.Default, QeetrixEmptyStateVariant.FirstUse -> null
-        QeetrixEmptyStateVariant.NoResults -> QeetrixIconName.SearchX
-        QeetrixEmptyStateVariant.NoPermission -> QeetrixIconName.Lock
-        QeetrixEmptyStateVariant.Error -> QeetrixIconName.TriangleAlert
-    }
-
-/** One size's geometry: the web's size classes, resolved. */
-private class EmptyStateMetrics(
-    val gap: Dp,
-    val paddingX: Dp,
-    val paddingY: Dp,
-    val tileSize: Dp,
-    val iconSize: Dp,
-    val tileMargin: Dp,
-    val actionsMargin: Dp,
-    val titleStyle: TextStyle,
-) {
-    companion object {
-        // gap-1.5 px-4 py-6; tile mb-0.5 size-9, icon size-4; title text-sm; actions mt-2
-        private val Sm =
-            EmptyStateMetrics(
-                gap = QeetrixWebScale.spacing(1.5f),
-                paddingX = QeetrixWebScale.spacing(4f),
-                paddingY = QeetrixWebScale.spacing(6f),
-                tileSize = QeetrixWebScale.spacing(9f),
-                iconSize = QeetrixWebScale.spacing(4f),
-                tileMargin = QeetrixWebScale.spacing(0.5f),
-                actionsMargin = QeetrixWebScale.spacing(2f),
-                titleStyle = qeetrixTextStyle(QeetrixFont.Heading, QeetrixWebScale.TextSm, FontWeightSemibold),
-            )
-
-        // gap-2 px-6 py-12; tile mb-1 size-11, icon size-5; title text-base; actions mt-3
-        private val Default =
-            EmptyStateMetrics(
-                gap = QeetrixWebScale.spacing(2f),
-                paddingX = QeetrixWebScale.spacing(6f),
-                paddingY = QeetrixWebScale.spacing(12f),
-                tileSize = QeetrixWebScale.spacing(11f),
-                iconSize = QeetrixWebScale.spacing(5f),
-                tileMargin = QeetrixWebScale.spacing(1f),
-                actionsMargin = QeetrixWebScale.spacing(3f),
-                titleStyle = qeetrixTextStyle(QeetrixFont.Heading, QeetrixWebScale.TextBase, FontWeightSemibold),
-            )
-
-        // gap-2.5 px-6 py-16; tile mb-1.5 size-12, icon size-6; title text-lg; actions mt-3
-        private val Lg =
-            EmptyStateMetrics(
-                gap = QeetrixWebScale.spacing(2.5f),
-                paddingX = QeetrixWebScale.spacing(6f),
-                paddingY = QeetrixWebScale.spacing(16f),
-                tileSize = QeetrixWebScale.spacing(12f),
-                iconSize = QeetrixWebScale.spacing(6f),
-                tileMargin = QeetrixWebScale.spacing(1.5f),
-                actionsMargin = QeetrixWebScale.spacing(3f),
-                titleStyle = qeetrixTextStyle(QeetrixFont.Heading, QeetrixWebScale.TextLg, FontWeightSemibold),
-            )
-
-        fun of(size: QeetrixEmptyStateSize): EmptyStateMetrics =
-            when (size) {
-                QeetrixEmptyStateSize.Sm -> Sm
-                QeetrixEmptyStateSize.Default -> Default
-                QeetrixEmptyStateSize.Lg -> Lg
+    val typography = QeetrixTheme.typography
+    // margin-inline: auto; max-inline-size: 480px
+    Box(modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+        Column(
+            Modifier
+                .widthIn(max = MaxWidth)
+                .fillMaxWidth()
+                .padding(horizontal = QeetrixSpace.InsetLg, vertical = size.paddingY), // padding: <size> space.inset.lg
+            verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm), // gap: space.gap.sm
+            horizontalAlignment = Alignment.CenterHorizontally, // align-items: center; text-align: center
+        ) {
+            if (icon != null) {
+                QeetrixIcon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier.padding(bottom = QeetrixSpace.GapXs), // margin-block-end: space.gap.xs
+                    size = EmptyStateIconSize,
+                    shape = QeetrixIconShape.Sharp,
+                    tint = if (tone == QeetrixEmptyStateTone.Danger) colors.iconDanger else colors.iconSubtle,
+                )
             }
+            // Text fills its line and is centred in it, rather than measured to its content: content-width text in a
+            // right-to-left paragraph can wrap its last word.
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (announce) Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive } else Modifier,
+                    ),
+                verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm),
+            ) {
+                if (level != null) {
+                    QeetrixHeading(
+                        title,
+                        level,
+                        Modifier.fillMaxWidth(),
+                        size = if (size == QeetrixEmptyStateSize.Page) QeetrixHeadingSize.TitleMd else QeetrixHeadingSize.TitleSm,
+                        textAlign = TextAlign.Center,
+                    )
+                } else {
+                    BasicText(
+                        title,
+                        Modifier.fillMaxWidth(),
+                        style =
+                            typography[size.title]
+                                .copy(
+                                    color = colors.textDefault,
+                                    textAlign = TextAlign.Center,
+                                ).labelDirection(alignToLayout = true),
+                    )
+                }
+                if (description != null) {
+                    BasicText(
+                        description,
+                        Modifier.fillMaxWidth(),
+                        style =
+                            typography.bodyMd
+                                .copy(
+                                    color = colors.textSubtle,
+                                    textAlign = TextAlign.Center,
+                                ).labelDirection(alignToLayout = true),
+                    )
+                }
+            }
+            if (actions != null) {
+                // .qx-empty-state-actions: flex-wrap, justify-content center, gap space.gap.sm, margin-block-start space.gap.sm
+                FlowRow(
+                    Modifier.padding(top = QeetrixSpace.GapSm).wrapContentWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm, Alignment.CenterHorizontally),
+                    verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm),
+                ) { actions() }
+            }
+            if (footer != null) {
+                // .qx-empty-state-footer: body.sm, color.text.subtle
+                CompositionLocalProvider(LocalQeetrixContentColor provides colors.textSubtle) { footer() }
+            }
+        }
     }
 }
 
-/** `max-w-sm`. */
-private val DescriptionMaxWidth = 384.dp
+/** drawIcon(…, { size: 24 }). */
+private val EmptyStateIconSize = 24.dp
 
-// text-sm text-pretty text-muted-foreground
-private val DescriptionStyle = qeetrixTextStyle(QeetrixFont.Sans, QeetrixWebScale.TextSm)
+/** `.qx-empty-state max-inline-size: 480px`. */
+private val MaxWidth = 480.dp

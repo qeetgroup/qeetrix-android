@@ -5,45 +5,41 @@ import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.autofill.ContentType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessageTone
 import com.qeetgroup.qeetrix.components.input.QeetrixTextarea
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-/** Multi-line input: growing with its text, a character limit with a live count, and the states. */
+/** Multi-line text: rows, growing to maxRows, a length limit, an address for AutoFill, and the states. */
 @Composable
 fun TextareaSample() {
     SamplePage {
-        SampleSection("Feedback") {
+        SampleSection("Growing with the text") {
             val feedback = rememberTextFieldState()
-            val left = 280 - feedback.text.length
             QeetrixTextarea(
                 feedback,
                 label = "What could be better?",
-                placeholder = "Tell us what happened and what you expected.",
-                inputTransformation = InputTransformation.maxLength(280),
-                message = if (left <= 40) QeetrixFieldMessage("$left characters left", QeetrixFieldMessageTone.Warning) else null,
+                placeholder = "e.g. The invoice total did not match the order",
+                description = "${feedback.text.length} of 500 characters.",
+                maxRows = 8,
+                inputTransformation = InputTransformation.maxLength(500),
             )
-            SampleNote("It grows from two lines to 384 dp, then scrolls. Enter starts a new line; the limit is an input transformation.")
+            SampleNote("It starts three lines tall and grows with the text up to eight, then scrolls inside itself.")
         }
-        SampleSection("Fixed height in lines") {
+        SampleSection("An address") {
             QeetrixTextarea(
                 rememberTextFieldState(),
-                label = "Address",
-                minLines = 3,
-                maxLines = 3,
-                description = "Three lines, then it scrolls.",
+                label = "Billing address",
+                rows = 2,
                 contentType = ContentType.PostalAddress,
+                error = "Add a PIN code to the address.",
             )
         }
         SampleSection("Read-only and disabled") {
-            QeetrixTextarea(rememberTextFieldState("12 Residency Road\nBengaluru 560025"), label = "Registered office", readOnly = true)
-            QeetrixTextarea(rememberTextFieldState("Locked by an administrator."), label = "Notes", enabled = false)
+            QeetrixTextarea(rememberTextFieldState("Approved by finance on 12 Oct."), label = "Audit note", rows = 1, readOnly = true)
+            QeetrixTextarea(rememberTextFieldState("Locked"), label = "Notes", rows = 1, enabled = false)
         }
     }
 }
@@ -52,10 +48,4 @@ fun TextareaSample() {
 @Composable
 private fun TextareaSamplePreview() {
     SamplePreview { TextareaSample() }
-}
-
-@Preview(name = "200% text", fontScale = 2f)
-@Composable
-private fun TextareaLargeTextPreview() {
-    SamplePreview { QeetrixTextarea(rememberTextFieldState("Long notes stay readable at large text sizes."), label = "Notes") }
 }

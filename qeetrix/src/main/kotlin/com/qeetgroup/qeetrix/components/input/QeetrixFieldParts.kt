@@ -1,7 +1,10 @@
 package com.qeetgroup.qeetrix.components.input
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -18,183 +21,341 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ParentDataModifierNode
-import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.qeetgroup.qeetrix.R
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
+import com.qeetgroup.qeetrix.components.button.buttonColors
+import com.qeetgroup.qeetrix.components.button.buttonMetrics
+import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixAccessibility
 import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixFocus
-import com.qeetgroup.qeetrix.foundation.color.QeetrixOpacity
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixDuration
-import com.qeetgroup.qeetrix.foundation.motion.QeetrixEasing
+import com.qeetgroup.qeetrix.foundation.elevation.QeetrixShadow
+import com.qeetgroup.qeetrix.foundation.elevation.qeetrixShadow
+import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
 import com.qeetgroup.qeetrix.foundation.motion.qeetrixAnimationSpec
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
+import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.foundation.typography.QeetrixTextRole
 import com.qeetgroup.qeetrix.icons.QeetrixIcon
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
-import com.qeetgroup.qeetrix.internal.FontWeightMedium
-import com.qeetgroup.qeetrix.internal.QeetrixFont
-import com.qeetgroup.qeetrix.internal.QeetrixWebScale
-import com.qeetgroup.qeetrix.internal.drawOutlineRing
+import com.qeetgroup.qeetrix.icons.QeetrixIconShape
+import com.qeetgroup.qeetrix.internal.AnchoredPopupPosition
+import com.qeetgroup.qeetrix.internal.FocusFrame
+import com.qeetgroup.qeetrix.internal.PopupAlign
+import com.qeetgroup.qeetrix.internal.firstLineHeight
+import com.qeetgroup.qeetrix.internal.focusFrame
 import com.qeetgroup.qeetrix.internal.labelDirection
-import com.qeetgroup.qeetrix.internal.qeetrixFocusRing
-import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
-import com.qeetgroup.qeetrix.internal.windowAtLeast
+import com.qeetgroup.qeetrix.internal.popupEnter
+import com.qeetgroup.qeetrix.internal.popupExit
+import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
+import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixInputComponentTokens
 
-// The parts every Qeetrix field is made of — the web's `Field` family and its field recipe
-// (`src/internal/field-styles.ts`) — shared by QeetrixField and each input, so every field reads the same.
+// The parts every Qeetrix field is built from — @qeetrix/react's Field (field.css: label, description, error) and
+// the Input box (input.css: the filled box with its bottom line) — shared by QeetrixField and every input, so every
+// field reads and behaves the same (design rules §8, component specs §2).
 
-/** gap-1.5: a field's label, control, description and message sit 6 dp apart. */
-internal val FieldPartGap: Dp = QeetrixWebScale.spacing(1.5f)
+/** `.qx-field { gap: space.gap.xs }`: the label 4 dp above the control, the help text or error 4 dp below it. */
+internal val FieldPartGap: Dp = QeetrixSpace.GapXs
 
-/**
- * px-2.5 inside the 1 dp border: the padding of a single-line field. Vertically only the border: the web
- * fixes the field at the control height and centres a line that leaves no room for its `py-1`, so the
- * height here is a minimum of the control height with the content centred — exactly 32 dp at the default
- * density — and larger text grows it.
- */
-internal val FieldContentPadding =
-    PaddingValues(
-        horizontal = QeetrixWebScale.spacing(2.5f) + QeetrixStroke.Hairline,
-        vertical = QeetrixStroke.Hairline,
-    )
+/** `.qx-input { padding-inline: space.inset.md }`: 12 dp inside the box; vertically the box centres its line. */
+internal val FieldPadding: PaddingValues = PaddingValues(horizontal = QeetrixSpace.InsetMd)
 
-/** The field's text: `text-base` below the web's `md` breakpoint (768 dp of window width), `text-sm` from it. */
+/** `.qx-search-field`, `.qx-password-input`: `padding-inline-end: space.gap.xs`, so a tool at the end sits near the edge. */
+internal val FieldPaddingWithTool: PaddingValues = PaddingValues(start = QeetrixSpace.InsetMd, end = QeetrixSpace.GapXs)
+
+/** `.qx-input { gap: space.gap.sm }`: between an icon, an adornment and the value. */
+internal val FieldContentGap: Dp = QeetrixSpace.GapSm
+
+/** `.qx-input { font: typography.body.md }`: the value, at every window width. */
 @Composable
-internal fun fieldTextStyle(): TextStyle =
-    (if (windowAtLeast(QeetrixWebScale.BreakpointMd)) FieldTextSm else FieldTextBase).copy(color = QeetrixInputComponentTokens.Foreground)
+internal fun fieldTextStyle(): TextStyle = QeetrixTheme.typography.bodyMd
 
 /**
- * A field's layout: [control] (which places its own label, so the label is part of the control for
- * accessibility services), then the [description] and the [message], 6 dp apart — `Field
- * orientation="vertical"`.
+ * `body.md`'s line at the 1× font scale, which CSS writes as `1lh` in the box metrics (a textarea's padding
+ * `(size.control.lg − 1lh) / 2`). The text itself follows the font scale; the padding stays the web's.
+ */
+internal val BodyMdLine: Dp = QeetrixTextRole.BodyMd.spec.let { (it.size * it.lineHeight).dp }
+
+/**
+ * `.qx-field-label`: `label.sm` in `color.text.subtle` (`color.text.disabled` when disabled), with " (optional)"
+ * after it in `color.text.subtlest` at `body.sm`'s weight when [optional]. Qeetrix marks optional fields and never
+ * required ones; a [required] field still says "required" to accessibility services, as the web's native
+ * `required` does.
+ */
+@Composable
+internal fun FieldLabel(
+    label: String,
+    optional: Boolean,
+    required: Boolean,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val colors = QeetrixTheme.colors
+    val typography = QeetrixTheme.typography
+    val optionalText = stringResource(R.string.qx_optional)
+    val spoken = accessibleLabel(label, required = required, optional = false)
+    val text =
+        if (optional) {
+            buildAnnotatedString {
+                append(label)
+                append(' ')
+                // .qx-field-optional { font-weight: typography.body.sm-font-weight; color: text.subtlest }
+                withStyle(SpanStyle(color = colors.textSubtlest, fontWeight = typography.bodySm.fontWeight)) { append(optionalText) }
+            }
+        } else {
+            AnnotatedString(label)
+        }
+    BasicText(
+        text,
+        modifier.then(if (required) Modifier.semantics { contentDescription = spoken } else Modifier),
+        style = typography.labelSm.copy(color = if (enabled) colors.textSubtle else colors.textDisabled).labelDirection(),
+    )
+}
+
+/**
+ * The label row: [FieldLabel], then — with [help] — the ⓘ button that opens it (07-components.md, Field help), sized
+ * to the label's line so a field with help lines up with its neighbours. [labelModifier] goes on the label alone, so
+ * hiding the label's text from accessibility services never hides the help button with it.
+ */
+@Composable
+internal fun FieldLabelRow(
+    label: String,
+    optional: Boolean,
+    required: Boolean,
+    enabled: Boolean,
+    help: String?,
+    modifier: Modifier = Modifier,
+    labelModifier: Modifier = Modifier,
+) {
+    if (help == null) {
+        FieldLabel(label, optional, required, enabled, modifier.then(labelModifier))
+        return
+    }
+    // .qx-field-label-row { align-items: center; gap: space.gap.xs }
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs), verticalAlignment = Alignment.CenterVertically) {
+        FieldLabel(label, optional, required, enabled, Modifier.weight(1f, fill = false).then(labelModifier))
+        FieldHelp(label, help)
+    }
+}
+
+/** `.qx-field-description`: `body.sm` in `color.text.subtle`; disabled, `color.text.subtlest`, which stays readable. */
+@Composable
+internal fun FieldDescription(
+    text: String,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val colors = QeetrixTheme.colors
+    BasicText(
+        text,
+        modifier.fillMaxWidth(),
+        style =
+            QeetrixTheme.typography.bodySm
+                .copy(
+                    color = if (enabled) colors.textSubtle else colors.textSubtlest,
+                ).labelDirection(alignToLayout = true),
+    )
+}
+
+/**
+ * `.qx-field-error`: a sharp 16 dp `circle-alert` in `color.icon.danger`, `space.gap.xs` before the message in
+ * `body.sm` / `color.text.danger`. Announced as it appears. The icon is centred on the first line, which the web's
+ * `align-items: flex-start` gives at every zoom; here only the text follows the font scale.
+ */
+@Composable
+internal fun FieldError(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    val colors = QeetrixTheme.colors
+    val style = QeetrixTheme.typography.bodySm.copy(color = colors.textDanger)
+    Row(
+        modifier.fillMaxWidth().semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
+        horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Box(Modifier.height(firstLineHeight(style)), contentAlignment = Alignment.Center) {
+            QeetrixIcon(
+                QeetrixIconName.CircleAlert,
+                contentDescription = null,
+                size = QeetrixSize.IconSm,
+                shape = QeetrixIconShape.Sharp,
+                tint = colors.iconDanger,
+            )
+        }
+        BasicText(text, Modifier.weight(1f), style = style.labelDirection(alignToLayout = true))
+    }
+}
+
+/**
+ * The help text and the error under a control (react's `FieldMessages`): the [error] replaces the [description]
+ * while it shows — the description is not composed meanwhile, so it is gone for accessibility services too.
+ */
+@Composable
+internal fun FieldMessages(
+    description: String?,
+    error: String?,
+    enabled: Boolean,
+) {
+    if (error != null) {
+        FieldError(error)
+    } else if (description != null) {
+        FieldDescription(description, enabled)
+    }
+}
+
+/**
+ * A field's layout (`.qx-field`, a column `space.gap.xs` apart): [control] — which places its own label, so the
+ * label is part of the control for accessibility services and a tap on it reaches the control — then the
+ * description or the error.
  */
 @Composable
 internal fun FieldFrame(
     description: String?,
-    message: QeetrixFieldMessage?,
+    error: String?,
+    enabled: Boolean,
     modifier: Modifier,
     control: @Composable ColumnScope.() -> Unit,
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(FieldPartGap)) {
         control()
-        if (description != null) FieldDescription(description)
-        if (message != null) FieldMessage(message)
+        FieldMessages(description, error, enabled)
     }
 }
 
 /**
- * FieldLabel: text-sm leading-snug font-medium, with the required asterisk or the "(optional)" marker.
- * Accessibility services read the asterisk as "required" (`qx_required`), as the web announces the
- * control's `required`.
+ * The label above a control, inside the control's own layout — a text field's decorator, a select's trigger — so
+ * accessibility services read it as the control's name and a tap on it reaches the control.
+ *
+ * With [hideLabel] (react's `hideLabel`: a toolbar search with a visible icon) the label is not drawn but still names
+ * the control, and the control is centred in a 48 dp touch height of its own.
  */
 @Composable
-internal fun FieldLabel(
+internal fun LabelledControl(
     label: String,
-    required: Boolean,
     optional: Boolean,
+    required: Boolean,
+    hideLabel: Boolean,
     enabled: Boolean,
-    modifier: Modifier = Modifier,
-    style: TextStyle = FieldLabelStyle,
+    help: String?,
+    control: @Composable () -> Unit,
 ) {
-    Row(
-        modifier.then(if (enabled) Modifier else Modifier.alpha(QeetrixOpacity.Disabled)),
-        horizontalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(0.5f)), // gap-2 with -ms-1.5
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        BasicText(label, style = style.copy(color = QeetrixTheme.colors.textPrimary).labelDirection())
-        if (required) {
-            val spoken = stringResource(R.string.qx_required)
-            BasicText(
-                "*",
-                Modifier.semantics { contentDescription = spoken },
-                style = style.copy(color = QeetrixTheme.colors.textDanger),
-            )
-        } else if (optional) {
-            // -ms-1 font-normal text-muted-foreground
-            BasicText(
-                stringResource(R.string.qx_optional),
-                Modifier.padding(start = QeetrixWebScale.spacing(0.5f)),
-                style = FieldOptionalStyle.copy(color = QeetrixTheme.colors.textTertiary).labelDirection(),
-            )
-        }
+    if (hideLabel) {
+        val name = accessibleLabel(label, required, optional)
+        Box(
+            Modifier.heightIn(min = QeetrixAccessibility.MinimumTouchTarget).semantics { contentDescription = name },
+            contentAlignment = Alignment.CenterStart,
+        ) { control() }
+        return
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(FieldPartGap)) {
+        FieldLabelRow(label, optional, required, enabled, help)
+        control()
     }
 }
 
-/** FieldDescription: text-caption font-normal text-muted-foreground, a block as wide as the field. */
-@Composable
-internal fun FieldDescription(
-    text: String,
-    modifier: Modifier = Modifier,
-) {
-    BasicText(text, modifier.fillMaxWidth(), style = FieldCaptionStyle.copy(color = QeetrixTheme.colors.textTertiary))
-}
+/** A field box's colours in one state (input.css). */
+@Immutable
+internal class FieldColors(
+    val fill: Color,
+    /** The 1 dp bottom line, or none while the frame replaces it. */
+    val line: Color?,
+    /** The 2 dp frame drawn inside the box, or none. */
+    val frame: Color?,
+    val content: Color,
+)
 
-/** FieldError / FieldWarning / FieldSuccess: icon and caption in the tone's colour, announced as it appears. */
+/**
+ * input.css's states, applied in its cascade order so each later rule wins as it does there: hover
+ * (`bg.neutral.subtle-hover`); invalid (a 2 dp `border.danger` frame instead of the line); focus — any focus, since
+ * the caret needs context — (a 2 dp `border.focus` frame instead of the line, and the resting fill); read-only (no
+ * fill and the editable field's `border.strong` line, which keeps 3:1: QTRX-175); disabled (`bg.disabled`, a `border.disabled` line, `text.disabled`).
+ */
 @Composable
-internal fun FieldMessage(message: QeetrixFieldMessage) {
-    val (color, icon) =
-        when (message.tone) {
-            QeetrixFieldMessageTone.Error -> QeetrixTheme.colors.textDanger to QeetrixIconName.CircleAlert
-            QeetrixFieldMessageTone.Warning -> QeetrixTheme.colors.textWarning to QeetrixIconName.TriangleAlert
-            QeetrixFieldMessageTone.Success -> QeetrixTheme.colors.textSuccess to QeetrixIconName.CircleCheck
-        }
-    Row(
-        Modifier.semantics(mergeDescendants = true) {
-            // role="alert" for an error, role="status" otherwise
-            liveRegion = if (message.tone == QeetrixFieldMessageTone.Error) LiveRegionMode.Assertive else LiveRegionMode.Polite
-        },
-        horizontalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(1.5f)), // gap-1.5
-        verticalAlignment = Alignment.Top, // items-start
-    ) {
-        // The web's mt-px centres the icon on the first line because both are in rem; here the icon is in dp
-        // and the text follows the font scale, so the icon is centred on the first line box instead.
-        val firstLine = with(LocalDensity.current) { FieldCaptionStyle.fontSize.toDp() } * CaptionLineHeight
-        Box(Modifier.height(firstLine), contentAlignment = Alignment.Center) {
-            QeetrixIcon(icon, contentDescription = null, size = QeetrixWebScale.spacing(3.5f), tint = color)
-        }
-        BasicText(message.text, Modifier.weight(1f), style = FieldCaptionStyle.copy(color = color))
+internal fun fieldColors(
+    enabled: Boolean,
+    readOnly: Boolean,
+    focused: Boolean,
+    hovered: Boolean,
+    invalid: Boolean,
+): FieldColors {
+    val c = QeetrixTheme.colors
+    // .qx-input: fill bg.neutral.subtle; box-shadow inset 0 -1px border.strong. :hover → bg.neutral.subtle-hover.
+    var fill = if (hovered) c.bgNeutralSubtleHover else c.bgNeutralSubtle
+    var line: Color? = c.borderStrong
+    var frame: Color? = null
+    if (invalid) {
+        frame = c.borderDanger
+        line = null
     }
+    if (focused) {
+        frame = c.borderFocus
+        line = null
+        fill = c.bgNeutralSubtle
+    }
+    if (readOnly) {
+        // .qx-input:has(> .qx-input-control[readonly]): box-shadow inset 0 -1px border.strong; background: none
+        fill = Color.Transparent
+        line = c.borderStrong
+    }
+    if (!enabled) {
+        fill = c.bgDisabled
+        line = c.borderDisabled
+    }
+    return FieldColors(fill, line, frame, if (enabled) c.textDefault else c.textDisabled)
 }
 
 /**
- * The field recipe's surface: the writing surface, its 1 dp boundary and every state — hover (editable
- * only), focus (the boundary turns the ring and a 1 dp outline thickens it to 2 dp), the warning, success
- * and invalid boundaries from [tone], the dashed read-only boundary with no writing surface, and the
- * disabled sunken surface, faded.
- *
- * @param holdHover Keeps the hover boundary, as a select does while its list is open.
+ * The filled box every field shares (`.qx-input`, design rules §8): `color.bg.neutral.subtle`, a 1 dp
+ * `color.border.strong` line along the bottom, 4 dp top corners and a square bottom (`QeetrixShapes.Field`),
+ * `size.control.lg` tall — a minimum, so larger text grows it — and 12 dp inline padding. Its states are
+ * [fieldColors]; the fill changes in `motion.duration.fast`.
  */
 @Composable
 internal fun FieldBox(
@@ -202,172 +363,255 @@ internal fun FieldBox(
     readOnly: Boolean,
     focused: Boolean,
     hovered: Boolean,
-    tone: QeetrixFieldMessageTone?,
+    invalid: Boolean,
     modifier: Modifier = Modifier,
-    holdHover: Boolean = false,
-    shape: Shape = RoundedCornerShape(QeetrixInputComponentTokens.Corner),
-    minHeight: Dp = QeetrixInputComponentTokens.height(QeetrixTheme.density),
-    contentPadding: PaddingValues = FieldContentPadding,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(QeetrixWebScale.spacing(2f)),
+    minHeight: Dp = QeetrixTheme.density.sizeControlLg,
+    contentPadding: PaddingValues = FieldPadding,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(FieldContentGap),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val editable = enabled && !readOnly
-    val invalid = tone == QeetrixFieldMessageTone.Error
-    // --field-edge (rest, hover) under --field-status (warning, success, invalid); focus turns it the ring.
-    val edge = if ((hovered || holdHover) && editable) QeetrixInputComponentTokens.BorderHover else QeetrixInputComponentTokens.Border
-    val status =
-        when (tone) {
-            QeetrixFieldMessageTone.Error -> QeetrixInputComponentTokens.BorderInvalid
-            QeetrixFieldMessageTone.Warning -> QeetrixInputComponentTokens.BorderWarning
-            QeetrixFieldMessageTone.Success -> QeetrixInputComponentTokens.BorderSuccess
-            null -> null
-        }
-    val ring = if (invalid) QeetrixInputComponentTokens.BorderInvalid else QeetrixInputComponentTokens.BorderFocus
-    val showsFocus = focused && enabled
-    val border by animateColorAsState(
-        if (showsFocus) ring else status ?: edge,
-        qeetrixAnimationSpec(QeetrixEasing.Standard, QeetrixDuration.Fast),
-        label = "field-border",
+    val colors = fieldColors(enabled, readOnly, focused, hovered, invalid)
+    // transition-property: background-color; duration.fast; easing.standard
+    val fill by animateColorAsState(
+        colors.fill,
+        qeetrixAnimationSpec(QeetrixMotion.EasingStandard, QeetrixMotion.DurationFast),
+        label = "field-fill",
     )
-    val background =
-        when {
-            !enabled -> QeetrixInputComponentTokens.BackgroundDisabled
-            readOnly -> QeetrixInputComponentTokens.BackgroundReadonly
-            else -> QeetrixInputComponentTokens.Background
-        }
-    val dashed = readOnly && enabled // read-only:not-disabled:border-dashed
     Row(
         modifier
-            .then(if (enabled) Modifier else Modifier.alpha(QeetrixOpacity.Disabled)) // disabled:opacity-disabled
-            // focus-ring-field: a 1px outline at offset 0 thickens the boundary to 2px
-            .drawOutlineRing(showsFocus, shape, ring, QeetrixStroke.Hairline, 0.dp)
-            .drawWithContent {
-                drawOutline(shape.createOutline(size, layoutDirection, this), background)
-                drawContent()
-                // border (dashed when read-only), inside the box as CSS border-box draws it
-                val width = QeetrixStroke.Hairline.toPx()
-                val outline = shape.createOutline(Size(size.width - width, size.height - width), layoutDirection, this)
-                val dash = if (dashed) PathEffect.dashPathEffect(floatArrayOf(3 * width, 3 * width)) else null
-                translate(width / 2, width / 2) { drawOutline(outline, border, style = Stroke(width, pathEffect = dash)) }
-            }.heightIn(min = minHeight) // h-(input-height), growing with the font scale
+            .fieldSurface(fill, colors.line, colors.frame, QeetrixShapes.Field)
+            .heightIn(min = minHeight)
             .padding(contentPadding),
         horizontalArrangement = horizontalArrangement,
         verticalAlignment = verticalAlignment,
-        content = content,
-    )
+    ) {
+        CompositionLocalProvider(LocalQeetrixContentColor provides colors.content) { content() }
+    }
 }
 
 /**
- * The web's `fieldAction`: a compact icon button inside a field — reveal a password, clear a value. Drawn the
- * web's size, max(24 dp, control height − 8 dp), so the field keeps its height; Compose's hit testing still
- * sends a touch within 48 dp of it to it when nothing else is hit there. Named by [label] for accessibility
- * services; keyboard focus draws an inset ring. A press shows the hover fill, since touch has no hover.
+ * Draws a field's surface: the [fill] in [shape], the 1 dp [line] along the bottom (`box-shadow: inset 0 -1px`), and
+ * over the content the 2 dp [frame] just inside the edge (`outline-offset: -focus.ring.width`), which follows the
+ * shape's top corners as a CSS outline follows `border-radius`.
+ */
+internal fun Modifier.fieldSurface(
+    fill: Color,
+    line: Color?,
+    frame: Color?,
+    shape: Shape,
+): Modifier =
+    focusFrame(frame != null, shape, FocusFrame.Inside, frame ?: Color.Transparent, Color.Transparent, width = QeetrixFocus.RingWidth)
+        .drawWithContent {
+            drawOutline(shape.createOutline(size, layoutDirection, this), fill)
+            if (line != null) {
+                val width = QeetrixBorder.WidthDefault.toPx()
+                drawRect(line, Offset(0f, size.height - width), Size(size.width, width))
+            }
+            drawContent()
+        }
+
+/**
+ * A tool inside a field — show a password, clear a search, open a field's help: `@qeetrix/react`'s
+ * `IconButton size="sm" tone="neutral"` (a 28 dp ghost square at the default density, a 16 dp sharp icon, the
+ * button's colour steps and its focus frame inside with a 1 dp gap), drawn without the 48 dp layout a standalone
+ * button reserves, so the field keeps its height. Compose's hit testing still sends a touch within 48 dp of it to
+ * it. With [toggled] it is a pressed-state toggle (react's `aria-pressed`) whose [stateDescription] says what it
+ * changed.
  */
 @Composable
 internal fun FieldAction(
     icon: QeetrixIconName,
-    label: String,
-    onClick: () -> Unit,
+    contentDescription: String,
     enabled: Boolean,
     modifier: Modifier = Modifier,
+    toggled: Boolean? = null,
+    stateDescription: String? = null,
+    onClick: () -> Unit,
 ) {
     val source = remember { MutableInteractionSource() }
     val hovered by source.collectIsHoveredAsState()
     val pressed by source.collectIsPressedAsState()
-    val lit = enabled && (hovered || pressed)
-    // size-[max(1.5rem,calc(var(--qx-component-input-height)-0.5rem))]
-    val side = maxOf(QeetrixWebScale.spacing(6f), QeetrixInputComponentTokens.height(QeetrixTheme.density) - QeetrixWebScale.spacing(2f))
-    // rounded-[max(0px,calc(var(--qx-component-input-corner)-2px))]
-    val shape = RoundedCornerShape((QeetrixInputComponentTokens.Corner - QeetrixStroke.Thin).coerceAtLeast(0.dp))
+    val metrics = buttonMetrics(QeetrixButtonSize.Sm)
+    val colors = buttonColors(QeetrixButtonVariant.Ghost, QeetrixButtonTone.Neutral, enabled, hovered && enabled, pressed && enabled)
+    val motion = qeetrixAnimationSpec<Color>(QeetrixMotion.EasingStandard, QeetrixMotion.DurationFast)
+    val background by animateColorAsState(colors.background, motion, label = "field-action-background")
+    val tint by animateColorAsState(colors.content, motion, label = "field-action-content")
+    val shape = QeetrixShapes.Control
+    val interaction =
+        if (toggled != null) {
+            Modifier.toggleable(toggled, source, indication = null, enabled = enabled, role = Role.Button) { onClick() }
+        } else {
+            Modifier.clickable(source, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
+        }
     Box(
         modifier
-            .size(side)
-            .qeetrixFocusRing(source, shape, offset = -QeetrixFocus.OutlineWidth) // focus-visible:focus-ring-inset
-            .background(if (lit) QeetrixTheme.colors.surfaceInteractiveHover else Color.Transparent, shape)
-            .clickable(source, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
-            .semantics { contentDescription = label }
-            .then(if (enabled) Modifier else Modifier.alpha(QeetrixOpacity.Disabled)), // disabled:opacity-disabled
+            .then(interaction)
+            .semantics {
+                this.contentDescription = contentDescription
+                if (stateDescription != null) this.stateDescription = stateDescription
+            }.qeetrixFocusFrame(source, shape, FocusFrame.InsideWithGap)
+            .background(background, shape)
+            .size(metrics.height), // .qx-icon-button: size.control.sm square
         contentAlignment = Alignment.Center,
     ) {
-        // text-muted-foreground, hover:text-foreground; [&_svg]:size-4
-        QeetrixIcon(
-            icon,
-            contentDescription = null,
-            size = QeetrixWebScale.spacing(4f),
-            tint = if (lit) QeetrixTheme.colors.textPrimary else QeetrixTheme.colors.textTertiary,
-        )
+        QeetrixIcon(icon, contentDescription = null, size = metrics.iconSize, shape = QeetrixIconShape.Sharp, tint = tint)
     }
 }
 
 /**
- * What a [QeetrixFieldSet] gives the controls inside it: its message, which each checkbox and radio takes as
- * its own (the group is invalid, so each control is), and whether the set is enabled.
+ * A field's help (react's Field `help`): an ⓘ [FieldAction] named "About {label}" (`qx_field_help`) that opens a
+ * popover titled with the label — a click, not a hover, so it works by touch and keyboard. The button keeps its own
+ * size but takes no more height than the label's line (`.qx-field-help`'s negative block margins), so a field with
+ * help lines up with its neighbours.
+ */
+@Composable
+private fun FieldHelp(
+    label: String,
+    help: String,
+) {
+    var open by remember { mutableStateOf(false) }
+    val line = firstLineHeight(QeetrixTheme.typography.labelSm)
+    Box(
+        Modifier.layout { measurable, constraints ->
+            // margin-block: calc((1lh - size.control.sm) / 2)
+            val placeable = measurable.measure(constraints.copy(minHeight = 0))
+            val height = line.roundToPx()
+            layout(placeable.width, height) { placeable.place(0, (height - placeable.height) / 2) }
+        },
+    ) {
+        FieldAction(QeetrixIconName.CircleQuestionMark, stringResource(R.string.qx_field_help, label), enabled = true) { open = !open }
+        HelpPopover(open, label, help) { open = false }
+    }
+}
+
+/**
+ * popover.css: `color.surface.overlay`, a 1 dp `color.border.subtle` edge, `radius.overlay`, `shadow.overlay`,
+ * `space.inset.lg` padding, at most 360 dp wide; the title in `title.sm`, the help in `body.md`, `space.gap.md`
+ * apart. It opens below the button, `sideOffset` 6 dp away (the web's `side="inline-end"` has no room on a
+ * phone), fades and slides in like every anchored popup, and closes on a tap outside, Back or Escape.
+ */
+@Composable
+private fun HelpPopover(
+    open: Boolean,
+    title: String,
+    help: String,
+    onDismiss: () -> Unit,
+) {
+    val visibility = remember { MutableTransitionState(false) }
+    visibility.targetState = open
+    if (!visibility.currentState && !visibility.targetState) return
+    val colors = QeetrixTheme.colors
+    val typography = QeetrixTheme.typography
+    val density = LocalDensity.current
+    val gap = with(density) { HELP_OFFSET.roundToPx() }
+    val margin = with(density) { QeetrixSpace.InsetSm.roundToPx() }
+    Popup(
+        popupPositionProvider = remember(gap, margin) { AnchoredPopupPosition(gap, margin, PopupAlign.Start) },
+        onDismissRequest = onDismiss,
+        properties = PopupProperties(focusable = true),
+    ) {
+        AnimatedVisibility(visibleState = visibility, enter = popupEnter(fromBottom = false), exit = popupExit(fromBottom = false)) {
+            Column(
+                Modifier
+                    .widthIn(max = HELP_MAX_WIDTH)
+                    .qeetrixShadow(QeetrixShadow.Overlay, QeetrixShapes.Overlay, colors.surfaceOverlay)
+                    .border(QeetrixBorder.WidthDefault, colors.borderSubtle, QeetrixShapes.Overlay)
+                    .padding(QeetrixSpace.InsetLg)
+                    .semantics { paneTitle = title },
+                verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd),
+            ) {
+                BasicText(
+                    title,
+                    Modifier.semantics {
+                        heading()
+                    },
+                    style = typography.titleSm.copy(color = colors.textDefault).labelDirection(alignToLayout = true),
+                )
+                BasicText(help, style = typography.bodyMd.copy(color = colors.textDefault).labelDirection(alignToLayout = true))
+            }
+        }
+    }
+}
+
+/** popover.tsx `sideOffset = 6`. */
+private val HELP_OFFSET = 6.dp
+
+/** `.qx-popover { max-inline-size: min(360px, …) }`. */
+private val HELP_MAX_WIDTH = 360.dp
+
+/**
+ * The placeholder (`::placeholder`): `color.text.subtlest`, an example, never the label. A single-line field's ends in
+ * an ellipsis where it doesn't fit, as at 200 % text, so it is never cut silently (QTRX-197); a placeholder is a short
+ * example (design rules §8), and the field doesn't grow for it.
+ */
+@Composable
+internal fun FieldPlaceholder(
+    text: String,
+    textStyle: TextStyle,
+    maxLines: Int = 1,
+) {
+    BasicText(
+        text,
+        style = textStyle.copy(color = QeetrixTheme.colors.textSubtlest).labelDirection(alignToLayout = true),
+        maxLines = maxLines,
+        overflow = if (maxLines == Int.MAX_VALUE) TextOverflow.Clip else TextOverflow.Ellipsis,
+    )
+}
+
+/** A leading icon (`.qx-input-icon`): sharp, 16 dp, decorative, `color.icon.subtle`. */
+@Composable
+internal fun FieldIcon(icon: QeetrixIconName) {
+    QeetrixIcon(
+        icon,
+        contentDescription = null,
+        size = QeetrixSize.IconSm,
+        shape = QeetrixIconShape.Sharp,
+        tint = QeetrixTheme.colors.iconSubtle,
+    )
+}
+
+/** An adornment (`.qx-input-adornment`): an affix such as ₹ or a tool, in `color.text.subtle`. */
+@Composable
+internal fun FieldAdornment(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalQeetrixContentColor provides QeetrixTheme.colors.textSubtle) {
+        Box(contentAlignment = Alignment.Center) { content() }
+    }
+}
+
+/**
+ * What a [QeetrixFieldSet] or a choice group gives the controls inside it: whether it is enabled, and — for a
+ * group's options — the group's error, which each option carries for accessibility services, and whether the group
+ * is invalid, which colours each option's border.
  */
 @Immutable
 internal class FieldGroup(
-    val message: QeetrixFieldMessage?,
     val enabled: Boolean,
+    val invalid: Boolean = false,
+    val error: String? = null,
 )
 
-internal val LocalFieldGroup = staticCompositionLocalOf { FieldGroup(message = null, enabled = true) }
+internal val LocalFieldGroup = staticCompositionLocalOf { FieldGroup(enabled = true) }
+
+/** The label as accessibility services read it: "Work email, required", or "Nickname (optional)". */
+@Composable
+internal fun accessibleLabel(
+    label: String,
+    required: Boolean,
+    optional: Boolean,
+): String =
+    when {
+        required -> "$label, ${stringResource(R.string.qx_required)}"
+        optional -> "$label ${stringResource(R.string.qx_optional)}"
+        else -> label
+    }
 
 /**
- * Stacks a group's content: fields [spacing] apart, and checkbox, radio and switch rows — each already a
- * 48 dp touch target — flush against each other, as qeetrix-ios does.
+ * The control's own AutoFill type. Applied outside the text field's own semantics, so it replaces the type
+ * Compose derives from the keyboard; `null` leaves that one.
  */
-@Composable
-internal fun FieldStack(
-    spacing: Dp,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Layout(content, modifier) { measurables, constraints ->
-        val placeables = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
-        val rows = measurables.map { it.parentData === SelectionRowData }
-        val gap = spacing.roundToPx()
-        val tops = IntArray(placeables.size)
-        var y = 0
-        placeables.forEachIndexed { index, placeable ->
-            if (index > 0) y += if (rows[index - 1] && rows[index]) 0 else gap
-            tops[index] = y
-            y += placeable.height
-        }
-        val width = (placeables.maxOfOrNull { it.width } ?: 0).coerceIn(constraints.minWidth, constraints.maxWidth)
-        layout(width, y.coerceIn(constraints.minHeight, constraints.maxHeight)) {
-            placeables.forEachIndexed { index, placeable -> placeable.placeRelative(0, tops[index]) }
-        }
-    }
-}
+internal fun Modifier.fieldContentType(contentType: ContentType?): Modifier =
+    if (contentType != null) semantics { this.contentType = contentType } else this
 
-/** Marks a checkbox, radio or labelled switch row, which [FieldStack] sets flush against the next. */
-internal fun Modifier.selectionRow(): Modifier = this then SelectionRowElement
-
-private object SelectionRowData
-
-private object SelectionRowElement : ModifierNodeElement<SelectionRowNode>() {
-    override fun create() = SelectionRowNode()
-
-    override fun update(node: SelectionRowNode) = Unit
-
-    override fun hashCode(): Int = 0
-
-    override fun equals(other: Any?): Boolean = other === this
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "selectionRow"
-    }
-}
-
-private class SelectionRowNode :
-    Modifier.Node(),
-    ParentDataModifierNode {
-    override fun Density.modifyParentData(parentData: Any?): Any = SelectionRowData
-}
-
-internal val FieldLabelStyle = qeetrixTextStyle(QeetrixFont.Ui, QeetrixWebScale.TextSm.size, QeetrixWebScale.LEADING_SNUG, FontWeightMedium)
-internal val FieldCaptionStyle = QeetrixTextRole.Caption.spec.let { qeetrixTextStyle(QeetrixFont.Sans, it.size, it.lineHeight) }
-private val FieldOptionalStyle = qeetrixTextStyle(QeetrixFont.Ui, QeetrixWebScale.TextSm.size, QeetrixWebScale.LEADING_SNUG)
-private val FieldTextBase = qeetrixTextStyle(QeetrixFont.Sans, QeetrixWebScale.TextBase)
-private val FieldTextSm = qeetrixTextStyle(QeetrixFont.Sans, QeetrixWebScale.TextSm)
-private val CaptionLineHeight = QeetrixTextRole.Caption.spec.lineHeight
+/** An error marks the control invalid for accessibility services (`aria-invalid`, described by the error). */
+internal fun Modifier.fieldError(error: String?): Modifier = if (error != null) semantics { error(error) } else this

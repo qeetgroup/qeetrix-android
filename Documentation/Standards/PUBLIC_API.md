@@ -10,25 +10,35 @@ Every Qeet Group Android app will compile against this library, so its public AP
 - **No design values from apps.** Token types (`QeetrixColors`, `QeetrixTypography`) have internal
   constructors; scales are objects of constants. Apps choose roles, never values.
 - **Names.**
-  - Token names keep the upstream path: `color.text.on-brand` → `textOnBrand`, `space.2xl` → `Xl2`
-    (a leading digit moves to the end, as on iOS).
-  - Constants and enum entries are PascalCase (`QeetrixSpacing.L`, `QeetrixElevation.Raised`); theme
-    accessors and instance properties camelCase (`QeetrixTheme.colors.textPrimary`).
-  - Values stored or compared across platforms carry the upstream string in `value` (`light`,
-    `label-compact`, `send`) or `token` (`elevation.raised`).
-  - Composables are PascalCase nouns (`QeetrixTheme`, `QeetrixIcon`); modifiers are `Modifier.qeetrix…`.
-  - Components are `Qeetrix<Component>`, their options top-level enums `Qeetrix<Component><Axis>` with the
-    web's names (`QeetrixButtonVariant.Outline`, `value = "outline"`)
-    ([0010](../Decisions/0010-component-api-conventions.md)).
+  - Token names keep the upstream path: `color.text.on-brand` → `textOnBrand`, `space.inset.lg` →
+    `QeetrixSpace.InsetLg`, `size.icon.2xs` → `QeetrixSize.Icon2xs`, `typography.label.caps` →
+    `QeetrixTextRole.LabelCaps` (`Documentation/Foundations/TOKEN_COVERAGE.md` lists every token's Kotlin name).
+  - Constants and enum entries are PascalCase (`QeetrixRadius.Control`, `QeetrixShadow.Overlay`); theme
+    accessors and instance properties camelCase (`QeetrixTheme.colors.textDefault`,
+    `QeetrixTheme.density.sizeControlLg`).
+  - Values stored or compared across platforms carry the upstream string in `value` (`light`, `body.md`,
+    `compact`, `send`) or `token` (`shadow.overlay`).
+  - Composables are PascalCase nouns (`QeetrixTheme`, `QeetrixIcon`); modifiers are `Modifier.qeetrix…`
+    (`qeetrixShadow`, `qeetrixMinimumTouchTarget`).
+  - Components are `Qeetrix<Component>`, their options top-level enums `Qeetrix<Component><Axis>` with
+    `@qeetrix/react`'s prop names and values (`QeetrixButtonVariant.Soft`, `value = "soft"`;
+    `QeetrixHeadingSize.DisplayLg`, `value = "display-lg"`), and their state the web's prop names (`value` /
+    `onValueChange`, `open` / `onOpenChange`) ([0010](../Decisions/0010-component-api-conventions.md)).
 - **Types.** Compose's own: `Color`, `Dp`, `TextUnit`, `TextStyle`, `Shape`, `Easing`. Durations are `Int`
-  milliseconds, as Compose's animation specs take them.
+  milliseconds, as Compose's animation specs take them; a snackbar's timeout and a search field's delay, which are
+  not animations, are Kotlin `Duration`s.
 - **Classes.** No `data class` in the public API (its `copy` and `componentN` are binary-compatibility
   traps); write `equals`, `hashCode` and `toString` by hand.
-- **Documentation.** KDoc on every public declaration, naming the upstream token where there is one.
+- **Documentation.** KDoc on every public declaration, naming the upstream token or the `@qeetrix/react` prop
+  where there is one.
 
 ## Changing the API
 
-Until the first release, the API may change, but every change is listed in `CHANGELOG.md`.
+Until the first release, the API may change, but every change is listed in `CHANGELOG.md`. The move from
+`@qeetrix/ui` to `@qeetrix/react` replaced most component options and every foundation scale (`QeetrixSpacing`,
+`QeetrixCorner`, `QeetrixStroke`, `QeetrixIconSize`, `QeetrixElevation`, `QeetrixDuration` / `QeetrixEasing`,
+`QeetrixFontWeight` became `QeetrixSpace`, `QeetrixRadius`, `QeetrixBorder`, `QeetrixSize`, `QeetrixShadow`,
+`QeetrixMotion` and the typography roles' own weights); `Documentation/MIGRATION_QEETRIX_REACT.md` maps each name.
 
 After the first release (semantic versioning):
 

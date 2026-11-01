@@ -1,21 +1,16 @@
 package com.qeetgroup.qeetrix.sample.components.layout
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.accordion.QeetrixAccordion
 import com.qeetgroup.qeetrix.components.accordion.QeetrixAccordionItem
-import com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch
+import com.qeetgroup.qeetrix.components.accordion.QeetrixCollapsiblePanel
+import com.qeetgroup.qeetrix.components.accordion.QeetrixCollapsibleTrigger
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
-import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
@@ -30,62 +25,36 @@ private enum class FaqTopic(
     Cancel("How do I cancel?", "From Settings › Plan. Your workspace stays readable for 30 days after cancelling."),
 }
 
-/** Sections that show and hide content: one open at a time, several at once, with descriptions and icons, and a disabled item. */
+/** Sections that show and hide: one open at a time, several at once, a disabled section, and a one-section fold. */
 @Composable
 fun AccordionSample() {
     SamplePage {
         SampleSection("One at a time") {
-            var open by rememberSaveable { mutableStateOf<FaqTopic?>(FaqTopic.Billing) }
-            QeetrixAccordion {
+            var open by rememberSaveable { mutableStateOf(listOf(FaqTopic.Billing.name)) }
+            QeetrixAccordion(value = open, onValueChange = { open = it }) {
                 for (topic in FaqTopic.entries) {
-                    key(topic) {
-                        QeetrixAccordionItem(
-                            title = topic.title,
-                            expanded = open == topic,
-                            onExpandedChange = { open = if (it) topic else null },
-                        ) { QeetrixText(topic.answer, variant = QeetrixTextVariant.Small) }
-                    }
+                    QeetrixAccordionItem(topic.name, topic.title) { QeetrixText(topic.answer) }
                 }
             }
             SampleNote(
-                "The app owns one value; opening a section closes the other. TalkBack reads each header as a heading with Expanded or Collapsed.",
+                "The app owns the open sections: a list, even when only one can be open. TalkBack reads each trigger as a " +
+                    "heading button with Expanded or Collapsed.",
             )
         }
         SampleSection("Several at once") {
-            var open by rememberSaveable { mutableStateOf(setOf("notifications")) }
-            var email by rememberSaveable { mutableStateOf(true) }
-            var push by rememberSaveable { mutableStateOf(false) }
-
-            fun toggle(id: String) = { on: Boolean -> open = if (on) open + id else open - id }
-            QeetrixAccordion {
-                QeetrixAccordionItem(
-                    title = "Notifications",
-                    expanded = "notifications" in open,
-                    onExpandedChange = toggle("notifications"),
-                    description = "Email and push",
-                    icon = QeetrixIconName.Bell,
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.Xs)) {
-                        QeetrixSwitch(checked = email, onCheckedChange = { email = it }, label = "Email")
-                        QeetrixSwitch(checked = push, onCheckedChange = { push = it }, label = "Push notifications")
-                    }
-                }
-                QeetrixAccordionItem(
-                    title = "Security",
-                    expanded = "security" in open,
-                    onExpandedChange = toggle("security"),
-                    description = "Passkeys and sessions",
-                    icon = QeetrixIconName.Lock,
-                ) { QeetrixText("Two passkeys and one active session.", variant = QeetrixTextVariant.Small) }
-                QeetrixAccordionItem(
-                    title = "Data export",
-                    expanded = false,
-                    onExpandedChange = {},
-                    description = "Available to workspace owners",
-                    icon = QeetrixIconName.Database,
-                    enabled = false,
-                ) {}
+            var open by rememberSaveable { mutableStateOf(listOf("security")) }
+            QeetrixAccordion(value = open, onValueChange = { open = it }, multiple = true) {
+                QeetrixAccordionItem("security", "Security") { QeetrixText("Two passkeys and one active session.") }
+                QeetrixAccordionItem("notifications", "Notifications") { QeetrixText("Email for invoices; push for sign-ins.") }
+                QeetrixAccordionItem("export", "Data export", enabled = false) {}
             }
+            SampleNote("Open: ${open.joinToString()}. Data export is disabled, for workspace owners only.")
+        }
+        SampleSection("Collapsible") {
+            var advanced by rememberSaveable { mutableStateOf(false) }
+            QeetrixCollapsibleTrigger("Advanced options", open = advanced, onOpenChange = { advanced = it })
+            QeetrixCollapsiblePanel(advanced) { QeetrixText("Webhook signing secret: rotate it every 90 days.") }
+            SampleNote("One section without the rules: a ghost button whose chevron turns as its panel opens.")
         }
     }
 }

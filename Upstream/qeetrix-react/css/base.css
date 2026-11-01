@@ -1,0 +1,9 @@
+@layer qx.base {
+  :where([class^="qx-"], [class*=" qx-"]), :where([class^="qx-"], [class*=" qx-"]):before, :where([class^="qx-"], [class*=" qx-"]):after {
+    box-sizing: border-box;
+  }
+  
+  [dir="rtl"] [data-qx-mirror] {
+    scale: -1 1;
+  }
+}

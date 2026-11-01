@@ -1,24 +1,27 @@
 # Licence and distribution rights
 
 Whether everything in `com.qeetgroup:qeetrix` may be distributed, under what terms, and what is still the owner's
-decision. Reviewed 2026-10-20 against the release-candidate artifact `0.1.0-rc.1`. This is an engineering review of
-the licences the materials carry, not legal advice.
+decision. Reviewed 2026-10-20 against the release-candidate artifact `0.1.0-rc.1`, and re-checked 2026-10-31 against
+`0.1.0-rc.2`: the same three licence texts in the AAR (`Scripts/verify-aar`), the fonts unmodified from
+`@qeetrix/tokens` 0.0.13 (`Scripts/verify-tokens`), 92 runtime dependencies all Apache 2.0 and an SBOM of 95
+components (`Scripts/dependency-inventory`). This is an engineering review of the licences the materials carry, not
+legal advice.
 
 ## What the artifact contains
 
 | Material | In the artifact | Rights | Evidence |
 |:--|:--|:--|:--|
 | Qeetrix for Android's own code (Kotlin, generated tokens and icon paths) | `classes.jar` | Qeet Group's. The repository is private and carries **no licence** | README › Licences; `gh repo view`: private, no licence |
-| Cal Sans 2.011, variable ("Qeet Sans" on the web) | `res/font/qx_cal_sans_vf.ttf` | SIL Open Font License 1.1, **no Reserved Font Name**. Bundling with software and redistributing are permitted if the licence travels with the font and the font is not sold on its own | The file's sha256 in the AAR equals the upstream TTF's in `Upstream/manifest.lock.json` (unmodified); its licence text is byte-identical to `calcom/sans` `v2.011` `OFL.txt` (checked 2026-10-20) |
-| Fira Code 6.2, variable | `res/font/qx_fira_code_vf.ttf` | SIL OFL 1.1, no Reserved Font Name | The same checks against `tonsky/FiraCode` `6.2` `LICENSE` |
-| Qeetrix icon drawings (39), compiled to path data | `classes.jar` | MIT (Qeet Group), with Lucide's ISC licence and Feather's MIT notice for the artwork they derive from | `assets/qeetrix/licenses/qeetrix-icons-LICENSE.txt` is byte-identical to `qeetrix-icons/LICENSE` at the pinned commit `331cd85` |
+| Cal Sans 2.011, variable ("Qeet Sans" on the web) | `res/font/qx_cal_sans_vf.ttf` (since the move to `@qeetrix/react`: `res/font/qx_qeet_sans_vf.ttf`, `@qeetrix/tokens`' `fonts/QeetSans.ttf`, with its `QeetSans-OFL.txt`) | SIL Open Font License 1.1, **no Reserved Font Name**. Bundling with software and redistributing are permitted if the licence travels with the font and the font is not sold on its own | The file's sha256 in the AAR equals the upstream TTF's in `Upstream/manifest.lock.json` (unmodified); its licence text is byte-identical to `calcom/sans` `v2.011` `OFL.txt` (checked 2026-10-20) |
+| Fira Code 6.2, variable | `res/font/qx_fira_code_vf.ttf` (since then, `@qeetrix/tokens`' `fonts/FiraCode-VF.ttf` and `FiraCode-OFL.txt`) | SIL OFL 1.1, no Reserved Font Name | The same checks against `tonsky/FiraCode` `6.2` `LICENSE` |
+| Qeetrix icon drawings (39; 41 since the move to `@qeetrix/icons` 2, now 2.1.0, whose `LICENSE` is the same text), compiled to path data | `classes.jar` | MIT (Qeet Group), with Lucide's ISC licence and Feather's MIT notice for the artwork they derive from | `assets/qeetrix/licenses/qeetrix-icons-LICENSE.txt` is byte-identical to `qeetrix-icons/LICENSE` at the pinned commit `331cd85` |
 | Licence texts | `assets/qeetrix/licenses/` (3 files) | — | `Scripts/verify-aar` requires all three |
 
 ## Dependencies an app receives
 
 92 artifacts on the locked release runtime classpath, every one **Apache 2.0** as declared in its own POM
 (`Scripts/dependency-inventory`, which fails a release candidate on any other or unknown licence): AndroidX
-(Compose, Material 3 for the bottom sheet, Activity, Lifecycle, Core and their dependencies), Kotlin's standard
+(Compose, Material 3 for the date and time pickers and pull to refresh, Activity, Lifecycle, Core and their dependencies), Kotlin's standard
 library, kotlinx-coroutines, JetBrains annotations and JSpecify. None is bundled in the AAR; the app resolves them.
 
 ## Tools (not distributed)
@@ -33,7 +36,7 @@ ktlint (MIT). [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) lists them.
 |:--|:--|
 | **Confirmed rights** | Both fonts (OFL 1.1, unmodified, no Reserved Font Name); the icon artwork (MIT, ISC); all 92 runtime dependencies (Apache 2.0) |
 | **Required notices** | The three licence texts, shipped in the AAR's assets — an app that shows open-source notices can read them from `qeetrix/licenses/`. Apache 2.0 dependencies carry their own NOTICE handling through the app's build |
-| **Owner's decision** | A licence for Qeetrix's own code. For distribution inside Qeet Group no licence is needed: the code is the organisation's own. Distributing outside it — Maven Central, partners, a public repository — needs one chosen by the owner. The web package, `@qeetrix/ui`, is published publicly to npm marked `UNLICENSED`; that is precedent, not a decision for Android |
+| **Owner's decision** | A licence for Qeetrix's own code. For distribution inside Qeet Group no licence is needed: the code is the organisation's own. Distributing outside it — Maven Central, partners, a public repository — needs one chosen by the owner. The web package then, `@qeetrix/ui`, was published publicly to npm marked `UNLICENSED`; the packages Android is now built from, `@qeetrix/tokens` and `@qeetrix/react`, are published under MIT. That is precedent, not a decision for Android |
 | **Distribution blockers** | None for internal distribution. For public distribution: the licence above |
 
 ## How this stays true

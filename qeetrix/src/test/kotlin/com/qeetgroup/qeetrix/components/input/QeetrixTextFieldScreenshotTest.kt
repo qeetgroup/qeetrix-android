@@ -1,21 +1,21 @@
 package com.qeetgroup.qeetrix.components.input
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.ui.Modifier
-import com.qeetgroup.qeetrix.icons.QeetrixIcon
+import androidx.compose.runtime.CompositionLocalProvider
+import com.qeetgroup.qeetrix.components.typography.QeetrixText
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
 import com.qeetgroup.qeetrix.screenshot.ScreenshotStack
 import com.qeetgroup.qeetrix.screenshot.captureStates
-import com.qeetgroup.qeetrix.theme.QeetrixTheme
+import com.qeetgroup.qeetrix.theme.LocalQeetrixDensity
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-/** Reviewed baselines for [QeetrixTextField] in `src/test/screenshots/textfield/`, one image per screenshot configuration. */
+/** Baselines for [QeetrixTextField] in `src/test/screenshots/textfield/`: every state of the filled field, adornments, densities. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = SCREENSHOT_QUALIFIERS)
@@ -24,27 +24,42 @@ class QeetrixTextFieldScreenshotTest {
     fun states() =
         captureStates("textfield") {
             ScreenshotStack {
-                QeetrixTextField(TextFieldState(), label = "Work email", placeholder = "you@company.com", required = true)
-                QeetrixTextField(TextFieldState("Ada Lovelace"), label = "Name", description = "As it appears on your ID.")
-                QeetrixTextField(TextFieldState("ada@"), label = "Email", message = QeetrixFieldMessage("Enter a valid email address."))
+                QeetrixTextField(TextFieldState(), label = "Work email", placeholder = "e.g. asha@acme.in", required = true)
                 QeetrixTextField(
-                    TextFieldState("ada"),
-                    label = "Username",
-                    message = QeetrixFieldMessage("Available", QeetrixFieldMessageTone.Success),
+                    TextFieldState("Asha Rao"),
+                    label = "Name",
+                    description = "As it appears on your PAN.",
+                    interactionSource = rememberHoveredSource(),
                 )
+                QeetrixTextField(TextFieldState("27AAPFU0939F1ZV"), label = "GSTIN", interactionSource = rememberFocusedSource())
                 QeetrixTextField(
-                    TextFieldState("12"),
-                    label = "Seats",
-                    message = QeetrixFieldMessage("Above your plan", QeetrixFieldMessageTone.Warning),
+                    TextFieldState("asha@"),
+                    label = "Email",
+                    description = "Hidden by the error.",
+                    error = "Enter a work email, like asha@acme.in.",
                 )
                 QeetrixTextField(TextFieldState("QX-2041"), label = "Order", readOnly = true)
-                QeetrixTextField(TextFieldState("Locked"), label = "Plan", enabled = false, optional = true)
                 QeetrixTextField(
-                    TextFieldState(),
-                    Modifier.fillMaxWidth(),
-                    placeholder = "Search",
-                    leading = { QeetrixIcon(QeetrixIconName.Search, contentDescription = null, tint = QeetrixTheme.colors.textTertiary) },
+                    TextFieldState("Locked"),
+                    label = "Plan",
+                    optional = true,
+                    enabled = false,
+                    description = "Your admin sets this.",
                 )
+                QeetrixTextField(
+                    TextFieldState("2,500"),
+                    label = "Amount",
+                    icon = QeetrixIconName.Search,
+                    startAdornment = { QeetrixText("₹") },
+                    endAdornment = { QeetrixText("per month") },
+                    help = "Billed on the first of each month.",
+                )
+                CompositionLocalProvider(LocalQeetrixDensity provides QeetrixDensity.Compact) {
+                    QeetrixTextField(TextFieldState("Compact"), label = "Compact density")
+                }
+                CompositionLocalProvider(LocalQeetrixDensity provides QeetrixDensity.Comfortable) {
+                    QeetrixTextField(TextFieldState("Comfortable"), label = "Comfortable density")
+                }
             }
         }
 }

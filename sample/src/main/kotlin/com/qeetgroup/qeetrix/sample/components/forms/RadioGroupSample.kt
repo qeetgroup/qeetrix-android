@@ -5,50 +5,63 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
+import com.qeetgroup.qeetrix.components.input.QeetrixChoiceOrientation
+import com.qeetgroup.qeetrix.components.input.QeetrixChoiceVariant
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
 import com.qeetgroup.qeetrix.components.radiogroup.QeetrixRadioGroup
+import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-/** The plans a workspace can choose — sample data. */
-enum class SamplePlan(
-    val title: String,
-    val detail: String,
-) {
-    Starter("Starter", "Up to 5 members"),
-    Team("Team", "Up to 50 members, audit logs"),
-    Enterprise("Enterprise", "Contact sales"),
-}
-
-/** The sample's plans as choices; Enterprise cannot be chosen here. */
-val SamplePlanOptions: List<QeetrixOption<SamplePlan>> =
-    SamplePlan.entries.map { QeetrixOption(it, it.title, it.detail, enabled = it != SamplePlan.Enterprise) }
-
-/** Single choice: typed options, a disabled option, nothing chosen yet, and the group's error. */
+/** One choice from a set: rows with descriptions, a required question, a wrapping row, and tiles. */
 @Composable
 fun RadioGroupSample() {
     SamplePage {
-        SampleSection("Choose a plan") {
-            var plan by rememberSaveable { mutableStateOf(SamplePlan.Team) }
-            QeetrixRadioGroup(plan, { plan = it }, SamplePlanOptions, label = "Plan", description = "You can change it at any time.")
-            SampleNote("The choice is a SamplePlan, not a string: only an option's value can be selected. Enterprise is disabled.")
-        }
-        SampleSection("Nothing chosen yet") {
-            var plan by rememberSaveable { mutableStateOf<SamplePlan?>(null) }
+        SampleSection("Billing cycle") {
+            var cycle by rememberSaveable { mutableStateOf("monthly") }
             QeetrixRadioGroup(
-                plan,
-                { plan = it },
-                SamplePlanOptions.take(2),
-                label = "Billing plan",
-                required = true,
-                message = if (plan == null) QeetrixFieldMessage("Choose a plan.") else null,
+                cycle,
+                { cycle = it },
+                listOf(
+                    QeetrixOption("monthly", "Monthly"),
+                    QeetrixOption("yearly", "Yearly", description = "Two months free, billed once a year."),
+                    QeetrixOption("custom", "Custom", description = "Talk to sales.", enabled = false),
+                ),
+                label = "Billing cycle",
+                description = "You can change it later.",
             )
-            SampleNote("null is a value no option has. Until one is chosen, every option carries the error for TalkBack.")
+            SampleNote("One tab stop for the group; each option is a radio button read with its description.")
+        }
+        SampleSection("A required question") {
+            var language by rememberSaveable { mutableStateOf<String?>(null) }
+            QeetrixRadioGroup(
+                language,
+                { language = it },
+                listOf(QeetrixOption("en", "English"), QeetrixOption("hi", "हिन्दी")),
+                label = "Invoice language",
+                required = true,
+                orientation = QeetrixChoiceOrientation.Horizontal,
+                error = if (language == null) "Choose a language for invoices." else null,
+            )
+        }
+        SampleSection("Tiles") {
+            var type by rememberSaveable { mutableStateOf("web") }
+            QeetrixRadioGroup(
+                type,
+                { type = it },
+                listOf(
+                    QeetrixOption("web", "Web app", "Users sign in through a redirect.", icon = QeetrixIconName.House),
+                    QeetrixOption("service", "Service", "Machine to machine, no user.", icon = QeetrixIconName.Server),
+                    QeetrixOption("native", "Native app", "On phones and desktops.", icon = QeetrixIconName.Settings),
+                ),
+                label = "Application type",
+                variant = QeetrixChoiceVariant.Tile,
+                columns = 3,
+            )
+            SampleNote("The chosen tile takes the selected tint and a 2 dp Ember edge; the whole tile is the target.")
         }
     }
 }
@@ -57,10 +70,4 @@ fun RadioGroupSample() {
 @Composable
 private fun RadioGroupSamplePreview() {
     SamplePreview { RadioGroupSample() }
-}
-
-@Preview(name = "Right to left", locale = "ar")
-@Composable
-private fun RadioGroupRightToLeftPreview() {
-    SamplePreview { QeetrixRadioGroup(SamplePlan.Team, {}, SamplePlanOptions, label = "Plan") }
 }

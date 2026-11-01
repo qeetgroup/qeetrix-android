@@ -1,7 +1,5 @@
 package com.qeetgroup.qeetrix.sample.components.forms
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -13,73 +11,73 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.badge.QeetrixBadge
-import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeVariant
+import com.qeetgroup.qeetrix.components.badge.QeetrixBadgeTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
+import com.qeetgroup.qeetrix.components.form.QeetrixForm
 import com.qeetgroup.qeetrix.components.form.QeetrixFormActions
 import com.qeetgroup.qeetrix.components.form.QeetrixFormError
-import com.qeetgroup.qeetrix.components.form.QeetrixFormErrorSummary
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
 import com.qeetgroup.qeetrix.components.input.QeetrixTextField
-import com.qeetgroup.qeetrix.components.input.QeetrixTextarea
-import com.qeetgroup.qeetrix.components.select.QeetrixSelect
+import com.qeetgroup.qeetrix.components.radiogroup.QeetrixRadioGroup
+import com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
-import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import kotlinx.coroutines.delay
 
 /**
- * Form validation presentation: a profile form whose rules belong to the sample. Submitting shows each
- * field's message and an error summary whose links move focus to the field; the keyboard's Next moves
- * through the fields. Nothing is sent anywhere.
+ * The increment-3 form: GSTIN, PAN, an optional trade name, a billing-cycle question, an auto-renew switch, and a
+ * "server" error on one field. Submitting shows each field's error and the summary, whose links move focus to the
+ * fields. The rules are the sample's; nothing is sent anywhere.
  */
 @Composable
 fun FormSample() {
     SamplePage {
-        SampleSection("Profile information") {
-            ProfileForm()
-        }
+        SampleSection("Business details") { BusinessForm() }
         SampleNote(
-            "Qeetrix shows the messages; the rules here are the sample's. A form is a Column spaced by the density's " +
-                "field gap; QeetrixFormActions stacks the buttons on a phone, primary on top.",
+            "Qeetrix shows the errors; the rules here are the sample's. The summary is worded as what to do, takes " +
+                "focus when it appears, and each item is worded exactly as the field's own error.",
         )
     }
 }
 
 @Composable
-private fun ProfileForm() {
-    val name = rememberTextFieldState()
-    val email = rememberTextFieldState()
-    var role by rememberSaveable { mutableStateOf<String?>(null) }
-    val bio = rememberTextFieldState()
+private fun BusinessForm() {
+    val gstin = rememberTextFieldState()
+    val pan = rememberTextFieldState()
+    val tradeName = rememberTextFieldState()
+    var cycle by rememberSaveable { mutableStateOf<String?>(null) }
+    var autoRenew by rememberSaveable { mutableStateOf(true) }
     var submitted by rememberSaveable { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
     var saved by rememberSaveable { mutableStateOf(false) }
-    val summaryFocus = remember { FocusRequester() }
-    val nameFocus = remember { FocusRequester() }
-    val emailFocus = remember { FocusRequester() }
-    val roleFocus = remember { FocusRequester() }
+    val gstinFocus = remember { FocusRequester() }
+    val panFocus = remember { FocusRequester() }
 
-    val nameError = if (submitted && name.text.isBlank()) "Enter your name." else null
-    val emailError = if (submitted && !looksLikeEmail(email)) "Enter an email address like name@example.com." else null
-    val roleError = if (submitted && role == null) "Choose your role." else null
+    val gstinError = if (submitted && gstin.text.length != 15) "Enter a GSTIN, like 27AAPFU0939F1ZV." else null
+    // The "server" knows this PAN already: an error that arrives after a submit.
+    val panError =
+        when {
+            submitted && pan.text.length != 10 -> "Enter a PAN, like AAPFU0939F."
+            submitted && pan.text.toString() == "AAPFU0939F" -> "That PAN is already registered. Sign in instead."
+            else -> null
+        }
+    val cycleError = if (submitted && cycle == null) "Choose a billing cycle." else null
     val errors =
         listOfNotNull(
-            nameError?.let { QeetrixFormError(it) { nameFocus.requestFocus() } },
-            emailError?.let { QeetrixFormError(it) { emailFocus.requestFocus() } },
-            roleError?.let { QeetrixFormError(it) { roleFocus.requestFocus() } },
+            gstinError?.let { QeetrixFormError(it) { gstinFocus.requestFocus() } },
+            panError?.let { QeetrixFormError(it) { panFocus.requestFocus() } },
+            cycleError?.let { QeetrixFormError(it) },
         )
     LaunchedEffect(saving) {
         if (saving) {
@@ -89,59 +87,52 @@ private fun ProfileForm() {
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(QeetrixTheme.density.fieldGap)) {
-        QeetrixFormErrorSummary(errors, Modifier.focusRequester(summaryFocus))
+    QeetrixForm(errors = errors) {
         QeetrixTextField(
-            name,
-            Modifier.focusRequester(nameFocus),
-            label = "Full name",
-            required = true,
-            message = nameError?.let { QeetrixFieldMessage(it) },
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next),
-            contentType = ContentType.PersonFullName,
+            gstin,
+            label = "GSTIN",
+            modifier = Modifier.focusRequester(gstinFocus),
+            description = "15 characters.",
+            error = gstinError,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, imeAction = ImeAction.Next),
         )
         QeetrixTextField(
-            email,
-            Modifier.focusRequester(emailFocus),
-            label = "Email",
-            required = true,
-            message = emailError?.let { QeetrixFieldMessage(it) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+            pan,
+            label = "PAN",
+            modifier = Modifier.focusRequester(panFocus),
+            error = panError,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, imeAction = ImeAction.Next),
         )
-        QeetrixSelect(
-            role,
-            { role = it },
-            listOf("Design", "Engineering", "Operations", "Sales").map { QeetrixOption(it, it) },
-            Modifier.focusRequester(roleFocus),
-            label = "Role",
-            placeholder = "Choose your role",
-            required = true,
-            message = roleError?.let { QeetrixFieldMessage(it) },
+        QeetrixTextField(tradeName, label = "Trade name", optional = true, placeholder = "e.g. Acme Pvt Ltd")
+        QeetrixRadioGroup(
+            cycle,
+            { cycle = it },
+            listOf(QeetrixOption("monthly", "Monthly"), QeetrixOption("yearly", "Yearly", description = "Two months free.")),
+            label = "Billing cycle",
+            error = cycleError,
         )
-        QeetrixTextarea(bio, label = "About you", optional = true, placeholder = "A line or two for your colleagues.")
-        if (saved &&
-            errors.isEmpty()
-        ) {
-            QeetrixBadge("Profile saved", variant = QeetrixBadgeVariant.Success, icon = QeetrixIconName.CircleCheck)
-        }
+        QeetrixSwitch(autoRenew, { autoRenew = it }, label = "Auto-renew")
+        if (saved && errors.isEmpty()) QeetrixBadge("Saved", tone = QeetrixBadgeTone.Success, icon = QeetrixIconName.CircleCheck)
         QeetrixFormActions {
-            QeetrixButton("Cancel", onClick = { submitted = false }, variant = QeetrixButtonVariant.Outline)
+            QeetrixButton("Cancel", onClick = { submitted = false }, variant = QeetrixButtonVariant.Ghost, size = QeetrixButtonSize.Lg)
             QeetrixButton(
-                "Save profile",
+                "Save",
                 onClick = {
                     submitted = true
                     saved = false
-                    val invalid = name.text.isBlank() || !looksLikeEmail(email) || role == null
-                    if (invalid) summaryFocus.requestFocus() else saving = true
+                    if (isValid(gstin, pan) && cycle != null) saving = true
                 },
+                size = QeetrixButtonSize.Lg,
                 loading = saving,
-                loadingLabel = "Saving…",
             )
         }
     }
 }
 
-private fun looksLikeEmail(state: TextFieldState): Boolean = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$").matches(state.text)
+private fun isValid(
+    gstin: TextFieldState,
+    pan: TextFieldState,
+): Boolean = gstin.text.length == 15 && pan.text.length == 10 && pan.text.toString() != "AAPFU0939F"
 
 @PreviewLightDark
 @Composable

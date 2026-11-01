@@ -1,40 +1,40 @@
 # Textarea
 
-`QeetrixTextarea` · `components.input` · web: [Textarea](https://ui.qeet.in/docs/components/textarea) ·
-sample: Forms & inputs → Textarea
+`QeetrixTextarea` · `components.input` · `@qeetrix/react`: Textarea in a Field
+([Textarea](https://ui.qeet.in/components/textarea)) · sample: Forms → Textarea
 
-Multi-line text — notes, feedback, addresses — on the same field parts as the text field.
+Multi-line text with the look and states of the [text field](TextField.md), for notes, feedback and addresses.
 
 ```kotlin
 val feedback = rememberTextFieldState()
-QeetrixTextarea(feedback, label = "What could be better?", description = "Up to 500 characters.",
-    inputTransformation = InputTransformation.maxLength(500))
+QeetrixTextarea(feedback, label = "What could be better?", maxRows = 8,
+    description = "Up to 500 characters.", inputTransformation = InputTransformation.maxLength(500))
 ```
 
-## Usage
+## API
 
-- The text is a `TextFieldState` you own; Enter starts a new line.
-- It grows with its text from two control heights (64 dp at default density) to 384 dp, then scrolls
-  inside itself. `minLines` and `maxLines` set the height in lines within those bounds.
-- Limits and filters are input transformations. Plain text only: no formatting, Markdown or attachments.
+| `@qeetrix/react` | Android |
+|:--|:--|
+| `rows` (default 3) | `rows: Int = 3` — the height before it grows |
+| `maxRows` | `maxRows: Int?` — then it scrolls; without it, it keeps growing |
+| Field and Input props | as [Text field](TextField.md), without the adornments |
 
-## States
+Old `minLines` / `maxLines` became `rows` / `maxRows`; the old 384 dp cap is gone (the web has none).
 
-Label, required and optional markers, description, the three message tones, read-only (dashed, can be
-selected and copied) and disabled — as the [text field](TextField.md).
+## Look
+
+The text field's box, states and corners (input.css `.qx-textarea`), with block padding
+`(size.control.lg − 1 line) / 2` — 10 dp at the default density — so a one-line textarea is a text field's height,
+and each row adds a `body.md` line. The line is measured at the 1× font scale for the padding; the text itself
+follows the font scale.
 
 ## Accessibility
 
-One editable text field named by its label; TalkBack reads its lines. The error state and announcements
-are the text field's. Text follows the font scale with a 1.5 line height (`leading-normal`).
-
-## Theme and tokens
-
-`component.input.*`; `px-2.5 py-2`; the field text step (16 sp below a 768 dp window, 14 sp above).
+As [Text field](TextField.md). Enter starts a new line; the keyboard action is the caller's.
 
 ## Platform differences
 
-The web textarea can also be resized by dragging its corner; Android, like iOS, grows with the text
-instead.
+- **Growing.** The web grows through CSS `field-sizing: content`; Compose's multi-line limits do the same.
+- **Resizing.** There is no drag handle to make it taller on Android.
 
 Related: [Text field](TextField.md), [Field](Field.md).

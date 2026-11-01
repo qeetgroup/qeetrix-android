@@ -1,45 +1,46 @@
 # Section header
 
-`QeetrixSectionHeader` · `components.list` · web: none (Android and iOS only) ·
-sample: Data display → List item
+`QeetrixSectionHeader` · `components.list` · `@qeetrix/react`: none — drawn as the Sidebar's group label
+(`.qx-sidebar-group-label`) · sample: Data display → List item
 
-The heading of a group of rows: a title, an optional description and an optional action. A list section is
-Compose's own: a `LazyColumn` with an `item` or `stickyHeader` per group, and this header in it.
+The label of a group of rows: a group label in `typography.label.caps`, Qeetrix's one uppercase role (design
+rules §5), with an optional description and action. A list section is Compose's own: a `LazyColumn` with an
+`item` or `stickyHeader` per group, and this header in it.
 
 ```kotlin
 LazyColumn {
-    for ((team, people) in membersByTeam) {
-        stickyHeader(key = "team-$team") {
-            QeetrixSectionHeader(team, Modifier.background(QeetrixTheme.colors.surfaceCanvas), description = "${people.size} people")
+    for ((index, group) in groups.withIndex()) {
+        stickyHeader(key = "header-${group.id}") {
+            QeetrixSectionHeader(group.label, Modifier.background(QeetrixTheme.colors.surfaceCanvas), ruled = index > 0)
         }
-        items(people, key = { it.id }) { person -> QeetrixListItem(person.name, description = person.email) }
+        items(group.members, key = { it.id }) { member -> QeetrixListItem(member.name) }
     }
 }
 ```
 
-## Usage
+## Look
 
-- **Sections are a pattern, not a component.** Qeetrix adds no section container: Compose's lazy list
-  already groups, scrolls, recycles and keeps headers sticky. Give each header a key of its own that can't
-  clash with an item's (`"team-$team"`).
-- **Sticky headers** draw over the rows that scroll under them, so give them the surface they sit on through
-  `modifier`, as above.
-- **The action** — typically a link-style [button](Button.md) ("Invite", "See all") — is its own control.
-- Outside a lazy list, put the header above a `Column` of rows.
+- The label in small, tracked capitals (`label.caps`: 11 / 16 sp, weight 600, +6%) in `color.text.subtlest`.
+- `space.gap.sm` and a 1 dp `color.border.subtle` rule above, `space.inset.md` from the rule to the label, 6 dp
+  from the label to the rows, the rows' 16 dp inset. `ruled = false` for the first group of a list, as the
+  Sidebar's first group has no rule.
+- An optional `description` in `body.sm`, `color.text.subtle` (not upper-cased), and an `action` at the end —
+  typically a ghost button.
 
 ## Accessibility
 
-The title is a heading, so TalkBack's heading navigation moves between groups; the description is read
-with it. The action is a separate control.
+- Write the label in sentence case: the capitals are styling. TalkBack reads the words as written, as a heading
+  with its description, so heading navigation moves between groups. The action is its own control.
+- Indic text has no capitals and renders as written, without the tracking, so conjuncts stay intact (the web
+  drops it for Hindi, Marathi, Bengali, Tamil and the other Indic languages; Android looks at the label's script).
 
 ## Theme and tokens
 
-font-heading text-sm semibold title in `text.primary`, text-sm description in `text.tertiary`; the rows'
-16 dp sides, 16 dp above and 8 dp below.
+`typography.label.caps` / `body.sm`, `color.text.subtlest` / `subtle`, `color.border.subtle`,
+`space.gap.sm` / `xs` / `md`, `space.inset.md` / `lg`.
 
 ## Platform differences
 
-iOS puts it in a native `Section` header, which would otherwise upper-case it. Android has no list section
-style to override.
+The web has no section header for rows. Removed since 2.x: the `title.sm`-like heading style (now a group label).
 
-Related: [List item](ListItem.md).
+Related: [List item](ListItem.md), [Timeline](Timeline.md) (its group labels).

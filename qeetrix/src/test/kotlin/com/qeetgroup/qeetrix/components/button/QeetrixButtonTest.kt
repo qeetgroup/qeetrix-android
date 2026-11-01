@@ -1,6 +1,7 @@
 package com.qeetgroup.qeetrix.components.button
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -21,6 +22,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.setQeetrix
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
+import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.theme.LocalQeetrixDensity
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -69,18 +73,40 @@ class QeetrixButtonTest {
         assertEquals(1, clicks)
     }
 
-    /** Real text layout (native graphics): widths depend on the bundled font's metrics. */
+    /** Real layout (native graphics): the zone holds its width, so loading never moves the label. */
     @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun aLoadingLabelReplacesTheNameAndHoldsTheWidth() {
+    fun loadingPutsTheSpinnerInTheIconZoneAndKeepsTheWidth() {
         var loading by mutableStateOf(false)
         compose.setQeetrix {
-            QeetrixButton("Save changes", onClick = {}, loading = loading, loadingLabel = "Saving…", modifier = Modifier.testTag("b"))
+            QeetrixButton("Save changes", onClick = {}, icon = QeetrixIconName.Check, loading = loading, modifier = Modifier.testTag("b"))
         }
         val resting = compose.onNodeWithTag("b").getUnclippedBoundsInRoot().let { it.right - it.left }
         loading = true
-        compose.onNodeWithTag("b").assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Saving…")))
+        compose.onNodeWithTag("b").assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Loading"))
         assertEquals(resting, compose.onNodeWithTag("b").getUnclippedBoundsInRoot().let { it.right - it.left })
+    }
+
+    /** button.css: block-size is size.control.* of the density. */
+    @Test
+    fun heightsFollowTheDensity() {
+        compose.setQeetrix {
+            CompositionLocalProvider(LocalQeetrixDensity provides QeetrixDensity.Comfortable) {
+                Row {
+                    for (size in QeetrixButtonSize.entries) {
+                        QeetrixButton(
+                            "Go",
+                            onClick = {},
+                            size = size,
+                            modifier = Modifier.testTag(size.value),
+                        )
+                    }
+                }
+            }
+        }
+        // 32 / 36 / 44 at comfortable; the drawn button sits inside its 48 dp touch area.
+        compose.onNodeWithTag("lg").assertHeightIsAtLeast(48.dp)
+        assertEquals(44.dp, QeetrixDensity.Comfortable.sizeControlLg)
     }
 
     @Test
@@ -105,9 +131,10 @@ class QeetrixButtonTest {
     @Test
     fun variantsAndSizesAreTheWebs() {
         assertEquals(
-            listOf("default", "outline", "secondary", "ghost", "destructive", "link"),
+            listOf("solid", "soft", "ghost"),
             QeetrixButtonVariant.entries.map { it.value },
         )
-        assertEquals(listOf("default", "xs", "sm", "lg"), QeetrixButtonSize.entries.map { it.value })
+        assertEquals(listOf("brand", "danger", "neutral"), QeetrixButtonTone.entries.map { it.value })
+        assertEquals(listOf("sm", "md", "lg"), QeetrixButtonSize.entries.map { it.value })
     }
 }

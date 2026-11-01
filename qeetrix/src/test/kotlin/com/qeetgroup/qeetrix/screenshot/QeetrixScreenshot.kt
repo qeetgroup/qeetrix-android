@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.github.takahirom.roborazzi.captureRoboImage
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import com.qeetgroup.qeetrix.theme.QeetrixThemeMode
 import org.robolectric.RuntimeEnvironment
@@ -69,7 +69,7 @@ internal fun captureQeetrix(
             LocalLayoutDirection provides config.direction,
         ) {
             QeetrixTheme(config.mode) {
-                Box(Modifier.background(QeetrixTheme.colors.surfaceCanvas).padding(QeetrixSpacing.L)) { content() }
+                Box(Modifier.background(QeetrixTheme.colors.surfaceCanvas).padding(QeetrixSpace.InsetLg)) { content() }
             }
         }
     }

@@ -31,7 +31,7 @@ class QeetrixIconButtonTest {
     fun anIconButtonIsNamedByItsDescriptionNotItsIcon() {
         var clicks = 0
         compose.setQeetrix {
-            QeetrixIconButton(QeetrixIconName.X, contentDescription = "Close", onClick = { clicks++ }, size = QeetrixIconButtonSize.Xs)
+            QeetrixIconButton(QeetrixIconName.X, contentDescription = "Close", onClick = { clicks++ }, size = QeetrixButtonSize.Sm)
         }
         compose
             .onNodeWithContentDescription("Close")
@@ -71,7 +71,10 @@ class QeetrixIconButtonTest {
     }
 
     @Test
-    fun sizesAreTheWebs() {
-        assertEquals(listOf("icon", "icon-xs", "icon-sm", "icon-lg"), QeetrixIconButtonSize.entries.map { it.value })
+    fun itIsGhostAndSquareByDefault() {
+        compose.setQeetrix { QeetrixIconButton(QeetrixIconName.X, contentDescription = "Close", onClick = {}) }
+        // .qx-icon-button: a size.control.md square (32 dp at the default density) inside a 48 dp touch area.
+        compose.onNodeWithContentDescription("Close").assertHeightIsAtLeast(48.dp)
+        assertEquals(32.dp, com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity.Default.sizeControlMd)
     }
 }

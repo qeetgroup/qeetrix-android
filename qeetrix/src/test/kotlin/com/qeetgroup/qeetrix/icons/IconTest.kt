@@ -11,7 +11,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import com.qeetgroup.qeetrix.TestSupport
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixIconSize
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import com.qeetgroup.qeetrix.theme.QeetrixThemeMode
 import org.json.JSONArray
@@ -54,9 +54,13 @@ class IconTest {
                     )
                 }
             }
-            assertEquals(entry.getString("directionality") == "mirror", name.mirrorsInRightToLeft)
+            // The catalogue's mirroring only: arrows and chevrons are "preserve", and the place they're used decides
+            // (QTRX-200).
+            assertEquals(name.value, entry.getString("directionality") == "mirror", name.mirrorsInRightToLeft)
         }
         assertTrue(QeetrixIconName.Send.mirrorsInRightToLeft)
+        assertFalse(QeetrixIconName.ChevronRight.mirrorsInRightToLeft)
+        assertFalse(QeetrixIconName.ChevronDown.mirrorsInRightToLeft)
         assertFalse(QeetrixIconName.Search.mirrorsInRightToLeft)
     }
 
@@ -105,12 +109,12 @@ class IconTest {
     fun aMeaningfulIconIsAnImageWithItsLabel() {
         compose.setContent {
             QeetrixTheme(QeetrixThemeMode.Light) {
-                QeetrixIcon(QeetrixIconName.Lock, contentDescription = "Locked", size = QeetrixIconSize.Lg)
+                QeetrixIcon(QeetrixIconName.Lock, contentDescription = "Locked", size = QeetrixSize.IconLg)
             }
         }
         compose
             .onNodeWithContentDescription("Locked")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Image))
-            .assertHeightIsEqualTo(QeetrixIconSize.Lg)
+            .assertHeightIsEqualTo(QeetrixSize.IconLg)
     }
 }

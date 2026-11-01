@@ -15,7 +15,7 @@ import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-/** The bottom bar with the app's own selection, a badge, a reselected destination and a disabled one. */
+/** The bottom bar with the app's own current destination, a badge, a reselected destination and a disabled one. */
 @Composable
 fun NavigationBarSample() {
     SamplePage {
@@ -24,15 +24,16 @@ fun NavigationBarSample() {
             var reselected by rememberSaveable { mutableIntStateOf(0) }
             QeetrixNavigationBar(
                 items = sampleDestinations(),
-                selected = destination,
-                onSelect = {
+                value = destination,
+                onValueChange = {
                     if (it == destination) reselected++
                     destination = it
                 },
             )
             SampleNote(
-                "Showing ${destination.title}. The app owns the selection: the bar reports each choice, and choosing the " +
-                    "current destination again ($reselected times so far) lets the app scroll it back to the top.",
+                "Showing ${destination.title}. The current destination is tinted, its round icon Ember and filled, with the " +
+                    "Ember bar on its top edge. The bar reports each choice, and choosing the current destination again " +
+                    "($reselected times so far) lets the app scroll it back to the top.",
             )
         }
         SampleSection("Unavailable destination") {
@@ -43,8 +44,8 @@ fun NavigationBarSample() {
                         QeetrixNavigationItem("admin", "Admin", QeetrixIconName.Lock, enabled = false),
                         QeetrixNavigationItem("settings", "Settings", QeetrixIconName.Settings),
                     ),
-                selected = "home",
-                onSelect = {},
+                value = "home",
+                onValueChange = {},
             )
             SampleNote("TalkBack reads each item as a tab with its label, badge and whether it is selected.")
         }

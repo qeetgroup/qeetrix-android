@@ -1,5 +1,6 @@
 package com.qeetgroup.qeetrix.components.card
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,139 +9,149 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.ParentDataModifier
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Dp
-import com.qeetgroup.qeetrix.foundation.color.QeetrixOpacity
-import com.qeetgroup.qeetrix.foundation.elevation.QeetrixElevation
-import com.qeetgroup.qeetrix.foundation.elevation.qeetrixElevation
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
-import com.qeetgroup.qeetrix.internal.FontWeightMedium
-import com.qeetgroup.qeetrix.internal.QeetrixFont
-import com.qeetgroup.qeetrix.internal.QeetrixWebScale
-import com.qeetgroup.qeetrix.internal.drawOutlineRing
-import com.qeetgroup.qeetrix.internal.qeetrixFocusRing
-import com.qeetgroup.qeetrix.internal.qeetrixTextStyle
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
+import com.qeetgroup.qeetrix.foundation.motion.qeetrixAnimationSpec
+import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
+import com.qeetgroup.qeetrix.internal.FocusFrame
+import com.qeetgroup.qeetrix.internal.QeetrixActionRow
+import com.qeetgroup.qeetrix.internal.drawInsideRing
+import com.qeetgroup.qeetrix.internal.firstLineHeight
+import com.qeetgroup.qeetrix.internal.labelDirection
+import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixCardComponentTokens
+import kotlin.math.max
 
-/** The surface treatments of [QeetrixCard] (`value` is the web name). */
+/** The surface of a [QeetrixCard] (`value` is `@qeetrix/react`'s `variant`). Both are ruled and flat (design rules §12). */
 public enum class QeetrixCardVariant(
     public val value: String,
 ) {
-    /** The resting card: a boundary plus the faintest shadow. */
+    /** `color.surface.raised`: the content of a page. The default. */
     Default("default"),
 
-    /** No shadow, for dense layouts and repeated tiles. */
-    Outline("outline"),
-
-    /** One step forward: for the one surface on a screen that should stand out, not as a default. */
-    Elevated("elevated"),
+    /** `color.surface.sunken`: a secondary panel beside or below the main content. Still ruled, still no shadow. */
+    Subdued("subdued"),
 }
 
-/** The padding and gap scale of [QeetrixCard] — not its width (`value` is the web name). */
-public enum class QeetrixCardSize(
+/** What a [QeetrixCard] means (`value` is `@qeetrix/react`'s `tone`). */
+public enum class QeetrixCardTone(
     public val value: String,
 ) {
-    /** 16 dp padding and gaps. */
-    Default("default"),
+    /** The default. */
+    Neutral("neutral"),
 
-    /** 12 dp padding and gaps, and a 14 sp title. */
-    Sm("sm"),
+    /**
+     * A "danger zone" of settings that delete or can't be undone: the border `color.border.danger` and the title
+     * `color.text.danger`. The rules inside stay neutral, and the title still says what it is: colour never stands
+     * alone.
+     */
+    Danger("danger"),
 }
 
 /**
- * A surface that groups related content: an optional header ([title], [description] and an [action]),
- * the [content], and an optional [footer] band.
+ * Related content on a page — `@qeetrix/react`'s Card: a ruled, flat surface (`color.surface.raised`, a 1 dp
+ * `color.border.default` edge, 4 dp corners, no shadow; design rules §12).
  *
- * A card is static: accessibility services read its parts in order. The [title] is announced as a
- * heading. [selected] paints the selected boundary (2 dp, brand) and is visual only: the state itself
- * belongs to the control that owns it, such as a radio button inside the card. A card inside a card
- * keeps its boundary and drops its shadow, so nesting never stacks elevation.
+ * - **Header.** A [title] (`title.sm`) and [description] (`body.sm`, `color.text.subtle`), with [actions] at its end
+ *   (a ghost "View all" button), on 16 dp padding, over a 1 dp rule when a body follows. Without any of the three
+ *   there is no header.
+ * - **Body** ([content]): 16 dp padding, `body.md` text in `color.text.default`. A
+ *   [com.qeetgroup.qeetrix.components.descriptionlist.QeetrixDescriptionList] in the rows layout placed directly in it
+ *   runs edge to edge, its rows keeping the card's padding. Without content there is no body.
+ * - **Footer** ([footer]): actions, end-aligned and wrapping, on 16 dp padding under a 1 dp rule.
+ *
+ * The title is a heading for accessibility services, so TalkBack's heading navigation reaches the card. The web
+ * takes a heading `level` with the title; Android has no heading levels.
  *
  * ```
- * QeetrixCard(title = "Workspace", description = "3 members", footer = { QeetrixButton("Manage", onClick = {}) }) {
- *     QeetrixText("Created 12 March")
+ * QeetrixCard(
+ *     title = "Workspace",
+ *     description = "3 members",
+ *     actions = { QeetrixButton("View all", onClick = ::openMembers, variant = QeetrixButtonVariant.Ghost) },
+ *     footer = { QeetrixButton("Manage", onClick = ::manage) },
+ * ) {
+ *     QeetrixText("Created 12 March.")
  * }
+ * QeetrixCard(title = "Delete workspace", tone = QeetrixCardTone.Danger) { … }
  * ```
  */
 @Composable
 public fun QeetrixCard(
     modifier: Modifier = Modifier,
-    variant: QeetrixCardVariant = QeetrixCardVariant.Default,
-    size: QeetrixCardSize = QeetrixCardSize.Default,
-    selected: Boolean = false,
     title: String? = null,
     description: String? = null,
-    action: (@Composable () -> Unit)? = null,
-    footer: (@Composable RowScope.() -> Unit)? = null,
-    content: (@Composable ColumnScope.() -> Unit)? = null,
+    variant: QeetrixCardVariant = QeetrixCardVariant.Default,
+    tone: QeetrixCardTone = QeetrixCardTone.Neutral,
+    actions: (@Composable () -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
+    content: (@Composable () -> Unit)? = null,
 ) {
-    CardSurface(
-        modifier = modifier,
-        variant = variant,
-        size = size,
-        selected = selected,
-        interaction = null,
-        title = title,
-        description = description,
-        action = action,
-        footer = footer,
-        content = content,
-    )
+    CardSurface(modifier, title, description, variant, tone, actions, footer, interaction = null, content = content)
 }
 
 /**
- * A [QeetrixCard] that is itself the control: the whole card is one button. It lifts on hover, settles
- * on press and shows its hover boundary while pressed (touch has no hover), draws the Qeet focus ring
- * for keyboard focus, and accessibility services read its content as the button's label.
+ * A [QeetrixCard] that is itself one control: a whole-card choice or link, such as a plan to choose or a project to
+ * open. `@qeetrix/react` has no clickable Card (its spec names a separate SelectionCard, not built yet), so this one
+ * takes the choice tile's look (RadioGroup and CheckboxGroup `variant="tile"`): `color.bg.neutral.subtle` under the
+ * pointer, a step darker while pressed, and when [selected] `color.bg.selected` with a 2 dp `color.border.brand`
+ * edge, drawn inside so nothing moves. Keyboard focus draws the 2 dp Ember frame round it.
  *
- * Use it when the card does one thing (open a record, choose a plan). A card with several actions is a
- * static card with buttons inside.
+ * Accessibility services read its text as one button. [selected] only draws: the owner of a choice states it (a
+ * `Modifier.semantics { selected = … }` on [modifier], and `selectableGroup()` on the column of cards). [enabled]
+ * `false` takes the disabled text colours and ignores taps. A card with several actions is a static card with
+ * buttons inside.
  */
 @Composable
 public fun QeetrixCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    variant: QeetrixCardVariant = QeetrixCardVariant.Default,
-    size: QeetrixCardSize = QeetrixCardSize.Default,
     selected: Boolean = false,
     title: String? = null,
     description: String? = null,
-    footer: (@Composable RowScope.() -> Unit)? = null,
+    variant: QeetrixCardVariant = QeetrixCardVariant.Default,
+    tone: QeetrixCardTone = QeetrixCardTone.Neutral,
+    footer: (@Composable () -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
-    content: (@Composable ColumnScope.() -> Unit)? = null,
+    content: (@Composable () -> Unit)? = null,
 ) {
     CardSurface(
-        modifier = modifier,
-        variant = variant,
-        size = size,
-        selected = selected,
-        interaction = CardInteraction(onClick, enabled, interactionSource),
-        title = title,
-        description = description,
-        action = null,
+        modifier,
+        title,
+        description,
+        variant,
+        tone,
+        actions = null,
         footer = footer,
+        interaction = CardInteraction(onClick, enabled, selected, interactionSource),
         content = content,
     )
 }
@@ -148,68 +159,52 @@ public fun QeetrixCard(
 private class CardInteraction(
     val onClick: () -> Unit,
     val enabled: Boolean,
+    val selected: Boolean,
     val source: MutableInteractionSource?,
 )
-
-/** Inside a card, a nested card draws no shadow (`in-data-[slot=card]:shadow-none`). */
-private val LocalInsideQeetrixCard = staticCompositionLocalOf { false }
 
 @Composable
 private fun CardSurface(
     modifier: Modifier,
-    variant: QeetrixCardVariant,
-    size: QeetrixCardSize,
-    selected: Boolean,
-    interaction: CardInteraction?,
     title: String?,
     description: String?,
-    action: (@Composable () -> Unit)?,
-    footer: (@Composable RowScope.() -> Unit)?,
-    content: (@Composable ColumnScope.() -> Unit)?,
+    variant: QeetrixCardVariant,
+    tone: QeetrixCardTone,
+    actions: (@Composable () -> Unit)?,
+    footer: (@Composable () -> Unit)?,
+    interaction: CardInteraction?,
+    content: (@Composable () -> Unit)?,
 ) {
-    val shape = RoundedCornerShape(QeetrixCardComponentTokens.Corner)
+    val colors = QeetrixTheme.colors
+    val shape = QeetrixShapes.Surface // .qx-card border-radius: radius.surface
     val source = interaction?.let { it.source ?: remember { MutableInteractionSource() } }
     val hovered = source?.collectIsHoveredAsState()?.value ?: false
     val pressed = source?.collectIsPressedAsState()?.value ?: false
-    val nested = LocalInsideQeetrixCard.current
-    val elevation =
+    val active = interaction != null && interaction.enabled
+    val selected = interaction?.selected == true
+    val rest = if (variant == QeetrixCardVariant.Subdued) colors.surfaceSunken else colors.surfaceRaised // [data-variant="subdued"]
+    val fill =
         when {
-            nested -> QeetrixElevation.Flat
-
-            interaction != null && interaction.enabled && pressed -> QeetrixCardComponentTokens.Elevation
-
-            // active:shadow-(card-elevation)
-            interaction != null && interaction.enabled && hovered -> QeetrixCardComponentTokens.ElevationHover
-
-            // hover:shadow-(…-hover)
-            variant == QeetrixCardVariant.Default -> QeetrixCardComponentTokens.Elevation
-
-            variant == QeetrixCardVariant.Elevated -> QeetrixCardComponentTokens.ElevationElevated
-
-            else -> QeetrixElevation.Flat
+            selected && active && (hovered || pressed) -> colors.bgSelectedHover
+            selected -> colors.bgSelected
+            active && pressed -> colors.bgNeutralSubtleHover
+            active && hovered -> colors.bgNeutralSubtle
+            else -> rest
         }
-    val background =
-        if (variant == QeetrixCardVariant.Elevated) QeetrixCardComponentTokens.BackgroundElevated else QeetrixCardComponentTokens.Background
-    val boundary =
-        when {
-            selected -> QeetrixCardComponentTokens.BorderSelected
+    val background by animateColorAsState(
+        fill,
+        qeetrixAnimationSpec(QeetrixMotion.EasingStandard, QeetrixMotion.DurationFast),
+        label = "card",
+    )
+    // .qx-card border: border.width.default solid color.border.default; [data-tone="danger"] color.border.danger
+    val edge = if (tone == QeetrixCardTone.Danger) colors.borderDanger else colors.borderDefault
+    val disabled = interaction != null && !interaction.enabled
 
-            // hover:border-(…-hover). Touch has no hover, so a press shows the same boundary as feedback.
-            interaction != null && interaction.enabled && (hovered || pressed) -> QeetrixCardComponentTokens.BorderHover
-
-            else -> QeetrixCardComponentTokens.Ring
-        }
-    val metrics = if (size == QeetrixCardSize.Sm) SmMetrics else DefaultMetrics
-
-    var surface =
-        modifier
-            .qeetrixElevation(elevation, shape, background)
-            // data-selected:ring-1 — the boundary doubled to 2 dp outside the box, so nothing shifts.
-            .drawOutlineRing(selected, shape, QeetrixCardComponentTokens.BorderSelected, QeetrixStroke.Hairline, Dp(0f))
+    var surface = modifier
     if (interaction != null && source != null) {
         surface =
             surface
-                .qeetrixFocusRing(source, shape)
+                .qeetrixFocusFrame(source, shape, FocusFrame.Outside)
                 .clip(shape)
                 .clickable(
                     interactionSource = source,
@@ -217,115 +212,239 @@ private fun CardSurface(
                     enabled = interaction.enabled,
                     role = Role.Button,
                     onClick = interaction.onClick,
-                ).then(if (interaction.enabled) Modifier else Modifier.alpha(QeetrixOpacity.Disabled))
+                )
     } else {
         surface = surface.clip(shape)
     }
-    surface = surface.border(QeetrixStroke.Hairline, boundary, shape)
+    surface =
+        surface
+            .background(background)
+            .border(QeetrixBorder.WidthDefault, edge, shape)
+            // The chosen tile's 2 dp border.brand edge, drawn inside over the 1 dp one, so nothing shifts.
+            .drawInsideRing(selected, shape, colors.borderBrand, QeetrixBorder.WidthStrong, gap = null)
+            .padding(QeetrixBorder.WidthDefault) // the content box sits inside the border
 
-    CompositionLocalProvider(
-        LocalQeetrixContentColor provides QeetrixCardComponentTokens.Foreground,
-        LocalInsideQeetrixCard provides true,
-    ) {
-        Column(
-            modifier =
-                surface.padding(
-                    top = metrics.padding + QeetrixStroke.Hairline,
-                    bottom = if (footer != null) QeetrixStroke.Hairline else metrics.padding + QeetrixStroke.Hairline, // has-footer:pb-0
-                ),
-            verticalArrangement = Arrangement.spacedBy(metrics.gap), // gap-4 / data-[size=sm]:gap-3
-        ) {
-            if (title != null || description != null || action != null) {
-                CardHeader(title, description, action, metrics, size)
+    val textColor = if (disabled) colors.textDisabled else colors.textDefault
+    CompositionLocalProvider(LocalQeetrixContentColor provides textColor) {
+        Column(surface) {
+            val hasHeader = title != null || description != null || actions != null
+            if (hasHeader) {
+                CardHeader(
+                    title = title,
+                    description = description,
+                    titleColor =
+                        when {
+                            disabled -> colors.textDisabled
+
+                            tone == QeetrixCardTone.Danger -> colors.textDanger
+
+                            // [data-tone="danger"] … .qx-heading
+                            else -> colors.textDefault
+                        },
+                    // A disabled tile's description stays readable in color.text.subtlest.
+                    descriptionColor = if (disabled) colors.textSubtlest else colors.textSubtle,
+                    actions = actions,
+                )
             }
-            if (content != null) {
-                // CardContent: px-4 / px-3. Absent, it takes no slot, so no gap is added.
-                Column(Modifier.fillMaxWidth().padding(horizontal = metrics.padding + QeetrixStroke.Hairline), content = content)
-            }
-            if (footer != null) {
-                CardFooter(metrics, footer)
-            }
+            // The rule between the header and the body is the body's, so a header that ends the card or meets the
+            // footer has none: .qx-card-header:is(:last-child, :has(+ .qx-card-footer, + .qx-card-body:empty)).
+            if (content != null) CardBody(ruled = hasHeader, content)
+            if (footer != null) CardFooter(footer)
         }
     }
 }
 
+/**
+ * `.qx-card-header`: the title and description at the start, the actions at the end, 16 dp padding
+ * (`space.inset.lg`) and `space.gap.md` between. Its 1 dp `color.border.default` rule is drawn by the body
+ * ([CardBody]), so it is there only when a body with content follows.
+ *
+ * The actions are centred on the title's first line and may reach 12 dp into the padding above and below
+ * without growing the header: the web's `margin-block: -4px`, plus the 8 dp of the 48 dp touch area Android
+ * reserves round a 32 dp control. So a `md` button sits as it does on the web, beside a one-line title.
+ */
 @Composable
 private fun CardHeader(
     title: String?,
     description: String?,
-    action: (@Composable () -> Unit)?,
-    metrics: CardMetrics,
-    size: QeetrixCardSize,
+    titleColor: Color,
+    descriptionColor: Color,
+    actions: (@Composable () -> Unit)?,
 ) {
-    // grid: title and description in the first column, the action in the second, spanning both rows.
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = metrics.padding + QeetrixStroke.Hairline),
-        horizontalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(2f)), // gap-x-2
-    ) {
-        // Title and description are block paragraphs, each as wide as the column (it also keeps a right-to-left
-        // paragraph from wrapping early at its own intrinsic width). gap-1
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(1f))) {
-            if (title != null) {
-                BasicText(
-                    title,
-                    Modifier.fillMaxWidth().semantics { heading() },
-                    style = (if (size == QeetrixCardSize.Sm) TitleStyleSm else TitleStyle).copy(color = LocalQeetrixContentColor.current),
-                )
+    val typography = QeetrixTheme.typography
+    val line = firstLineHeight(if (title != null) typography.titleSm else typography.bodySm)
+    Layout(
+        content = {
+            // .qx-card-heading: a column, space.gap.xs apart.
+            Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs)) {
+                if (title != null) {
+                    // <Heading size="title-sm">
+                    BasicText(
+                        title,
+                        Modifier.fillMaxWidth().semantics {
+                            heading()
+                        },
+                        style = typography.titleSm.copy(color = titleColor).labelDirection(alignToLayout = true),
+                    )
+                }
+                if (description != null) {
+                    // .qx-card-description: body.sm, color.text.subtle
+                    BasicText(
+                        description,
+                        Modifier.fillMaxWidth(),
+                        style = typography.bodySm.copy(color = descriptionColor).labelDirection(alignToLayout = true),
+                    )
+                }
             }
-            if (description != null) {
-                BasicText(
-                    description,
-                    Modifier.fillMaxWidth(),
-                    style = DescriptionStyle.copy(color = QeetrixTheme.colors.textTertiary), // text-muted-foreground
-                )
+            if (actions != null) {
+                // .qx-card-actions: gap space.gap.sm
+                Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm), verticalAlignment = Alignment.CenterVertically) {
+                    actions()
+                }
             }
-        }
-        if (action != null) {
-            Row(verticalAlignment = Alignment.Top) { action() } // self-start justify-self-end
+        },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(QeetrixSpace.InsetLg),
+    ) { measurables, constraints ->
+        val width = constraints.maxWidth
+        val gap = QeetrixSpace.GapMd.roundToPx()
+        val bleed = ACTIONS_BLEED.roundToPx()
+        val actionsPlaceable = measurables.getOrNull(1)?.measure(Constraints(maxWidth = width))
+        val headingWidth = (width - (actionsPlaceable?.let { it.width + gap } ?: 0)).coerceAtLeast(0)
+        val heading = measurables[0].measure(Constraints.fixedWidth(headingWidth))
+        val centre = line.roundToPx() / 2
+        val actionsTop = actionsPlaceable?.let { max(centre - it.height / 2, -bleed) } ?: 0
+        val height = max(heading.height, actionsPlaceable?.let { actionsTop + it.height - bleed } ?: 0).coerceAtLeast(0)
+        layout(width, height) {
+            heading.placeRelative(0, 0)
+            actionsPlaceable?.placeRelative(width - actionsPlaceable.width, actionsTop)
         }
     }
 }
 
+/** What a 48 dp touch area adds on each side of a 32 dp (`md`) control. */
+private val TOUCH_SLACK = 8.dp
+
+/** `.qx-card-actions margin-block: -4px`, plus the 8 dp a 48 dp touch area adds round a 32 dp control. */
+private val ACTIONS_BLEED = 4.dp + TOUCH_SLACK
+
+/**
+ * `.qx-card-body`: `space.inset.lg` round its children, stacked as blocks. A child that marks itself with
+ * [qeetrixCardBleed] (a description list in rows) runs edge to edge instead — `inline-size: calc(100% + 2 × inset)`,
+ * `margin-inline: -inset` — and, first or last, meets the header's rule or the card's edge (`margin-block`).
+ *
+ * After a header ([ruled]) the body draws the header's 1 dp `color.border.default` rule along its top
+ * (`.qx-card-header` `border-block-end`). Content that emits nothing takes no room and draws no rule
+ * (`.qx-card-body:empty { display: none }`, QTRX-174).
+ */
 @Composable
-private fun CardFooter(
-    metrics: CardMetrics,
-    footer: @Composable RowScope.() -> Unit,
+private fun CardBody(
+    ruled: Boolean,
+    content: @Composable () -> Unit,
 ) {
-    val rule = QeetrixCardComponentTokens.Ring
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .background(QeetrixCardComponentTokens.FooterBackground) // bg-(--qx-component-card-footer-background)
-                .drawBehind {
-                    // border-t border-(--qx-component-card-ring)
-                    val width = QeetrixStroke.Hairline.toPx()
-                    drawLine(rule, Offset(0f, width / 2), Offset(size.width, width / 2), strokeWidth = width)
-                }.padding(
-                    start = metrics.padding + QeetrixStroke.Hairline,
-                    end = metrics.padding + QeetrixStroke.Hairline,
-                    top = metrics.padding + QeetrixStroke.Hairline,
-                    bottom = metrics.padding + QeetrixStroke.Hairline,
-                ), // p-4 / p-3
-        horizontalArrangement = Arrangement.spacedBy(QeetrixWebScale.spacing(2f)), // gap-2
-        verticalAlignment = Alignment.CenterVertically, // items-center
+    val rule = QeetrixTheme.colors.borderDefault
+    CompositionLocalProvider(LocalInsideQeetrixCardBody provides true) {
+        Layout(
+            content,
+            Modifier.fillMaxWidth().drawBehind {
+                // Nothing is drawn by a body that took no room.
+                if (!ruled || size.height == 0f) return@drawBehind
+                // border-block-end: border.width.default solid color.border.default (the header's)
+                drawRect(rule, Offset.Zero, Size(size.width, QeetrixBorder.WidthDefault.toPx()))
+            },
+        ) { measurables, constraints ->
+            if (measurables.isEmpty()) return@Layout layout(0, 0) {}
+            val inset = QeetrixSpace.InsetLg.roundToPx()
+            val top = if (ruled) QeetrixBorder.WidthDefault.roundToPx() else 0
+            val loose = constraints.copy(minWidth = 0, minHeight = 0)
+
+            fun bleeds(measurable: Measurable) = measurable.parentData is QeetrixCardBleed
+            val inner =
+                if (constraints.hasBoundedWidth) (constraints.maxWidth - 2 * inset).coerceAtLeast(0) else Constraints.Infinity
+            val placeables = arrayOfNulls<Placeable>(measurables.size)
+            measurables.forEachIndexed { index, measurable ->
+                if (!bleeds(measurable)) placeables[index] = measurable.measure(loose.copy(maxWidth = inner))
+            }
+            val width =
+                if (constraints.hasBoundedWidth) {
+                    constraints.maxWidth
+                } else {
+                    (placeables.filterNotNull().maxOfOrNull { it.width } ?: 0) + 2 * inset
+                }
+            measurables.forEachIndexed { index, measurable ->
+                if (bleeds(measurable)) {
+                    (measurable.parentData as QeetrixCardBleed).inset = inset
+                    placeables[index] = measurable.measure(Constraints.fixedWidth(width))
+                }
+            }
+            val tops = IntArray(measurables.size)
+            var y = top + inset
+            measurables.forEachIndexed { index, measurable ->
+                if (index == 0 && bleeds(measurable)) y = top // :first-child margin-block-start: -inset
+                tops[index] = y
+                y += placeables[index]!!.height
+            }
+            val last = measurables.lastOrNull()
+            val height = y + if (last != null && bleeds(last)) 0 else inset // :last-child margin-block-end: -inset
+            layout(width, height.coerceIn(constraints.minHeight, constraints.maxHeight)) {
+                measurables.forEachIndexed { index, measurable ->
+                    placeables[index]!!.placeRelative(if (bleeds(measurable)) 0 else inset, tops[index])
+                }
+            }
+        }
+    }
+}
+
+/**
+ * `.qx-card-footer`: end-aligned, wrapping actions `space.gap.sm` apart, on `space.inset.lg` under a 1 dp rule. Its
+ * buttons reserve 48 dp touch areas, 8 dp more than a `md` button's drawn 32 dp on each side, so the footer pads
+ * those 8 dp less above and below: the drawn buttons sit 16 dp from the rule and the edge, as on the web.
+ */
+@Composable
+private fun CardFooter(footer: @Composable () -> Unit) {
+    val rule = QeetrixTheme.colors.borderDefault
+    QeetrixActionRow(
+        Modifier
+            .fillMaxWidth()
+            .drawBehind {
+                // border-block-start: border.width.default solid color.border.default
+                drawRect(rule, Offset.Zero, Size(size.width, QeetrixBorder.WidthDefault.toPx()))
+            }.padding(
+                start = QeetrixSpace.InsetLg,
+                end = QeetrixSpace.InsetLg,
+                top = QeetrixSpace.InsetLg - TOUCH_SLACK + QeetrixBorder.WidthDefault,
+                bottom = QeetrixSpace.InsetLg - TOUCH_SLACK,
+            ),
         content = footer,
     )
 }
 
-private class CardMetrics(
-    val padding: Dp,
-    val gap: Dp,
-)
+/** Whether this subtree is a card's body, where a description list in rows may run edge to edge. */
+internal val LocalInsideQeetrixCardBody = staticCompositionLocalOf { false }
 
-private val DefaultMetrics = CardMetrics(padding = QeetrixWebScale.spacing(4f), gap = QeetrixWebScale.spacing(4f))
-private val SmMetrics = CardMetrics(padding = QeetrixWebScale.spacing(3f), gap = QeetrixWebScale.spacing(3f))
+/**
+ * A card body's edge-to-edge child: the parent data a [QeetrixCard]'s body looks for. The body writes [inset], its
+ * padding in px, before it measures the child, so the child can keep its own content on the card's padding; outside
+ * a card body it stays 0.
+ */
+internal class QeetrixCardBleed {
+    var inset: Int = 0
+}
 
-// CardTitle: font-heading text-base leading-snug font-medium; data-[size=sm]: text-sm.
-private val TitleStyle =
-    qeetrixTextStyle(QeetrixFont.Heading, QeetrixWebScale.TextBase.size, QeetrixWebScale.LEADING_SNUG, FontWeightMedium)
-private val TitleStyleSm =
-    qeetrixTextStyle(QeetrixFont.Heading, QeetrixWebScale.TextSm.size, QeetrixWebScale.LEADING_SNUG, FontWeightMedium)
+/**
+ * Marks this element as a card body's edge-to-edge child, [slot] receiving the body's padding. Only where nothing else
+ * has set parent data, so a `Column`'s `weight` or a `Row`'s alignment always wins.
+ */
+internal fun Modifier.qeetrixCardBleed(slot: QeetrixCardBleed): Modifier = this.then(CardBleedModifier(slot))
 
-// CardDescription: text-sm text-muted-foreground.
-private val DescriptionStyle = qeetrixTextStyle(QeetrixFont.Sans, QeetrixWebScale.TextSm)
+private class CardBleedModifier(
+    private val slot: QeetrixCardBleed,
+) : ParentDataModifier {
+    override fun Density.modifyParentData(parentData: Any?): Any = parentData ?: slot
+
+    override fun equals(other: Any?): Boolean = other is CardBleedModifier && other.slot === slot
+
+    override fun hashCode(): Int = System.identityHashCode(slot)
+}

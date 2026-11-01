@@ -3,12 +3,9 @@ package com.qeetgroup.qeetrix.components.input
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
@@ -22,56 +19,60 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.semantics.contentType
-import androidx.compose.ui.semantics.error
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
-import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixAccessibility
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixInputComponentTokens
+import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
 /**
- * A single-line text input with its label, description and message: qeetrix-ui's `Input` inside a
- * vertical `Field`, built on the same field parts as every Qeetrix input ([QeetrixField]).
+ * A single-line text field with its label, help text and error — `@qeetrix/react`'s TextField (Field + Input in
+ * one), the default way to build a form row. It is the filled field of design rules §8: `color.bg.neutral.subtle`,
+ * a 1 dp `color.border.strong` bottom line, 4 dp top corners, `size.control.lg` tall (32 / 40 / 44 dp with the
+ * density, growing with the font scale), the value in `body.md`.
  *
- * - The text lives in a [TextFieldState] the caller owns (`rememberTextFieldState()`), so the field is
- *   controlled through one state model; read it with `state.text`.
- * - [label] names the field for accessibility services; tapping it focuses the field. [required] adds
- *   the web's red asterisk, which accessibility services read as "required" (`qx_required`); [optional]
- *   the "(optional)" marker (`qx_optional`).
- * - [message] with [QeetrixFieldMessageTone.Error] marks the field invalid: the boundary turns red,
- *   accessibility services report the error, and the message is announced as it appears. Warning and
- *   success colour the boundary and are announced politely. Colour is never the only signal: each tone
- *   has its icon and its text.
- * - [readOnly] shows the value with a dashed boundary and no writing surface; [enabled] `false` fades
- *   the field and it cannot be focused. Inside a disabled [QeetrixFieldSet] it is disabled too.
- * - [contentType] tells AutoFill and password managers what the field holds (`ContentType.Username`,
- *   `ContentType.PersonFullName`, …). Without one, Compose derives it from the keyboard type: an email
- *   keyboard is `ContentType.EmailAddress`. Pass it here rather than on [modifier], which is the whole
- *   field's, not the text's.
- * - The field's height follows the density ([com.qeetgroup.qeetrix.theme.LocalQeetrixDensity]) and
- *   grows with the font scale. Text is 16 sp below 768 dp of window width and 14 sp from there, as the
- *   web's `text-base md:text-sm`.
+ * - **Text.** The text lives in a [TextFieldState] the caller owns (`rememberTextFieldState()`) — Compose's
+ *   controlled text model; read it with `state.text`.
+ * - **Label.** [label] is required — a placeholder is never a label — and names the field for accessibility
+ *   services; tapping it focuses the field. [optional] appends "(optional)"; fields carry no asterisk, and a
+ *   [required] field says "required" to accessibility services only. [hideLabel] is for a toolbar search with a
+ *   visible icon. [help] adds an ⓘ button after the label (07-components.md, Field help).
+ * - **Placeholder.** An example ("e.g. Acme Pvt Ltd"), never an instruction or the label; `color.text.subtlest`.
+ * - **Errors.** [error] replaces the [description] and marks the field invalid: a 2 dp `color.border.danger` frame
+ *   inside the box and the message with an alert icon, announced as it appears. Word it as what to do. [invalid]
+ *   marks it invalid without a message. Focus draws the 2 dp Ember frame instead, on any focus, since the caret
+ *   needs context.
+ * - **States.** [readOnly] drops the fill and keeps a `color.border.subtle` line, and the value can still be
+ *   selected and copied; [enabled] `false` takes `color.bg.disabled`, the `color.border.disabled` line and
+ *   `color.text.disabled`. Inside a disabled [QeetrixFieldSet] it is disabled too.
+ * - **Adornments.** [icon] is a 16 dp sharp leading icon in `color.icon.subtle` (search, mail);
+ *   [startAdornment] and [endAdornment] hold text affixes (₹, %, .qeet.in), which take `color.text.subtle`, or
+ *   tools, 8 dp from the value.
+ * - [contentType] tells AutoFill and password managers what the field holds (`ContentType.Username`, …); without
+ *   one, Compose derives it from the keyboard type.
  *
  * ```
  * val email = rememberTextFieldState()
- * QeetrixTextField(email, label = "Work email", placeholder = "you@company.com",
+ * QeetrixTextField(email, label = "Work email", placeholder = "e.g. asha@acme.in", icon = QeetrixIconName.Mail,
  *     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next))
  * ```
  */
 @Composable
 public fun QeetrixTextField(
     state: TextFieldState,
+    label: String,
     modifier: Modifier = Modifier,
-    label: String? = null,
     placeholder: String? = null,
     description: String? = null,
-    message: QeetrixFieldMessage? = null,
+    error: String? = null,
+    invalid: Boolean = false,
+    optional: Boolean = false,
+    required: Boolean = false,
+    hideLabel: Boolean = false,
+    help: String? = null,
     enabled: Boolean = true,
     readOnly: Boolean = false,
-    required: Boolean = false,
-    optional: Boolean = false,
-    leading: (@Composable () -> Unit)? = null,
-    trailing: (@Composable () -> Unit)? = null,
+    icon: QeetrixIconName? = null,
+    startAdornment: (@Composable () -> Unit)? = null,
+    endAdornment: (@Composable () -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     contentType: ContentType? = null,
     onKeyboardAction: KeyboardActionHandler? = null,
@@ -82,12 +83,12 @@ public fun QeetrixTextField(
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val focused by source.collectIsFocusedAsState()
     val hovered by source.collectIsHoveredAsState()
-    val textStyle = fieldTextStyle()
+    val textStyle = fieldTextStyle().copy(color = if (active) QeetrixTheme.colors.textDefault else QeetrixTheme.colors.textDisabled)
 
-    FieldFrame(description, message, modifier) {
+    FieldFrame(description, error, active, modifier) {
         BasicTextField(
             state = state,
-            modifier = Modifier.fillMaxWidth().fieldContentType(contentType).fieldError(message),
+            modifier = Modifier.fillMaxWidth().fieldContentType(contentType).fieldError(error),
             enabled = active,
             readOnly = readOnly,
             inputTransformation = inputTransformation,
@@ -96,16 +97,11 @@ public fun QeetrixTextField(
             onKeyboardAction = onKeyboardAction,
             lineLimits = TextFieldLineLimits.SingleLine,
             interactionSource = source,
-            cursorBrush = SolidColor(QeetrixInputComponentTokens.Foreground),
+            cursorBrush = SolidColor(textStyle.color),
             decorator = { inner ->
-                LabelledControl(label, required, optional, active) {
-                    FieldBox(active, readOnly, focused, hovered, message?.tone, Modifier.fillMaxWidth()) {
-                        leading?.invoke()
-                        Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-                            if (placeholder != null && state.text.isEmpty()) FieldPlaceholder(placeholder, textStyle)
-                            inner()
-                        }
-                        trailing?.invoke()
+                LabelledControl(label, optional, required, hideLabel, active, help) {
+                    FieldBox(active, readOnly, focused, hovered, invalid || error != null, Modifier.fillMaxWidth()) {
+                        FieldContent(icon, startAdornment, endAdornment, placeholder.takeIf { state.text.isEmpty() }, textStyle, inner)
                     }
                 }
             },
@@ -114,48 +110,23 @@ public fun QeetrixTextField(
 }
 
 /**
- * The label above a control, inside the control's own layout — a text field's decorator, a select's
- * trigger — so accessibility services read the label as part of the control, and tapping it reaches the
- * control. Without a label, the control reserves a 48 dp touch height instead.
+ * What a single-line box holds (input.tsx): the leading icon, the start adornment, the value with its placeholder
+ * (taking the remaining width), and the end adornment.
  */
 @Composable
-internal fun LabelledControl(
-    label: String?,
-    required: Boolean,
-    optional: Boolean,
-    enabled: Boolean,
-    control: @Composable () -> Unit,
-) {
-    if (label == null) {
-        // Without a label above it, the control is the whole touch target: at least 48 dp tall, the web-sized
-        // field centred in it, as a button reserves its 48 dp (ADR 0010). Phase 6: the Accessibility Test
-        // Framework measured an unlabelled field at 40 dp on a device.
-        Box(Modifier.heightIn(min = QeetrixAccessibility.MinimumTouchTarget), contentAlignment = Alignment.CenterStart) { control() }
-        return
-    }
-    Column(verticalArrangement = Arrangement.spacedBy(FieldPartGap)) {
-        FieldLabel(label, required, optional, enabled)
-        control()
-    }
-}
-
-/** placeholder:text-(--qx-component-input-placeholder), one line. */
-@Composable
-internal fun FieldPlaceholder(
-    text: String,
+internal fun RowScope.FieldContent(
+    icon: QeetrixIconName?,
+    startAdornment: (@Composable () -> Unit)?,
+    endAdornment: (@Composable () -> Unit)?,
+    placeholder: String?,
     textStyle: TextStyle,
-    maxLines: Int = 1,
+    inner: @Composable () -> Unit,
 ) {
-    BasicText(text, style = textStyle.copy(color = QeetrixInputComponentTokens.Placeholder), maxLines = maxLines)
+    if (icon != null) FieldIcon(icon)
+    if (startAdornment != null) FieldAdornment(startAdornment)
+    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+        if (placeholder != null) FieldPlaceholder(placeholder, textStyle)
+        inner()
+    }
+    if (endAdornment != null) FieldAdornment(endAdornment)
 }
-
-/**
- * The control's own AutoFill type. Applied outside the text field's own semantics, so it replaces the type
- * Compose derives from the keyboard; `null` leaves that one.
- */
-internal fun Modifier.fieldContentType(contentType: ContentType?): Modifier =
-    if (contentType != null) semantics { this.contentType = contentType } else this
-
-/** An error message marks the control invalid for accessibility services (`aria-invalid` with `aria-errormessage`). */
-internal fun Modifier.fieldError(message: QeetrixFieldMessage?): Modifier =
-    if (message?.tone == QeetrixFieldMessageTone.Error) semantics { error(message.text) } else this

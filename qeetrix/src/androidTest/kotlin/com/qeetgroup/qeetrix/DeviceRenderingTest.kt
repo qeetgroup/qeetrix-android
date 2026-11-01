@@ -43,7 +43,7 @@ class DeviceRenderingTest {
         var geometric = 0
         compose.setContent {
             val measurer: TextMeasurer = rememberTextMeasurer()
-            val body = QeetrixTextRole.Body.spec
+            val body = QeetrixTextRole.BodyMd.spec
 
             fun width(family: FontFamily) = measurer.measure(text, QeetrixTypography.style(body).copy(fontFamily = family)).size.width
             neutral = width(QeetrixFonts.family(body.copy(geometry = 0f)))

@@ -1,5 +1,7 @@
 package com.qeetgroup.qeetrix.components.switchcontrol
 
+import com.qeetgroup.qeetrix.components.input.rememberFocusedSource
+import com.qeetgroup.qeetrix.components.input.rememberHoveredSource
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
 import com.qeetgroup.qeetrix.screenshot.ScreenshotFlow
 import com.qeetgroup.qeetrix.screenshot.ScreenshotStack
@@ -10,7 +12,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-/** Reviewed baselines for [QeetrixSwitch] in `src/test/screenshots/switch/`, one image per screenshot configuration. */
+/** Baselines for [QeetrixSwitch] in `src/test/screenshots/switch/`. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = SCREENSHOT_QUALIFIERS)
@@ -22,13 +24,22 @@ class QeetrixSwitchScreenshotTest {
                 ScreenshotFlow {
                     QeetrixSwitch(false, {})
                     QeetrixSwitch(true, {})
-                    QeetrixSwitch(false, {}, size = QeetrixSwitchSize.Sm)
-                    QeetrixSwitch(true, {}, size = QeetrixSwitchSize.Sm)
-                    QeetrixSwitch(true, {}, enabled = false)
                     QeetrixSwitch(false, {}, invalid = true)
+                    QeetrixSwitch(true, {}, invalid = true)
+                    QeetrixSwitch(false, {}, interactionSource = rememberHoveredSource())
+                    QeetrixSwitch(true, {}, interactionSource = rememberHoveredSource())
+                    QeetrixSwitch(true, {}, interactionSource = rememberFocusedSource())
+                    QeetrixSwitch(false, {}, enabled = false)
+                    QeetrixSwitch(true, {}, enabled = false)
                 }
-                QeetrixSwitch(true, {}, label = "Email alerts", description = "Sent within a minute of the event.")
-                QeetrixSwitch(false, {}, label = "Weekly digest", enabled = false)
+                QeetrixSwitch(
+                    true,
+                    {},
+                    label = "Auto-renew",
+                    description = "Renews on the 1st of each month. A longer line that wraps under the label.",
+                )
+                QeetrixSwitch(false, {}, label = "Email alerts", interactionSource = rememberFocusedSource())
+                QeetrixSwitch(true, {}, label = "Disabled", description = "Your admin sets this.", enabled = false)
             }
         }
 }

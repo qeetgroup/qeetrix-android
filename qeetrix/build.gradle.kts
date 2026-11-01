@@ -116,9 +116,11 @@ dependencies {
     api(libs.compose.ui)
     api(libs.compose.animation.core)
     api(libs.compose.foundation)
-    // Only for QeetrixBottomSheet, which wraps ModalBottomSheet; no Material type is public and no
-    // Material theme value is drawn (Documentation/Decisions/0015-navigation-overlays-and-feedback.md).
+    // Only for the date and time fields (the platform's pickers in Qeetrix's colours) and pull to refresh; no Material
+    // type is public and no Material theme value is drawn (Documentation/Decisions/0015-navigation-overlays-and-feedback.md).
     implementation(libs.compose.material3)
+    // The sheets' window takes Back from its own dispatcher, predictive back gesture included.
+    implementation(libs.androidx.activity)
 
     testImplementation(composeBom)
     testImplementation(libs.junit4)

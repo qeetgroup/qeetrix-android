@@ -80,7 +80,8 @@ All on 2026-10-20, on the final working tree ([TEST-COVERAGE.md](TEST-COVERAGE.m
 - **Consumer:** the sample's R8-minified release built, installed, launched and took 1,500 random events on API 36
   with no crash and no linkage error.
 - **Coverage:** 94.2 % of hand-written lines executed by the JVM suite.
-- **Parity:** the four `@qeetrix/ui` inputs byte-identical with qeetrix-ios; the icon pins differ only by the two
+- **Parity:** the four `@qeetrix/ui` inputs byte-identical with qeetrix-ios (both have since moved to `@qeetrix/tokens`,
+  `@qeetrix/react` and `@qeetrix/icons`); the icon pins differ only by the two
   documented Android chrome icons.
 
 ## Reports

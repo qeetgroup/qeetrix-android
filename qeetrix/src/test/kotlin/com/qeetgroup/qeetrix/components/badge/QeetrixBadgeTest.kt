@@ -22,7 +22,7 @@ class QeetrixBadgeTest {
 
     @Test
     fun theTextCarriesTheMeaningAndTheIconIsDecorative() {
-        compose.setQeetrix { QeetrixBadge("Failed", variant = QeetrixBadgeVariant.Destructive, icon = QeetrixIconName.CircleAlert) }
+        compose.setQeetrix { QeetrixBadge("Failed", tone = QeetrixBadgeTone.Danger, icon = QeetrixIconName.CircleAlert) }
         compose.onNodeWithText("Failed").assert(!hasClickAction())
         compose
             .onAllNodes(
@@ -32,10 +32,9 @@ class QeetrixBadgeTest {
     }
 
     @Test
-    fun variantsAreTheWebs() {
-        assertEquals(
-            listOf("default", "secondary", "outline", "brand", "info", "success", "warning", "destructive", "muted"),
-            QeetrixBadgeVariant.entries.map { it.value },
-        )
+    fun tonesVariantsAndSizesAreTheWebs() {
+        assertEquals(listOf("neutral", "brand", "info", "success", "warning", "danger"), QeetrixBadgeTone.entries.map { it.value })
+        assertEquals(listOf("subtle", "solid"), QeetrixBadgeVariant.entries.map { it.value })
+        assertEquals(listOf("sm", "md"), QeetrixBadgeSize.entries.map { it.value })
     }
 }

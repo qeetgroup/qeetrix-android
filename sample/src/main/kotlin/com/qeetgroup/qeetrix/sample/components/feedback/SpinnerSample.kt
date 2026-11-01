@@ -7,31 +7,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.spinner.QeetrixSpinner
 import com.qeetgroup.qeetrix.components.spinner.QeetrixSpinnerSize
+import com.qeetgroup.qeetrix.components.spinner.QeetrixSpinnerTone
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.sample.SampleFlow
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-/** The busy indicator: its sizes, a specific label, and inline beside text. */
+/** An indeterminate wait — `@qeetrix/react`'s Spinner: its sizes, its tones, a specific label, and beside text. */
 @Composable
 fun SpinnerSample() {
     SamplePage {
         SampleSection("Sizes") {
-            SampleFlow { for (size in QeetrixSpinnerSize.entries) QeetrixSpinner(size = size) }
-            SampleNote("Each is announced as \"Loading\" by default.")
+            SampleFlow { for (size in QeetrixSpinnerSize.entries) QeetrixSpinner(size = size, label = "Loading (${size.value})") }
+            SampleNote("14, 16, 20 and 24 dp: a 2 dp ring with a quarter clear. Each is announced as \"Loading\" by default.")
+        }
+        SampleSection("Tones") {
+            SampleFlow {
+                QeetrixSpinner(size = QeetrixSpinnerSize.Lg)
+                QeetrixSpinner(size = QeetrixSpinnerSize.Lg, tone = QeetrixSpinnerTone.Brand)
+            }
+            SampleNote("Neutral inherits the content colour; brand is Ember, for the one wait that is the screen's focus.")
         }
         SampleSection("With a label") {
-            Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpacing.S), verticalAlignment = Alignment.CenterVertically) {
-                QeetrixSpinner(size = QeetrixSpinnerSize.Sm, label = "Loading invoices")
-                QeetrixText("Loading invoices…", variant = QeetrixTextVariant.Muted)
+            Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm), verticalAlignment = Alignment.CenterVertically) {
+                QeetrixSpinner(decorative = true)
+                QeetrixText("Loading invoices…", tone = QeetrixTextTone.Subtle)
             }
             SampleNote(
-                "Say what is loading. Use it for waits of unknown length; when the amount is known, use Progress. " +
-                    "With animations off it holds still.",
+                "Say what is loading. When the text beside it already says so, the spinner is decorative and TalkBack " +
+                    "skips it. Use it for waits of unknown length; when the amount is known, use Progress. With " +
+                    "animations off it holds still and fades instead.",
             )
         }
     }

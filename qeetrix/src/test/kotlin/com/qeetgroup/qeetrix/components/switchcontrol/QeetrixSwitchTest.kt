@@ -14,6 +14,7 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -22,10 +23,12 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.setQeetrix
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class QeetrixSwitchTest {
@@ -61,21 +64,43 @@ class QeetrixSwitchTest {
 
     @Test
     fun aReadOnlySwitchReportsItsStateWithoutAnAction() {
-        compose.setQeetrix { QeetrixSwitch(true, onCheckedChange = null, modifier = Modifier.testTag("s")) }
-        compose.onNodeWithTag("s").assertIsOn().assert(!hasClickAction())
+        compose.setQeetrix {
+            androidx.compose.foundation.layout.Column {
+                QeetrixSwitch(true, onCheckedChange = null, modifier = Modifier.testTag("a"))
+                QeetrixSwitch(true, onCheckedChange = {}, readOnly = true, modifier = Modifier.testTag("b"))
+            }
+        }
+        for (tag in listOf("a", "b")) {
+            compose
+                .onNodeWithTag(tag)
+                .assertIsOn()
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
+                .assert(!hasClickAction())
+        }
     }
 
     @Test
     fun theLabelledSwitchIsOneControlTheWholeRowToggles() {
         var on by mutableStateOf(false)
         compose.setQeetrix { QeetrixSwitch(on, { on = it }, label = "Email alerts", description = "Sent within a minute") }
-        // Label, description, role and state are one node; tapping the label toggles.
         compose
             .onNodeWithText("Email alerts")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
             .assertIsOff()
+            .assertHeightIsAtLeast(48.dp)
             .performClick()
         assertEquals(true, on)
         compose.onNodeWithText("Sent within a minute").assertIsOn()
+    }
+
+    /** design rules §9: the label sits after the control, 8 dp away; the track is 32 dp wide. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun theLabelFollowsTheTrack() {
+        compose.setQeetrix { QeetrixSwitch(false, {}, label = "Auto-renew") }
+        val row = compose.onNodeWithText("Auto-renew").getUnclippedBoundsInRoot()
+        val label = compose.onNodeWithText("Auto-renew", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertEquals(32f + 8f, (label.left - row.left).value, 0.5f)
+        assertTrue(label.right <= row.right)
     }
 }

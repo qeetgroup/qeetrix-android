@@ -55,8 +55,8 @@ class QeetrixOverlayBackTest {
         compose.setContent {
             QeetrixTheme {
                 QeetrixMenu(
-                    expanded = open,
-                    onExpandedChange = {
+                    open = open,
+                    onOpenChange = {
                         changes += it
                         open = it
                     },
@@ -84,25 +84,28 @@ class QeetrixOverlayBackTest {
         compose.setContent {
             QeetrixTheme {
                 QeetrixBottomSheet(
-                    visible = sheet,
-                    onDismissRequest = {
-                        dismissed += "sheet"
-                        sheet = false
+                    open = sheet,
+                    onOpenChange = { open ->
+                        if (!open) {
+                            dismissed += "sheet"
+                            sheet = false
+                        }
                     },
                     title = "Invoice",
                 ) {
                     sheetView = LocalView.current
                     QeetrixButton("Edit details", onClick = { dialog = true })
                 }
-                if (dialog) {
-                    QeetrixDialog(
-                        title = "Edit details",
-                        onDismissRequest = {
+                QeetrixDialog(
+                    open = dialog,
+                    onOpenChange = { open ->
+                        if (!open) {
                             dismissed += "dialog"
                             dialog = false
-                        },
-                    ) { dialogView = LocalView.current }
-                }
+                        }
+                    },
+                    title = "Edit details",
+                ) { dialogView = LocalView.current }
             }
         }
         compose.runOnIdle { dialog = true }

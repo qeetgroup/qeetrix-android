@@ -4,7 +4,7 @@ about: A token, font, icon or component change for Android
 labels: design-system
 ---
 
-Tokens, fonts and icons are not edited in this repository; they come from qeetrix-ui and qeetrix-icons
+Tokens, fonts and icons are not edited in this repository; they come from @qeetrix/tokens and @qeetrix/icons, and component looks from @qeetrix/react
 (see `CONTRIBUTING.md`). A visual change starts upstream, then reaches Android through a pin bump.
 
 ## The change
@@ -13,7 +13,7 @@ Tokens, fonts and icons are not edited in this repository; they come from qeetri
 
 ## Upstream
 
-- [ ] Already released upstream: link the qeetrix-ui / qeetrix-icons release, and this issue tracks
+- [ ] Already released upstream: link the @qeetrix/tokens, @qeetrix/react or @qeetrix/icons release, and this issue tracks
       the pin bump here.
 - [ ] Not upstream yet: link the upstream issue. This issue tracks the Android follow-up.
 

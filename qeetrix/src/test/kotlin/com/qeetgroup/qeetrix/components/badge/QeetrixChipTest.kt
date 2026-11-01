@@ -3,6 +3,8 @@ package com.qeetgroup.qeetrix.components.badge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -13,9 +15,11 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
@@ -28,6 +32,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
 
 /** Chips: a checkbox that toggles, a named remove button, single and multiple groups, sizes and touch area. */
 @RunWith(RobolectricTestRunner::class)
@@ -75,6 +80,20 @@ class QeetrixChipTest {
         assertEquals(listOf("sm", "md", "lg"), QeetrixChipSize.entries.map { it.value })
     }
 
+    /** The tag looks: 4 dp corners at every size, size.control.* tall inside the 48 dp touch area. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun theDrawnChipIsTheControlHeight() {
+        compose.setQeetrix {
+            QeetrixChip("Unread", selected = false, onSelectedChange = {}, size = QeetrixChipSize.Sm, modifier = Modifier.testTag("c"))
+        }
+        val touch = compose.onNodeWithTag("c").getUnclippedBoundsInRoot()
+        val label = compose.onNodeWithText("Unread", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertEquals(48f, (touch.bottom - touch.top).value, 0.5f)
+        // label.sm's 16 dp line, centred in the 28 dp tag, centred in the 48 dp area.
+        assertEquals(16f, label.top.value, 0.5f)
+    }
+
     @Test
     fun aRemovableChipHasARemoveButtonNamedForIt() {
         val removed = mutableListOf<Unit>()
@@ -92,7 +111,7 @@ class QeetrixChipTest {
     fun aSingleChoiceGroupIsRadioButtonsNamedByItsLabel() {
         val chosen = mutableListOf<String?>()
         val options = listOf(QeetrixOption(null, "All"), QeetrixOption("open", "Open"), QeetrixOption("closed", "Closed", enabled = false))
-        compose.setQeetrix { QeetrixChipGroup(label = "Status", selected = null, onSelect = { chosen += it }, options = options) }
+        compose.setQeetrix { QeetrixChipGroup(label = "Status", value = null, onValueChange = { chosen += it }, options = options) }
         compose
             .onNodeWithText("All")
             .assert(radio)
@@ -113,8 +132,8 @@ class QeetrixChipTest {
         compose.setQeetrix {
             QeetrixChipGroup(
                 label = "Labels",
-                selected = selected,
-                onSelectedChange = { selected = it },
+                values = selected,
+                onValuesChange = { selected = it },
                 options = options,
             )
         }
@@ -130,8 +149,8 @@ class QeetrixChipTest {
             compose.setQeetrix {
                 QeetrixChipGroup(
                     label = "Status",
-                    selected = 1,
-                    onSelect = {},
+                    value = 1,
+                    onValueChange = {},
                     options = listOf(QeetrixOption(1, "One"), QeetrixOption(1, "Uno")),
                 )
             }

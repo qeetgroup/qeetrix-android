@@ -1,40 +1,47 @@
 # Radio group
 
-`QeetrixRadioGroup` · `components.radiogroup` · web: [Radio Group](https://ui.qeet.in/docs/components/radio-group) ·
-sample: Forms & inputs → Radio group
+`QeetrixRadioGroup` · `components.radiogroup` · `@qeetrix/react`: RadioGroup, Radio
+([Radio](https://ui.qeet.in/components/radio)) · sample: Forms → Radio group
 
-One choice from a short, visible set of options.
+One choice from a set, always answered.
 
 ```kotlin
-var plan by rememberSaveable { mutableStateOf(Plan.Team) }
-QeetrixRadioGroup(plan, { plan = it }, Plan.entries.map { QeetrixOption(it, it.title, it.detail) }, label = "Plan")
+QeetrixRadioGroup(cycle, { cycle = it },
+    listOf(QeetrixOption("monthly", "Monthly"), QeetrixOption("yearly", "Yearly", description = "Two months free.")),
+    label = "Billing cycle")
 ```
 
-## Usage
+## API
 
-- **Typed choice.** Options are `QeetrixOption<T>` (value, label, optional description, enabled); the
-  selection is a `T`, so only one option can ever be selected, and only one of yours. "Nothing yet" is a
-  value no option has — `null` with a nullable type. Values must be distinct.
-- For a long list, or little room, use a [select](Select.md).
+| `@qeetrix/react` | Android |
+|:--|:--|
+| `value` / `onValueChange` (generic) | `value: T` / `onValueChange: (T) -> Unit` |
+| `Radio` children (`value`, `label`, `description`, `icon`, `disabled`) | `options: List<QeetrixOption<T>>` |
+| `label` (the question), `description`, `error` | the same |
+| `orientation`, `variant` (`tile`), `columns` | `QeetrixChoiceOrientation`, `QeetrixChoiceVariant`, `columns` |
+| `disabled`, `readOnly`, `required` | `enabled` (inverted), `readOnly`, `required` |
 
-## States
+Old `selected` / `onSelect` / `message` / `optional` became `value` / `onValueChange` / `error` (a radio group is
+always answered, so it has no "(optional)").
 
-Selected (Ember disc, light dot), unselected, disabled options, the group's error (every disc's boundary,
-and the message after the options), a disabled group.
+## Look (design rules §9, radio.css)
+
+A 16 dp circle with a 1 dp `color.border.strong` edge on `color.bg.input`; hover `color.border.strong-hover`;
+selected, a 5 dp `color.bg.brand.bold` ring — the ring is the border, so the centre stays white; an error,
+`color.border.danger`, the chosen circle's ring too and under the pointer (radio.css 0.4.0, QTRX-161); disabled `color.bg.disabled`, and a `color.icon.disabled` ring when
+selected. The edge's colour and width change in `motion.duration.fast`. Rows, the wrapping row and tiles are as
+[Checkbox](Checkbox.md)'s.
 
 ## Accessibility
 
-A selectable group under its label (a heading). Each option is one radio button reading its label,
-description and "selected" / "not selected". An error message is carried by every option. Rows are at
-least 48 dp tall and sit flush.
-
-## Theme and tokens
-
-As the [checkbox](Checkbox.md), round; the dot is `size-1.5`.
+A selectable group under its question (a heading, "required" when `required`); each option is a radio button
+read with its description and "selected" or "not selected". The error is carried by every option. Keyboard focus
+draws the Ember frame 2 dp outside the circle.
 
 ## Platform differences
 
-The web group is one tab stop with arrow keys between options. On Android, as on iOS, each option is its
-own focus stop for keyboards and D-pads.
+- **Arrow keys** move focus between options (Android's focus traversal); Enter or Space selects. The web's arrows
+  move and select at once.
+- **Rows** are 48 dp touch targets and sit flush.
 
-Related: [Select](Select.md), [Checkbox](Checkbox.md), [Field](Field.md).
+Related: [Checkbox](Checkbox.md), [Select](Select.md), [Chip](Chip.md).

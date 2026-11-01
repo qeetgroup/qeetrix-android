@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixIconSize
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
 import com.qeetgroup.qeetrix.screenshot.ScreenshotConfig
 import com.qeetgroup.qeetrix.screenshot.ScreenshotGap
@@ -36,7 +36,7 @@ class IconScreenshotTest {
                                         QeetrixIcon(
                                             name,
                                             contentDescription = null,
-                                            size = QeetrixIconSize.Lg,
+                                            size = QeetrixSize.IconLg,
                                             shape = shape,
                                             variant = variant,
                                         )

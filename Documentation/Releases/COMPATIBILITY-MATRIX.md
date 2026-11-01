@@ -1,7 +1,8 @@
 # Compatibility matrix
 
-Exactly which toolchains and devices Qeetrix `0.1.0-rc.1` was built and run with, on 2026-10-20. Anything not listed
-was not tested; no claim is made for it.
+Exactly which toolchains and devices Qeetrix's release candidates were built and run with: `0.1.0-rc.2` on 2026-10-31
+(below, **rc.2**) and `0.1.0-rc.1` on 2026-10-20. Anything not listed was not tested; no claim is made for it. The
+toolchain range was established with `0.1.0-rc.1` and not re-run for `0.1.0-rc.2`, which uses the same toolchain.
 
 ## App toolchains
 
@@ -36,6 +37,8 @@ All emulators; **no physical device**. Google APIs images, arm64, on an Apple M1
 |:--|:--|:--|:--|:--|:--|:--|
 | Phone, `qeetrix-api29` | 10 (API 29), the minimum | 1080 × 2280, 440 dpi, portrait | 3-button | 11 / 11 (ATF tests left out below API 36) | ✓ | ✓ |
 | Phone, `qeetrix-api36` | 16 (API 36) | 1080 × 2400, 420 dpi, portrait | Gesture | 13 / 13 | ✓ | ✓ |
+| Phone, `qeetrix-api36`, **rc.2** | 16 (API 36) | 1080 × 2400, 420 dpi, portrait | Gesture | 16 / 16 | ✓ | ✓ |
+| Tablet, `qeetrix-tablet-api36`, **rc.2** | 16 (API 36) | 2560 × 1600, 320 dpi, landscape | Gesture | 15 / 16 — ATF found the bottom action bar's off-screen action (fixed after the candidate; 16 / 16 with the fix) | ✓ | ✓ |
 | Tablet, `qeetrix-tablet-api36` (Pixel Tablet profile) | 16 (API 36) | 2560 × 1600, 320 dpi, landscape | Gesture | 13 / 13 | ✓ — a navigation rail, as the scaffold chooses from 600 dp | ✓ |
 | Phone, `qeetrix-api36`, landscape | 16 (API 36) | 2400 × 1080 (rotation confirmed during the run) | Gesture | — | ✓ — a rail at 914 dp | ✓ |
 

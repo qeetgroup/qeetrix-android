@@ -17,6 +17,9 @@ class QeetrixSpinnerScreenshotTest {
     @Test
     fun states() =
         captureStates("spinner") {
-            ScreenshotFlow { for (size in QeetrixSpinnerSize.entries) QeetrixSpinner(size = size) }
+            ScreenshotFlow {
+                for (size in QeetrixSpinnerSize.entries) QeetrixSpinner(size = size)
+                QeetrixSpinner(tone = QeetrixSpinnerTone.Brand, size = QeetrixSpinnerSize.Xl)
+            }
         }
 }

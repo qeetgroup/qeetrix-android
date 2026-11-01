@@ -30,40 +30,48 @@ Open the repository root in Android Studio, or use the command line:
 | `./gradlew :qeetrix:dokkaGenerate` | API reference into `qeetrix/build/dokka/html` |
 | `Scripts/release-candidate <X.Y.Z-rc.N> [--devices] [--allow-dirty]` | Every release gate, a local publication, the independent consumer, and evidence in `build/release-candidate/` ([RELEASE-CHECKLIST.md](Documentation/Releases/RELEASE-CHECKLIST.md)) |
 | `./gradlew -p Integration/Consumer :app:assembleRelease` | Build the independent consumer against a published candidate ([Integration/Consumer](Integration/Consumer/README.md)) |
-| `Scripts/sync-tokens [--check]` | Fetch and verify the pinned upstream artifacts (network) |
+| `Scripts/sync-tokens [--check]` | Fetch and verify the pinned npm packages — `@qeetrix/tokens`, `@qeetrix/react`, `@qeetrix/icons` (network) |
 | `Scripts/generate-tokens` | Regenerate everything derived from the snapshot |
 | `Scripts/verify-tokens` | Only the drift verification |
 
-## Tokens, fonts and icons come from upstream
+## Tokens, fonts, icons and component looks come from upstream
 
-Nothing visual is decided in this repository. To change a colour, size, font or icon:
+Nothing visual is decided in this repository. To change a colour, size, font, icon or how a component looks:
 
-1. Change it in [qeetrix-ui](https://github.com/qeetgroup/qeetrix-ui) or
-   [qeetrix-icons](https://github.com/qeetgroup/qeetrix-icons) and release it.
-2. Bump the pin in `Upstream/manifest.json` (and tell the qeetrix-ios maintainers, so both move together).
+1. Change it in [qeetrix-tokens](https://github.com/qeetgroup/qeetrix-tokens) (tokens and fonts),
+   [qeetrix-icons](https://github.com/qeetgroup/qeetrix-icons) or [qeetrix-react](https://github.com/qeetgroup/qeetrix-react)
+   (a component's CSS and props), and publish the package to npm.
+2. Bump its pin in `Upstream/manifest.json` — `qeetrixTokens`, `qeetrixReact` or `qeetrixIcons` — and tell the
+   qeetrix-ios maintainers, so both move together.
 3. `Scripts/sync-tokens`, then `Scripts/generate-tokens`.
 4. If the build now fails to compile, upstream added, removed or renamed a token: update the public type in
    `foundation/` or `theme/` deliberately, and note it in `CHANGELOG.md`.
 5. If generation fails on a new token group, decide whether Android consumes it and add a rule to
    `Tools/QeetrixGen/.../tokens/Scope.kt` (mirroring qeetrix-ios). A component-token group is adopted by
-   adding it to `qeetrixUI.componentTokens` in `Upstream/manifest.json` (`new-component` does this).
-6. Review the diff of `Upstream/`, the generated files and `Documentation/Foundations/`.
+   adding it to `qeetrixTokens.componentTokens` in `Upstream/manifest.json` (`new-component` does this when
+   `@qeetrix/tokens` defines one for the component).
+6. Review the diff of `Upstream/`, the generated files and `Documentation/Foundations/`. A change under
+   `Upstream/qeetrix-react/css/` is a component's look changing: update the values restated in that component's
+   file (each sits beside the CSS it came from), its page and its screenshots.
 
-To add an icon, add its name to `qeetrixIcons.icons` in `Upstream/manifest.json`, sync, generate, and add
-the entry to `QeetrixIconName` (the build fails until you do).
+A component whose family Android implements for the first time gets its CSS by adding the family to
+`qeetrixReact.families` in `Upstream/manifest.json`. To add an icon, add its name to `qeetrixIcons.icons`, sync,
+generate, and add the entry to `QeetrixIconName` (the build fails until you do).
 
 Never edit `Upstream/`, a `generated/` package or `Documentation/Foundations/` by hand: `./gradlew check`
 fails if you do.
 
-When the generator itself changes, regenerate `Tools/QeetrixGen/src/test/resources/culori-vectors.json`
-only if the pinned release changed (see the script header in `Tools/QeetrixGen/vectors/`).
+When the generator itself changes, its tests check it against the snapshot: the colour conversion against the
+`hex` `@qeetrix/tokens` records beside every colour (`ColorMathTest`), the resolver against the published light and
+dark documents, and the committed files against a fresh generation (`SnapshotTest`).
 
 ## Code
 
 - Kotlin official style, enforced by ktlint; Android Lint with warnings as errors.
 - Explicit API mode: every public declaration states its visibility; keep the public surface small
   ([Documentation/Standards/PUBLIC_API.md](Documentation/Standards/PUBLIC_API.md)).
-- No literal colours, sizes, durations or fonts outside the generated code; use the foundation types.
+- No literal colours, durations or fonts outside the generated code; use the foundation types. A size the tokens
+  don't name comes from the component's CSS, with the CSS beside it.
 - No Material 3 for appearance, no product-specific code (Qeet ID or any other), no new runtime
   dependencies without a decision record.
 - Resource names start with `qx_` (enforced by `resourcePrefix`).
@@ -71,10 +79,11 @@ only if the pinned release changed (see the script header in `Tools/QeetrixGen/v
 ## Components
 
 Start every component with `Scripts/new-component` (try `--dry-run` first): it validates the name
-against the pinned web manifest, never overwrites, and creates the source, tests, sample page and
+against the pinned `@qeetrix/react` component manifest, never overwrites, and creates the source, tests, sample page and
 documentation page in the right places. The scaffold deliberately does not build until you implement it.
-Follow [COMPONENT_CONTRACT.md](Documentation/Standards/COMPONENT_CONTRACT.md) — the web's variants and
-states, theme and component tokens only, 48 dp targets, semantics — and finish with
+Follow [COMPONENT_CONTRACT.md](Documentation/Standards/COMPONENT_CONTRACT.md) — the `@qeetrix/react`
+component's props, variants and states, its CSS restated with the CSS beside each literal, the design rules,
+48 dp targets, semantics — and finish with
 `./gradlew :qeetrix:apiDump`, recorded and reviewed screenshots, and its page in
 `Documentation/Components/`.
 

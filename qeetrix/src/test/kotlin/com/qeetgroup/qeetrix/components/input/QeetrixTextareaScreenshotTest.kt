@@ -19,19 +19,17 @@ class QeetrixTextareaScreenshotTest {
     fun states() =
         captureStates("textarea") {
             ScreenshotStack {
+                QeetrixTextarea(TextFieldState(), label = "Delivery notes", placeholder = "e.g. Gate code 4471", optional = true)
                 QeetrixTextarea(
-                    TextFieldState(),
+                    TextFieldState("The invoice total does not match the order.\nPlease check line 3."),
                     label = "Feedback",
-                    placeholder = "What could be better?",
                     description = "Up to 500 characters.",
+                    rows = 2,
+                    interactionSource = rememberFocusedSource(),
                 )
-                QeetrixTextarea(
-                    TextFieldState("The export finished, but the totals row was missing.\nIt happened twice this week."),
-                    label = "Details",
-                    message = QeetrixFieldMessage("Remove the account number before sending."),
-                )
-                QeetrixTextarea(TextFieldState("12 Residency Road, Bengaluru"), label = "Address", readOnly = true)
-                QeetrixTextarea(TextFieldState("Locked"), label = "Notes", enabled = false)
+                QeetrixTextarea(TextFieldState("Flat 4B"), label = "Address", error = "Add a PIN code to the address.", rows = 1)
+                QeetrixTextarea(TextFieldState("Approved by finance on 12 Oct."), label = "Audit note", readOnly = true, rows = 1)
+                QeetrixTextarea(TextFieldState("Locked"), label = "Disabled", enabled = false, rows = 1)
             }
         }
 }

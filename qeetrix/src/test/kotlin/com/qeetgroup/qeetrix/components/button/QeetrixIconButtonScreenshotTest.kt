@@ -20,31 +20,28 @@ class QeetrixIconButtonScreenshotTest {
     fun states() =
         captureStates("iconbutton") {
             ScreenshotStack {
-                ScreenshotFlow {
-                    for (variant in QeetrixButtonVariant.entries) {
-                        QeetrixIconButton(
-                            QeetrixIconName.Search,
-                            variant.value,
-                            onClick = {},
-                            variant = variant,
-                        )
+                for (tone in QeetrixButtonTone.entries) {
+                    ScreenshotFlow {
+                        for (variant in QeetrixButtonVariant.entries) {
+                            QeetrixIconButton(
+                                QeetrixIconName.Search,
+                                "${variant.value} ${tone.value}",
+                                onClick = {},
+                                variant = variant,
+                                tone = tone,
+                            )
+                        }
                     }
                 }
                 ScreenshotFlow {
-                    for (size in QeetrixIconButtonSize.entries) {
-                        QeetrixIconButton(
-                            QeetrixIconName.Bell,
-                            size.value,
-                            onClick = {},
-                            size = size,
-                            variant = QeetrixButtonVariant.Outline,
-                        )
+                    for (size in QeetrixButtonSize.entries) {
+                        QeetrixIconButton(QeetrixIconName.Bell, size.value, onClick = {}, size = size, variant = QeetrixButtonVariant.Soft)
                     }
                 }
                 ScreenshotFlow {
-                    QeetrixIconButton(QeetrixIconName.Send, "Send", onClick = {}, variant = QeetrixButtonVariant.Default)
-                    QeetrixIconButton(QeetrixIconName.Send, "Send", onClick = {}, variant = QeetrixButtonVariant.Default, enabled = false)
-                    QeetrixIconButton(QeetrixIconName.Send, "Send", onClick = {}, variant = QeetrixButtonVariant.Default, loading = true)
+                    QeetrixIconButton(QeetrixIconName.Send, "Send", onClick = {}, variant = QeetrixButtonVariant.Solid)
+                    QeetrixIconButton(QeetrixIconName.Send, "Send", onClick = {}, variant = QeetrixButtonVariant.Solid, enabled = false)
+                    QeetrixIconButton(QeetrixIconName.Send, "Send", onClick = {}, variant = QeetrixButtonVariant.Solid, loading = true)
                 }
             }
         }

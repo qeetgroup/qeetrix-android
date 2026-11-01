@@ -1,40 +1,39 @@
 # Skeleton
 
-`QeetrixSkeleton`, `QeetrixSkeletonShape`, `QeetrixSkeletonText` · `components.spinner` ·
-web: [Skeleton](https://ui.qeet.in/docs/components/skeleton) · sample: Feedback → Skeleton
+`QeetrixSkeleton`, `QeetrixSkeletonText`, `QeetrixSkeletonVariant`, `QeetrixSkeletonSize` · `components.spinner` ·
+`@qeetrix/react`: [Skeleton](https://ui.qeet.in/components/skeleton) · sample: Feedback → Skeleton
 
-A placeholder for content that is loading. Size it with its modifier and compose several in the shape of
-what will arrive.
+A placeholder shaped like the content that is loading.
 
 ```kotlin
-Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-    QeetrixSkeleton(Modifier.size(40.dp), QeetrixSkeletonShape.Circle)
-    QeetrixSkeletonText(Modifier.weight(1f), lines = 2)
+Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd)) {
+    QeetrixSkeleton(variant = QeetrixSkeletonVariant.Circle, size = QeetrixSkeletonSize.Lg)
+    QeetrixSkeletonText(lines = 2, modifier = Modifier.weight(1f))
 }
 ```
 
 ## Usage
 
-- **Shapes:** `Rectangle` (the chip corner, the default) for blocks and lines, `Circle` for avatars,
-  `Capsule` for badges and chips.
-- **`QeetrixSkeletonText`** draws lines the height of a typography role's text, spaced by its line height,
-  the last one shorter.
-- Prefer skeletons in the content's shape to a [spinner](Spinner.md) when the layout is known; the
-  [data state](DataState.md) shows rows by default.
+- `variant`: `Text` (default; a line of `body.md`, full width), `Block` (64 dp tall, full width) or `Circle` (an
+  avatar, `size` `Sm` 24 · `Md` 32 · `Lg` 40 · `Xl` 48 dp). Size it with `modifier` to match what will arrive.
+- `QeetrixSkeletonText(lines, role)`: a paragraph of bars, each the role's font size tall and centred in its line,
+  the last one 60 % wide; it takes the lines' height, so the text that replaces it moves nothing.
 
 ## Accessibility
 
-Skeletons are invisible to accessibility services. Say that the region is loading where it is — the data
-state reads its loading branch as one "Loading" element.
+Hidden from accessibility services. Announce the wait where it is — a [Data state](DataState.md)'s labelled
+spinner, or text.
 
 ## Theme and tokens
 
-`component.skeleton.background` (`text.primary` at 10 %), so it keeps its weight on every surface in both
-themes; a highlight of `text.primary` at 8 % sweeps across every 1.6 s (ease-standard), and stands still
-with animations off. The sweep only redraws: nothing recomposes.
+skeleton.css: `color.bg.neutral.subtle-pressed`; `radius.sm` for text, `radius.surface` for a block,
+`radius.full` for a circle; the opacity pulses to 45 % and back every `4 × motion.duration.slower` (1.6 s) on
+`motion.easing.standard`, and stands still under reduced motion.
 
 ## Platform differences
 
-The web sets the shape with a class; Android and iOS name it.
+- `lines` is a separate composable, `QeetrixSkeletonText`, with the role whose line it imitates (the web uses the
+  inherited font).
+- The earlier Android shimmer sweep and pill shape are gone, as on the web.
 
 Related: [Data state](DataState.md), [Spinner](Spinner.md).

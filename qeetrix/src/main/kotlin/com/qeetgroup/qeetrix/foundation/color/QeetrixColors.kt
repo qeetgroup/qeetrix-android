@@ -4,192 +4,251 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
- * The Qeetrix semantic colours for one theme — every `color.*` token in qeetrix-ui's consumable
- * layer, under the same names as on the web and iOS (`color.text.on-brand` → [textOnBrand]).
+ * The Qeetrix semantic colours for one colour scheme — every `color.*` token of `@qeetrix/tokens`,
+ * named by its path after `color.` in camelCase (`color.bg.brand.bold` → [bgBrandBold]), the same
+ * names as on the web (`--qx-color-bg-brand-bold`) and iOS.
  *
- * Read the current theme's colours with `QeetrixTheme.colors`. There is no public constructor: Qeet
- * Group has one brand across every product, so colours come from the upstream tokens through the
- * generator, never from app code. Palette primitives are deliberately not available — components
- * and screens use these semantic colours only.
+ * Read the current scheme's colours with `QeetrixTheme.colors`. There is no public constructor: Qeet
+ * Group has one palette across every product, so colours come from the upstream tokens through the
+ * generator, never from app code. The `primitive.*` palette is deliberately not available.
  *
- * The groups follow the token paths: `data*` (data visualisation), `text*`, `surface*`, `border*`,
- * `action*`, `feedback*` (status: text-strength, `*Subtle` fills, `*Strong` fills), `focusRing`,
- * `overlayScrim`, `selectionBackground`, `ratingFilled` and `syntax*` (code highlighting).
+ * The groups follow the token paths and the design rules (qeetrix-files `05-design-rules.md` §4):
+ * - `bg*` — fills: `neutral`, `brand`, `danger`, `success`, `warning`, `info`, each `subtle` (a tint) or
+ *   `bold` (solid), the interactive ones with `-hover` and `-pressed`; `selected`, `disabled`, `input`;
+ * - `text*` — text at 4.5:1 or better; `icon*` — icons at 3:1 or better;
+ * - `border*` — borders, rules and the focus frame ([borderFocus]);
+ * - `surface*` — the layers of a screen: `canvas` (the page), `raised` (content on it), `overlay`
+ *   (menus, dialogs), `sunken`, `inverse`;
+ * - `overlay*` — translucent hover, pressed and scrim layers; [selection] — selected text;
+ * - `dataviz*` — charts; `code*` — syntax highlighting.
  *
- * Values are converted from OKLCH per CSS Color 4 (see Documentation/CROSS_PLATFORM_CONTRACT.md).
- * A few data-visualisation and rating colours lie outside sRGB and are Display P3 colours; they are
- * drawn in P3 in a wide-colour-gamut window and converted to sRGB elsewhere.
+ * Ember, the brand orange (`bgBrandBold`, `borderBrand`, `textBrand`), appears only where it means
+ * something: the primary action, focus, the current item, checked controls and links.
+ *
+ * Values are converted from OKLCH per CSS Color 4 (Documentation/CROSS_PLATFORM_CONTRACT.md). A colour
+ * outside sRGB is a Display P3 colour, drawn in P3 in a wide-colour-gamut window and converted to sRGB
+ * elsewhere.
  */
 @Immutable
 public class QeetrixColors internal constructor(
-    /** `color.data.categorical.1` */
-    public val dataCategorical1: Color,
-    /** `color.data.categorical.2` */
-    public val dataCategorical2: Color,
-    /** `color.data.categorical.3` */
-    public val dataCategorical3: Color,
-    /** `color.data.categorical.4` */
-    public val dataCategorical4: Color,
-    /** `color.data.categorical.5` */
-    public val dataCategorical5: Color,
-    /** `color.data.categorical.6` */
-    public val dataCategorical6: Color,
-    /** `color.data.categorical.7` */
-    public val dataCategorical7: Color,
-    /** `color.data.categorical.8` */
-    public val dataCategorical8: Color,
-    /** `color.data.grid` */
-    public val dataGrid: Color,
-    /** `color.data.axis` */
-    public val dataAxis: Color,
-    /** `color.data.reference` */
-    public val dataReference: Color,
-    /** `color.data.positive` */
-    public val dataPositive: Color,
-    /** `color.data.negative` */
-    public val dataNegative: Color,
-    /** `color.data.warning` */
-    public val dataWarning: Color,
-    /** `color.text.primary` */
-    public val textPrimary: Color,
-    /** `color.text.secondary` */
-    public val textSecondary: Color,
-    /** `color.text.tertiary` */
-    public val textTertiary: Color,
-    /** `color.text.placeholder` */
-    public val textPlaceholder: Color,
+    /** `color.surface.canvas` */
+    public val surfaceCanvas: Color,
+    /** `color.surface.default` */
+    public val surfaceDefault: Color,
+    /** `color.surface.raised` */
+    public val surfaceRaised: Color,
+    /** `color.surface.overlay` */
+    public val surfaceOverlay: Color,
+    /** `color.surface.sunken` */
+    public val surfaceSunken: Color,
+    /** `color.surface.inverse` */
+    public val surfaceInverse: Color,
+    /** `color.bg.neutral.subtle` */
+    public val bgNeutralSubtle: Color,
+    /** `color.bg.neutral.subtle-hover` */
+    public val bgNeutralSubtleHover: Color,
+    /** `color.bg.neutral.subtle-pressed` */
+    public val bgNeutralSubtlePressed: Color,
+    /** `color.bg.neutral.bold` */
+    public val bgNeutralBold: Color,
+    /** `color.bg.neutral.bold-hover` */
+    public val bgNeutralBoldHover: Color,
+    /** `color.bg.neutral.bold-pressed` */
+    public val bgNeutralBoldPressed: Color,
+    /** `color.bg.brand.subtle` */
+    public val bgBrandSubtle: Color,
+    /** `color.bg.brand.subtle-hover` */
+    public val bgBrandSubtleHover: Color,
+    /** `color.bg.brand.subtle-pressed` */
+    public val bgBrandSubtlePressed: Color,
+    /** `color.bg.brand.bold` */
+    public val bgBrandBold: Color,
+    /** `color.bg.brand.bold-hover` */
+    public val bgBrandBoldHover: Color,
+    /** `color.bg.brand.bold-pressed` */
+    public val bgBrandBoldPressed: Color,
+    /** `color.bg.danger.subtle` */
+    public val bgDangerSubtle: Color,
+    /** `color.bg.danger.bold` */
+    public val bgDangerBold: Color,
+    /** `color.bg.danger.bold-hover` */
+    public val bgDangerBoldHover: Color,
+    /** `color.bg.danger.bold-pressed` */
+    public val bgDangerBoldPressed: Color,
+    /** `color.bg.warning.subtle` */
+    public val bgWarningSubtle: Color,
+    /** `color.bg.warning.bold` */
+    public val bgWarningBold: Color,
+    /** `color.bg.success.subtle` */
+    public val bgSuccessSubtle: Color,
+    /** `color.bg.success.bold` */
+    public val bgSuccessBold: Color,
+    /** `color.bg.info.subtle` */
+    public val bgInfoSubtle: Color,
+    /** `color.bg.info.bold` */
+    public val bgInfoBold: Color,
+    /** `color.bg.selected` */
+    public val bgSelected: Color,
+    /** `color.bg.selected-hover` */
+    public val bgSelectedHover: Color,
+    /** `color.bg.input` */
+    public val bgInput: Color,
+    /** `color.bg.disabled` */
+    public val bgDisabled: Color,
+    /** `color.text.default` */
+    public val textDefault: Color,
+    /** `color.text.subtle` */
+    public val textSubtle: Color,
+    /** `color.text.subtlest` */
+    public val textSubtlest: Color,
     /** `color.text.disabled` */
     public val textDisabled: Color,
     /** `color.text.inverse` */
     public val textInverse: Color,
     /** `color.text.brand` */
     public val textBrand: Color,
-    /** `color.text.brand-display` */
-    public val textBrandDisplay: Color,
     /** `color.text.link` */
     public val textLink: Color,
     /** `color.text.link-hover` */
     public val textLinkHover: Color,
-    /** `color.text.success` */
-    public val textSuccess: Color,
-    /** `color.text.warning` */
-    public val textWarning: Color,
-    /** `color.text.danger` */
-    public val textDanger: Color,
-    /** `color.text.info` */
-    public val textInfo: Color,
     /** `color.text.on-brand` */
     public val textOnBrand: Color,
-    /** `color.text.on-subtle` */
-    public val textOnSubtle: Color,
-    /** `color.text.on-feedback` */
-    public val textOnFeedback: Color,
-    /** `color.text.on-feedback-strong` */
-    public val textOnFeedbackStrong: Color,
-    /** `color.text.on-warning-strong` */
-    public val textOnWarningStrong: Color,
-    /** `color.surface.canvas` */
-    public val surfaceCanvas: Color,
-    /** `color.surface.default` */
-    public val surfaceDefault: Color,
-    /** `color.surface.elevated` */
-    public val surfaceElevated: Color,
-    /** `color.surface.overlay` */
-    public val surfaceOverlay: Color,
-    /** `color.surface.sunken` */
-    public val surfaceSunken: Color,
-    /** `color.surface.subtle` */
-    public val surfaceSubtle: Color,
-    /** `color.surface.interactive` */
-    public val surfaceInteractive: Color,
-    /** `color.surface.interactive-hover` */
-    public val surfaceInteractiveHover: Color,
-    /** `color.surface.interactive-active` */
-    public val surfaceInteractiveActive: Color,
-    /** `color.surface.brand-subtle` */
-    public val surfaceBrandSubtle: Color,
-    /** `color.surface.brand-subtle-hover` */
-    public val surfaceBrandSubtleHover: Color,
-    /** `color.surface.brand-subtle-active` */
-    public val surfaceBrandSubtleActive: Color,
-    /** `color.surface.rail` */
-    public val surfaceRail: Color,
-    /** `color.surface.inverse` */
-    public val surfaceInverse: Color,
+    /** `color.text.on-bold` */
+    public val textOnBold: Color,
+    /** `color.text.on-warning` */
+    public val textOnWarning: Color,
+    /** `color.text.danger` */
+    public val textDanger: Color,
+    /** `color.text.warning` */
+    public val textWarning: Color,
+    /** `color.text.success` */
+    public val textSuccess: Color,
+    /** `color.text.info` */
+    public val textInfo: Color,
+    /** `color.icon.default` */
+    public val iconDefault: Color,
+    /** `color.icon.subtle` */
+    public val iconSubtle: Color,
+    /** `color.icon.disabled` */
+    public val iconDisabled: Color,
+    /** `color.icon.inverse` */
+    public val iconInverse: Color,
+    /** `color.icon.brand` */
+    public val iconBrand: Color,
+    /** `color.icon.on-brand` */
+    public val iconOnBrand: Color,
+    /** `color.icon.on-bold` */
+    public val iconOnBold: Color,
+    /** `color.icon.danger` */
+    public val iconDanger: Color,
+    /** `color.icon.warning` */
+    public val iconWarning: Color,
+    /** `color.icon.success` */
+    public val iconSuccess: Color,
+    /** `color.icon.info` */
+    public val iconInfo: Color,
+    /** `color.icon.highlight` */
+    public val iconHighlight: Color,
     /** `color.border.default` */
     public val borderDefault: Color,
     /** `color.border.subtle` */
     public val borderSubtle: Color,
     /** `color.border.strong` */
     public val borderStrong: Color,
-    /** `color.border.control` */
-    public val borderControl: Color,
-    /** `color.border.control-hover` */
-    public val borderControlHover: Color,
-    /** `color.border.focused` */
-    public val borderFocused: Color,
-    /** `color.border.hover` */
-    public val borderHover: Color,
+    /** `color.border.strong-hover` */
+    public val borderStrongHover: Color,
+    /** `color.border.focus` */
+    public val borderFocus: Color,
     /** `color.border.brand` */
     public val borderBrand: Color,
+    /** `color.border.selected` */
+    public val borderSelected: Color,
     /** `color.border.danger` */
     public val borderDanger: Color,
-    /** `color.border.success` */
-    public val borderSuccess: Color,
     /** `color.border.warning` */
     public val borderWarning: Color,
+    /** `color.border.success` */
+    public val borderSuccess: Color,
     /** `color.border.info` */
     public val borderInfo: Color,
-    /** `color.action.primary` */
-    public val actionPrimary: Color,
-    /** `color.action.primary-hover` */
-    public val actionPrimaryHover: Color,
-    /** `color.action.primary-active` */
-    public val actionPrimaryActive: Color,
-    /** `color.feedback.success` */
-    public val feedbackSuccess: Color,
-    /** `color.feedback.warning` */
-    public val feedbackWarning: Color,
-    /** `color.feedback.error` */
-    public val feedbackError: Color,
-    /** `color.feedback.info` */
-    public val feedbackInfo: Color,
-    /** `color.feedback.success-subtle` */
-    public val feedbackSuccessSubtle: Color,
-    /** `color.feedback.warning-subtle` */
-    public val feedbackWarningSubtle: Color,
-    /** `color.feedback.error-subtle` */
-    public val feedbackErrorSubtle: Color,
-    /** `color.feedback.info-subtle` */
-    public val feedbackInfoSubtle: Color,
-    /** `color.feedback.success-strong` */
-    public val feedbackSuccessStrong: Color,
-    /** `color.feedback.warning-strong` */
-    public val feedbackWarningStrong: Color,
-    /** `color.feedback.error-strong` */
-    public val feedbackErrorStrong: Color,
-    /** `color.feedback.info-strong` */
-    public val feedbackInfoStrong: Color,
-    /** `color.focus.ring` */
-    public val focusRing: Color,
+    /** `color.border.disabled` */
+    public val borderDisabled: Color,
     /** `color.overlay.scrim` */
     public val overlayScrim: Color,
-    /** `color.selection.background` */
-    public val selectionBackground: Color,
-    /** `color.rating.filled` */
-    public val ratingFilled: Color,
-    /** `color.syntax.key` */
-    public val syntaxKey: Color,
-    /** `color.syntax.string` */
-    public val syntaxString: Color,
-    /** `color.syntax.number` */
-    public val syntaxNumber: Color,
-    /** `color.syntax.literal` */
-    public val syntaxLiteral: Color,
-    /** `color.syntax.punctuation` */
-    public val syntaxPunctuation: Color,
-    /** `color.syntax.comment` */
-    public val syntaxComment: Color,
+    /** `color.overlay.hover` */
+    public val overlayHover: Color,
+    /** `color.overlay.pressed` */
+    public val overlayPressed: Color,
+    /** `color.selection` */
+    public val selection: Color,
+    /** `color.dataviz.categorical.1` */
+    public val datavizCategorical1: Color,
+    /** `color.dataviz.categorical.2` */
+    public val datavizCategorical2: Color,
+    /** `color.dataviz.categorical.3` */
+    public val datavizCategorical3: Color,
+    /** `color.dataviz.categorical.4` */
+    public val datavizCategorical4: Color,
+    /** `color.dataviz.categorical.5` */
+    public val datavizCategorical5: Color,
+    /** `color.dataviz.categorical.6` */
+    public val datavizCategorical6: Color,
+    /** `color.dataviz.categorical.7` */
+    public val datavizCategorical7: Color,
+    /** `color.dataviz.categorical.8` */
+    public val datavizCategorical8: Color,
+    /** `color.dataviz.sequential.1` */
+    public val datavizSequential1: Color,
+    /** `color.dataviz.sequential.2` */
+    public val datavizSequential2: Color,
+    /** `color.dataviz.sequential.3` */
+    public val datavizSequential3: Color,
+    /** `color.dataviz.sequential.4` */
+    public val datavizSequential4: Color,
+    /** `color.dataviz.sequential.5` */
+    public val datavizSequential5: Color,
+    /** `color.dataviz.sequential.6` */
+    public val datavizSequential6: Color,
+    /** `color.dataviz.sequential.7` */
+    public val datavizSequential7: Color,
+    /** `color.dataviz.diverging.1` */
+    public val datavizDiverging1: Color,
+    /** `color.dataviz.diverging.2` */
+    public val datavizDiverging2: Color,
+    /** `color.dataviz.diverging.3` */
+    public val datavizDiverging3: Color,
+    /** `color.dataviz.diverging.4` */
+    public val datavizDiverging4: Color,
+    /** `color.dataviz.diverging.5` */
+    public val datavizDiverging5: Color,
+    /** `color.dataviz.diverging.6` */
+    public val datavizDiverging6: Color,
+    /** `color.dataviz.diverging.7` */
+    public val datavizDiverging7: Color,
+    /** `color.dataviz.positive` */
+    public val datavizPositive: Color,
+    /** `color.dataviz.negative` */
+    public val datavizNegative: Color,
+    /** `color.dataviz.warning` */
+    public val datavizWarning: Color,
+    /** `color.dataviz.grid` */
+    public val datavizGrid: Color,
+    /** `color.dataviz.axis` */
+    public val datavizAxis: Color,
+    /** `color.dataviz.reference` */
+    public val datavizReference: Color,
+    /** `color.code.keyword` */
+    public val codeKeyword: Color,
+    /** `color.code.string` */
+    public val codeString: Color,
+    /** `color.code.number` */
+    public val codeNumber: Color,
+    /** `color.code.literal` */
+    public val codeLiteral: Color,
+    /** `color.code.punctuation` */
+    public val codePunctuation: Color,
+    /** `color.code.comment` */
+    public val codeComment: Color,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -199,93 +258,118 @@ public class QeetrixColors internal constructor(
 
     override fun hashCode(): Int = values().hashCode()
 
-    override fun toString(): String = "QeetrixColors(textPrimary=$textPrimary, surfaceCanvas=$surfaceCanvas, …)"
+    override fun toString(): String = "QeetrixColors(textDefault=$textDefault, surfaceCanvas=$surfaceCanvas, …)"
 
     private fun values(): List<Color> =
         listOf(
-            dataCategorical1,
-            dataCategorical2,
-            dataCategorical3,
-            dataCategorical4,
-            dataCategorical5,
-            dataCategorical6,
-            dataCategorical7,
-            dataCategorical8,
-            dataGrid,
-            dataAxis,
-            dataReference,
-            dataPositive,
-            dataNegative,
-            dataWarning,
-            textPrimary,
-            textSecondary,
-            textTertiary,
-            textPlaceholder,
+            surfaceCanvas,
+            surfaceDefault,
+            surfaceRaised,
+            surfaceOverlay,
+            surfaceSunken,
+            surfaceInverse,
+            bgNeutralSubtle,
+            bgNeutralSubtleHover,
+            bgNeutralSubtlePressed,
+            bgNeutralBold,
+            bgNeutralBoldHover,
+            bgNeutralBoldPressed,
+            bgBrandSubtle,
+            bgBrandSubtleHover,
+            bgBrandSubtlePressed,
+            bgBrandBold,
+            bgBrandBoldHover,
+            bgBrandBoldPressed,
+            bgDangerSubtle,
+            bgDangerBold,
+            bgDangerBoldHover,
+            bgDangerBoldPressed,
+            bgWarningSubtle,
+            bgWarningBold,
+            bgSuccessSubtle,
+            bgSuccessBold,
+            bgInfoSubtle,
+            bgInfoBold,
+            bgSelected,
+            bgSelectedHover,
+            bgInput,
+            bgDisabled,
+            textDefault,
+            textSubtle,
+            textSubtlest,
             textDisabled,
             textInverse,
             textBrand,
-            textBrandDisplay,
             textLink,
             textLinkHover,
-            textSuccess,
-            textWarning,
-            textDanger,
-            textInfo,
             textOnBrand,
-            textOnSubtle,
-            textOnFeedback,
-            textOnFeedbackStrong,
-            textOnWarningStrong,
-            surfaceCanvas,
-            surfaceDefault,
-            surfaceElevated,
-            surfaceOverlay,
-            surfaceSunken,
-            surfaceSubtle,
-            surfaceInteractive,
-            surfaceInteractiveHover,
-            surfaceInteractiveActive,
-            surfaceBrandSubtle,
-            surfaceBrandSubtleHover,
-            surfaceBrandSubtleActive,
-            surfaceRail,
-            surfaceInverse,
+            textOnBold,
+            textOnWarning,
+            textDanger,
+            textWarning,
+            textSuccess,
+            textInfo,
+            iconDefault,
+            iconSubtle,
+            iconDisabled,
+            iconInverse,
+            iconBrand,
+            iconOnBrand,
+            iconOnBold,
+            iconDanger,
+            iconWarning,
+            iconSuccess,
+            iconInfo,
+            iconHighlight,
             borderDefault,
             borderSubtle,
             borderStrong,
-            borderControl,
-            borderControlHover,
-            borderFocused,
-            borderHover,
+            borderStrongHover,
+            borderFocus,
             borderBrand,
+            borderSelected,
             borderDanger,
-            borderSuccess,
             borderWarning,
+            borderSuccess,
             borderInfo,
-            actionPrimary,
-            actionPrimaryHover,
-            actionPrimaryActive,
-            feedbackSuccess,
-            feedbackWarning,
-            feedbackError,
-            feedbackInfo,
-            feedbackSuccessSubtle,
-            feedbackWarningSubtle,
-            feedbackErrorSubtle,
-            feedbackInfoSubtle,
-            feedbackSuccessStrong,
-            feedbackWarningStrong,
-            feedbackErrorStrong,
-            feedbackInfoStrong,
-            focusRing,
+            borderDisabled,
             overlayScrim,
-            selectionBackground,
-            ratingFilled,
-            syntaxKey,
-            syntaxString,
-            syntaxNumber,
-            syntaxLiteral,
-            syntaxPunctuation,
-            syntaxComment,
+            overlayHover,
+            overlayPressed,
+            selection,
+            datavizCategorical1,
+            datavizCategorical2,
+            datavizCategorical3,
+            datavizCategorical4,
+            datavizCategorical5,
+            datavizCategorical6,
+            datavizCategorical7,
+            datavizCategorical8,
+            datavizSequential1,
+            datavizSequential2,
+            datavizSequential3,
+            datavizSequential4,
+            datavizSequential5,
+            datavizSequential6,
+            datavizSequential7,
+            datavizDiverging1,
+            datavizDiverging2,
+            datavizDiverging3,
+            datavizDiverging4,
+            datavizDiverging5,
+            datavizDiverging6,
+            datavizDiverging7,
+            datavizPositive,
+            datavizNegative,
+            datavizWarning,
+            datavizGrid,
+            datavizAxis,
+            datavizReference,
+            codeKeyword,
+            codeString,
+            codeNumber,
+            codeLiteral,
+            codePunctuation,
+            codeComment,
         )
 }

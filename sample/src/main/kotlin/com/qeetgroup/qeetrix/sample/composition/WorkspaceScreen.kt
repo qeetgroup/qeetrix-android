@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,19 +22,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
 import com.qeetgroup.qeetrix.components.card.QeetrixCard
-import com.qeetgroup.qeetrix.components.card.QeetrixCardSize
 import com.qeetgroup.qeetrix.components.dialog.QeetrixConfirmationDialog
 import com.qeetgroup.qeetrix.components.dialog.QeetrixDialog
+import com.qeetgroup.qeetrix.components.dialog.QeetrixDialogIntent
+import com.qeetgroup.qeetrix.components.dialog.QeetrixDialogSize
 import com.qeetgroup.qeetrix.components.drawer.QeetrixBottomSheet
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenu
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuItem
-import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuItemVariant
+import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuItemTone
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuSeparator
 import com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyState
-import com.qeetgroup.qeetrix.components.input.QeetrixFieldMessage
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
 import com.qeetgroup.qeetrix.components.input.QeetrixTextField
 import com.qeetgroup.qeetrix.components.navigation.QeetrixBackButton
@@ -47,11 +49,11 @@ import com.qeetgroup.qeetrix.components.tabs.QeetrixTab
 import com.qeetgroup.qeetrix.components.tabs.QeetrixTabs
 import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarHost
 import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarResult
-import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarType
+import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbarTone
 import com.qeetgroup.qeetrix.components.toast.rememberQeetrixSnackbarHostState
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
-import com.qeetgroup.qeetrix.components.typography.QeetrixTextVariant
-import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpacing
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import kotlinx.coroutines.launch
@@ -92,8 +94,8 @@ fun WorkspaceScreen(onExit: () -> Unit) {
 
     QeetrixNavigationScaffold(
         Destinations,
-        selected = destination,
-        onSelect = {
+        value = destination,
+        onValueChange = {
             destination = it
             openProject = null
         },
@@ -112,7 +114,7 @@ fun WorkspaceScreen(onExit: () -> Unit) {
                             onRename = { renamed ->
                                 projects[projects.indexOf(project)] = renamed
                                 openProject = renamed
-                                scope.launch { snackbars.show("Project renamed", QeetrixSnackbarType.Success) }
+                                scope.launch { snackbars.show("Project renamed", QeetrixSnackbarTone.Success) }
                             },
                             onDelete = {
                                 val index = projects.indexOf(project)
@@ -150,26 +152,30 @@ private fun ProjectList(
     var filtering by rememberSaveable { mutableStateOf(false) }
     var status by rememberSaveable { mutableStateOf("all") }
     var draft by rememberSaveable { mutableStateOf("all") }
-    val scroll = rememberScrollState()
     Column(Modifier.fillMaxSize()) {
         QeetrixTopAppBar(
             title = "Projects",
-            subtitle = StatusFilter.first { it.value == status }.label,
+            description = StatusFilter.first { it.value == status }.label,
             navigationIcon = { QeetrixBackButton(onClick = onExit) },
             actions = {
-                QeetrixButton("Filter", onClick = {
-                    draft = status
-                    filtering = true
-                }, variant = QeetrixButtonVariant.Ghost)
+                // A utility action in a header: neutral, so Ember stays for meaning.
+                QeetrixButton(
+                    "Filter",
+                    onClick = {
+                        draft = status
+                        filtering = true
+                    },
+                    variant = QeetrixButtonVariant.Ghost,
+                    tone = QeetrixButtonTone.Neutral,
+                )
             },
-            scrolled = scroll.canScrollBackward,
         )
         Column(
-            Modifier.verticalScroll(scroll).padding(QeetrixSpacing.L),
-            verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.M),
+            Modifier.verticalScroll(rememberScrollState()).padding(QeetrixSpace.InsetLg),
+            verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd),
         ) {
             for (project in projects) {
-                QeetrixCard(onClick = { onOpen(project) }, size = QeetrixCardSize.Sm, title = project, description = "Updated this week")
+                QeetrixCard(onClick = { onOpen(project) }, title = project, description = "Updated this week")
             }
             if (projects.isEmpty()) {
                 QeetrixEmptyState("No projects", description = "Deleted projects can be restored from the snackbar's Undo.")
@@ -177,14 +183,19 @@ private fun ProjectList(
         }
     }
     QeetrixBottomSheet(
-        visible = filtering,
-        onDismissRequest = { filtering = false },
+        open = filtering,
+        onOpenChange = { filtering = it },
         title = "Filter projects",
         footer = {
-            QeetrixButton("Show projects", onClick = {
-                status = draft
-                filtering = false
-            }, modifier = Modifier.fillMaxWidth())
+            QeetrixButton("Reset", onClick = { draft = "all" }, variant = QeetrixButtonVariant.Ghost, size = QeetrixButtonSize.Lg)
+            QeetrixButton(
+                "Show projects",
+                onClick = {
+                    status = draft
+                    filtering = false
+                },
+                size = QeetrixButtonSize.Lg,
+            )
         },
     ) {
         QeetrixRadioGroup(draft, { draft = it }, StatusFilter, label = "Status")
@@ -201,41 +212,59 @@ private fun ProjectDetail(
     var menu by remember { mutableStateOf(false) }
     var renaming by rememberSaveable { mutableStateOf(false) }
     var deleting by rememberSaveable { mutableStateOf(false) }
+    val field = rememberTextFieldState(name)
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
     Column(Modifier.fillMaxSize()) {
         QeetrixTopAppBar(
             title = name,
             navigationIcon = { QeetrixBackButton(onClick = onBack) },
             actions = {
                 QeetrixMenu(
-                    expanded = menu,
-                    onExpandedChange = { menu = it },
-                    trigger = { QeetrixIconButton(QeetrixIconName.EllipsisVertical, "More options", onClick = { menu = true }) },
+                    open = menu,
+                    onOpenChange = { menu = it },
+                    trigger = {
+                        QeetrixIconButton(
+                            QeetrixIconName.EllipsisVertical,
+                            "More options",
+                            onClick = { menu = true },
+                            tone = QeetrixButtonTone.Neutral,
+                        )
+                    },
                 ) {
-                    QeetrixMenuItem("Rename", onClick = { renaming = true }, icon = QeetrixIconName.Pencil)
+                    QeetrixMenuItem(
+                        "Rename",
+                        onClick = {
+                            field.setTextAndPlaceCursorAtEnd(name)
+                            error = null
+                            renaming = true
+                        },
+                        icon = QeetrixIconName.Pencil,
+                    )
                     QeetrixMenuSeparator()
                     QeetrixMenuItem(
                         "Delete project",
                         onClick = { deleting = true },
                         icon = QeetrixIconName.Trash,
-                        variant = QeetrixMenuItemVariant.Destructive,
+                        tone = QeetrixMenuItemTone.Danger,
                     )
                 }
             },
         )
-        Column(Modifier.padding(QeetrixSpacing.L), verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.M)) {
+        Column(Modifier.padding(QeetrixSpace.InsetLg), verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd)) {
             QeetrixText("Three open tasks and one review due this week.")
-            QeetrixText("Use the menu to rename or delete the project.", variant = QeetrixTextVariant.Muted)
+            QeetrixText("Use the menu to rename or delete the project.", tone = QeetrixTextTone.Subtle)
         }
     }
-    if (renaming) {
-        val field = rememberTextFieldState(name)
-        var error by rememberSaveable { mutableStateOf<String?>(null) }
-        QeetrixDialog(
-            title = "Rename project",
-            onDismissRequest = { renaming = false },
-            footer = {
-                QeetrixButton("Cancel", onClick = { renaming = false }, variant = QeetrixButtonVariant.Outline)
-                QeetrixButton("Save", onClick = {
+    QeetrixDialog(
+        open = renaming,
+        onOpenChange = { renaming = it },
+        title = "Rename project",
+        size = QeetrixDialogSize.Sm,
+        footer = {
+            QeetrixButton("Cancel", onClick = { renaming = false }, variant = QeetrixButtonVariant.Ghost, size = QeetrixButtonSize.Lg)
+            QeetrixButton(
+                "Save",
+                onClick = {
                     val value = field.text.trim().toString()
                     if (value.isEmpty()) {
                         error = "Enter a name."
@@ -243,22 +272,22 @@ private fun ProjectDetail(
                         renaming = false
                         onRename(value)
                     }
-                })
-            },
-        ) {
-            QeetrixTextField(field, label = "Name", required = true, message = error?.let { QeetrixFieldMessage(it) })
-        }
+                },
+                size = QeetrixButtonSize.Lg,
+            )
+        },
+    ) {
+        QeetrixTextField(field, label = "Name", required = true, error = error)
     }
-    if (deleting) {
-        QeetrixConfirmationDialog(
-            title = "Delete $name?",
-            message = "Its tasks and files are removed for everyone in the workspace.",
-            confirmLabel = "Delete project",
-            destructive = true,
-            onConfirm = onDelete,
-            onDismissRequest = { deleting = false },
-        )
-    }
+    QeetrixConfirmationDialog(
+        open = deleting,
+        onOpenChange = { deleting = it },
+        title = "Delete $name?",
+        description = "Its tasks and files are removed for everyone in the workspace.",
+        confirmLabel = "Delete project",
+        onConfirm = onDelete,
+        intent = QeetrixDialogIntent.Danger,
+    )
 }
 
 @Composable
@@ -266,13 +295,17 @@ private fun Inbox() {
     var tab by rememberSaveable { mutableStateOf("unread") }
     Column(Modifier.fillMaxSize()) {
         QeetrixTopAppBar(title = "Inbox")
-        Column(Modifier.padding(horizontal = QeetrixSpacing.L), verticalArrangement = Arrangement.spacedBy(QeetrixSpacing.M)) {
-            QeetrixTabs(listOf(QeetrixTab("unread", "Unread"), QeetrixTab("all", "All")), selected = tab, onSelect = { tab = it })
+        Column(Modifier.padding(horizontal = QeetrixSpace.InsetLg), verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd)) {
+            QeetrixTabs(
+                listOf(QeetrixTab("unread", "Unread", badge = 2), QeetrixTab("all", "All")),
+                value = tab,
+                onValueChange = { tab = it },
+            )
             if (tab == "unread") {
                 QeetrixText("Ada mentioned you in Website refresh.")
                 QeetrixText("The quarterly report is ready for review.")
             } else {
-                QeetrixText("No other messages.", variant = QeetrixTextVariant.Muted)
+                QeetrixText("No other messages.", tone = QeetrixTextTone.Subtle)
             }
         }
     }
@@ -283,7 +316,7 @@ private fun WorkspaceSettings() {
     var digest by rememberSaveable { mutableStateOf(true) }
     Column(Modifier.fillMaxSize()) {
         QeetrixTopAppBar(title = "Settings")
-        Column(Modifier.padding(QeetrixSpacing.L)) {
+        Column(Modifier.padding(QeetrixSpace.InsetLg)) {
             QeetrixSwitch(digest, { digest = it }, label = "Weekly digest", description = "A summary of the workspace every Monday.")
         }
     }

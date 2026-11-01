@@ -8,21 +8,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
-/** The two weights of [QeetrixSeparator] (`value` is the web name). */
-public enum class QeetrixSeparatorVariant(
+/** The line colours of [QeetrixSeparator] (`value` is `@qeetrix/react`'s `tone`). */
+public enum class QeetrixSeparatorTone(
     public val value: String,
 ) {
-    /** The border role: divides sections, groups and toolbars. */
+    /** `color.border.subtle` — the default. */
+    Subtle("subtle"),
+
+    /** `color.border.default`. */
     Default("default"),
 
-    /** The subtle border role, one step quieter: divides items inside a section. */
-    Muted("muted"),
+    /** `color.border.strong`. */
+    Strong("strong"),
 }
 
-/** Which way a [QeetrixSeparator] runs. */
+/** Which way a [QeetrixSeparator] runs (`value` is `@qeetrix/react`'s `orientation`). */
 public enum class QeetrixSeparatorOrientation(
     public val value: String,
 ) {
@@ -34,32 +37,31 @@ public enum class QeetrixSeparatorOrientation(
 }
 
 /**
- * A 1 dp rule between groups of content.
+ * A 1 dp rule (`border.width.default`) between groups of content — `@qeetrix/react`'s Separator. Ruled
+ * surfaces are a Qeetrix signature (design rules §2, §12): content is separated by lines and tone, not
+ * shadows.
  *
- * It is decorative — well under 3:1 by design — and invisible to accessibility services: a separator
- * supports grouping that spacing and headings already express, and is never the only signal. (The web
- * gives it `role="separator"`; Android has no separator role, and TalkBack would only read an empty
- * element.)
+ * It is invisible to accessibility services: a separator supports grouping that spacing and headings
+ * already express, and is never the only signal. (The web gives a non-decorative one `role="separator"`;
+ * Android has no separator role, and TalkBack would only read an empty element.)
  */
 @Composable
 public fun QeetrixSeparator(
     modifier: Modifier = Modifier,
     orientation: QeetrixSeparatorOrientation = QeetrixSeparatorOrientation.Horizontal,
-    variant: QeetrixSeparatorVariant = QeetrixSeparatorVariant.Default,
+    tone: QeetrixSeparatorTone = QeetrixSeparatorTone.Subtle,
 ) {
+    val colors = QeetrixTheme.colors
     val color =
-        when (variant) {
-            QeetrixSeparatorVariant.Default -> QeetrixTheme.colors.borderDefault
-
-            // bg-border
-            QeetrixSeparatorVariant.Muted -> QeetrixTheme.colors.borderSubtle // bg-border-subtle
+        when (tone) {
+            QeetrixSeparatorTone.Subtle -> colors.borderSubtle
+            QeetrixSeparatorTone.Default -> colors.borderDefault
+            QeetrixSeparatorTone.Strong -> colors.borderStrong
         }
     val size =
         when (orientation) {
-            QeetrixSeparatorOrientation.Horizontal -> Modifier.fillMaxWidth().height(QeetrixStroke.Hairline)
-
-            // h-px w-full
-            QeetrixSeparatorOrientation.Vertical -> Modifier.fillMaxHeight().width(QeetrixStroke.Hairline) // w-px self-stretch
+            QeetrixSeparatorOrientation.Horizontal -> Modifier.fillMaxWidth().height(QeetrixBorder.WidthDefault)
+            QeetrixSeparatorOrientation.Vertical -> Modifier.fillMaxHeight().width(QeetrixBorder.WidthDefault)
         }
     Box(modifier.then(size).background(color))
 }

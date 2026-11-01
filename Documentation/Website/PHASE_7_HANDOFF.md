@@ -15,6 +15,7 @@ The earlier handoffs ([Phase 3](PHASE_3_HANDOFF.md), [4](PHASE_4_HANDOFF.md), [5
 | Candidate | `0.1.0-rc.1`, built and verified locally; the version is a proposal awaiting approval |
 | Published | No. No registry has been chosen |
 | Stability | Pre-1.0: the API has a reviewed baseline, but may change in a minor release, with migration notes |
+| Since the candidate | The library moved from `@qeetrix/ui` 2.1.6 to `@qeetrix/tokens` 0.0.12, `@qeetrix/react` 0.3.0 and `@qeetrix/icons` 2.0.0: every component now follows its `@qeetrix/react` counterpart, and the API changed. `0.1.0-rc.1` predates this; a new candidate is needed before anything is published |
 
 ## Installation (to publish only once a version is released)
 
@@ -60,10 +61,14 @@ setContent {
 
 ## What may be said
 
-- Verified in an independent app through the Maven artifact: debug and an R8-optimised release, on Android 10 and
-  Android 16 emulators, a phone and a tablet.
-- Fonts (Qeet Sans, Fira Code) and icons ship inside the library; no web tooling is needed.
-- Everything in the Phase 6 handoff about accessibility evidence still holds, with the same limits.
+- `0.1.0-rc.1` was verified in an independent app through the Maven artifact: debug and an R8-optimised release,
+  on Android 10 and Android 16 emulators, a phone and a tablet. The next candidate repeats it.
+- Fonts (Qeet Sans, Fira Code — the TrueType files `@qeetrix/tokens` ships) and icons ship inside the library; no
+  web tooling or npm package is needed.
+- Components are the Android counterparts of `@qeetrix/react`'s, with its prop names (`variant`, `tone`, `size`,
+  `value` / `onValueChange`, `open` / `onOpenChange`) in Kotlin form.
+- What the Phase 6 handoff says about accessibility evidence, with the same limits — and once the quality scans
+  have been run again on the re-specified components.
 
 ## What must not be said
 

@@ -1,12 +1,12 @@
 package com.qeetgroup.qeetrix.components.navigation
 
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -23,7 +23,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-/** The rail: the same item contract as the bar, a header above the destinations. */
+/** The rail: the same item contract as the bar, a header above the destinations, rows across the rail. */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixNavigationRailTest {
     @get:Rule
@@ -42,7 +42,7 @@ class QeetrixNavigationRailTest {
     fun destinationsAreTabsWithTheHeaderAboveThem() {
         val chosen = mutableListOf<Destination>()
         compose.setQeetrix {
-            QeetrixNavigationRail(items, selected = Destination.Inbox, onSelect = { chosen += it }, modifier = Modifier) {
+            QeetrixNavigationRail(items, value = Destination.Inbox, onValueChange = { chosen += it }) {
                 QeetrixIconButton(QeetrixIconName.Plus, "New message", onClick = {})
             }
         }
@@ -51,10 +51,19 @@ class QeetrixNavigationRailTest {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsSelected()
             .assertHeightIsAtLeast(48.dp)
+            .assertWidthIsAtLeast(80.dp) // rows run across the rail
         val header = compose.onNodeWithContentDescription("New message").getUnclippedBoundsInRoot()
         val first = compose.onNodeWithText("Home").getUnclippedBoundsInRoot()
         assertTrue("header first", header.bottom <= first.top)
         compose.onNodeWithText("Settings").performClick()
         assertEquals(listOf(Destination.Settings), chosen)
+    }
+
+    @Test
+    fun rowsTouchWithNoGapBetweenThem() {
+        compose.setQeetrix { QeetrixNavigationRail(items, value = Destination.Home, onValueChange = {}) }
+        val home = compose.onNodeWithText("Home").getUnclippedBoundsInRoot()
+        val inbox = compose.onNodeWithText("Inbox", substring = true).getUnclippedBoundsInRoot()
+        assertEquals(home.bottom, inbox.top)
     }
 }

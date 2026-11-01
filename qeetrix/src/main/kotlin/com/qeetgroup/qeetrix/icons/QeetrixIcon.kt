@@ -14,8 +14,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixIconSize
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixIconStroke
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
 import com.qeetgroup.qeetrix.icons.generated.drawing
 import com.qeetgroup.qeetrix.icons.generated.mirrorsInRtl
 import com.qeetgroup.qeetrix.icons.generated.upstreamName
@@ -24,36 +24,56 @@ import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
 /**
- * The Qeetrix icons available natively. Names are qeetrix-icons' (Lucide's): the representative set
- * Phase 1 pinned plus those the components draw — not the full catalogue, and the same set as qeetrix-ios.
- * Adding one is a pin in `Upstream/manifest.json`.
+ * The Qeetrix icons available natively. Names are `@qeetrix/icons` 2.1's (Lucide's): the icons the
+ * components and the sample draw — not the full catalogue, and the same set as qeetrix-ios. Adding one
+ * is a pin in `Upstream/manifest.json`.
  */
 public enum class QeetrixIconName {
+    ArrowBigUp,
     ArrowLeft,
+    ArrowRight,
     Bell,
     Calendar,
+    Camera,
+    CameraOff,
     Check,
     ChevronDown,
+    ChevronLeft,
+    ChevronRight,
     CircleAlert,
     CircleCheck,
+    CircleDashed,
+    CircleQuestionMark,
     CircleX,
     Clock,
+    CloudUpload,
+    ContactRound,
     Copy,
-    Database,
     Ellipsis,
     EllipsisVertical,
     Eye,
     EyeOff,
+    File,
+    FileArchive,
+    FileCode,
+    FileImage,
+    FileSpreadsheet,
     FileText,
+    Flashlight,
+    FlashlightOff,
     Folder,
     House,
+    Image,
     Inbox,
     Info,
-    LoaderCircle,
+    Keyboard,
     Lock,
     Mail,
+    MapPin,
+    Menu,
     Minus,
     Navigation,
+    Paperclip,
     Pencil,
     Plus,
     RefreshCw,
@@ -73,28 +93,36 @@ public enum class QeetrixIconName {
     /** The upstream name (`send`), the same string on every platform. */
     public val value: String get() = upstreamName
 
-    /** Whether the drawing mirrors in right-to-left layouts (upstream `directionality: "mirror"`). */
+    /**
+     * Whether `@qeetrix/icons` says this drawing points a reading direction (`directionality: "mirror"`: send, undo,
+     * log-in, …), so it mirrors in right-to-left layouts. Physical arrows and chevrons ([ArrowLeft], [ChevronRight], …)
+     * never do by themselves: the place they are used decides (QTRX-200), as the web's `mirrorInRtl()` does —
+     * [QeetrixIcon]'s `mirrorInRightToLeft`, and Button's `iconMirrorsInRightToLeft` for a navigation arrow.
+     */
     public val mirrorsInRightToLeft: Boolean get() = mirrorsInRtl
 
-    /** Whether qeetrix-icons draws this icon in [shape] and [variant]. Without it, [QeetrixIcon] draws the outline. */
+    /** Whether `@qeetrix/icons` draws this icon in [shape] and [variant]. Without it, [QeetrixIcon] draws the outline. */
     public fun hasDrawing(
         shape: QeetrixIconShape,
         variant: QeetrixIconVariant,
     ): Boolean = drawing(shape, variant) != null
 }
 
-/** The two drawing shapes qeetrix-icons provides. */
+/**
+ * The two drawing shapes `@qeetrix/icons` provides. Qeetrix draws [Sharp] on controls — buttons,
+ * fields, menus — where it matches the square corners, and [Round] in navigation (design rules §16).
+ */
 public enum class QeetrixIconShape(
     public val value: String,
 ) {
-    /** Round caps and joins — the default, Lucide's own drawing. */
+    /** Round caps and joins — Lucide's own drawing; for navigation. */
     Round("round"),
 
-    /** Square caps and mitred joins. */
+    /** Square caps, mitred joins and squared details — the Qeetrix default. */
     Sharp("sharp"),
 }
 
-/** Outline (stroked) or filled. */
+/** Outline (stroked), the default, or filled — only for a selected or active state (design rules §16). */
 public enum class QeetrixIconVariant(
     public val value: String,
 ) {
@@ -104,20 +132,22 @@ public enum class QeetrixIconVariant(
 
 /**
  * A Qeetrix icon, drawn from vector paths in [tint] — by default the inherited content colour, as
- * icons follow `currentColor` on the web. Defaults match the web's `<Icon>`: size `md`, stroke
- * `regular`, round outline.
+ * icons follow `currentColor` on the web. Defaults follow the design rules (§16): the sharp outline,
+ * 20 dp standalone (`size.icon.md`; 16 dp inside controls, 24 dp in empty states), stroke 2 — 1.5 at
+ * the compact density.
  *
  * Pass a [contentDescription] when the icon carries meaning on its own; TalkBack reads it as an image.
  * Pass null when it is decorative — the text beside it says what it means — and it is hidden from
- * accessibility services. Icons whose meaning has a direction (send, reply, undo, …) mirror in
- * right-to-left layouts.
+ * accessibility services. Icons whose `@qeetrix/icons` manifest says they point a reading direction
+ * (send, log-out, …) mirror in right-to-left layouts; [mirrorInRightToLeft] decides for any other — `true` for an arrow
+ * or chevron that means "back" or "next", `false` (the default) for one that means a physical direction.
  *
  * Icons are sized in dp and do not grow with the font scale, as is usual on Android (qeetrix-ios
  * scales them with Dynamic Type, as SF Symbols do).
  *
  * ```
  * QeetrixIcon(QeetrixIconName.Search, contentDescription = null)            // decorative
- * QeetrixIcon(QeetrixIconName.Lock, contentDescription = "Locked", size = QeetrixIconSize.Lg)
+ * QeetrixIcon(QeetrixIconName.Lock, contentDescription = "Locked", size = QeetrixSize.IconLg)
  * ```
  *
  * @param stroke The outline stroke width in grid units ([QeetrixIconStroke]); it scales with the icon.
@@ -127,14 +157,15 @@ public fun QeetrixIcon(
     name: QeetrixIconName,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    size: Dp = QeetrixIconSize.Md,
-    stroke: Float = QeetrixIconStroke.Regular,
-    shape: QeetrixIconShape = QeetrixIconShape.Round,
+    size: Dp = QeetrixSize.IconMd,
+    stroke: Float = QeetrixTheme.density.iconStroke,
+    shape: QeetrixIconShape = QeetrixIconShape.Sharp,
     variant: QeetrixIconVariant = QeetrixIconVariant.Outline,
-    tint: Color = LocalQeetrixContentColor.current.takeOrElse { QeetrixTheme.colors.textPrimary },
+    tint: Color = LocalQeetrixContentColor.current.takeOrElse { QeetrixTheme.colors.iconDefault },
+    mirrorInRightToLeft: Boolean = name.mirrorsInRightToLeft,
 ) {
     val drawing = name.resolvedDrawing(shape, variant)
-    val mirrors = name.mirrorsInRtl
+    val mirrors = mirrorInRightToLeft
     val vector = remember(drawing, stroke, mirrors) { drawing.toImageVector(stroke, mirrors) }
     Image(
         painter = rememberVectorPainter(vector),

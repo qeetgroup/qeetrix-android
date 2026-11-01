@@ -18,15 +18,16 @@ internal val LocalQeetrixReduceMotion = staticCompositionLocalOf { false }
 
 /**
  * The colour content draws in — text and icons inherit it, as `currentColor` does on the web.
- * [QeetrixTheme] sets it to `colors.textPrimary`; a component sets it for its own content (for
- * example `textOnBrand` inside a primary button). Changes often and locally, so it is a dynamic local.
+ * [QeetrixTheme] sets it to `colors.textDefault`; a component sets it for its own content (for
+ * example `textOnBrand` inside a solid brand button). Changes often and locally, so it is a dynamic local.
  */
 public val LocalQeetrixContentColor: androidx.compose.runtime.ProvidableCompositionLocal<Color> =
     compositionLocalOf { Color.Unspecified }
 
 /**
- * The control density of a subtree — the web's `DensityProvider`. Components that follow density
- * (button and field heights) read it; everything else is density-independent.
+ * The density of a subtree — the web's `data-qx-density` attribute. Set it once per region, never per
+ * component (design rules §6). Control and row heights, the form gap and the icon stroke follow it;
+ * everything else is the same at every density.
  *
  * ```
  * CompositionLocalProvider(LocalQeetrixDensity provides QeetrixDensity.Compact) { DataTable() }

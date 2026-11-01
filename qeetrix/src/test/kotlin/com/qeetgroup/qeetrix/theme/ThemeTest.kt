@@ -47,7 +47,7 @@ class ThemeTest {
         val seen = capture(QeetrixThemeMode.Light)
         assertEquals(QeetrixLightColors, seen.colors)
         assertEquals(false, seen.dark)
-        assertEquals(QeetrixLightColors.textPrimary, seen.content)
+        assertEquals(QeetrixLightColors.textDefault, seen.content)
     }
 
     @Test
@@ -105,7 +105,7 @@ class ThemeTest {
         var selection: Color? = null
         compose.setContent { QeetrixTheme(QeetrixThemeMode.Light) { selection = LocalTextSelectionColors.current.backgroundColor } }
         compose.waitForIdle()
-        assertEquals(QeetrixLightColors.selectionBackground, selection)
+        assertEquals(QeetrixLightColors.selection, selection)
     }
 
     @Test

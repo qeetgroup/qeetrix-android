@@ -6,7 +6,6 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
@@ -20,22 +19,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.unit.em
-import com.qeetgroup.qeetrix.foundation.sizing.QeetrixStroke
-import com.qeetgroup.qeetrix.internal.QeetrixWebScale
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
-import com.qeetgroup.qeetrix.tokens.generated.QeetrixInputComponentTokens
 
 /**
- * A multi-line text field with its label, description and message — the web's `Textarea` in a field, on the
- * same field parts as [QeetrixTextField], for notes, feedback and addresses.
+ * Multi-line text with its label, help text and error — `@qeetrix/react`'s Textarea in a Field, with the Input
+ * look and states of [QeetrixTextField], for notes, feedback and addresses.
  *
+ * - **Height.** It starts [rows] lines tall (default 3) and grows with its content, up to [maxRows] lines when you
+ *   set it (then it scrolls inside itself; without it, it keeps growing, as the web's `field-sizing: content`
+ *   does). Its block padding is `(size.control.lg − 1 line) / 2`, so one line sits where a text field's does.
  * - The text lives in the [TextFieldState] you own; Enter starts a new line.
- * - It grows with its content from two control heights (64 dp at the default density) up to 384 dp, then
- *   scrolls inside itself, so a long note never pushes the rest of a form off screen. [minLines] and
- *   [maxLines] set the height in lines instead, within those bounds.
- * - Labels, required and optional markers, messages, read-only, disabled and [contentType] (for AutoFill,
- *   such as `ContentType.PostalAddress`) behave as in [QeetrixTextField].
+ * - Label, "(optional)", help, errors, read-only, disabled and [contentType] (for AutoFill, such as
+ *   `ContentType.PostalAddress`) behave as in [QeetrixTextField].
  * - Plain text only: no formatting, Markdown or attachments.
  *
  * ```
@@ -47,56 +43,61 @@ import com.qeetgroup.qeetrix.tokens.generated.QeetrixInputComponentTokens
 @Composable
 public fun QeetrixTextarea(
     state: TextFieldState,
+    label: String,
     modifier: Modifier = Modifier,
-    label: String? = null,
     placeholder: String? = null,
     description: String? = null,
-    message: QeetrixFieldMessage? = null,
+    error: String? = null,
+    invalid: Boolean = false,
+    optional: Boolean = false,
+    required: Boolean = false,
+    hideLabel: Boolean = false,
+    help: String? = null,
     enabled: Boolean = true,
     readOnly: Boolean = false,
-    required: Boolean = false,
-    optional: Boolean = false,
-    minLines: Int = 1,
-    maxLines: Int = Int.MAX_VALUE,
+    rows: Int = 3,
+    maxRows: Int? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     contentType: ContentType? = null,
     onKeyboardAction: KeyboardActionHandler? = null,
     inputTransformation: InputTransformation? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
-    require(minLines in 1..maxLines) { "minLines ($minLines) must be at least 1 and no more than maxLines ($maxLines)." }
+    require(rows >= 1) { "rows ($rows) must be at least 1." }
+    require(maxRows == null || maxRows >= rows) { "maxRows ($maxRows) cannot be fewer than rows ($rows)." }
     val active = enabled && LocalFieldGroup.current.enabled
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val focused by source.collectIsFocusedAsState()
     val hovered by source.collectIsHoveredAsState()
-    // leading-normal: a reading line height for prose, rather than the single-line field's.
-    val textStyle = fieldTextStyle().copy(lineHeight = QeetrixWebScale.LEADING_NORMAL.em)
+    val colors = QeetrixTheme.colors
+    val textStyle = fieldTextStyle().copy(color = if (active) colors.textDefault else colors.textDisabled)
+    // .qx-textarea { padding-block: calc((size.control.lg - 1lh) / 2) }, inside the box's 12 dp inline padding
+    val padding = PaddingValues(horizontal = QeetrixSpace.InsetMd, vertical = (QeetrixTheme.density.sizeControlLg - BodyMdLine) / 2)
 
-    FieldFrame(description, message, modifier) {
+    FieldFrame(description, error, active, modifier) {
         BasicTextField(
             state = state,
-            modifier = Modifier.fillMaxWidth().fieldContentType(contentType).fieldError(message),
+            modifier = Modifier.fillMaxWidth().fieldContentType(contentType).fieldError(error),
             enabled = active,
             readOnly = readOnly,
             inputTransformation = inputTransformation,
             textStyle = textStyle,
             keyboardOptions = keyboardOptions,
             onKeyboardAction = onKeyboardAction,
-            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = minLines, maxHeightInLines = maxLines),
+            // min-block-size: rows lines; max-block-size: maxRows lines (data-max-rows), then it scrolls
+            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = rows, maxHeightInLines = maxRows ?: Int.MAX_VALUE),
             interactionSource = source,
-            cursorBrush = SolidColor(QeetrixInputComponentTokens.Foreground),
+            cursorBrush = SolidColor(textStyle.color),
             decorator = { inner ->
-                LabelledControl(label, required, optional, active) {
+                LabelledControl(label, optional, required, hideLabel, active, help) {
                     FieldBox(
                         active,
                         readOnly,
                         focused,
                         hovered,
-                        message?.tone,
-                        Modifier.fillMaxWidth().heightIn(max = TextareaMaxHeight), // max-h-96
-                        // min-h-[calc(var(--qx-component-input-height)*2)]
-                        minHeight = QeetrixInputComponentTokens.height(QeetrixTheme.density) * 2,
-                        contentPadding = TextareaPadding,
+                        invalid || error != null,
+                        Modifier.fillMaxWidth(),
+                        contentPadding = padding,
                         verticalAlignment = Alignment.Top,
                     ) {
                         Box(Modifier.weight(1f)) {
@@ -109,13 +110,3 @@ public fun QeetrixTextarea(
         )
     }
 }
-
-/** px-2.5 py-2 inside the 1 dp border. */
-private val TextareaPadding =
-    PaddingValues(
-        horizontal = QeetrixWebScale.spacing(2.5f) + QeetrixStroke.Hairline,
-        vertical = QeetrixWebScale.spacing(2f) + QeetrixStroke.Hairline,
-    )
-
-/** max-h-96: 24rem. */
-private val TextareaMaxHeight = QeetrixWebScale.spacing(96f)

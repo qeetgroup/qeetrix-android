@@ -1,50 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Built-in strings, from @qeetrix/ui's message catalogue (src/lib/messages.ts at 7d7f651). Every component
-     that shows one also takes a parameter that replaces it; apps translate these by overriding them. -->
+<!-- Built-in strings, from @qeetrix/react's message catalogue (packages/react/src/internal/messages.ts, 0.3.0). Every
+     component that shows one also takes a parameter that replaces it; apps translate these by overriding them. -->
 <resources>
-    <!-- spinnerMessages.label: the accessible name of a spinner and of a busy button. -->
+    <!-- spinner.label: the accessible name of a spinner and of a busy button. -->
     <string name="qx_loading">Loading</string>
-    <!-- labelMessages.optional: the marker after an optional field's label. -->
+    <!-- field.optional: the marker after an optional field's label. -->
     <string name="qx_optional">(optional)</string>
-    <!-- What accessibility services read for a required field's asterisk, after its label ("Email, required").
-         The web leaves this to the screen reader's announcement of the native `required` attribute, which
-         Android has no counterpart for; qeetrix-ios adds "Required" to the label the same way. -->
+    <!-- What TalkBack reads after a required field's label ("Email, required"). Qeetrix draws no asterisk; the web
+         leaves this to the screen reader's reading of the native `required` attribute, which Android has no
+         counterpart for. -->
     <string name="qx_required">required</string>
-    <!-- passwordInputMessages.show / .hide: the reveal button's name for its current action. -->
+    <!-- field.help: the name of the ⓘ button after a field's label that opens its help ("About Token lifetime"). -->
+    <string name="qx_field_help">About %1$s</string>
+    <!-- passwordInput.show: the reveal toggle's name; it is a pressed toggle, so the name does not change. -->
     <string name="qx_show_password">Show password</string>
-    <string name="qx_hide_password">Hide password</string>
-    <!-- otpInputMessages.label: the name of a code input that has no label of its own. -->
-    <string name="qx_one_time_code">One-time code</string>
-    <!-- numberFieldMessages.decrease / .increase: the stepper buttons' names. -->
+    <!-- passwordInput.shown / .hidden: what the toggle says after it changes. Android reads them as the toggle's
+         state, where the web announces them in a polite live region. -->
+    <string name="qx_password_shown">Password shown</string>
+    <string name="qx_password_hidden">Password hidden</string>
+    <!-- passwordInput.capsLock: shown in a password field while a hardware keyboard's Caps Lock is on. -->
+    <string name="qx_caps_lock">Caps Lock is on</string>
+    <!-- numberField.decrement / .increment: the stepper buttons' names. -->
     <string name="qx_decrease">Decrease</string>
     <string name="qx_increase">Increase</string>
-    <!-- formMessages.errorSummaryTitle: the heading of a form's error summary. -->
-    <string name="qx_error_summary_title">There is a problem</string>
-    <!-- overlayMessages.close / toastMessages.close: the close button of a dialog, a sheet and a snackbar. -->
+    <!-- errorSummary.title: the heading of a form's error summary. -->
+    <string name="qx_error_summary_title">Fix these to continue</string>
+    <!-- alert.danger: the word that tells TalkBack an alert is an error, read before its title. -->
+    <string name="qx_alert_danger">Error</string>
+    <!-- overlay.close: the close button of a dialog and a sheet. -->
     <string name="qx_close">Close</string>
-    <!-- The Cancel action a dialog adds when it offers a destructive action without one (filterBarMessages.cancel). -->
+    <!-- toast.close: the close button of a snackbar. -->
+    <string name="qx_dismiss">Dismiss</string>
+    <!-- The Cancel action a confirmation dialog adds. -->
     <string name="qx_cancel">Cancel</string>
-    <!-- tourMessages.back: the top app bar's back button. -->
+    <!-- pageHeader.back: the top app bar's back button. -->
     <string name="qx_back">Back</string>
-    <!-- The bottom sheet's grab handle, which carries its expand, collapse and dismiss actions for accessibility
-         services. The web hides its handle (pointer decoration only); Android's sheets expose it, as Material's do. -->
-    <string name="qx_drag_handle">Drag handle</string>
-    <!-- The state of an accordion header for accessibility services, read after its title. The web leaves this to
-         the screen reader's reading of aria-expanded, which Compose has no property for; qeetrix-ios uses the same
-         words. -->
+    <!-- The state of an accordion trigger for TalkBack, read after its title. The web leaves this to the screen
+         reader's reading of aria-expanded, which Compose has no property for; qeetrix-ios uses the same words. -->
     <string name="qx_expanded">Expanded</string>
     <string name="qx_collapsed">Collapsed</string>
-    <!-- chipMessages.remove ("Remove"), with the chip's label: the remove button of a removable chip. On the web it
-         is read inside the chip; an Android button is read on its own, so it names what it removes. -->
+    <!-- The remove button of a removable chip, with the chip's label. An Android button is read on its own, so it
+         names what it removes. -->
     <string name="qx_remove">Remove %1$s</string>
-    <!-- dataStateMessages.error: a data state's failure when the app gives no message of its own. -->
-    <string name="qx_data_error">Something went wrong while loading this data.</string>
-    <!-- The retry button of a data state's failure. The web leaves retrying to its error fallback; qeetrix-ios
-         offers the same button with the same words. -->
+    <!-- dataState.errorTitle / .errorDescription / .retry: a data state's failure when the app gives no words of
+         its own, and its retry button. -->
+    <string name="qx_data_error">Couldn\'t load this</string>
+    <string name="qx_data_error_description">Try again, or check your connection.</string>
     <string name="qx_try_again">Try again</string>
-    <!-- dataTableMessages.search / .searchPlaceholder: a search field's name and its placeholder. -->
+    <!-- meter.withTarget: a meter's value with its target, as TalkBack reads it. -->
+    <string name="qx_meter_with_target">%1$s, target %2$s</string>
+    <!-- descriptionList.empty: what TalkBack reads for a description item with no value (drawn as "—"). -->
+    <string name="qx_not_set">Not set</string>
+    <!-- searchField.label: a search field's name when it has no label of its own. -->
     <string name="qx_search">Search</string>
-    <string name="qx_search_placeholder">Search…</string>
-    <!-- autocompleteMessages.clear: the button that empties a search field. -->
-    <string name="qx_clear">Clear</string>
+    <!-- searchField.clear: the button that empties a search field. -->
+    <string name="qx_clear_search">Clear search</string>
+    <!-- A searchable select's empty state, when no option matches what was typed. The web's Combobox has no message yet. -->
+    <string name="qx_no_matches">No matches</string>
+    <!-- A context menu's area: the action TalkBack offers for opening its menu (double-tap and hold). -->
+    <string name="qx_open_menu">Open menu</string>
+    <!-- The empty state's line under it: what was typed, in typographic quotes. -->
+    <string name="qx_no_matches_description">Nothing matches “%1$s”.</string>
+    <!-- copyButton.copy: a copy button's name when it has no label of its own. -->
+    <string name="qx_copy">Copy</string>
+    <!-- copyButton.copied: said once text is on the clipboard. -->
+    <string name="qx_copy_copied">Copied</string>
+    <!-- copyButton.failed: said when the clipboard refused the text. -->
+    <string name="qx_copy_failed">Couldn\'t copy</string>
+    <!-- copyField.copy: a copy field's button, named after the field's label. -->
+    <string name="qx_copy_label">Copy %1$s</string>
+    <!-- codeBlock.copy: the action of a one-time code shown to be typed elsewhere. -->
+    <string name="qx_otp_code_copy">Copy code</string>
+    <!-- A one-time code's action while it is hidden. -->
+    <string name="qx_otp_code_reveal">Show code</string>
+    <!-- Read in place of a one-time code while it is hidden. -->
+    <string name="qx_otp_code_hidden">Code hidden</string>
+    <!-- A one-time code's time left, read after its digits. -->
+    <plurals name="qx_otp_code_seconds_left">
+        <item quantity="one">%d second left</item>
+        <item quantity="other">%d seconds left</item>
+    </plurals>
+    <!-- A permission primer's action: lets the system ask for the permission. -->
+    <string name="qx_permission_continue">Continue</string>
+    <!-- A permission primer's second action. -->
+    <string name="qx_permission_not_now">Not now</string>
+    <!-- A permission primer's action once the permission was refused. -->
+    <string name="qx_permission_open_settings">Open Settings</string>
+    <!-- A QR scanner's line under the target. -->
+    <string name="qx_scanner_guidance">Point the camera at the QR code</string>
+    <!-- A QR scanner's fallback action. -->
+    <string name="qx_scanner_enter_key">Type the key instead</string>
+    <!-- A QR scanner's torch toggle, while off. -->
+    <string name="qx_scanner_torch_on">Turn on the torch</string>
+    <!-- A QR scanner's torch toggle, while on. -->
+    <string name="qx_scanner_torch_off">Turn off the torch</string>
+    <!-- A QR scanner's camera primer: its title. -->
+    <string name="qx_scanner_permission_title">Allow the camera</string>
+    <!-- A QR scanner's camera primer: why. -->
+    <string name="qx_scanner_permission_description">The camera is used only to read the QR code.</string>
+    <!-- A QR scanner's camera primer once the camera was refused. -->
+    <string name="qx_scanner_permission_denied">Turn on the camera for this app in Settings to scan the code.</string>
+    <!-- A QR scanner on a device with no camera: its title. -->
+    <string name="qx_scanner_no_camera">No camera</string>
+    <!-- A QR scanner on a device with no camera: what to do. -->
+    <string name="qx_scanner_no_camera_description">This device has no camera to scan with.</string>
+    <!-- alert.info, success, warning (alert.danger is qx_alert_danger above): read before an alert's title. -->
+    <string name="qx_alert_info">Information</string>
+    <string name="qx_alert_success">Success</string>
+    <string name="qx_alert_warning">Warning</string>
+    <!-- steps.done, upcoming, failed, attention, and the current step: a step's state. -->
+    <string name="qx_steps_done">Completed</string>
+    <string name="qx_steps_current">Current step</string>
+    <string name="qx_steps_upcoming">Not started</string>
+    <string name="qx_steps_failed">Failed</string>
+    <string name="qx_steps_attention">Needs attention</string>
+    <!-- A step's position: "2 of 4". -->
+    <string name="qx_steps_position">%1$d of %2$d</string>
+    <!-- Compact steps where there isn't room: "Step 2 of 4". -->
+    <string name="qx_steps_compact">Step %1$d of %2$d</string>
+    <!-- checkList.passed, failed, pending, running: a check's result. -->
+    <string name="qx_check_passed">Passed</string>
+    <string name="qx_check_failed">Failed</string>
+    <string name="qx_check_pending">Not run</string>
+    <string name="qx_check_running">Running</string>
+    <!-- avatarGroup.label: "{count} people: {names}". -->
+    <string name="qx_avatar_group_label">%1$s people: %2$s</string>
+    <!-- avatarGroup.more: "{count} more". -->
+    <string name="qx_avatar_group_more">%1$s more</string>
+    <!-- A page indicator: "Page 2 of 4". -->
+    <string name="qx_page_indicator">Page %1$d of %2$d</string>
+    <!-- slider.minimumOf, maximumOf: a range slider's two thumbs. -->
+    <string name="qx_slider_minimum_of">%1$s, minimum</string>
+    <string name="qx_slider_maximum_of">%1$s, maximum</string>
+    <!-- datePicker.choose: a date field's action. -->
+    <string name="qx_date_choose">Choose date</string>
+    <!-- dateRangePicker.choose: a date range field's action. -->
+    <string name="qx_date_range_choose">Choose dates</string>
+    <!-- A time field's action. -->
+    <string name="qx_time_choose">Choose time</string>
+    <!-- A picker dialog's confirming action. -->
+    <string name="qx_done">Done</string>
+    <!-- Attachment picker actions. -->
+    <string name="qx_attach_photos">Photos</string>
+    <string name="qx_attach_camera">Camera</string>
+    <string name="qx_attach_files">Files</string>
+    <!-- fileUpload.hint, hintSize, uploading, uploaded, remove, wrongType, tooBig. -->
+    <string name="qx_file_hint">%1$s, up to %2$s</string>
+    <string name="qx_file_hint_size">Up to %1$s</string>
+    <string name="qx_file_uploading">Uploading %1$s</string>
+    <string name="qx_file_uploaded">Uploaded</string>
+    <string name="qx_file_remove">Remove %1$s</string>
+    <string name="qx_file_wrong_type">Only %1$s files can be used here</string>
+    <string name="qx_file_too_big">Larger than %1$s</string>
+    <!-- A list of file types ending in "or": "PDF, PNG or JPG". -->
+    <string name="qx_file_types_or">%1$s or %2$s</string>
+    <!-- Said when a pull to refresh finishes. -->
+    <string name="qx_refresh_finished">Updated</string>
+    <!-- A full-screen form's question before unsaved changes are thrown away. -->
+    <string name="qx_form_discard_title">Discard changes?</string>
+    <string name="qx_form_discard_description">What you\'ve entered here will be lost.</string>
+    <string name="qx_form_discard">Discard</string>
+    <string name="qx_form_keep_editing">Keep editing</string>
 </resources>

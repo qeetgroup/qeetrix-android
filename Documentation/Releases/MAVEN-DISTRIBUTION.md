@@ -11,8 +11,8 @@ implementation("com.qeetgroup:qeetrix:<version>")
 ```
 
 `com.qeetgroup` is the group Qeet Group's Gradle projects use; `qeetrix` is the module. The package and Android
-namespace are `com.qeetgroup.qeetrix`. Development builds are `0.1.0-SNAPSHOT`; the first candidate is proposed as
-`0.1.0-rc.1` ([RELEASE-POLICY.md](RELEASE-POLICY.md)).
+namespace are `com.qeetgroup.qeetrix`. Development builds are `0.1.0-SNAPSHOT`; the current candidate is `0.1.0-rc.2`,
+which supersedes the unpublished `0.1.0-rc.1` ([RELEASE-POLICY.md](RELEASE-POLICY.md)).
 
 ## What a version contains
 
@@ -29,7 +29,7 @@ Dependencies an app receives, as published:
 | Scope | Artifacts |
 |:--|:--|
 | API (on the app's compile classpath — public Qeetrix signatures use their types) | `androidx.compose.runtime:runtime`, `androidx.compose.ui:ui`, `androidx.compose.animation:animation-core`, `androidx.compose.foundation:foundation` 1.12.1; `org.jetbrains.kotlin:kotlin-stdlib` 2.4.21 |
-| Runtime only | `androidx.compose.material3:material3` 1.4.0 (the bottom sheet's implementation; no Material type is public); the Compose BOM 2026.09.00 as a platform, aligning the app's Compose artifacts to at least the tested versions |
+| Runtime only | `androidx.compose.material3:material3` 1.4.0 and `androidx.activity:activity` 1.8.2 (the date and time pickers, pull to refresh and the sheets' back handling; no Material type is public); the Compose BOM 2026.09.00 as a platform, aligning the app's Compose artifacts to at least the tested versions |
 
 Everything comes from Google's Maven repository and Maven Central, which every Android app already uses.
 `Scripts/verify-publication` checks the coordinates, files, checksums, variants and dependency sources of a
@@ -61,21 +61,21 @@ dependencies {
 ```
 
 Then wrap the app's content in `QeetrixTheme { … }`. An app needs no keep rules for Qeetrix, no other Compose
-dependency for Qeetrix's sake, no Node.js, qeetrix-ui checkout or token generator: tokens are compiled into the
+dependency for Qeetrix's sake, no Node.js, Qeetrix npm package or token generator: tokens are compiled into the
 library and fonts and strings are in the AAR. This is exactly how the independent consumer in
 `Integration/Consumer` is set up, and it is verified on every candidate ([CONSUMER-INTEGRATION.md](CONSUMER-INTEGRATION.md)).
 
 ## Building and checking a candidate locally
 
 ```sh
-Scripts/release-candidate 0.1.0-rc.1 --devices     # every gate; publishes to build/release-candidate/maven only
+Scripts/release-candidate 0.1.0-rc.2 --devices     # every gate; publishes to build/release-candidate/maven only
 ```
 
 Or the publication alone:
 
 ```sh
-./gradlew :qeetrix:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version=0.1.0-rc.1
-Scripts/verify-publication build/release-candidate/maven 0.1.0-rc.1 qeetrix/build/outputs/aar/qeetrix-release.aar
+./gradlew :qeetrix:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version=0.1.0-rc.2
+Scripts/verify-publication build/release-candidate/maven 0.1.0-rc.2 qeetrix/build/outputs/aar/qeetrix-release.aar
 ```
 
 ## Choosing a registry

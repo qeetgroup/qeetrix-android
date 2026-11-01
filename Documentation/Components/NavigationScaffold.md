@@ -1,13 +1,14 @@
 # Adaptive navigation
 
-`QeetrixNavigationScaffold`, `QeetrixNavigationLayout` · `components.navigation` · web: none · sample:
-Navigation → Adaptive navigation; Overview → Workspace
+`QeetrixNavigationScaffold`, `QeetrixNavigationLayout` · `components.navigation` · `@qeetrix/react`: the
+[AppShell](https://ui.qeet.in/components/app-shell) frame (navigation column and main region), as Android
+adapts it · sample: Navigation → Adaptive navigation
 
-A screen with its top-level destinations: the [bar](NavigationBar.md) on a compact window, the
-[rail](NavigationRail.md) from the medium width up, switching as the window is resized, folded or rotated.
+A screen with its top-level destinations: a [bar](NavigationBar.md) on a compact window and a
+[rail](NavigationRail.md) from `breakpoint.medium` up, switching as the window is resized, folded or rotated.
 
 ```kotlin
-QeetrixNavigationScaffold(items, selected = destination, onSelect = { destination = it }) {
+QeetrixNavigationScaffold(items, value = destination, onValueChange = { destination = it }) {
     when (destination) {
         Destination.Home -> HomeScreen()
         Destination.Inbox -> InboxScreen()
@@ -18,24 +19,19 @@ QeetrixNavigationScaffold(items, selected = destination, onSelect = { destinatio
 
 ## Usage
 
-- **The rule.** Below 600 dp of window width, a bar; from 600 dp, a rail — Android's `WindowSizeClass`
-  compact boundary (`QeetrixNavigationLayout.forWindowWidth`). It is the window that counts, not the
-  device: a phone in landscape, a tablet in split screen and a resized window follow the same rule.
-- **`layout`** fixes the presentation when the app decides itself (with its own `WindowSizeClass`, say).
-- **The content keeps its state** across a switch: it stays in one place in the composition.
-- **Only presentation.** The content is the app's current destination; back stacks, deep links and saved
-  state stay with the app's navigation library.
-- It is a whole screen: give it a bounded size (`Modifier.fillMaxSize()`), not a scrolling container.
-
-## Accessibility
-
-As the bar and the rail. The bar or rail pads itself for the system bars and tells the content those
-insets are consumed, so content padded for `WindowInsets.safeDrawing` does not pad twice.
+- `layout` follows the window's width by default: `Bar` below `QeetrixBreakpoint.Medium` (600 dp), `Rail` from it
+  (`QeetrixNavigationLayout.forWindowWidth`) — Android's compact and medium width classes and the web's
+  `--qx-viewport-medium`. It is the window that counts, not the device.
+- The content keeps its place in the composition, so its state survives a change of layout; it is told the bar's
+  or rail's insets are consumed.
+- `railHeader` is the rail's header. A screen's own bar is a [top app bar](TopAppBar.md) inside the content.
 
 ## Platform differences
 
-Material offers `NavigationSuiteScaffold`, which draws Material's components; Qeetrix's scaffold is a small
-adapter over its own bar and rail ([ADR 0015](../Decisions/0015-navigation-overlays-and-feedback.md)). No
-navigation drawer yet: the bar and rail cover the destinations Qeet apps have.
+The web AppShell is a console frame — a TopBar, a 256 px Sidebar that collapses to a rail, side panels, and a
+drawer below 840 px. Android keeps its platform's adaptive pattern: a bottom bar on phones, a rail from 600 dp. It
+is a small adapter over the bar and the rail rather than Material's `NavigationSuiteScaffold`
+(Documentation/Decisions/0015-navigation-overlays-and-feedback.md). `selected` / `onSelect` are now `value` /
+`onValueChange`.
 
 Related: [Navigation bar](NavigationBar.md), [Navigation rail](NavigationRail.md).
