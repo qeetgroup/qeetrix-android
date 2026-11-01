@@ -37,7 +37,7 @@ From the registry the owner approves ([MAVEN-DISTRIBUTION.md](MAVEN-DISTRIBUTION
   the web's rules on Android's ICU) and haptic roles.
 - **Actions:** button, icon button (its name in a tooltip), copy button, bottom action bar.
 - **Forms:** text field, textarea, password input, one-time-code input and code, search field, number field (exact
-  decimals, currency and percent, locale-aware), select (one or several choices, typing to jump), segmented control, checkbox and checkbox group, radio group,
+  decimals, currency and percent, locale-aware), select (one or several choices, typing to jump) and a searchable select for long lists, segmented control, checkbox and checkbox group, radio group,
   switch, slider and range slider, date, date-range and time fields, attachment picker and file rows, copy field,
   field and field set, form, form actions and an error summary; a full-screen form.
 - **Navigation:** adaptive navigation scaffold (a bar below 600 dp of window width, a rail from 600 dp), navigation

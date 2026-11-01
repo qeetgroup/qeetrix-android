@@ -30,7 +30,8 @@ Grouped as the sample app groups its pages (`SampleCategory`); the sample has a 
 | Forms & inputs | [QR scanner](QRScanner.md) | `QeetrixQRScanner` | `scanner` | none |
 | Forms & inputs | [Radio group](RadioGroup.md) | `QeetrixRadioGroup` | `radiogroup` | RadioGroup, Radio |
 | Forms & inputs | [Search field](SearchField.md) | `QeetrixSearchField` | `input` | SearchField (experimental) |
-| Forms & inputs | [Select](Select.md) | `QeetrixSelect`, `QeetrixOption`, `QeetrixOptionGroup` | `select`; the options `input` | Select (its `items` and groups) |
+| Forms & inputs | [Select](Select.md) | `QeetrixSelect`, `QeetrixMultiSelect`, `QeetrixOption`, `QeetrixOptionGroup` | `select`; the options `input` | Select (its `items` and groups; `multiple`) |
+| Forms & inputs | [Searchable select](SearchableSelect.md) | `QeetrixSearchableSelect`, `QeetrixSearchableMultiSelect` | `select` | Combobox, as a sheet with search |
 | Forms & inputs | [Slider](Slider.md) | `QeetrixSlider`, `QeetrixRangeSlider` | `slider` | Slider |
 | Forms & inputs | [Switch](Switch.md) | `QeetrixSwitch` | `switchcontrol` | Switch |
 | Forms & inputs | [Textarea](Textarea.md) | `QeetrixTextarea` | `input` | Textarea |

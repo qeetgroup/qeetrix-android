@@ -133,8 +133,11 @@ page in the sample app, which now has one for every new component.
   `QeetrixSelect` and `QeetrixMultiSelect` take `open` / `onOpenChange` for an app that owns the open state. Typing on a
   hardware keyboard jumps to the option whose label starts with what was typed — the focus in the open list, the
   choice on a closed single select.
-- **Not done yet:** QTRX-126 (searchable picker), 191 (Menu submenus, context menu, side and align), 192 (Snackbar
-  promise and stacking).
+- **`QeetrixSearchableSelect`, `QeetrixSearchableMultiSelect`** (QTRX-126): the select for long lists — the trigger
+  opens a sheet (a side sheet from `breakpoint.medium`) with a search field over the options, filtering by label or
+  meta, group labels kept over their matches, the choice marked, one choice or several (Done closes), and "No matches"
+  when nothing does. New strings `qx_no_matches`, `qx_no_matches_description`.
+- **Not done yet:** QTRX-191 (Menu submenus, context menu, side and align), 192 (Snackbar promise and stacking).
 
 ### Added
 

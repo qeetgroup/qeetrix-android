@@ -48,6 +48,20 @@ class QeetrixSelectScreenshotTest {
             }
         }
 
+    /**
+     * Baselines in `src/test/screenshots/searchableselect/`: the searchable select's sheet content drawn in place — the
+     * search field, results under a filter with the choice marked, and the empty state.
+     */
+    @Test
+    fun searchable() =
+        captureStates("searchableselect") {
+            ScreenshotStack {
+                QeetrixSearchableSelect("gb", {}, countries, label = "Country")
+                SearchResults("united", listOf(SelectSection(null, countries)), { it == "gb" }, multiple = false, onChoose = {})
+                SearchResults("Atlantis", listOf(SelectSection(null, countries)), { false }, multiple = false, onChoose = {})
+            }
+        }
+
     @Test
     fun states() =
         captureStates("select") {

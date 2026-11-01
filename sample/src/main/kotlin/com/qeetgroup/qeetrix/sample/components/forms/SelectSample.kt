@@ -11,6 +11,8 @@ import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
 import com.qeetgroup.qeetrix.components.input.QeetrixOptionGroup
 import com.qeetgroup.qeetrix.components.select.QeetrixMultiSelect
+import com.qeetgroup.qeetrix.components.select.QeetrixSearchableMultiSelect
+import com.qeetgroup.qeetrix.components.select.QeetrixSearchableSelect
 import com.qeetgroup.qeetrix.components.select.QeetrixSelect
 import com.qeetgroup.qeetrix.components.select.QeetrixSelectSize
 import com.qeetgroup.qeetrix.sample.SampleFlow
@@ -92,6 +94,16 @@ fun SelectSample() {
                     "the open list to move to an option.",
             )
         }
+        SampleSection("A long list, with search") {
+            var country by rememberSaveable { mutableStateOf("in") }
+            var visited by rememberSaveable { mutableStateOf(setOf("ae", "sg")) }
+            QeetrixSearchableSelect(country, { country = it }, Countries, label = "Country", searchPlaceholder = "e.g. Japan")
+            QeetrixSearchableMultiSelect(visited, { visited = it }, Countries, label = "Countries visited", placeholder = "None yet")
+            SampleNote(
+                "A tap opens a sheet — a side sheet on a tablet — with a search field; the dialling code matches too. Type " +
+                    "something no country has to see the empty state.",
+            )
+        }
         SampleSection("Toolbar sizes") {
             var style by rememberSaveable { mutableStateOf("body") }
             val styles = listOf(QeetrixOption("body", "Body"), QeetrixOption("heading", "Heading"), QeetrixOption("quote", "Quote"))
@@ -120,3 +132,37 @@ fun SelectSample() {
 private fun SelectSamplePreview() {
     SamplePreview { SelectSample() }
 }
+
+/** Countries, their ISO codes and dialling codes, for the searchable selects. */
+private val Countries =
+    listOf(
+        Triple("au", "Australia", "+61"),
+        Triple("bd", "Bangladesh", "+880"),
+        Triple("br", "Brazil", "+55"),
+        Triple("ca", "Canada", "+1"),
+        Triple("cn", "China", "+86"),
+        Triple("eg", "Egypt", "+20"),
+        Triple("fr", "France", "+33"),
+        Triple("de", "Germany", "+49"),
+        Triple("in", "India", "+91"),
+        Triple("id", "Indonesia", "+62"),
+        Triple("ie", "Ireland", "+353"),
+        Triple("it", "Italy", "+39"),
+        Triple("jp", "Japan", "+81"),
+        Triple("ke", "Kenya", "+254"),
+        Triple("my", "Malaysia", "+60"),
+        Triple("mx", "Mexico", "+52"),
+        Triple("np", "Nepal", "+977"),
+        Triple("nl", "Netherlands", "+31"),
+        Triple("nz", "New Zealand", "+64"),
+        Triple("ng", "Nigeria", "+234"),
+        Triple("sa", "Saudi Arabia", "+966"),
+        Triple("sg", "Singapore", "+65"),
+        Triple("za", "South Africa", "+27"),
+        Triple("es", "Spain", "+34"),
+        Triple("lk", "Sri Lanka", "+94"),
+        Triple("se", "Sweden", "+46"),
+        Triple("ae", "United Arab Emirates", "+971"),
+        Triple("gb", "United Kingdom", "+44"),
+        Triple("us", "United States", "+1"),
+    ).map { (code, name, dial) -> QeetrixOption(code, name, meta = dial) }

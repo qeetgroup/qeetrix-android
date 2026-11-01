@@ -411,10 +411,10 @@ internal class SelectSection<out T>(
 /**
  * The select's field, for one choice or several: [chosen] tells which options are chosen, [onChoose] takes the option
  * picked (the single select replaces its value, the multiple one toggles it), and [multiple] keeps the list open
- * while options are picked.
+ * while options are picked. [searchable] opens a sheet with a search field ([SearchSheet]) instead of the popup list.
  */
 @Composable
-private fun <T> SelectField(
+internal fun <T> SelectField(
     chosen: (T) -> Boolean,
     onChoose: (T) -> Unit,
     multiple: Boolean,
@@ -435,6 +435,8 @@ private fun <T> SelectField(
     open: Boolean?,
     onOpenChange: ((Boolean) -> Unit)?,
     interactionSource: MutableInteractionSource?,
+    searchable: Boolean = false,
+    searchPlaceholder: String? = null,
 ) {
     val all = sections.flatMap { it.options }
     requireDistinctValues(all)
@@ -519,20 +521,25 @@ private fun <T> SelectField(
                             tint = if (active) colors.iconDefault else colors.iconDisabled,
                         )
                     }
-                    OptionList(
-                        expanded = expanded,
-                        anchor = anchor,
-                        sections = sections,
-                        chosen = chosen,
-                        multiple = multiple,
-                        title = label,
-                        focusSelected = openedByKeyboard,
-                        onDismiss = { setOpen(false) },
-                        onChoose = {
-                            if (!multiple) setOpen(false)
-                            onChoose(it)
-                        },
-                    )
+                    val choose: (T) -> Unit = {
+                        if (!multiple) setOpen(false)
+                        onChoose(it)
+                    }
+                    if (searchable) {
+                        SearchSheet(expanded, sections, chosen, multiple, label, searchPlaceholder, { setOpen(false) }, choose)
+                    } else {
+                        OptionList(
+                            expanded = expanded,
+                            anchor = anchor,
+                            sections = sections,
+                            chosen = chosen,
+                            multiple = multiple,
+                            title = label,
+                            focusSelected = openedByKeyboard,
+                            onDismiss = { setOpen(false) },
+                            onChoose = choose,
+                        )
+                    }
                 }
             }
         }
@@ -681,7 +688,7 @@ internal fun <T> OptionListSurface(
 
 /** `.qx-select-group-label`: `label.sm` in `color.text.subtle`, padding 8 dp, `space.inset.md`, 4 dp. */
 @Composable
-private fun GroupLabel(text: String) {
+internal fun GroupLabel(text: String) {
     BasicText(
         text,
         Modifier
@@ -704,7 +711,7 @@ private fun GroupLabel(text: String) {
  * meta and the check staying on its first line (select.css 0.4.0, QTRX-177), so every option can be read.
  */
 @Composable
-private fun OptionRow(
+internal fun OptionRow(
     option: QeetrixOption<*>,
     selected: Boolean,
     takeFocus: Boolean,

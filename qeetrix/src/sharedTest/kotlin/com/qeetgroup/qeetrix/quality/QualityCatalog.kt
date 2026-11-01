@@ -158,8 +158,12 @@ import com.qeetgroup.qeetrix.components.scanner.QeetrixScannerState
 import com.qeetgroup.qeetrix.components.segmented.QeetrixSegmentedControl
 import com.qeetgroup.qeetrix.components.select.OptionListSurface
 import com.qeetgroup.qeetrix.components.select.QeetrixMultiSelect
+import com.qeetgroup.qeetrix.components.select.QeetrixSearchableMultiSelect
+import com.qeetgroup.qeetrix.components.select.QeetrixSearchableSelect
 import com.qeetgroup.qeetrix.components.select.QeetrixSelect
 import com.qeetgroup.qeetrix.components.select.QeetrixSelectSize
+import com.qeetgroup.qeetrix.components.select.SearchResults
+import com.qeetgroup.qeetrix.components.select.SearchSheet
 import com.qeetgroup.qeetrix.components.select.SelectSection
 import com.qeetgroup.qeetrix.components.separator.QeetrixSeparator
 import com.qeetgroup.qeetrix.components.separator.QeetrixSeparatorOrientation
@@ -621,6 +625,15 @@ internal val QualityCatalog: List<QualitySpecimen> =
                     modifier = Modifier.widthIn(max = 280.dp),
                     multiple = true,
                 )
+            }
+        },
+        QualitySpecimen("searchable-select") {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // The triggers, and the sheet's search results drawn in place: the sheet is a window of its own.
+                QeetrixSearchableSelect("in", {}, Countries, label = "Country")
+                QeetrixSearchableMultiSelect(setOf("in"), {}, Countries, label = "Countries")
+                SearchResults("united", listOf(SelectSection(null, Countries)), { it == "gb" }, multiple = false, onChoose = {})
+                SearchResults("Atlantis", listOf(SelectSection(null, Countries)), { false }, multiple = false, onChoose = {})
             }
         },
         QualitySpecimen("search-field") {
@@ -1367,6 +1380,9 @@ internal val OverlayCatalog: List<QualitySpecimen> =
                 description = "Changes apply at the next sign-in.",
                 footer = { QeetrixButton("Save", onClick = {}) },
             ) { QeetrixCheckbox(true, {}, label = "Admin") }
+        },
+        QualitySpecimen("searchable-select window") {
+            SearchSheet(true, listOf(SelectSection(null, Countries)), { it == "in" }, false, "Country", "e.g. India", {}, {})
         },
         QualitySpecimen("menu window") {
             QeetrixMenu(open = true, onOpenChange = {}, trigger = {
