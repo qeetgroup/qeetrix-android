@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Check what a built Qeetrix AAR ships: the two qx_-prefixed font resources, the qx_-prefixed strings
-# (merged into res/values/values.xml) and no other resources, the three licence texts beside them,
+# (merged into res/values/values.xml) and no other resources, the four licence texts beside them (the library's own
+# MIT licence, the two fonts' and the icons'),
 # compiled classes, and a manifest with no permissions or components. Fails if anything else appears
 # (an unprefixed resource, a test asset, a permission).
 #
@@ -16,6 +17,7 @@ META-INF/com/android/build/gradle/aar-metadata.properties
 R.txt
 assets/qeetrix/licenses/FiraCode-OFL.txt
 assets/qeetrix/licenses/QeetSans-OFL.txt
+assets/qeetrix/licenses/qeetrix-android-LICENSE.txt
 assets/qeetrix/licenses/qeetrix-icons-LICENSE.txt
 classes.jar
 res/font/qx_qeet_sans_vf.ttf

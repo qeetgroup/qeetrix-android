@@ -22,7 +22,7 @@ components, stores nothing and reads no user data. The security-relevant parts a
   this build (AGP, Lint, Dokka, Robolectric, Roborazzi and their trees) would run to thousands of entries regenerated
   on every update. It is recommended once publishing runs from CI, where an unreviewed artifact would be published
   on.
-- **Bundled resources.** Two font files, three licence texts and twenty-seven `qx_` strings, loaded only from
+- **Bundled resources.** Two font files, four licence texts and the `qx_` strings, loaded only from
   the app's own resources and assets.
 - **Text input.** Every input keeps what is typed only in the state the app owns (`TextFieldState`, or
   the value the app passes); the library never logs, stores or sends it.

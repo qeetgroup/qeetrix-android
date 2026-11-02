@@ -16,7 +16,8 @@ qeet-people-server), and this repository's README already documents `com.qeetgro
 The web design system is published publicly to npm as `@qeetrix/ui`, marked `UNLICENSED`; qeetrix-android and
 qeetrix-ios are private repositories with no licence. *Amended 2026-11-01:* qeetrix-android is now public, still with
 no licence, so a GitHub Packages Maven package published from it would be public; the private recommendation now needs
-the repository made private, or another private registry.
+the repository made private, or another private registry. *Amended 2026-11-02:* the code is MIT, so a public package —
+GitHub Packages or Maven Central — is allowed.
 
 ## Decision
 
@@ -48,7 +49,7 @@ the repository made private, or another private registry.
 |:--|:--|:--|
 | **GitHub Packages (Maven), private** — recommended for the first internal consumers | The code and its access control are already on GitHub; packages inherit the repository's visibility | Every consumer's build needs a token with `read:packages`; Actions billing must be restored to publish from CI |
 | A private Maven repository the organisation runs | Central control, no per-developer tokens | None exists today that this review found |
-| Maven Central | Public, no credentials for consumers | Needs a licence in the POM, signing and a Javadoc JAR; the code has no licence today |
+| Maven Central | Public, no credentials for consumers | Needs a licence in the POM (MIT since 2026-11-02), signing, a Javadoc JAR and a verified namespace for the group |
 
 ## Consequences
 

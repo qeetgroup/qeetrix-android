@@ -95,5 +95,6 @@ migration steps in the CHANGELOG ([RELEASE-POLICY.md](RELEASE-POLICY.md)).
 
 ## Licences
 
-Qeet Sans (Cal Sans) and Fira Code, from `@qeetrix/tokens`, under the SIL Open Font License 1.1, and the Qeetrix icons under MIT with Lucide's
-ISC notice; the texts ship inside the library ([LICENSE-COMPLIANCE.md](LICENSE-COMPLIANCE.md)).
+The library is MIT-licensed (© 2026 Qeet Group). It bundles Qeet Sans (Cal Sans) and Fira Code, from `@qeetrix/tokens`,
+under the SIL Open Font License 1.1, and the Qeetrix icons under MIT with Lucide's ISC notice; all four texts ship inside
+the library ([LICENSE-COMPLIANCE.md](LICENSE-COMPLIANCE.md)).

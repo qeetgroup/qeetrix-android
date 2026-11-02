@@ -59,7 +59,7 @@ baseline, but no product has used it yet, and the manual accessibility pass has 
 ## Approval
 
 Each of these is the owner's decision, never this repository's automation: the registry, a version to publish,
-committing and tagging a release, publishing it, and a licence for the code. The steps are in
+committing and tagging a release, and publishing it. (The code's licence is decided: MIT, 2 November 2026.) The steps are in
 [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md).
 
 ## Reporting and contributing

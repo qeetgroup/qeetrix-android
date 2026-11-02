@@ -12,7 +12,7 @@ Compose app teams to build against and evaluate**, once the owner has taken the 
 distribution outside Qeet Group, until the conditions below are met.
 
 Why not GO: no person has yet used the components with TalkBack, Switch Access or a keyboard on a device (rated P1
-for a release since Phase 6); CI has never run; and the code has no licence for use outside the organisation. None of
+for a release since Phase 6), and this candidate was built before CI first ran. None of
 these is a known defect, so the decision is not NO-GO; together they mean a production release would rest on
 unverified ground.
 
@@ -23,8 +23,10 @@ unverified ground.
 2. `Scripts/release-candidate` re-run from a commit with nothing uncommitted (no `--allow-dirty`). This candidate was
    built from commit `9291aa1` on `develop`, pushed; the two uncommitted entries were an editor settings folder
    (`.vscode/`) and the dependency-inventory fix below, which writes the evidence and does not touch the artifact.
-3. **CI green** on that commit — Actions billing restored — including the device jobs.
-4. For distribution outside Qeet Group only: a **licence** for the code.
+3. **CI green** on that commit, including the device jobs. CI first ran on 1 November 2026, on pull request #3, and is
+   green on `develop`'s head (`c45b931`): build, tests, API, AAR, publication, consumer, and the library's and the
+   consumer's device tests on API 29 and 36.
+4. ~~A licence for the code~~ — done on 2 November 2026: MIT (`LICENSE`), in the POM and the AAR from the next candidate.
 
 ## What was verified
 
@@ -85,7 +87,7 @@ Before the internal pre-release:
 1. **Build the next candidate** (`0.1.0-rc.3`, with rc2-2 and rc2-3 fixed) with `Scripts/release-candidate --devices` from a
    clean commit.
 2. **Choose the registry** (GitHub Packages, private, is recommended — but the repository is public, so a package from
-   it would be public too: make the repository private, or choose a licence first) and create the protected publishing environment
+   it would be public too, which the MIT licence now allows) and create the protected publishing environment
    and credential ([MAVEN-DISTRIBUTION.md](MAVEN-DISTRIBUTION.md)).
 3. **Approve that version**, publish it once, and tag its commit.
 

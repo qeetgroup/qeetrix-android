@@ -18,7 +18,7 @@ which supersedes the unpublished `0.1.0-rc.1` ([RELEASE-POLICY.md](RELEASE-POLIC
 
 | File | What |
 |:--|:--|
-| `qeetrix-<version>.aar` | The release build: classes, two fonts, 21 `qx_` strings, three licence texts; no permissions or components ([AAR-VERIFICATION.md](AAR-VERIFICATION.md)) |
+| `qeetrix-<version>.aar` | The release build: classes, two fonts, 85 `qx_` strings and a plural, four licence texts; no permissions or components ([AAR-VERIFICATION.md](AAR-VERIFICATION.md)) |
 | `qeetrix-<version>.pom` | Coordinates, name, description, URL, organisation, SCM, and dependencies with exact versions. No `<licenses>` until the owner chooses one ([LICENSE-COMPLIANCE.md](LICENSE-COMPLIANCE.md)) |
 | `qeetrix-<version>.module` | Gradle module metadata: an API variant, a runtime variant and a sources variant. Gradle reads this in preference to the POM |
 | `qeetrix-<version>-sources.jar` | The Kotlin sources, so IDEs show the KDoc and navigate into components |
@@ -82,7 +82,7 @@ Scripts/verify-publication build/release-candidate/maven 0.1.0-rc.2 qeetrix/buil
 
 The owner's decision; the options are compared in [0018](../Decisions/0018-maven-distribution.md). The
 recommendation for the first internal consumers is **GitHub Packages, private**: the code and its access control
-are already there. The repository is public (checked 1 November 2026), and GitHub Packages' Maven registry gives a package its repository's visibility, so a package published from it would be public too — which needs a licence first. A private package needs the repository made private, or another private registry. An app then adds the repository `https://maven.pkg.github.com/qeetgroup/qeetrix-android` with a
+are already there. The repository is public (checked 1 November 2026), and GitHub Packages' Maven registry gives a package its repository's visibility, so a package published from it would be public too — which the MIT licence (2 November 2026) allows; downloading it still takes a GitHub token, as GitHub's Maven registry asks for one even for public packages. Maven Central would need no token. An app then adds the repository `https://maven.pkg.github.com/qeetgroup/qeetrix-android` with a
 GitHub user and a token that has `read:packages` (from `~/.gradle/gradle.properties` or the CI's secrets, never the
 app's repository). **This has not been tried**: no package exists yet.
 

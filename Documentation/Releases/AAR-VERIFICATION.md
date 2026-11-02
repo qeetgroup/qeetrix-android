@@ -22,7 +22,7 @@ build. Built by `Scripts/release-candidate 0.1.0-rc.2 --devices --allow-dirty` o
 | `res/font/qx_qeet_sans_vf.ttf`, `res/font/qx_fira_code_vf.ttf` | Qeet Sans (the file is Cal Sans 2.011) and Fira Code 6.002, variable: the TrueType files `@qeetrix/tokens` 0.0.13 ships for native platforms | SHA-256 equal to the upstream TTFs in `Upstream/manifest.lock.json`; one copy each |
 | `res/values/values.xml` | 85 strings and 1 plural, all `qx_` | Every resource in `R.txt` is `qx_`-prefixed (2 fonts, 85 strings, 1 plural) |
 | `R.txt` | The resource symbol table | — |
-| `assets/qeetrix/licenses/` | `QeetSans-OFL.txt`, `FiraCode-OFL.txt`, `qeetrix-icons-LICENSE.txt` | All three present; byte-identical to the upstream texts ([LICENSE-COMPLIANCE.md](LICENSE-COMPLIANCE.md)) |
+| `assets/qeetrix/licenses/` | `qeetrix-android-LICENSE.txt` (the library's MIT licence, from the next candidate), `QeetSans-OFL.txt`, `FiraCode-OFL.txt`, `qeetrix-icons-LICENSE.txt` | All three present; byte-identical to the upstream texts ([LICENSE-COMPLIANCE.md](LICENSE-COMPLIANCE.md)) |
 | `META-INF/com/android/build/gradle/aar-metadata.properties` | `minCompileSdk=37`, `minAndroidGradlePluginVersion=1.0.0`, `coreLibraryDesugaringEnabled=false` | `minCompileSdk` 37 adds nothing: Compose UI and Foundation 1.12.1 already require compile SDK 37 and AGP 9.1.0 |
 
 Not in the AAR, correctly: icons as drawables (they are compiled Kotlin path data), sample code or images, screenshot

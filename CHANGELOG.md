@@ -155,6 +155,12 @@ page in the sample app, which now has one for every new component.
 `QeetrixCollapsibleTrigger` / `QeetrixCollapsiblePanel`; a quality-catalogue coverage test (every public composable has a
 specimen) and a bytecode check that no public API names a Material type.
 
+### Licence
+
+The library's own code is **MIT** (© 2026 Qeet Group), as the web's `@qeetrix/tokens`, `@qeetrix/react` and
+`@qeetrix/icons` are: `LICENSE` at the repository's root, `<licenses>` in the POM, and the text in the AAR beside the
+bundled fonts' and icons' (`assets/qeetrix/licenses/qeetrix-android-LICENSE.txt`, checked by `Scripts/verify-aar`).
+
 ### Removed
 
 The clickable `QeetrixCard(onClick, selected, enabled, …)` (QTRX-182): a card is not a click target (06-component-specs

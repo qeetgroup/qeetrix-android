@@ -179,8 +179,15 @@ publishing {
                     url.set("https://github.com/qeetgroup/qeetrix-android")
                     connection.set("scm:git:https://github.com/qeetgroup/qeetrix-android.git")
                 }
-                // No <licenses>: the library's own code carries no licence (README › Licences); declaring one is the
-                // owner's decision. Bundled fonts and icons carry theirs inside the AAR (assets/qeetrix/licenses).
+                // The library's own code is MIT (LICENSE). Bundled fonts and icons carry their own licences, all four texts
+                // inside the AAR (assets/qeetrix/licenses).
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/license/mit")
+                        distribution.set("repo")
+                    }
+                }
             }
         }
     }

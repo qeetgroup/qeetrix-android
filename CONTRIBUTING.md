@@ -123,3 +123,7 @@ reduced-motion scans run in `./gradlew check`; the Accessibility Test Framework 
   for anything structural, a decision record in `Documentation/Decisions/`.
 - Cross-platform changes (naming, conversion, scope) are mirrored in qeetrix-ios or recorded in
   [Documentation/CROSS_PLATFORM_CONTRACT.md](Documentation/CROSS_PLATFORM_CONTRACT.md) as a difference.
+
+## Licence
+
+Qeetrix for Android is MIT-licensed ([LICENSE](LICENSE)); contributions are made under the same licence.

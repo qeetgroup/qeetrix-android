@@ -27,7 +27,7 @@ the user types (only the password field's reveal flag), and logs nothing.
 | Test and sample data | Search of `qeetrix/src/test`, `sharedTest`, `androidTest`, `sample/src` for addresses, passwords, tokens and keys | Synthetic only: `example.com` addresses, "Synthetic-Passw0rd", "not-a-real-pw", short numeric codes. One test typed `ada@qeet.in` (the company's real domain): changed to `ada@example.com` (P3) |
 | Screenshots | `.gitignore`, `git status` | Baselines are local and untracked ([0012](../Decisions/0012-visual-regression-testing.md)); they show synthetic data only |
 | Manifest | `qeetrix/src/main/AndroidManifest.xml` and the built AAR's merged manifest | `<manifest>` with `uses-sdk` only: no permissions, components, exported entries or application attributes |
-| Resources | `resourcePrefix = "qx_"`, `Scripts/verify-aar` | Every resource is `qx_`-prefixed (two fonts, 21 strings); three licence texts under `assets/qeetrix/licenses/` |
+| Resources | `resourcePrefix = "qx_"`, `Scripts/verify-aar` | Every resource is `qx_`-prefixed (two fonts, 21 strings); four licence texts under `assets/qeetrix/licenses/` |
 | R8 | The sample's release is now minified and resource-shrunk ([RELIABILITY-REPORT.md](RELIABILITY-REPORT.md)) | The library needs and ships no consumer rules |
 | Dependencies | `qeetrix/gradle.lockfile` (strict, release classpaths); OSV batch query of all 92 locked runtime artifacts on 2026-10-20 | AndroidX, Kotlin/kotlinx, JetBrains annotations, JSpecify, Guava's empty `listenablefuture` — all Apache-2.0; OSV listed **no** advisories |
 | CI supply chain | `.github/workflows/ci.yml` | Third-party actions were pinned to moving tags; now pinned to commit SHAs (P3, fixed) |
