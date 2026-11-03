@@ -209,7 +209,7 @@ private fun ReadmeCard() {
     }
 }
 
-// README.md, "Components"
+// A form (was in README.md)
 @Composable
 private fun ReadmeForm() {
     val email = rememberTextFieldState()
@@ -225,7 +225,7 @@ private fun ReadmeForm() {
     }
 }
 
-// README.md, "Typography" and "Icons"
+// Typography and icons (was in README.md)
 @Composable
 private fun ReadmeTypeAndIcons() {
     QeetrixText("Signed in on 3 devices", size = QeetrixTextSize.Sm, tone = QeetrixTextTone.Subtle)
