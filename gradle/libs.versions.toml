@@ -13,7 +13,7 @@ lifecycle-runtime-compose = "2.9.4"
 # The library's own: the version Compose UI and Material 3 already bring to an app (qeetrix/gradle.lockfile), so
 # compiling against it adds nothing to an app's classpath. For the sheets' predictive back (OnBackPressedCallback).
 androidx-activity = "1.8.2"
-kotlinx-serialization-json = "1.11.0"
+kotlinx-serialization-json = "1.12.0"
 junit4 = "4.13.2"
 robolectric = "4.17"
 androidx-test-ext-junit = "1.3.0"
