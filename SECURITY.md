@@ -63,12 +63,11 @@ More detail: [FORMS.md](docs/llm/boundaries.md) and
 
 ## 🚨 Reporting a vulnerability
 
-This repository is public, so **don't report a vulnerability in an issue or a pull request.** Anyone can read those.
+**Don't report a vulnerability in an issue or a pull request:** anyone can read those.
 
-1. Contact a **repository administrator** privately.
+1. Open the repository's **Security** tab and choose **Report a vulnerability**. Only the maintainers see the report.
 2. Say what you found and its impact.
 3. Explain how to reproduce it.
-4. Name the commit you tested.
+4. Name the version or commit you tested.
 
-There is no dedicated security contact for this repository yet. Until there is, reports go to the administrators
-directly.
+The maintainers reply in the private advisory, and publish it with the fix.
