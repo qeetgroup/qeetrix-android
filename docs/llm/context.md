@@ -9,7 +9,7 @@
 fonts, icons and 64 components, as native Android. Kotlin 2.4.21, Compose BOM 2026.09.00, AGP 9.5.0, Gradle 9.8.2,
 minimum SDK 29, compile SDK 37. MIT-licensed. Published to **GitHub Packages**.
 
-**Status:** `0.1.0` is merged to `main`; its publish job waits for the owner's approval (planned for 9 November 2026).
+**Status:** `0.1.0` released on 4 November 2026, to GitHub Packages (tag `v0.1.0`).
 
 ## Context inheritance
 

@@ -9,7 +9,7 @@
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-1.12.1-4285F4?logo=jetpackcompose&logoColor=white)](#-getting-started)
 [![@qeetrix/react](https://img.shields.io/badge/%40qeetrix%2Freact-0.4.0-D04800)](Upstream/manifest.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Status](https://img.shields.io/badge/status-pre--release-F59E0B)](#-status)
+[![Release](https://img.shields.io/badge/release-0.1.0-2EA043)](https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.1.0)
 
 [📖 Design system](https://ui.qeet.in) · [🧩 Components](docs/components.md) · [🏗️ Architecture](ARCHITECTURE.md) · [📝 Changelog](CHANGELOG.md)
 
@@ -48,7 +48,7 @@ flowchart LR
 | Version | State |
 |:--|:--|
 | `0.1.0-rc.2` | ✅ Release candidate. Passed all ten release checks on 31 October 2026. |
-| `0.1.0` | 🚀 Releasing on 9 November 2026, on GitHub Packages ([release notes](docs/releases.md)) |
+| `0.1.0` | ✅ Released on 4 November 2026, on [GitHub Packages](https://github.com/qeetgroup/qeetrix-android/packages) ([release](https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.1.0)) |
 
 ## 🚀 Getting started
 

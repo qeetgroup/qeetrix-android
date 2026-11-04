@@ -5,8 +5,8 @@ name: Version
 # qeetrix-react.
 #
 # Want a minor or major release instead? Edit `qeetrix.version` yourself. This workflow only acts while the pull
-# request's version still equals main's and main's is already released (tagged), so a version raised by hand, or one
-# not yet released, is left alone. A breaking API change before 1.0
+# request's version still equals main's, main's is already released (tagged), and the pull request changes something
+# that ships in the library; a version raised by hand, one not yet released, or a docs-only change is left alone. A breaking API change before 1.0
 # needs a minor (docs/releases.md).
 #
 # It never checks out the pull request's code: it reads and writes the one file through the GitHub API, so a token
@@ -42,6 +42,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           BASE: ${{ github.base_ref }}
           HEAD_REF: ${{ github.head_ref }}
+          PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
           repo="$GITHUB_REPOSITORY"
@@ -71,6 +72,13 @@ jobs:
           # that same version, so there is nothing to raise.
           if ! tag_exists "$base"; then
             echo "$BASE's $base isn't released yet (no tag v$base): this pull request releases $base. Leaving it alone."; exit 0
+          fi
+          # Only a change to what apps download needs a new version: the library's code and resources, its build and
+          # locked dependencies, the version catalog, or the upstream tokens, fonts and icons. Docs, tests, CI and the
+          # sample don't ship, so merging them releases nothing.
+          if ! gh api "repos/$repo/pulls/$PR/files" --paginate --jq '.[].filename' \
+            | grep -q -E '^(qeetrix/src/main/|qeetrix/build\.gradle\.kts$|qeetrix/gradle\.lockfile$|gradle/libs\.versions\.toml$|Upstream/)'; then
+            echo "This pull request changes nothing that ships in the library: no new version, and nothing to publish."; exit 0
           fi
 
           # The next patch (or, after a release candidate, the next candidate) that has no tag yet.

@@ -30,7 +30,9 @@ flowchart LR
     F --> G["🏷️ Tag vX.Y.Z<br/>and GitHub Release"]
 ```
 
-1. **Pull request into `main`.** `version.yml` raises the patch of `qeetrix.version`; raise the minor or major by hand.
+1. **Pull request into `main`.** `version.yml` raises the patch of `qeetrix.version` when the pull request changes what
+   ships (the library's code and resources, its build and dependencies, or `Upstream/`); raise the minor or major by
+   hand. A docs, tests or CI change needs no new version: merging it publishes nothing.
    Date the CHANGELOG entry (`## [X.Y.Z] — YYYY-MM-DD`): it becomes the GitHub Release's notes.
 2. **Merge.** `release.yml` checks the version is new and that `maven-publish` has a required reviewer, then runs every
    release gate (`Scripts/release-candidate`). `main`'s protection already required CI and the device tests.

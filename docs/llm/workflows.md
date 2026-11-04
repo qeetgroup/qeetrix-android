@@ -36,7 +36,7 @@ JDK 17 or newer, and the Android SDK with platform 37 (`ANDROID_HOME` or `local.
 ## Release
 
 ```text
-1  pull request develop → main; version.yml raises the patch (raise minor or major by hand)
+1  pull request develop → main; version.yml raises the patch if the library changed (docs-only: no new version)
 2  date the CHANGELOG entry: ## [X.Y.Z] — YYYY-MM-DD
 3  merge; release.yml runs every gate
 4  approve: Actions › Release › Review deployments › Approve
