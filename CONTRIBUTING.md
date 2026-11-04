@@ -124,7 +124,8 @@ flowchart LR
     E --> F["📦 GitHub Packages<br/>🏷️ tag and release"]
 ```
 
-- **The version is in the pull request's diff.** `version.yml` raises the patch; raise the minor or major by hand.
+- **The version is in the pull request's diff.** `version.yml` raises the patch when the library changes; raise the
+  minor or major by hand. Docs, tests and CI changes need no new version, and merging them publishes nothing.
 - **The CHANGELOG entry** (`## [X.Y.Z] — YYYY-MM-DD`) becomes the GitHub Release's notes.
 - **A bad release** is withdrawn with **Actions › Rollback**, and the fix is a new version.
 
