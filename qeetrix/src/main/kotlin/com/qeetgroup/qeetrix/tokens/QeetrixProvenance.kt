@@ -43,7 +43,7 @@ public object QeetrixProvenance {
     /** How many upstream tokens are generated as Kotlin. */
     public val generatedTokens: Int = QeetrixProvenanceTokens.GENERATED_TOKENS
 
-    /** How many upstream tokens are deliberately not (Documentation/Foundations/TOKEN_COVERAGE.md). */
+    /** How many upstream tokens are deliberately not (docs/tokens.md). */
     public val excludedTokens: Int = QeetrixProvenanceTokens.EXCLUDED_TOKENS
 
     /** The bundled fonts. */

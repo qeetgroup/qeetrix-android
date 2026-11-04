@@ -32,9 +32,9 @@ flowchart LR
 
 - **One topic per pull request.** Fill in the template's checklist.
 - **A maintainer reviews** changes to the public API, the generator's scope rules or a dependency. Anything
-  structural also needs a [decision record](Documentation/Decisions/README.md).
+  structural also needs a [decision record](docs/decisions.md).
 - **Mirror cross-platform changes** (naming, conversion, scope) in qeetrix-ios, or record the difference in the
-  [cross-platform contract](Documentation/CROSS_PLATFORM_CONTRACT.md).
+  [cross-platform contract](docs/llm/boundaries.md).
 
 ## ⌨️ Commands
 
@@ -53,7 +53,7 @@ flowchart LR
 |:--|:--|
 | `./gradlew :qeetrix:verifyRoborazziDebug` | Compare every screenshot with your local baselines |
 | `./gradlew :qeetrix:recordRoborazziDebug` | Record the baselines. Review every image before relying on it. |
-| `./gradlew :qeetrix:apiDump` / `apiCheck` | Update or check `Documentation/API/qeetrix.api` |
+| `./gradlew :qeetrix:apiDump` / `apiCheck` | Update or check `qeetrix/api/qeetrix.api` |
 | `./gradlew :qeetrix:dokkaGenerate` | Build the API reference into `qeetrix/build/dokka/html` |
 | `./gradlew :qeetrix:koverHtmlReportDebug` | A test-coverage report in `qeetrix/build/reports/kover/htmlDebug`. CI fails below 92 % of lines (`koverVerifyDebug`). |
 
@@ -63,8 +63,7 @@ flowchart LR
 |:--|:--|
 | `./gradlew :qeetrix:connectedDebugAndroidTest` | Device tests on every connected device or emulator, including the Accessibility Test Framework from API 36 |
 | `Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar` | Check the AAR ships only what it should |
-| `Scripts/release-candidate <X.Y.Z-rc.N> [--devices]` | Every release gate and a local publication ([checklist](Documentation/Releases/RELEASE-CHECKLIST.md)) |
-| `./gradlew -p Integration/Consumer :app:assembleRelease` | Build the [independent consumer](Integration/Consumer/README.md) against a published candidate |
+| `Scripts/release-candidate <X.Y.Z-rc.N> [--devices]` | Every release gate and a local publication ([checklist](docs/releases.md)) |
 
 **Upstream and components**
 
@@ -73,7 +72,6 @@ flowchart LR
 | `Scripts/sync-tokens [--check]` | Fetch and verify the pinned npm packages (network) |
 | `Scripts/generate-tokens` | Regenerate everything made from `Upstream/` |
 | `Scripts/verify-tokens` | Only the drift check |
-| `Scripts/new-component <Family> <Component> --category "<group>" [--dry-run]` | Create a new component ([template](Templates/Component/README.md)) |
 
 ## 🎨 Changing how something looks
 
@@ -92,7 +90,7 @@ flowchart TD
     G --> H["CSS changed? Update that component's<br/>values, page and screenshots"]
 ```
 
-- **Never edit `Upstream/`, a `generated/` package or `Documentation/Foundations/` by hand.** `./gradlew check` fails
+- **Never edit `Upstream/`, a `generated/` package or `docs` by hand.** `./gradlew check` fails
   if you do.
 - **A new token group** fails generation until you add a rule for it in
   [Scope.kt](Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt), mirroring qeetrix-ios.
@@ -103,17 +101,15 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A["Scripts/new-component<br/>try --dry-run first"] --> B["Source, tests, screenshot test,<br/>sample page, docs page"]
-    B --> C["Implement it<br/>from the @qeetrix/react CSS"]
-    C --> D["./gradlew :qeetrix:apiDump"]
-    D --> E["Record and review<br/>the screenshots"]
-    E --> F["📬 Pull request"]
+    A["Copy a similar component<br/>source, tests, sample page"] --> B["Implement it<br/>from the @qeetrix/react CSS"]
+    B --> C["./gradlew :qeetrix:apiDump"]
+    C --> D["Record and review<br/>the screenshots"]
+    D --> E["📬 Pull request"]
 ```
 
-`new-component` checks the name against `@qeetrix/react`'s component list and never overwrites a file. The new
-component won't build until you implement it. Follow the
-[component contract](Documentation/Standards/COMPONENT_CONTRACT.md): the web component's props, variants and states,
-48 dp touch targets, and full TalkBack support.
+Every component has its tests, a screenshot test, a specimen in the quality catalogue, a sample page and a row in
+[docs/components.md](docs/components.md). Follow the [component rules](docs/llm/boundaries.md): the web component's
+props, variants and states, 48 dp touch targets, and full TalkBack support.
 
 ## 🚀 Releasing
 
@@ -132,13 +128,13 @@ flowchart LR
 - **The CHANGELOG entry** (`## [X.Y.Z] — YYYY-MM-DD`) becomes the GitHub Release's notes.
 - **A bad release** is withdrawn with **Actions › Rollback**, and the fix is a new version.
 
-The details are in [MAVEN-DISTRIBUTION.md](Documentation/Releases/MAVEN-DISTRIBUTION.md#publishing).
+The details are in [MAVEN-DISTRIBUTION.md](docs/releases.md#-how-a-release-works).
 
 ## ✍️ Code
 
 - **Kotlin official style**, enforced by ktlint. Android Lint treats warnings as errors.
 - **Explicit API mode**, with KDoc on everything public. Keep the public surface small
-  ([PUBLIC_API.md](Documentation/Standards/PUBLIC_API.md)).
+  ([PUBLIC_API.md](docs/llm/boundaries.md)).
 - **No literal colours, durations or fonts.** Use the foundation types. A size the tokens don't name comes from the
   component's CSS, with the CSS beside it.
 - **No Material for appearance, no product-specific code, and no new runtime dependency** without a decision record.
@@ -158,7 +154,7 @@ The details are in [MAVEN-DISTRIBUTION.md](Documentation/Releases/MAVEN-DISTRIBU
 
 ## ♿ Accessibility
 
-Every change keeps the guarantees in [ACCESSIBILITY.md](Documentation/Standards/ACCESSIBILITY.md): contrast, font
+Every change keeps the guarantees in [ACCESSIBILITY.md](docs/llm/boundaries.md): contrast, font
 scaling, 48 dp touch targets, TalkBack, right to left and reduced motion. `./gradlew check` scans most of these
 automatically. TalkBack and Bold Text still need a person with a device.
 

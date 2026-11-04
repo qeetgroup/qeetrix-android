@@ -6,7 +6,7 @@ name: Version
 #
 # Want a minor or major release instead? Edit `qeetrix.version` yourself. This workflow only acts while the pull
 # request's version still equals main's, so a version raised by hand is left alone. A breaking API change before 1.0
-# needs a minor (Documentation/Releases/RELEASE-POLICY.md).
+# needs a minor (docs/releases.md).
 #
 # It never checks out the pull request's code: it reads and writes the one file through the GitHub API, so a token
 # that can push never sits beside untrusted code.

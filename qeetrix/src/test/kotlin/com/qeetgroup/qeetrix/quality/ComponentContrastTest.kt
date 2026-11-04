@@ -444,7 +444,7 @@ class ComponentContrastTest {
         const val TEXT = 4.5
 
         /**
-         * Canonical-token failures — quality findings (Q-n) for Documentation/QUALITY.md, to be
+         * Canonical-token failures — quality findings (Q-n) for docs/quality.md, to be
          * proposed upstream: the failing check, and why it stands.
          *
          * Q-8 (read-only field lines), Q-9 (progress fills on their track) and Q-10 (a hovered checked control on the

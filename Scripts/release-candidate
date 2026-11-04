@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # Build and verify a Qeetrix release candidate, end to end, without publishing anything remotely
-# (Documentation/Releases/RELEASE-CHECKLIST.md). Every gate must pass; the first failure stops the run with status 1.
+# (docs/releases.md). Every gate must pass; the first failure stops the run with status 1.
 #
 #   Scripts/release-candidate <version> [--devices] [--allow-dirty]
 #
 #   <version>      0.1.0-rc.1 and the like (X.Y.Z, optionally -alpha.N, -beta.N or -rc.N). A final X.Y.Z still needs
 #                  the owner's approval before it is published anywhere; this script only builds it.
-#   --devices      also run the library's and the consumer's device tests on every connected device or emulator.
+#   --devices      also run the library's device tests on every connected device or emulator.
 #   --allow-dirty  build from a working tree with uncommitted changes (recorded in the provenance; never for a
 #                  release that will be published).
 #
-# Output, in build/release-candidate/: maven/ (the local repository the consumer resolves from),
+# Output, in build/release-candidate/: maven/ (the local repository),
 # qeetrix-<version>-maven.zip (that repository, for review), evidence/ (provenance, checksums, dependency inventory,
 # release notes, a CycloneDX SBOM, one log per gate).
 set -euo pipefail
@@ -60,8 +60,11 @@ if [ "$changes" != 0 ] && [ "$allow_dirty" != true ]; then
     echo "error: $changes uncommitted changes; commit them, or pass --allow-dirty for a local trial" >&2
     exit 1
 fi
-# What was built, when the tree is dirty: a digest of every tracked and untracked (not ignored) file.
-tree_digest=$(git ls-files -c -o --exclude-standard -z | sort -z | xargs -0 shasum -a 256 | shasum -a 256 | cut -d' ' -f1)
+# What was built, when the tree is dirty: a digest of every tracked and untracked (not ignored) file that exists
+# (a deletion not yet committed is listed by git but has no file to read).
+tree_digest=$(git ls-files -c -o --exclude-standard -z | sort -z \
+    | while IFS= read -r -d '' f; do [ -f "$f" ] && printf '%s\0' "$f"; done \
+    | xargs -0 shasum -a 256 | shasum -a 256 | cut -d' ' -f1)
 
 # 2–15. Tokens, tests, lint, formatting, the API baseline, the AAR, the API reference and the minified sample.
 gate tokens Scripts/verify-tokens
@@ -70,7 +73,7 @@ gate aar Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
 if compgen -G "qeetrix/src/test/screenshots/*/*.png" > /dev/null; then
     gate screenshots ./gradlew --console=plain :qeetrix:verifyRoborazziDebug
 else
-    # Baselines are local by policy (Documentation/Decisions/0012-visual-regression-testing.md).
+    # Baselines are local by policy (docs/decisions.md).
     echo "=== screenshots: SKIPPED — no local baselines on this machine"
 fi
 
@@ -79,25 +82,17 @@ gate publish ./gradlew --console=plain :qeetrix:publishReleasePublicationToRelea
 gate publication Scripts/verify-publication "$out/maven" "$version" qeetrix/build/outputs/aar/qeetrix-release.aar
 gate dependencies Scripts/dependency-inventory "$evidence/dependencies.md" --cyclonedx "$evidence/qeetrix-$version.cdx.json" --version "$version"
 
-# 19–21. An independent app resolves the candidate by its coordinates and builds debug and optimised release.
-gate consumer ./gradlew --console=plain -p Integration/Consumer :app:assembleDebug :app:assembleRelease :smoke:assembleRelease \
-    -Pqeetrix.version="$version"
-
-# 22. On devices: the library's own device tests, the consumer's Compose tests (debug) and its release smoke test.
+# 19. On devices: the library's own device tests.
 if [ "$devices" = true ]; then
     gate library-devices ./gradlew --console=plain :qeetrix:connectedDebugAndroidTest
-    gate consumer-devices ./gradlew --console=plain -p Integration/Consumer :app:connectedDebugAndroidTest \
-        :smoke:connectedAndroidTest -Pqeetrix.version="$version"
 else
     echo "=== devices: not run (pass --devices with a device or emulator connected)"
 fi
 
 # 24–26. Notices, release notes, checksums and provenance.
-cp Documentation/THIRD_PARTY_NOTICES.md Documentation/Releases/RELEASE-NOTES.md "$evidence/"
+cp CHANGELOG.md docs/third-party.md "$evidence/"
 (cd "$out/maven" && find . -type f \( -name '*.aar' -o -name '*.pom' -o -name '*.module' -o -name '*.jar' \) \
     | sort | xargs shasum -a 256) > "$evidence/SHA256SUMS"
-(cd Integration/Consumer/app/build/outputs/apk && shasum -a 256 debug/app-debug.apk release/app-release.apk) \
-    > "$evidence/consumer-SHA256SUMS"
 (cd "$out" && zip -q -r "qeetrix-$version-maven.zip" maven)
 
 lock=Upstream/manifest.lock.json

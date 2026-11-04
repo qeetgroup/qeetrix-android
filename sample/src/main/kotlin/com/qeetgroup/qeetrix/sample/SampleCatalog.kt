@@ -155,5 +155,4 @@ val SampleCatalog: List<SampleEntry> =
         SampleEntry("qr-scanner", "QR scanner", SampleCategory.Utilities) { QRScannerSample() },
         SampleEntry("copy", "Copy", SampleCategory.Utilities) { CopySample() },
         SampleEntry("permission-primer", "Permission primer", SampleCategory.Utilities) { PermissionPrimerSample() },
-        // new-component: insert above this line
     )

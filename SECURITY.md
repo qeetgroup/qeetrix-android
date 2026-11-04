@@ -39,28 +39,27 @@ flowchart LR
 - **Displayed data.** Lists, rows and empty states show only what the app passes. An error state shows the app's
   words or Qeetrix's defaults, never an exception's message.
 
-More detail: [FORMS.md](Documentation/Standards/FORMS.md) and
-[DATA_DISPLAY_AND_COLLECTIONS.md](Documentation/Standards/DATA_DISPLAY_AND_COLLECTIONS.md).
+More detail: [FORMS.md](docs/llm/boundaries.md) and
+[DATA_DISPLAY_AND_COLLECTIONS.md](docs/llm/boundaries.md).
 
 ## 🚢 Publishing
 
 - **Builds publish only to a local folder.** The one exception is the Release workflow, which runs when a pull
   request is merged to `main` and uploads to GitHub Packages.
 - **It waits for an approver** in the protected `maven-publish` environment, and uses the run's own short-lived token;
-  no long-lived credential is stored ([MAVEN-DISTRIBUTION.md](Documentation/Releases/MAVEN-DISTRIBUTION.md)).
+  no long-lived credential is stored ([MAVEN-DISTRIBUTION.md](docs/releases.md)).
 - **It publishes what it verified.** It runs every release gate first, checks the files it sent against the verified
   checksums, and attests their build provenance (`gh attestation verify`).
 - **Every release candidate** records its source commit, toolchain, SHA-256 checksums of every file, and a CycloneDX
   SBOM.
-- **Apps should fetch `com.qeetgroup` only from the approved registry** (`exclusiveContent`), as
-  `Integration/Consumer` does.
+- **Apps should fetch `com.qeetgroup` only from GitHub Packages** (`exclusiveContent`), as the release notes show.
 
 ## 📅 Supported versions
 
 | Version | Security fixes |
 |:--|:--|
 | `main` | ✅ Yes |
-| Released versions | None released yet. Once they are, fixes go into a patch of the latest minor version ([RELEASE-POLICY.md](Documentation/Releases/RELEASE-POLICY.md)). |
+| Released versions | None released yet. Once they are, fixes go into a patch of the latest minor version ([RELEASE-POLICY.md](docs/releases.md)). |
 
 ## 🚨 Reporting a vulnerability
 

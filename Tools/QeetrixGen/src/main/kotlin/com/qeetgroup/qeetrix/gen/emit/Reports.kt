@@ -19,8 +19,8 @@ class Reports(
 ) {
     fun files(): Map<String, String> =
         mapOf(
-            "Documentation/Foundations/TOKEN_COVERAGE.md" to coverage(),
-            "Documentation/Foundations/token-values.json" to values(),
+            "docs/tokens.md" to coverage(),
+            "docs/token-values.json" to values(),
         )
 
     /** Colours whose 8-bit sRGB rendition differs from the `hex` @qeetrix/tokens records beside it. */
@@ -51,7 +51,7 @@ class Reports(
         out.appendLine()
         out.appendLine("${model.included.size} tokens are generated as Kotlin; ${model.excluded.size} are not. The rule is in")
         out.appendLine(
-            "[`Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt`](../../Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt);",
+            "[`Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt`](../Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt);",
         )
         out.appendLine("every value, with the DTCG token it came from, is in [token-values.json](token-values.json).")
         out.appendLine()

@@ -74,7 +74,7 @@ internal val EllipsizedByDesign: List<SpecimenText> =
 
 /**
  * Texts the scans find clipped that are recorded quality findings, or cases the spec rules out (Q-n, in
- * Documentation/QUALITY.md) — each excluded here by name: the texts, and why. Each specimen makes its case happen
+ * docs/quality.md) — each excluded here by name: the texts, and why. Each specimen makes its case happen
  * whatever the text stack's rounding, so the scans can tell if it changes.
  */
 internal val ClippingFindings: Map<SpecimenText, String> =

@@ -31,60 +31,44 @@ env:
 
 jobs:
   build:
-    name: Generator, drift, lint, tests, API, AAR, sample, docs, publication, consumer
+    name: Build and test
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
-      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "21"
       - name: Android SDK packages
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$ANDROID_PLATFORM" "$ANDROID_BUILD_TOOLS" platform-tools > /dev/null
-      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
           # Pull requests read the cache; only main writes it.
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-      # check: generator and new-component tests, the token and icon drift check, Android Lint, ktlint,
-      # the library's and the sample's JVM tests (behaviour, accessibility semantics and Compose UI
-      # interaction on Robolectric) and the public API check against Documentation/API/qeetrix.api.
-      # Screenshot baselines are not committed (.gitignore), so visual regression is verified locally with
-      # ./gradlew :qeetrix:verifyRoborazziDebug, not here; the screenshot tests run but neither record nor
-      # compare.
-      - name: Generator, drift, lint, ktlint, unit and Compose UI tests, public API, test coverage
-        run: ./gradlew check :qeetrix:koverXmlReportDebug :qeetrix:koverHtmlReportDebug :qeetrix:koverVerifyDebug
-      # The sample's release is minified and resource-shrunk as an app's would be, so R8 runs over the library.
-      - name: Library AAR, sample APKs (debug and minified release), instrumented-test APK and API reference
-        run: ./gradlew :qeetrix:assembleRelease :sample:assembleDebug :sample:assembleRelease :qeetrix:assembleDebugAndroidTest :qeetrix:dokkaGenerate
-      - name: The AAR carries only qx_ resources, the font licences and no manifest entries
-        run: Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
-      # The library as apps receive it: published to a local directory (never a registry), its POM and module metadata
-      # checked, and an independent app (Integration/Consumer) that resolves it by coordinates built in debug and in
-      # an R8-optimised release (Documentation/Decisions/0018-maven-distribution.md).
-      - name: Publish to a local repository and build the independent consumer from it
+      # Lint, ktlint, every JVM test (behaviour, accessibility semantics, Compose UI), the generator's tests and drift
+      # check, the public API check, and test coverage (fails below 92 % of lines).
+      - name: Lint and tests
+        run: ./gradlew check :qeetrix:koverVerifyDebug
+      # The sample's release build is minified as an app's would be, so R8 runs over the library.
+      - name: Build the library and the sample
+        run: ./gradlew :qeetrix:assembleRelease :sample:assembleRelease :qeetrix:assembleDebugAndroidTest
+      # What an app receives: the AAR's contents, and the POM and module metadata of a local publication.
+      - name: Check the package apps receive
         run: |
+          Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
           ./gradlew :qeetrix:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version=0.0.0-ci
           Scripts/verify-publication build/release-candidate/maven 0.0.0-ci qeetrix/build/outputs/aar/qeetrix-release.aar
-          ./gradlew -p Integration/Consumer :app:assembleDebug :app:assembleRelease :smoke:assembleRelease -Pqeetrix.version=0.0.0-ci
       - name: Reports
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: reports
           path: |
             **/build/reports/
             **/build/test-results/
-      - name: Library AAR and API reference
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: qeetrix
-          path: |
-            qeetrix/build/outputs/aar/qeetrix-release.aar
-            qeetrix/build/dokka/html/
-            qeetrix/build/reports/kover/
 
   upstream:
     name: Pinned upstream still matches the lock
@@ -92,12 +76,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
           cache-read-only: true
       - name: Re-fetch the pinned artifacts and compare them with the lock (network)
@@ -106,9 +90,9 @@ jobs:
   # On every push and pull request (and on demand): the device-only checks — Back on popups and stacked overlays,
   # the Accessibility Test Framework over every component, number formats under Android's ICU, a long keyed list —
   # on the minimum supported API level and on API 36, the level the accessibility checks were verified to run on
-  # (they are left out below it: Documentation/Decisions/0017-quality-gates-and-verification.md).
+  # (they are left out below it: docs/decisions.md).
   instrumented:
-    name: Instrumented tests on API ${{ matrix.api-level }}
+    name: Device tests on API ${{ matrix.api-level }}
     if: >-
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && github.base_ref == 'main') ||
@@ -120,8 +104,8 @@ jobs:
       matrix:
         api-level: [29, 36]
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "21"
@@ -132,7 +116,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
           cache-read-only: true
       - name: connectedDebugAndroidTest
@@ -142,17 +126,10 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
-          # The library's device tests, then the independent consumer's: its Compose tests on debug and the UI Automator
-          # smoke test on its R8-optimised release, against the artifact published to a local directory.
-          script: |
-            ./gradlew :qeetrix:connectedDebugAndroidTest
-            ./gradlew :qeetrix:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version=0.0.0-ci
-            ./gradlew -p Integration/Consumer :app:connectedDebugAndroidTest :smoke:connectedAndroidTest -Pqeetrix.version=0.0.0-ci
+          script: ./gradlew :qeetrix:connectedDebugAndroidTest
       - name: Instrumented-test reports
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: instrumented-reports-api-${{ matrix.api-level }}
-          path: |
-            qeetrix/build/reports/androidTests/
-            Integration/Consumer/*/build/reports/androidTests/
+          path: qeetrix/build/reports/androidTests/

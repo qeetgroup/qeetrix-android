@@ -11,7 +11,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Status](https://img.shields.io/badge/status-pre--release-F59E0B)](#-status)
 
-[📖 Design system](https://ui.qeet.in) · [🧩 Components](Documentation/Components/README.md) · [🏗️ Architecture](ARCHITECTURE.md) · [📝 Changelog](CHANGELOG.md)
+[📖 Design system](https://ui.qeet.in) · [🧩 Components](docs/components.md) · [🏗️ Architecture](ARCHITECTURE.md) · [📝 Changelog](CHANGELOG.md)
 
 </div>
 
@@ -48,7 +48,7 @@ flowchart LR
 | Version | State |
 |:--|:--|
 | `0.1.0-rc.2` | ✅ Release candidate. Passed all ten release checks on 31 October 2026. |
-| `0.1.0` | 🚀 Releasing on 9 November 2026, on GitHub Packages ([release notes](Documentation/Releases/RELEASE-NOTES.md)) |
+| `0.1.0` | 🚀 Releasing on 9 November 2026, on GitHub Packages ([release notes](docs/releases.md)) |
 
 ## 🚀 Getting started
 
@@ -56,7 +56,7 @@ flowchart LR
 Kotlin 2.3+.
 
 **Install** from GitHub Packages. It needs a GitHub token with `read:packages`, kept in `~/.gradle/gradle.properties`
-as `gpr.user` and `gpr.key`. The full steps are in the [release notes](Documentation/Releases/RELEASE-NOTES.md#-install).
+as `gpr.user` and `gpr.key`. The full steps are in the [release notes](docs/releases.md#-installing).
 
 ```kotlin
 // settings.gradle.kts, inside dependencyResolutionManagement { repositories { … } }
@@ -112,7 +112,7 @@ QeetrixCard(title = "Sign-in email", description = "Where receipts are sent") {
 | 📐 **Layout** | `QeetrixCard` · `QeetrixAccordion` · `QeetrixSeparator` |
 
 These are the main ones. Every component has its own page, with its options, looks and accessibility, in
-[Documentation/Components](Documentation/Components/README.md).
+[docs/components](docs/components.md).
 
 ## 📲 Sample app
 
@@ -139,7 +139,7 @@ Every other command is in [CONTRIBUTING.md](CONTRIBUTING.md).
 | | |
 |:--|:--|
 | 📖 [ui.qeet.in](https://ui.qeet.in) | The Qeetrix design system |
-| 🧩 [Components](Documentation/Components/README.md) | A page for each Android component |
+| 🧩 [Components](docs/components.md) | A page for each Android component |
 | 🏗️ [Architecture](ARCHITECTURE.md) | How the library is generated and built |
 | 🤝 [Contributing](CONTRIBUTING.md) | Setting up, commands, adding a component |
 | 📝 [Changelog](CHANGELOG.md) | What's in each version |
@@ -148,7 +148,7 @@ Every other command is in [CONTRIBUTING.md](CONTRIBUTING.md).
 ## 📜 License
 
 [MIT](LICENSE) © 2026 Qeet Group. The bundled fonts and icons keep their own licences
-([notices](Documentation/THIRD_PARTY_NOTICES.md)).
+([notices](docs/third-party.md)).
 
 ---
 

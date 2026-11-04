@@ -10,8 +10,8 @@
 # Generated: collapsed in diffs on GitHub, never edited by hand (Scripts/generate-tokens owns them)
 qeetrix/src/main/kotlin/com/qeetgroup/qeetrix/tokens/generated/** linguist-generated=true
 qeetrix/src/main/kotlin/com/qeetgroup/qeetrix/icons/generated/** linguist-generated=true
-Documentation/Foundations/TOKEN_COVERAGE.md linguist-generated=true
-Documentation/Foundations/token-values.json linguist-generated=true
+docs/tokens.md linguist-generated=true
+docs/token-values.json linguist-generated=true
 Upstream/qeetrix-ui/** linguist-generated=true
 Upstream/qeetrix-icons/** linguist-generated=true
 Upstream/manifest.lock.json linguist-generated=true

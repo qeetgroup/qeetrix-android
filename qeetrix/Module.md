@@ -137,7 +137,7 @@ bounds of Android's window size classes and the widths of the web's `--qx-viewpo
 Platform accessibility rules that are not tokens: the 48 dp minimum touch target, the WCAG contrast
 ratio Qeetrix's tests use, and the focus frame's geometry ([com.qeetgroup.qeetrix.foundation.accessibility.QeetrixFocus]:
 a 2 dp frame in `colors.borderFocus`, inside buttons and fields, `RingOffset` outside selection controls).
-See `Documentation/Standards/ACCESSIBILITY.md` in the repository for the full standard, including what
+See `docs/llm/boundaries.md` in the repository for the full standard, including what
 needs testing on a device.
 
 # Package com.qeetgroup.qeetrix.icons

@@ -7,9 +7,9 @@ import java.io.File
 internal object TestSupport {
     val root: File = File(System.getProperty("qeetrix.root") ?: error("qeetrix.root is not set; run the tests through Gradle."))
 
-    /** `Documentation/Foundations/token-values.json` → `tokens`. */
+    /** `docs/token-values.json` → `tokens`. */
     val tokenValues: JSONObject by lazy {
-        JSONObject(File(root, "Documentation/Foundations/token-values.json").readText()).getJSONObject("tokens")
+        JSONObject(File(root, "docs/token-values.json").readText()).getJSONObject("tokens")
     }
 
     fun paths(kind: String): List<String> =

@@ -26,7 +26,7 @@ import org.robolectric.RuntimeEnvironment
 
 /**
  * The render environments screenshot tests use: a representative matrix, not every combination
- * (Documentation/Decisions/0012-screenshot-testing.md). Each test class fixes the device with
+ * (docs/decisions.md). Each test class fixes the device with
  * [SCREENSHOT_QUALIFIERS]; theme, font scale and layout direction are set here, inside the content, so
  * one test can render several configurations.
  */

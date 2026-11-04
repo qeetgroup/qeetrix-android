@@ -2,6 +2,8 @@
 .gradle/
 build/
 .kotlin/
+# Written by --write-locks but never checked: settings don't lock anything (qeetrix/gradle.lockfile is the real lock).
+settings-gradle.lockfile
 
 # Android Studio / IntelliJ
 .idea/

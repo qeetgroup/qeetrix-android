@@ -110,7 +110,7 @@ import org.robolectric.RobolectricTestRunner
 import java.math.BigDecimal
 
 /**
- * The examples in `README.md` and the component pages in `Documentation/Components` for the core components and
+ * The examples in `README.md` and the component pages in `docs/components` for the core components and
  * the forms, as written there, so they keep compiling against the public API and composing. Only the surrounding
  * state and the app's own functions are added here. Values are synthetic.
  *

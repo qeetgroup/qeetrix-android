@@ -1,12 +1,25 @@
 # 📝 Changelog
 
 All notable changes to Qeetrix for Android. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and versions follow [Semantic Versioning](https://semver.org/) as the [release policy](Documentation/Releases/RELEASE-POLICY.md)
+and versions follow [Semantic Versioning](https://semver.org/) as the [release policy](docs/releases.md)
 describes. Ticket numbers are QTRX issues.
 
 ## [Unreleased]
 
-Nothing yet.
+No change to the library's API or behaviour.
+
+### 🔄 Changed
+
+- **Build tools:** Android Gradle Plugin 9.5.0, Gradle 9.8.2, Roborazzi 1.77.0 and kotlinx-serialization 1.12.0 (the
+  generator), and current GitHub Actions, as Dependabot proposed.
+- **The repository is simpler:** one `docs/` folder of 11 files, in the shape the other Qeet repositories use, with
+  `docs/llm/` for AI agents. The API baseline moved to `qeetrix/api/qeetrix.api`, Kotlin's usual place for it.
+- **CI:** one **Build and test** job, and the device tests only on pull requests into `main`.
+
+### 🗑️ Removed
+
+- The independent consumer app (`Integration/Consumer`) and the `new-component` tool with its templates. The sample app
+  shows and tests the components, and `Scripts/verify-aar` and `Scripts/verify-publication` check the published package.
 
 ## [0.1.0] — 2026-11-09
 
@@ -41,7 +54,6 @@ The first version, on GitHub Packages. Built from `@qeetrix/react` 0.4.0, `@qeet
 
 - The MIT licence: `LICENSE`, the POM's `<licenses>`, and the licence text inside the AAR.
 - The sample app, with a page for every component.
-- An independent consumer app that builds against the published library.
 - `Scripts/release-candidate`, and the Qeetrix release flow: merging to `main` publishes the version in
   `gradle.properties` to GitHub Packages after an approver approves, then tags it and opens a GitHub Release.
 - CodeQL code scanning and monthly Dependabot updates.
@@ -51,9 +63,9 @@ The first version, on GitHub Packages. Built from `@qeetrix/react` 0.4.0, `@qeet
 ### ⚠️ Breaking, since `0.1.0-rc.1`
 
 - **Every public API changed** when the library moved from `@qeetrix/ui` to `@qeetrix/react`, `@qeetrix/tokens` and
-  `@qeetrix/icons` ([0019](Documentation/Decisions/0019-migrate-to-qeetrix-react-tokens-and-icons.md)). Nothing had been
+  `@qeetrix/icons` ([0019](docs/decisions.md)). Nothing had been
   published, so there is no deprecation path. Every old name and its new one are in
-  [MIGRATION_QEETRIX_REACT.md](Documentation/MIGRATION_QEETRIX_REACT.md).
+  [MIGRATION_QEETRIX_REACT.md](CHANGELOG.md).
 - `QeetrixBottomSheetSize` is renamed `QeetrixSheetSize`, the size both sheets take (195).
 
 ### 🔄 Changed
@@ -100,7 +112,7 @@ Found on an Android 16 tablet emulator.
 - **The clickable `QeetrixCard`** (182): a card is not a click target. Use a choice tile (`QeetrixRadioGroup` or
   `QeetrixCheckboxGroup` with `variant = Tile`) or a `QeetrixListItem`.
 - **The old foundation names**, such as `QeetrixSpacing`, `QeetrixCorner`, `QeetrixElevation` and `QeetrixTextVariant`.
-  The [migration record](Documentation/MIGRATION_QEETRIX_REACT.md) lists each one with its replacement.
+  The [migration record](CHANGELOG.md) lists each one with its replacement.
 - **The icons** `calendar`, `clock`, `database` and `loader-circle`.
 
 ## 🧪 Release candidates
@@ -109,7 +121,7 @@ Neither candidate was published.
 
 | Candidate | Built | Contents | Result |
 |:--|:--|:--|:--|
-| `0.1.0-rc.2` | 2026-10-31 | The migration and the first 31 Android tickets | ✅ Passed all ten release checks ([report](Documentation/Releases/RELEASE-CANDIDATE-REPORT.md)) |
+| `0.1.0-rc.2` | 2026-10-31 | The migration and the first 31 Android tickets | ✅ Passed all ten release checks ([report](docs/releases.md)) |
 | `0.1.0-rc.1` | 2026-10-20 | Built on `@qeetrix/ui`, before the migration | Superseded |
 
 The phase-by-phase notes from before 4 November 2026 are in the git history (`git log -p -- CHANGELOG.md`).

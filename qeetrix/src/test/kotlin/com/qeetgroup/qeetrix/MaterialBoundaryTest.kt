@@ -9,7 +9,7 @@ import java.net.JarURLConnection
 import java.util.jar.JarFile
 
 /**
- * Material 3 is an implementation detail of a few components (Documentation/Decisions/0015-navigation-overlays-and-feedback.md):
+ * Material 3 is an implementation detail of a few components (docs/decisions.md):
  * the platform's own date and time pickers (QTRX-120, QTRX-128 ask for them, themed by Qeetrix) and pull to refresh's
  * nested-scroll handling (QTRX-107, drawn by Qeetrix). The bottom sheet no longer is (QTRX-198). Only those files may use
  * it, and nothing public may mention it. This keeps Material from becoming the design authority one convenient import at a time.
@@ -60,7 +60,7 @@ class MaterialBoundaryTest {
 
     @Test
     fun thePublicApiBaselineNamesNoMaterialType() {
-        val api = File("../Documentation/API/qeetrix.api")
+        val api = File("api/qeetrix.api")
         assertTrue("the API baseline: ${api.absolutePath}", api.isFile)
         val material = api.readLines().filter { "androidx/compose/material" in it }
         assertEquals(emptyList<String>(), material)

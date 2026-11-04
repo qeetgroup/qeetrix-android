@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.Color
  * Ember, the brand orange (`bgBrandBold`, `borderBrand`, `textBrand`), appears only where it means
  * something: the primary action, focus, the current item, checked controls and links.
  *
- * Values are converted from OKLCH per CSS Color 4 (Documentation/CROSS_PLATFORM_CONTRACT.md). A colour
+ * Values are converted from OKLCH per CSS Color 4 (docs/llm/boundaries.md). A colour
  * outside sRGB is a Display P3 colour, drawn in P3 in a wide-colour-gamut window and converted to sRGB
  * elsewhere.
  */
