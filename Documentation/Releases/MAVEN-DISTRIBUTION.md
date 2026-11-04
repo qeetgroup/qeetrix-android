@@ -44,9 +44,18 @@ Requirements, set by Compose 1.12 rather than by Qeetrix: **compile SDK 37** and
 // settings.gradle.kts
 dependencyResolutionManagement {
     repositories {
-        // The repository the owner chooses (below). Restrict it to com.qeetgroup so nothing else can come from it.
+        // GitHub Packages, restricted to com.qeetgroup so nothing else can come from it. The token (read:packages)
+        // is in ~/.gradle/gradle.properties as gpr.user and gpr.key, or GITHUB_ACTOR and GITHUB_TOKEN in CI.
         exclusiveContent {
-            forRepository { maven { url = uri("<repository URL>") /* and credentials, if it needs them */ } }
+            forRepository {
+                maven {
+                    url = uri("https://maven.pkg.github.com/qeetgroup/qeetrix-android")
+                    credentials {
+                        username = providers.gradleProperty("gpr.user").orNull ?: System.getenv("GITHUB_ACTOR")
+                        password = providers.gradleProperty("gpr.key").orNull ?: System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
             filter { includeGroup("com.qeetgroup") }
         }
         google()

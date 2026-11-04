@@ -4,9 +4,13 @@ All notable changes to Qeetrix for Android. The format follows [Keep a Changelog
 and versions follow [Semantic Versioning](https://semver.org/) as the [release policy](Documentation/Releases/RELEASE-POLICY.md)
 describes. Ticket numbers are QTRX issues.
 
-## [Unreleased] — 0.1.0
+## [Unreleased]
 
-The first version. Built from `@qeetrix/react` 0.4.0, `@qeetrix/tokens` 0.0.13 and `@qeetrix/icons` 2.1.0.
+Nothing yet.
+
+## [0.1.0] — 2026-11-09
+
+The first version, on GitHub Packages. Built from `@qeetrix/react` 0.4.0, `@qeetrix/tokens` 0.0.13 and `@qeetrix/icons` 2.1.0.
 
 ### ✨ Added
 
@@ -109,3 +113,6 @@ Neither candidate was published.
 | `0.1.0-rc.1` | 2026-10-20 | Built on `@qeetrix/ui`, before the migration | Superseded |
 
 The phase-by-phase notes from before 4 November 2026 are in the git history (`git log -p -- CHANGELOG.md`).
+
+[Unreleased]: https://github.com/qeetgroup/qeetrix-android/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.1.0

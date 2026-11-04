@@ -48,24 +48,32 @@ flowchart LR
 | Version | State |
 |:--|:--|
 | `0.1.0-rc.2` | ✅ Release candidate. Passed all ten release checks on 31 October 2026. |
-| `0.1.0` | ⏳ Next. The first published version. |
+| `0.1.0` | 🚀 Releasing on 9 November 2026, on GitHub Packages ([release notes](Documentation/Releases/RELEASE-NOTES.md)) |
 
 ## 🚀 Getting started
 
 **Requirements:** Android 10 (API 29) or newer. Your app needs compile SDK 37, Android Gradle Plugin 9.1+ and
 Kotlin 2.3+.
 
-**Install.** Once `0.1.0` is published:
+**Install** from GitHub Packages. It needs a GitHub token with `read:packages`, kept in `~/.gradle/gradle.properties`
+as `gpr.user` and `gpr.key`. The full steps are in the [release notes](Documentation/Releases/RELEASE-NOTES.md#-install).
 
 ```kotlin
-// app/build.gradle.kts
-dependencies {
-    implementation("com.qeetgroup:qeetrix:0.1.0")
+// settings.gradle.kts, inside dependencyResolutionManagement { repositories { … } }
+maven {
+    url = uri("https://maven.pkg.github.com/qeetgroup/qeetrix-android")
+    credentials {
+        username = providers.gradleProperty("gpr.user").orNull ?: System.getenv("GITHUB_ACTOR")
+        password = providers.gradleProperty("gpr.key").orNull ?: System.getenv("GITHUB_TOKEN")
+    }
 }
+
+// app/build.gradle.kts
+implementation("com.qeetgroup:qeetrix:0.1.0")
 ```
 
-Until then, use it from source: add `includeBuild("../qeetrix-android")` to your app's `settings.gradle.kts`, and
-depend on `com.qeetgroup:qeetrix` without a version.
+To work on the library beside an app, use it from source instead: `includeBuild("../qeetrix-android")` in the app's
+`settings.gradle.kts`, and `com.qeetgroup:qeetrix` without a version.
 
 **Use.** Wrap your UI in `QeetrixTheme`. It follows the device's light or dark setting:
 
