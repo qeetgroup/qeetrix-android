@@ -15,7 +15,6 @@ QeetrixCard(
     QeetrixText("Created 12 March.")
 }
 QeetrixCard(title = "Delete workspace", tone = QeetrixCardTone.Danger, footer = { … })
-QeetrixCard(onClick = { plan = "team" }, selected = plan == "team", title = "Team", description = "Up to 50 members")
 ```
 
 ## Anatomy
@@ -32,27 +31,29 @@ QeetrixCard(onClick = { plan = "team" }, selected = plan == "team", title = "Tea
 | `variant` | `Default` (raised) · `Subdued` (sunken, for a secondary panel) |
 | `tone` | `Neutral` · `Danger` (a "danger zone" of settings that delete or can't be undone; the rules inside stay neutral) |
 
-## The choice card
+## A card is not a click target
 
-`QeetrixCard(onClick = …)` makes the whole card one button: a plan to choose, a project to open. `@qeetrix/react`
-has no clickable Card (its spec names a separate SelectionCard, not built yet), so this one takes the choice
-tile's look (RadioGroup and CheckboxGroup `variant="tile"`): `color.bg.neutral.subtle` under the pointer,
-`color.bg.neutral.subtle-hover` while pressed, and with `selected` `color.bg.selected` with a 2 dp
-`color.border.brand` edge drawn inside it, so nothing moves. Keyboard focus draws the 2 dp Ember frame round it.
-`enabled = false` takes `color.text.disabled` for the title and `color.text.subtlest` for the description.
+The specs say so (06-component-specs §9, QTRX-182), and the web's Card takes no `onClick`:
+
+- **A card that is chosen** — a plan, a sign-in method — is a choice tile: [`QeetrixRadioGroup`](RadioGroup.md) or
+  [`QeetrixCheckboxGroup`](Checkbox.md) with `variant = QeetrixChoiceVariant.Tile`, which keeps the group's name, state
+  and arrow keys.
+- **A card that opens a page** keeps that action in its content: a button in `actions` or `footer`.
+- **A list of places to go** is a list of [`QeetrixListItem`](ListItem.md)s, on a card if they need a surface.
+
+Android had a clickable `QeetrixCard(onClick, selected, enabled, …)` in the tile look until 1 November 2026; it is
+removed (nothing had been published).
 
 ## Accessibility
 
 - The title is a heading, so TalkBack's heading navigation reaches the card. The web takes a heading `level`;
   Android has no heading levels.
-- A choice card is one button named by its text. `selected` only draws: state the choice with
-  `Modifier.semantics { selected = … }` and put the cards in a `selectableGroup()`.
+- A card is not a control: nothing on it takes a tap but the controls its content puts there.
 
 ## Theme and tokens
 
 `color.surface.raised` / `sunken`, `color.border.default` / `danger`, `color.text.danger`, `radius.surface`,
-`space.inset.lg`, `space.gap.xs` / `sm` / `md`, `typography.title.sm` / `body.sm` / `body.md`; choice card
-`color.bg.neutral.subtle(-hover)`, `color.bg.selected(-hover)`, `color.border.brand`, `border.width.strong`.
+`space.inset.lg`, `space.gap.xs` / `sm` / `md`, `typography.title.sm` / `body.sm` / `body.md`.
 
 ## Platform differences
 
@@ -64,6 +65,7 @@ tile's look (RadioGroup and CheckboxGroup `variant="tile"`): `color.bg.neutral.s
   `content`, and none when the content emits nothing.
 - **Not implemented:** the Table and TreeView bleed rules (no Android Table yet), forced colours.
 - **Removed since 2.x:** `Outline` and `Elevated` variants, `size` (`Sm`), `action` (now `actions`), shadows and
-  nested-card shadow rules, `selected` on a static card.
+  nested-card shadow rules, `selected` on a static card, and the clickable card (`onClick`, `selected`, `enabled`;
+  QTRX-182).
 
 Related: [Description list](DescriptionList.md), [Button](Button.md).

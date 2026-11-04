@@ -73,7 +73,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /**
- * The Phase 5 examples in `README.md` and the component pages in `Documentation/Components`, as written there,
+ * The Phase 5 examples in the component pages in `Documentation/Components` (and one that was in README.md), as written there,
  * so they keep compiling against the public API and composing. Only the surrounding data and the app's own
  * functions are added. Values are synthetic.
  */
@@ -313,7 +313,7 @@ private fun SearchFieldExample() {
     QeetrixSearchField(query, placeholder = "e.g. Asha", onSearch = { members.search(it) })
 }
 
-// README.md, "Components"
+// A collection (was in README.md)
 @Composable
 private fun ReadmeCollection() {
     val people = groups.flatMap { it.members }

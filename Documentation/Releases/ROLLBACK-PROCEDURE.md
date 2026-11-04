@@ -5,8 +5,10 @@ immutable, and apps resolve exact versions, so a release is never edited or dele
 
 ## When a release is bad
 
-1. **Stop new adoption.** Announce the affected version and the last good one where Qeet Group's app teams will see
-   it, and mark the release's notes "Do not use — see x.y.z".
+1. **Stop new adoption.** Run **Actions › Rollback** (`rollback.yml`) with the good and the bad version. After an
+   approver approves it in the `maven-publish` environment, it makes the good version GitHub's latest release and
+   marks the bad one withdrawn, with a note pointing to the good one. Then announce it where Qeet Group's app teams
+   will see it.
 2. **Apps go back to the last good version**: in the app, change `com.qeetgroup:qeetrix:<bad>` to
    `com.qeetgroup:qeetrix:<good>` and rebuild. Nothing else in the app changes unless it adopted API that only the
    bad version has.

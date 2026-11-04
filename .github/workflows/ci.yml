@@ -1,8 +1,11 @@
 name: CI
 
+# Pull requests are checked once, and main again after each merge; a push to develop is covered by its pull request.
+# The device tests (two emulators, the slow part) run on pull requests into main and on main; everyday pull requests
+# into develop run the fast checks.
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
   schedule:
     # Weekly: confirm the pinned upstream artifacts still match the lock.
@@ -51,8 +54,8 @@ jobs:
       # Screenshot baselines are not committed (.gitignore), so visual regression is verified locally with
       # ./gradlew :qeetrix:verifyRoborazziDebug, not here; the screenshot tests run but neither record nor
       # compare.
-      - name: Generator, drift, lint, ktlint, unit and Compose UI tests, public API
-        run: ./gradlew check
+      - name: Generator, drift, lint, ktlint, unit and Compose UI tests, public API, test coverage
+        run: ./gradlew check :qeetrix:koverXmlReportDebug :qeetrix:koverHtmlReportDebug :qeetrix:koverVerifyDebug
       # The sample's release is minified and resource-shrunk as an app's would be, so R8 runs over the library.
       - name: Library AAR, sample APKs (debug and minified release), instrumented-test APK and API reference
         run: ./gradlew :qeetrix:assembleRelease :sample:assembleDebug :sample:assembleRelease :qeetrix:assembleDebugAndroidTest :qeetrix:dokkaGenerate
@@ -81,6 +84,7 @@ jobs:
           path: |
             qeetrix/build/outputs/aar/qeetrix-release.aar
             qeetrix/build/dokka/html/
+            qeetrix/build/reports/kover/
 
   upstream:
     name: Pinned upstream still matches the lock
@@ -105,7 +109,10 @@ jobs:
   # (they are left out below it: Documentation/Decisions/0017-quality-gates-and-verification.md).
   instrumented:
     name: Instrumented tests on API ${{ matrix.api-level }}
-    if: github.event_name == 'push' || github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.instrumented)
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.base_ref == 'main') ||
+      (github.event_name == 'workflow_dispatch' && inputs.instrumented)
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:

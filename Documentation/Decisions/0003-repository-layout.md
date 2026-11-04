@@ -24,7 +24,8 @@ and the same separation qeetrix-ios uses (its record 0007) for tooling, pinned i
 - **Sample.** `sample/`, an app depending on `:qeetrix`.
 - **Documentation.** KDoc and `qeetrix/Module.md`, built by Dokka, for the API; `Documentation/` for
   decisions, standards, the cross-platform contract, notices and the generated foundation reports. The
-  root keeps only README, ARCHITECTURE, CONTRIBUTING, CHANGELOG, PHASES and SECURITY.
+  root keeps only README, ARCHITECTURE, CONTRIBUTING, CHANGELOG, SECURITY and LICENSE. (PHASES, the phase
+  plan, was removed on 4 November 2026 once every phase was done; CHANGELOG has the history.)
 - **Components** (Phase 2) go in `components/<category>/<component>/`, lowercase packages, organised by
   qeetrix-ui's component categories. Folders are created with their first component, never as
   placeholders; so is `Templates/`.

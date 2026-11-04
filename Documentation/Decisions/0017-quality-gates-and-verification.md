@@ -60,4 +60,4 @@ Phase 6 hardens the existing library instead of adding components. Two things sh
 - Unlabelled fields are 16 dp taller in layout than in Phases 3–5 (the drawn field is unchanged). Screens that
   aligned an unlabelled field with a 32 dp element now align it with a 48 dp touch area, as buttons are.
 - Manual TalkBack, Switch Access and Voice Access passes, frame timing on real hardware, and API levels other than
-  29 and 36 remain to be done; [RELEASE-READINESS-GAPS.md](../Quality/RELEASE-READINESS-GAPS.md) tracks them.
+  29 and 36 remain to be done; [QUALITY.md](../QUALITY.md#-known-gaps) tracks them.

@@ -39,6 +39,7 @@ import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuSeparator
 import com.qeetgroup.qeetrix.components.emptystate.QeetrixEmptyState
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
 import com.qeetgroup.qeetrix.components.input.QeetrixTextField
+import com.qeetgroup.qeetrix.components.list.QeetrixListItem
 import com.qeetgroup.qeetrix.components.navigation.QeetrixBackButton
 import com.qeetgroup.qeetrix.components.navigation.QeetrixNavigationItem
 import com.qeetgroup.qeetrix.components.navigation.QeetrixNavigationScaffold
@@ -174,8 +175,11 @@ private fun ProjectList(
             Modifier.verticalScroll(rememberScrollState()).padding(QeetrixSpace.InsetLg),
             verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd),
         ) {
-            for (project in projects) {
-                QeetrixCard(onClick = { onOpen(project) }, title = project, description = "Updated this week")
+            if (projects.isNotEmpty()) {
+                // Projects to open are list rows on one card: a card is not a click target (QTRX-182).
+                QeetrixCard {
+                    for (project in projects) QeetrixListItem(project, description = "Updated this week", onClick = { onOpen(project) })
+                }
             }
             if (projects.isEmpty()) {
                 QeetrixEmptyState("No projects", description = "Deleted projects can be restored from the snackbar's Undo.")

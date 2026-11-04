@@ -5,6 +5,8 @@ build/
 
 # Android Studio / IntelliJ
 .idea/
+# Android Studio writes the Gradle daemon's JDK choice here; each machine picks its own JDK (CONTRIBUTING.md).
+gradle/gradle-daemon-jvm.properties
 *.iml
 captures/
 .externalNativeBuild/

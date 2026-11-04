@@ -145,7 +145,7 @@ class DocumentationExamplesTest {
             "Security", "Passkeys and recovery codes", "Sign-in email", "Save changes", "Signed in on 3 devices", "Locked",
             "Create invoice", "Export", "Revoke key", "Close", "New invoice", "Refresh", "Paid", "Overdue", "Draft", "Billing",
             "Welcome to Qeet", "Invoices are sent on the first of each month.", "inv_2K9", "Loading invoices", "Docs",
-            "Status", "Workspace", "Delete workspace", "Team", "Priya Sharma", "Acme Pvt Ltd", "Uploading report.pdf", "Storage",
+            "Status", "Workspace", "Delete workspace", "Priya Sharma", "Acme Pvt Ltd", "Uploading report.pdf", "Storage",
         )
     }
 
@@ -184,7 +184,7 @@ class DocumentationExamplesTest {
     }
 }
 
-// README.md, "Theme" (inside `setContent`)
+// README.md, "Getting started" (inside `setContent`)
 @Composable
 private fun ReadmeTheme() {
     QeetrixTheme {
@@ -196,7 +196,7 @@ private fun ReadmeTheme() {
     }
 }
 
-// README.md, "Components"
+// README.md, "Getting started"
 @Composable
 private fun ReadmeCard() {
     var alerts by remember { mutableStateOf(true) }
@@ -209,7 +209,7 @@ private fun ReadmeCard() {
     }
 }
 
-// README.md, "Components"
+// A form (was in README.md)
 @Composable
 private fun ReadmeForm() {
     val email = rememberTextFieldState()
@@ -225,7 +225,7 @@ private fun ReadmeForm() {
     }
 }
 
-// README.md, "Typography" and "Icons"
+// Typography and icons (was in README.md)
 @Composable
 private fun ReadmeTypeAndIcons() {
     QeetrixText("Signed in on 3 devices", size = QeetrixTextSize.Sm, tone = QeetrixTextTone.Subtle)
@@ -298,7 +298,6 @@ private fun SeparatorExamples() {
 // Card.md
 @Composable
 private fun CardExamples() {
-    var plan by remember { mutableStateOf("starter") }
     QeetrixCard(
         title = "Workspace",
         description = "3 members",
@@ -311,7 +310,6 @@ private fun CardExamples() {
     QeetrixCard(title = "Delete workspace", tone = QeetrixCardTone.Danger, footer = {
         QeetrixButton("Delete workspace", onClick = ::delete, tone = QeetrixButtonTone.Danger)
     })
-    QeetrixCard(onClick = { plan = "team" }, selected = plan == "team", title = "Team", description = "Up to 50 members")
 }
 
 // Avatar.md

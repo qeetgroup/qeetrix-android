@@ -14,7 +14,10 @@ a consumer would use it: `:sample` depends on `project(":qeetrix")`.
 What the organisation already does: its other Gradle projects use the group `com.qeetgroup` (qeet-pay-server,
 qeet-people-server), and this repository's README already documents `com.qeetgroup:qeetrix` for composite builds.
 The web design system is published publicly to npm as `@qeetrix/ui`, marked `UNLICENSED`; qeetrix-android and
-qeetrix-ios are private repositories with no licence.
+qeetrix-ios are private repositories with no licence. *Amended 2026-11-01:* qeetrix-android is now public, still with
+no licence, so a GitHub Packages Maven package published from it would be public; the private recommendation now needs
+the repository made private, or another private registry. *Amended 2026-11-02:* the code is MIT, so a public package —
+GitHub Packages or Maven Central — is allowed.
 
 ## Decision
 
@@ -26,13 +29,17 @@ qeetrix-ios are private repositories with no licence.
    classpaths), so the POM and module metadata name exactly what was built and tested. The Compose BOM the library
    builds with is published as a platform of its runtime variant (a `dependencyManagement` import in the POM); it
    aligns an app's Compose artifacts to at least the tested versions.
-4. **The version is a property.** Builds are `0.1.0-SNAPSHOT` unless `-Pqeetrix.version` passes another; release
+4. **The version is a property.** `qeetrix.version` in `gradle.properties` (amended 4 November 2026; it was `0.1.0-SNAPSHOT`), unless `-Pqeetrix.version` passes another; release
    candidates are `X.Y.Z-rc.N` ([RELEASE-POLICY.md](../Releases/RELEASE-POLICY.md)). No version is final until the
    owner approves it.
 5. **The build has no remote repository.** Its only repository is `build/release-candidate/maven`, which
    `Scripts/release-candidate` fills and the independent consumer in `Integration/Consumer` resolves from by
    coordinates (an exclusive repository for `com.qeetgroup`, so nothing else can satisfy it). Nothing in this
    repository can upload an artifact.
+   *Amended 4 November 2026:* the owner chose GitHub Packages, released the way every Qeetrix package is: merging to
+   `main` releases the version in `gradle.properties`. The registry is added only when the Release workflow passes
+   `-Pqeetrix.registry.url`; that workflow waits for an approver in the protected `maven-publish` environment and
+   uploads with the run's own token. A local build still uploads nothing.
 6. **An independent consumer is the acceptance test.** A separate Gradle build, never included in this one, uses
    only the public API through the Maven artifact, builds debug and an R8-optimised release, and is tested on
    devices: Compose tests on debug, a UI Automator smoke test on release.
@@ -46,11 +53,11 @@ qeetrix-ios are private repositories with no licence.
 |:--|:--|:--|
 | **GitHub Packages (Maven), private** — recommended for the first internal consumers | The code and its access control are already on GitHub; packages inherit the repository's visibility | Every consumer's build needs a token with `read:packages`; Actions billing must be restored to publish from CI |
 | A private Maven repository the organisation runs | Central control, no per-developer tokens | None exists today that this review found |
-| Maven Central | Public, no credentials for consumers | Needs a licence in the POM, signing and a Javadoc JAR; the code has no licence today |
+| Maven Central | Public, no credentials for consumers | Needs a licence in the POM (MIT since 2026-11-02), signing, a Javadoc JAR and a verified namespace for the group |
 
 ## Consequences
 
 - An app adds `implementation("com.qeetgroup:qeetrix:<version>")` and the repository; the composite build remains
   for working on the library itself.
 - A change to a dependency's version appears in the lockfile, the POM and the module metadata together.
-- Publishing cannot happen by accident: there is no remote repository to publish to until the owner adds one.
+- Publishing cannot happen by accident: only the Release workflow can upload, from `main`, and only after an approver approves it.

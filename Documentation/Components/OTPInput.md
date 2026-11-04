@@ -48,6 +48,7 @@ entered as 0–9.
 - **One field, not one per slot.** The web has an input per slot ("Character 2 of 6"); Android keeps one field,
   so SMS AutoFill, paste and TalkBack treat the code as one value. `otpInput.character` is not needed.
 - **Narrow columns.** The web stops slots at 24 dp and overflows a column too narrow; Android keeps shrinking.
-  07-components (QTRX-164) says a code never goes in a column narrower than it needs (328 dp for `[5, 5]`).
+  07-components (QTRX-164) says a code never goes in a column narrower than it needs (312 dp for 10 characters,
+  328 dp for `[5, 5]`); a longer code is a single `QeetrixTextField`.
 
 Related: [Password input](PasswordInput.md), [Field](Field.md).

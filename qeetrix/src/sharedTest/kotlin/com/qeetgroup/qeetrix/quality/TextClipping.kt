@@ -73,9 +73,9 @@ internal val EllipsizedByDesign: List<SpecimenText> =
     )
 
 /**
- * Texts the scans find clipped that are recorded quality findings (Q-n, for Documentation/Quality/ACCESSIBILITY-REPORT.md),
- * not by design — each excluded here by name until the component changes: the texts, and the finding. Each specimen
- * makes its finding happen whatever the text stack's rounding, so the scans can tell when it is fixed.
+ * Texts the scans find clipped that are recorded quality findings, or cases the spec rules out (Q-n, in
+ * Documentation/QUALITY.md) — each excluded here by name: the texts, and why. Each specimen makes its case happen
+ * whatever the text stack's rounding, so the scans can tell if it changes.
  */
 internal val ClippingFindings: Map<SpecimenText, String> =
     mapOf(
@@ -83,7 +83,7 @@ internal val ClippingFindings: Map<SpecimenText, String> =
             "Q-15: OTP slots share the width and keep shrinking (the web stops them at 24px and runs past the column); at 2× " +
             "and 200 % a 10-character code's slots in a compact phone are narrower than their characters, which overflow " +
             "into the gaps. 07-components (QTRX-164) says a code never goes in a column narrower than it needs (328px for " +
-            "[5, 5]), so this stays recorded",
+            "[5, 5]) and a longer code is one Input: settled by the spec, not a defect",
     )
 
 /** Whether this text, in the specimen named [specimen], ends in an ellipsis by design ([EllipsizedByDesign]). */

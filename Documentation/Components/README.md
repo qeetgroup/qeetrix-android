@@ -125,7 +125,7 @@ in [Data display and collections](../Standards/DATA_DISPLAY_AND_COLLECTIONS.md).
   where a reserved area would move the layout — a field's show-password, clear and help buttons, a chip's remove
   button, the accordion's trigger — take a tap within 48 dp through Compose's touch-target expansion instead; the
   number field's steppers are field-tall targets, with Decrease and Increase actions on the field as the accessible
-  path ([Accessibility report](../Quality/ACCESSIBILITY-REPORT.md)).
+  path ([Accessibility report](../QUALITY.md)).
 - **Feedback.** No ripple: pressed and hovered states are the web's `-hover` and `-pressed` colour steps, in
   `motion.duration.fast`; nothing scales or bounces (§18).
 - **Text** is in sp and follows the font scale; containers grow rather than clip.

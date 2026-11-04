@@ -20,14 +20,15 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.dokka)
     alias(libs.plugins.roborazzi)
+    alias(libs.plugins.kover)
     `maven-publish`
 }
 
-// Maven coordinates com.qeetgroup:qeetrix (Documentation/Decisions/0018-maven-distribution.md). The version is a
-// development snapshot unless a release-candidate build passes one (`-Pqeetrix.version=…`, Scripts/release-candidate);
-// no version is final until the owner approves it.
+// Maven coordinates com.qeetgroup:qeetrix (Documentation/Decisions/0018-maven-distribution.md). The version is
+// `qeetrix.version` in gradle.properties, the one the next release publishes; a release-candidate trial passes its own
+// (`-Pqeetrix.version=…`, Scripts/release-candidate). Only the Release workflow publishes, after the owner approves.
 group = "com.qeetgroup"
-version = providers.gradleProperty("qeetrix.version").getOrElse("0.1.0-SNAPSHOT")
+version = providers.gradleProperty("qeetrix.version").get()
 
 android {
     namespace = "com.qeetgroup.qeetrix"
@@ -140,6 +141,28 @@ dependencies {
     androidTestImplementation(libs.compose.ui.test.junit4.accessibility)
 }
 
+// Test coverage (Kover) of the JVM tests, debug variant: `./gradlew :qeetrix:koverHtmlReportDebug` for a report,
+// `:qeetrix:koverVerifyDebug` (in CI) fails below the minimum (Documentation/QUALITY.md). Generated token and icon
+// data, and the classes the Compose compiler writes, are not code anyone writes tests for.
+kover {
+    reports {
+        filters {
+            excludes {
+                packages("com.qeetgroup.qeetrix.tokens.generated", "com.qeetgroup.qeetrix.icons.generated")
+                classes("*ComposableSingletons*", "*.BuildConfig")
+            }
+        }
+        // 94.0 % of lines on 4 November 2026. Raise the minimum as coverage grows; never lower it to pass.
+        variant("debug") {
+            verify {
+                rule("Line coverage") {
+                    minBound(92)
+                }
+            }
+        }
+    }
+}
+
 // Lock what the library hands to apps: its release classpaths. A transitive version change then shows
 // up as a reviewed diff of qeetrix/gradle.lockfile (refresh with `./gradlew :qeetrix:dependencies
 // --write-locks`). Test and tooling classpaths are not locked; they never reach a consumer.
@@ -150,9 +173,9 @@ configurations.matching { it.name == "releaseCompileClasspath" || it.name == "re
     resolutionStrategy.activateDependencyLocking()
 }
 
-// The Maven publication (Documentation/Releases/MAVEN-DISTRIBUTION.md). Its only repository is a local directory a
-// release-candidate build fills and an independent consumer resolves from; no remote repository is configured, so
-// nothing can be uploaded from this build.
+// The Maven publication (Documentation/Releases/MAVEN-DISTRIBUTION.md). Its repository is a local directory a
+// release-candidate build fills and an independent consumer resolves from. The registry below exists only in the
+// Release workflow, which runs on merge to main after an approver approves it, so a local build uploads nothing.
 publishing {
     publications {
         register<MavenPublication>("release") {
@@ -179,8 +202,15 @@ publishing {
                     url.set("https://github.com/qeetgroup/qeetrix-android")
                     connection.set("scm:git:https://github.com/qeetgroup/qeetrix-android.git")
                 }
-                // No <licenses>: the library's own code carries no licence (README › Licences); declaring one is the
-                // owner's decision. Bundled fonts and icons carry theirs inside the AAR (assets/qeetrix/licenses).
+                // The library's own code is MIT (LICENSE). Bundled fonts and icons carry their own licences, all four texts
+                // inside the AAR (assets/qeetrix/licenses).
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/license/mit")
+                        distribution.set("repo")
+                    }
+                }
             }
         }
     }
@@ -188,6 +218,16 @@ publishing {
         maven {
             name = "releaseCandidate"
             url = uri(rootProject.layout.buildDirectory.dir("release-candidate/maven"))
+        }
+        // The registry, only when the Release workflow names one (-Pqeetrix.registry.url). Its credentials are the
+        // Gradle properties registryUsername and registryPassword, which the workflow sets from its own token; they are
+        // never in this repository (Documentation/Releases/MAVEN-DISTRIBUTION.md).
+        providers.gradleProperty("qeetrix.registry.url").orNull?.let { registryUrl ->
+            maven {
+                name = "registry"
+                url = uri(registryUrl)
+                credentials(PasswordCredentials::class)
+            }
         }
     }
 }
@@ -200,7 +240,7 @@ dokka {
     }
 }
 
-// Screenshot baselines (Roborazzi, Documentation/Decisions/0012-screenshot-testing.md).
+// Screenshot baselines (Roborazzi, Documentation/Decisions/0012-visual-regression-testing.md).
 roborazzi {
     outputDir.set(file("src/test/screenshots"))
 }

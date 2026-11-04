@@ -20,8 +20,9 @@ the font and the font is not sold on its own; the web's "Qeet Sans" family name 
 documentation, never inside the font file, which is still named Cal Sans. `@qeetrix/icons`' licence also covers Qeet
 logos, which this library does not bundle.
 
-An app that shows open-source notices can read the three texts from its own assets at
-`qeetrix/licenses/`.
+The library's own code is MIT-licensed (© 2026 Qeet Group, the repository's `LICENSE`), shipped as
+`assets/qeetrix/licenses/qeetrix-android-LICENSE.txt`. An app that shows open-source notices can read all four texts
+from its own assets at `qeetrix/licenses/`.
 
 ## Build and test tools (not redistributed)
 

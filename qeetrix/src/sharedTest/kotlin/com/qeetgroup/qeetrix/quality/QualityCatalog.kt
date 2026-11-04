@@ -358,9 +358,6 @@ internal val QualityCatalog: List<QualitySpecimen> =
                     tone = QeetrixCardTone.Danger,
                     footer = { QeetrixButton("Delete workspace", onClick = {}, tone = QeetrixButtonTone.Danger) },
                 )
-                QeetrixCard(onClick = {}, selected = true, title = "Team", description = "Up to 50 members, audit logs")
-                QeetrixCard(onClick = {}, title = "Security", description = "Passkeys and sessions")
-                QeetrixCard(onClick = {}, enabled = false, title = "Archived", description = "Read-only")
                 QeetrixCard { QeetrixText("A card with only a body.") }
             }
         },
@@ -549,8 +546,8 @@ internal val QualityCatalog: List<QualitySpecimen> =
             }
         },
         QualitySpecimen("otp-input-long") {
-            // Finding Q-15: ten slots in a compact phone are narrower than a wide character at 2× (the column is under
-            // the 328 dp a [5, 5] code needs, QTRX-164).
+            // Q-15, settled by the spec (QTRX-164): ten slots in a compact phone are narrower than a wide character at 2×,
+            // as the column is under the 328 dp a [5, 5] code needs. A code never goes there; a longer one is one input.
             QeetrixOTPInput(
                 TextFieldState("WM8KWX"),
                 label = "Recovery code",

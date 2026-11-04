@@ -33,6 +33,7 @@ import com.qeetgroup.qeetrix.components.badge.QeetrixChipGroup
 import com.qeetgroup.qeetrix.components.card.QeetrixCard
 import com.qeetgroup.qeetrix.components.input.QeetrixField
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
+import com.qeetgroup.qeetrix.components.list.QeetrixListItem
 import com.qeetgroup.qeetrix.components.navigation.QeetrixBackButton
 import com.qeetgroup.qeetrix.components.navigation.QeetrixTopAppBar
 import com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch
@@ -42,6 +43,8 @@ import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
+import com.qeetgroup.qeetrix.icons.QeetrixIcon
+import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.composition.AccountPreferencesScreen
 import com.qeetgroup.qeetrix.sample.composition.CollectionsScreen
 import com.qeetgroup.qeetrix.sample.composition.CompositionScreen
@@ -217,45 +220,62 @@ private fun HomeScreen(
             )
         }
         DisplayCard(settings, onSettingsChange)
+        // Places to go are list rows, not clickable cards: a card is not a click target (06 §9, QTRX-182).
         SampleSection("Overview") {
-            QeetrixCard(
-                onClick = { onOpen(FOUNDATIONS) },
-                title = "Foundations",
-                description =
-                    "Colour roles, type roles, space, radius, borders, shadows, motion, densities and icons: the tokens " +
-                        "themselves.",
-            )
-            QeetrixCard(
-                onClick = { onOpen(COMPOSITION) },
-                title = "Composition",
-                description = "Several components working together in one settings form, with live state.",
-            )
-            QeetrixCard(
-                onClick = { onOpen(ACCOUNT_PREFERENCES) },
-                title = "Account preferences",
-                description = "Every input in one generic form: profile, a password change with a code, preferences, feedback.",
-            )
-            QeetrixCard(
-                onClick = { onOpen(WORKSPACE) },
-                title = "Workspace",
-                description = "Navigation, a top app bar, a menu, a dialog, a confirmation, a bottom sheet and snackbars in one flow.",
-            )
-            QeetrixCard(
-                onClick = { onOpen(COLLECTIONS) },
-                title = "Collections",
-                description = "Search, filter chips, sections, selectable rows, loading, empty and failed states, and a detail screen.",
-            )
+            for ((title, description, route) in Overview) OverviewRow(title, description) { onOpen(route) }
         }
         for (category in SampleCategory.entries) {
             val entries = SampleCatalog.filter { it.category == category }
             if (entries.isEmpty()) continue
             SampleSection(category.title) {
-                for (entry in entries) {
-                    QeetrixCard(onClick = { onOpen(entry.id) }, title = entry.title)
+                QeetrixCard {
+                    for (entry in entries) QeetrixListItem(entry.title, onClick = { onOpen(entry.id) }, trailing = { Chevron() })
                 }
             }
         }
     }
+}
+
+/** The sample's own screens, each a place to open from the home screen. */
+private val Overview =
+    listOf(
+        Triple(
+            "Foundations",
+            "Colour roles, type roles, space, radius, borders, shadows, motion, densities and icons: the tokens themselves.",
+            FOUNDATIONS,
+        ),
+        Triple("Composition", "Several components working together in one settings form, with live state.", COMPOSITION),
+        Triple(
+            "Account preferences",
+            "Every input in one generic form: profile, a password change with a code, preferences, feedback.",
+            ACCOUNT_PREFERENCES,
+        ),
+        Triple(
+            "Workspace",
+            "Navigation, a top app bar, a menu, a dialog, a confirmation, a bottom sheet and snackbars in one flow.",
+            WORKSPACE,
+        ),
+        Triple(
+            "Collections",
+            "Search, filter chips, sections, selectable rows, loading, empty and failed states, and a detail screen.",
+            COLLECTIONS,
+        ),
+    )
+
+/** A place in the sample to open: one list row on its own surface. */
+@Composable
+private fun OverviewRow(
+    title: String,
+    description: String,
+    onClick: () -> Unit,
+) {
+    QeetrixCard { QeetrixListItem(title, description = description, onClick = onClick, trailing = { Chevron() }) }
+}
+
+/** The row's sign that it opens a page: a chevron, mirrored in right to left. */
+@Composable
+private fun Chevron() {
+    QeetrixIcon(QeetrixIconName.ChevronRight, contentDescription = null, mirrorInRightToLeft = true)
 }
 
 @Composable

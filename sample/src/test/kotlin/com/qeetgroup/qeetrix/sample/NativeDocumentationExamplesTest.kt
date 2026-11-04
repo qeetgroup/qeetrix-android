@@ -44,7 +44,7 @@ import java.time.LocalDate
 import java.util.Locale
 
 /**
- * The README's "Native components" and "Formatting" examples, as written there, so they keep compiling against the
+ * The native-component and formatting examples that were in the README, so they keep compiling against the
  * public API, composing and saying what they show. Only the surrounding state is added here. Values are synthetic.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -70,7 +70,7 @@ class NativeDocumentationExamplesTest {
     @Test
     fun theFormattingExampleSaysWhatItShows() {
         val sentAt = Instant.now().minusSeconds(120)
-        // README.md, "Formatting"
+        // Formatting (was in README.md)
         val india = Locale.forLanguageTag("en-IN")
         assertEquals("₹1,24,500.00", QeetrixFormat.currency(124500, "INR", india))
         assertEquals("2 minutes ago", QeetrixFormat.relativeTime(sentAt, india))
@@ -78,7 +78,7 @@ class NativeDocumentationExamplesTest {
     }
 }
 
-// README.md, "Native components"
+// Native components (was in README.md)
 @Composable
 private fun ReadmeNative() {
     var filter by remember { mutableStateOf("all") }

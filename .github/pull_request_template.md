@@ -1,28 +1,37 @@
-## What and why
+## 📝 What and why
 
-<!-- What changes, and the reason. Link the issue or the upstream @qeetrix/tokens, @qeetrix/react or @qeetrix/icons change. -->
+<!-- What changes, and why. One topic per pull request. -->
 
-## Checklist
+## 🔗 Related
 
-Each box is a command that exists in this repository; CI runs the same ones.
+- Jira: QTRX-
+- Upstream change, if any: <!-- the @qeetrix/tokens, @qeetrix/react or @qeetrix/icons version or PR -->
 
-- [ ] `./gradlew check`: generator tests, snapshot-and-drift verification, Android Lint, ktlint, unit and
-      Compose UI tests and the public API check pass
-- [ ] `./gradlew :qeetrix:assembleRelease :sample:assembleDebug :qeetrix:dokkaGenerate` build
-- [ ] `Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar`: the AAR ships only what it should
-- [ ] Public API changes are intended, documented in KDoc, noted in `CHANGELOG.md`, and
-      `Documentation/API/qeetrix.api` is updated with `./gradlew :qeetrix:apiDump`
-- [ ] A change to how a component draws passed `./gradlew :qeetrix:verifyRoborazziDebug` locally, or its
-      baselines were re-recorded with `recordRoborazziDebug` and every changed image reviewed
-      (screenshots are never committed), or the PR says this was not run
-- [ ] A new component started from `Scripts/new-component` and has its tests, sample page and
-      `Documentation/Components/` page
-- [ ] Device-only behaviour (fonts, TalkBack, rendering) checked with `./gradlew :qeetrix:connectedDebugAndroidTest`,
-      or the PR says it was not run
-- [ ] Documentation matches the change (`CHANGELOG.md`, KDoc, `ARCHITECTURE.md` or a decision record)
+## 🧩 Type of change
 
-## Upstream inputs
+- [ ] 🐛 Fix
+- [ ] ✨ New component or feature
+- [ ] 💥 Breaking change to the public API
+- [ ] 🎨 Upstream bump (tokens, components or icons)
+- [ ] 🛠️ Build, CI or docs only
 
-- [ ] This PR does not change `Upstream/`, **or** it bumps `Upstream/manifest.json`, was produced by
-      `Scripts/sync-tokens` and `Scripts/generate-tokens`, and nothing in `Upstream/` or a
-      `generated/` package was edited by hand.
+## 📸 Screenshots
+
+<!-- For a visual change: before and after, in light and dark. Delete this section otherwise. -->
+
+## ✅ Checklist
+
+- [ ] `./gradlew check` passes
+- [ ] New behaviour has a test that fails without the change
+- [ ] **Public API change:** KDoc written, `./gradlew :qeetrix:apiDump` run, and the CHANGELOG updated
+- [ ] **Visual change:** `./gradlew :qeetrix:verifyRoborazziDebug` passes, or the screenshots are re-recorded and every
+      changed image reviewed
+- [ ] **New component:** created with `Scripts/new-component`, with its tests, sample page and docs page
+- [ ] Nothing in `Upstream/` or a `generated/` folder is edited by hand
+- [ ] Docs match the change (CHANGELOG, component page, decision record if structural)
+
+## 🚀 Release (pull requests into `main` only)
+
+- [ ] `qeetrix.version` in `gradle.properties` is the version to release. The Version workflow raises the patch;
+      raise the minor or major by hand.
+- [ ] The CHANGELOG has an entry for that version

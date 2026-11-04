@@ -11,14 +11,14 @@ implementation("com.qeetgroup:qeetrix:<version>")
 ```
 
 `com.qeetgroup` is the group Qeet Group's Gradle projects use; `qeetrix` is the module. The package and Android
-namespace are `com.qeetgroup.qeetrix`. Development builds are `0.1.0-SNAPSHOT`; the current candidate is `0.1.0-rc.2`,
+namespace are `com.qeetgroup.qeetrix`. The version is `qeetrix.version` in `gradle.properties`, the one the next release publishes; the last candidate is `0.1.0-rc.2`,
 which supersedes the unpublished `0.1.0-rc.1` ([RELEASE-POLICY.md](RELEASE-POLICY.md)).
 
 ## What a version contains
 
 | File | What |
 |:--|:--|
-| `qeetrix-<version>.aar` | The release build: classes, two fonts, 21 `qx_` strings, three licence texts; no permissions or components ([AAR-VERIFICATION.md](AAR-VERIFICATION.md)) |
+| `qeetrix-<version>.aar` | The release build: classes, two fonts, 85 `qx_` strings and a plural, four licence texts; no permissions or components ([AAR-VERIFICATION.md](AAR-VERIFICATION.md)) |
 | `qeetrix-<version>.pom` | Coordinates, name, description, URL, organisation, SCM, and dependencies with exact versions. No `<licenses>` until the owner chooses one ([LICENSE-COMPLIANCE.md](LICENSE-COMPLIANCE.md)) |
 | `qeetrix-<version>.module` | Gradle module metadata: an API variant, a runtime variant and a sources variant. Gradle reads this in preference to the POM |
 | `qeetrix-<version>-sources.jar` | The Kotlin sources, so IDEs show the KDoc and navigate into components |
@@ -44,9 +44,18 @@ Requirements, set by Compose 1.12 rather than by Qeetrix: **compile SDK 37** and
 // settings.gradle.kts
 dependencyResolutionManagement {
     repositories {
-        // The repository the owner chooses (below). Restrict it to com.qeetgroup so nothing else can come from it.
+        // GitHub Packages, restricted to com.qeetgroup so nothing else can come from it. The token (read:packages)
+        // is in ~/.gradle/gradle.properties as gpr.user and gpr.key, or GITHUB_ACTOR and GITHUB_TOKEN in CI.
         exclusiveContent {
-            forRepository { maven { url = uri("<repository URL>") /* and credentials, if it needs them */ } }
+            forRepository {
+                maven {
+                    url = uri("https://maven.pkg.github.com/qeetgroup/qeetrix-android")
+                    credentials {
+                        username = providers.gradleProperty("gpr.user").orNull ?: System.getenv("GITHUB_ACTOR")
+                        password = providers.gradleProperty("gpr.key").orNull ?: System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
             filter { includeGroup("com.qeetgroup") }
         }
         google()
@@ -78,26 +87,54 @@ Or the publication alone:
 Scripts/verify-publication build/release-candidate/maven 0.1.0-rc.2 qeetrix/build/outputs/aar/qeetrix-release.aar
 ```
 
-## Choosing a registry
+## The registry: GitHub Packages
 
-The owner's decision; the options are compared in [0018](../Decisions/0018-maven-distribution.md). The
-recommendation for the first internal consumers is **GitHub Packages, private**: the code and its access control
-are already there. An app then adds the repository `https://maven.pkg.github.com/qeetgroup/qeetrix-android` with a
-GitHub user and a token that has `read:packages` (from `~/.gradle/gradle.properties` or the CI's secrets, never the
-app's repository). **This has not been tried**: no package exists yet.
+The owner chose **GitHub Packages** on 4 November 2026; the options are compared in
+[0018](../Decisions/0018-maven-distribution.md). The repository is public, so the package is public too, which the MIT
+licence allows. GitHub's Maven registry still asks for a token to download, even for a public package. An app adds the
+repository `https://maven.pkg.github.com/qeetgroup/qeetrix-android` with a GitHub user and a token that has
+`read:packages`, kept in `~/.gradle/gradle.properties` or the CI's secrets, never in the app's repository.
 
-## Publishing, once approved
+Maven Central, which needs no token, is not used for now (the owner's decision, 4 November 2026). It would need proof
+that Qeet owns the domain behind the group: for `com.qeetgroup`, `qeetgroup.com`, which nobody had registered on that
+date (Qeet's domain is `qeet.in`). Adding it later keeps the same coordinates once that domain is registered, plus a
+Sonatype Central account, a signing key, and a `developers` section and a docs jar in the POM.
 
-Not implemented, deliberately: there is no registry to point at. When the owner chooses one, the change is:
+## Publishing
 
-1. A repository in `qeetrix/build.gradle.kts` whose URL and credentials come from Gradle properties
-   (`providers.gradleProperty`), never from the repository's files.
-2. A `publish` workflow, started by hand with a version, that runs only in a GitHub **environment** with required
-   reviewers (the owner) and holds the registry credential as that environment's secret, with
-   `permissions: contents: read, packages: write` and nothing else. It first runs `Scripts/release-candidate` on the
-   same commit, then publishes exactly what that verified.
-3. A version is published once. A fix is a new version ([ROLLBACK-PROCEDURE.md](ROLLBACK-PROCEDURE.md)).
-4. A tag `v<version>` on the commit, pushed by the owner after publishing.
+Qeetrix for Android releases the way every Qeetrix package does (qeetrix-react's decision D-07): **merging to `main`
+releases the version in `gradle.properties`.**
 
-The release-candidate workflow (`.github/workflows/release-candidate.yml`) already does step 2's verification
-half and keeps the result as a workflow artifact; it has no credentials and no upload step.
+```mermaid
+flowchart LR
+    A["📬 Pull request<br/>into main"] --> B["version.yml<br/>raises the patch"]
+    B --> C["✅ Merge"]
+    C --> D["release.yml gate<br/>new version? every gate"]
+    D --> E{"👤 Approver<br/>maven-publish"}
+    E --> F["📦 Publish to<br/>GitHub Packages"]
+    F --> G["🏷️ Tag vX.Y.Z<br/>and GitHub Release"]
+```
+
+1. **Pull request into `main`.** `version.yml` raises the patch of `qeetrix.version` on the pull request's branch,
+   so the version is in the diff. Raise the minor or major by hand; a breaking change before 1.0 needs a minor.
+2. **Merge.** `release.yml`'s gate checks the version is not already published, then runs every release gate
+   (`Scripts/release-candidate`). If the version is unchanged, nothing happens.
+3. **Approval.** The publish job waits for an approver in the protected `maven-publish` environment.
+4. **Publish.** It verifies the commit again, publishes with the run's own short-lived token (`packages: write`),
+   checks the files sent against the verified `SHA256SUMS`, and attests their build provenance. No long-lived
+   credential is stored.
+5. **Tag and release.** Only after a successful publish, it tags the commit `vX.Y.Z` and opens a GitHub Release from
+   the version's CHANGELOG entry, with the AAR, sources, POM, SBOM and checksums attached. A `-rc.N` version is
+   marked as a pre-release.
+
+A version is published once. A bad release is withdrawn with `rollback.yml`, and the fix is a new version
+([ROLLBACK-PROCEDURE.md](ROLLBACK-PROCEDURE.md)). Anyone can check a downloaded file came from this repository's
+workflow with `gh attestation verify <file> --repo qeetgroup/qeetrix-android`.
+
+**One-time setup, before the first release:** in the repository's **Settings › Environments**, create an environment
+named `maven-publish` with the owner as a **required reviewer**. Without it, GitHub would create the environment on
+the first run with no approval step.
+
+In `qeetrix/build.gradle.kts`, the registry exists only when the workflow passes `-Pqeetrix.registry.url`, and its
+credentials are the Gradle properties `registryUsername` and `registryPassword`, which the workflow sets. A local
+build, and `Scripts/release-candidate`, still publish only to `build/release-candidate/maven`.

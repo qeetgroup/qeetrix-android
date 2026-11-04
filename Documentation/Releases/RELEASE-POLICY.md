@@ -18,7 +18,7 @@ candidate is proposed below and needs the owner's approval.
 
 What counts as breaking — binary (JVM signatures), source (names, parameter order), behavioural (what a component
 does or draws), and dependency (the minimum SDK, Compose or AGP an app needs) — is in
-[API-COMPATIBILITY.md](../Quality/API-COMPATIBILITY.md). Raising the minimum Android API level, the Compose baseline,
+[QUALITY.md](../QUALITY.md#-api-compatibility). Raising the minimum Android API level, the Compose baseline,
 the compile SDK or the AGP an app needs is breaking.
 
 ## Before 1.0
@@ -59,7 +59,7 @@ baseline, but no product has used it yet, and the manual accessibility pass has 
 ## Approval
 
 Each of these is the owner's decision, never this repository's automation: the registry, a version to publish,
-committing and tagging a release, publishing it, and a licence for the code. The steps are in
+committing and tagging a release, and publishing it. (The code's licence is decided: MIT, 2 November 2026.) The steps are in
 [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md).
 
 ## Reporting and contributing

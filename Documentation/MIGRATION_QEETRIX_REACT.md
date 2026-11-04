@@ -229,9 +229,10 @@ The shared decisions (pins, tokens, typeface, icons, components, platform conven
     rail, top edge on the bar). Top app bar = PageHeader; TopBar (console chrome) has no Android counterpart.
 20. **Filled icons on by default** for the current tab and navigation item (§8, §11, §16), as react defaults them since 0.4.0
     (QTRX-168).
-21. **Clickable card kept** in the choice-tile look. The specs now say a Card is not a click target (06 §9, QTRX-182): a
-    chosen card is a choice tile (`QeetrixRadioGroup` / `QeetrixCheckboxGroup` `variant = Tile`). Whether Android keeps the
-    overload is open (§9).
+21. **Clickable card removed** (1 November 2026). The specs say a Card is not a click target (06 §9, QTRX-182): a chosen
+    card is a choice tile (`QeetrixRadioGroup` / `QeetrixCheckboxGroup` `variant = Tile`), a card that opens a page keeps a
+    button in its content, and places to go are list items. The clickable `QeetrixCard` overload, which had no web
+    counterpart, is gone; nothing had been published.
 22. **Snackbar: one at a time on a phone, 5 s** (react's single timeout; the old 10 s extended time is gone); danger stays;
     a snackbar with an action never times out under TalkBack. *Revisited for QTRX-192:* phones keep one at a time — the
     platform's practice, and a phone's bottom edge has room for one — while from `breakpoint.medium` up to three stack,
@@ -263,7 +264,7 @@ reduced-motion rule) and G8 (Android strings, not an upstream gap).
 | G4 | QTRX-180 | No Chip | react 0.4.0: Chip and ChipGroup (experimental) | `QeetrixChip` unchanged; it already takes FilterTags' tag look, which 0.4.0's Chip shares. Adopting Chip's API is not part of this bump |
 | G5 | QTRX-165 | No read-only look for OTP slots | react 0.4.0 `experimental/otp-input.css` `[data-readonly]` | A read-only code has no fill and keeps the `border.strong` line |
 | G6 | QTRX-181 | No avatar status badge | react 0.4.0 Avatar `status` | Not adopted in this bump; `badgeLabel` stays dropped |
-| G7 | QTRX-182 | SelectionCard was specified (06 §9) but not built | specs: "A Card is not a click target"; a chosen card is a choice tile | The clickable `QeetrixCard` overload remains; keeping or removing it is open (§9) |
+| G7 | QTRX-182 | SelectionCard was specified (06 §9) but not built | specs: "A Card is not a click target"; a chosen card is a choice tile | The clickable `QeetrixCard` overload is removed (decision 21) |
 | G9 | QTRX-189 | The Qeet logo needed `<mask>`, which native vectors lack | icons 2.1.0: `dist/svg/logos/qeet/{default,dark}.mask-free.svg` | Android draws no logo yet, so nothing is taken |
 
 ### Bugs (wrong or inconsistent)
@@ -296,7 +297,7 @@ reduced-motion rule) and G8 (Android strings, not an upstream gap).
 | B25 | QTRX-177, QTRX-178 | Select options, Menu items and AvatarItem ended in an ellipsis | react 0.4.0: they wrap, the side parts on the first line | Options and items already wrapped; their icon, mark, shortcut, meta and check now stay on the first line; AvatarItem wraps; Q-14 no longer happens and is removed |
 | B26 | QTRX-179 | DescriptionItem's `description` and `action` weren't in 07 | specs list them | Unchanged |
 
-Also recorded for the owner, Android's own and still open: OTP slots at 200 % in a compact phone (Q-15, above). Done in the
+OTP slots at 200 % in a compact phone (Q-15) are settled by B12's rule: a code never goes in a column that narrow. Done in the
 ticket work: paragraphs take their direction from their text in right to left (Q-13, QTRX-199), a long placeholder ends in
 an ellipsis at large text (Q-5, QTRX-197), and the bottom sheet is built on Compose foundation, so Material's 12 dp
 clickable drag-handle row (Q-6) is gone and the sheet moves on `motion.duration.slow` (QTRX-198).
@@ -317,8 +318,6 @@ and `value`). Both need reconciling before the files can be diffed directly.
 
 ## 9. Open
 
-- **G7 / QTRX-182:** the specs now say a Card is not a click target; the clickable `QeetrixCard` overload remains until
-  the owner decides to keep it (a native difference) or remove it in favour of the choice tiles.
 - **Device testing.** The Android tickets' components were tried one by one on the phone emulator (`qeetrix-api36`) on
   31 October 2026, in light, dark, 200 % text and right to left, each from its sample page; what that found is fixed
   and listed in the CHANGELOG. The same day they were tried on the tablet emulator (`qeetrix-tablet-api36`, 1280 × 800
