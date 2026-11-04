@@ -6,20 +6,7 @@ describes. Ticket numbers are QTRX issues.
 
 ## [Unreleased]
 
-No change to the library's API or behaviour.
-
-### 🔄 Changed
-
-- **Build tools:** Android Gradle Plugin 9.5.0, Gradle 9.8.2, Roborazzi 1.77.0 and kotlinx-serialization 1.12.0 (the
-  generator), and current GitHub Actions, as Dependabot proposed.
-- **The repository is simpler:** one `docs/` folder of 11 files, in the shape the other Qeet repositories use, with
-  `docs/llm/` for AI agents. The API baseline moved to `qeetrix/api/qeetrix.api`, Kotlin's usual place for it.
-- **CI:** one **Build and test** job, and the device tests only on pull requests into `main`.
-
-### 🗑️ Removed
-
-- The independent consumer app (`Integration/Consumer`) and the `new-component` tool with its templates. The sample app
-  shows and tests the components, and `Scripts/verify-aar` and `Scripts/verify-publication` check the published package.
+Nothing yet.
 
 ## [0.1.0] — 2026-11-09
 
