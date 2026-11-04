@@ -4,7 +4,7 @@
 # Documentation/Decisions/0002-gradle-build-and-dependency-policy.md.
 
 [versions]
-agp = "9.4.1"
+agp = "9.5.0"
 kotlin = "2.4.21"
 compose-bom = "2026.09.00"
 activity-compose = "1.13.0"
