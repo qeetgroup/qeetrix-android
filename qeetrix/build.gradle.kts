@@ -20,6 +20,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.dokka)
     alias(libs.plugins.roborazzi)
+    alias(libs.plugins.kover)
     `maven-publish`
 }
 
@@ -140,6 +141,28 @@ dependencies {
     androidTestImplementation(libs.compose.ui.test.junit4.accessibility)
 }
 
+// Test coverage (Kover) of the JVM tests, debug variant: `./gradlew :qeetrix:koverHtmlReportDebug` for a report,
+// `:qeetrix:koverVerifyDebug` (in CI) fails below the minimum (Documentation/QUALITY.md). Generated token and icon
+// data, and the classes the Compose compiler writes, are not code anyone writes tests for.
+kover {
+    reports {
+        filters {
+            excludes {
+                packages("com.qeetgroup.qeetrix.tokens.generated", "com.qeetgroup.qeetrix.icons.generated")
+                classes("*ComposableSingletons*", "*.BuildConfig")
+            }
+        }
+        // 94.0 % of lines on 4 November 2026. Raise the minimum as coverage grows; never lower it to pass.
+        variant("debug") {
+            verify {
+                rule("Line coverage") {
+                    minBound(92)
+                }
+            }
+        }
+    }
+}
+
 // Lock what the library hands to apps: its release classpaths. A transitive version change then shows
 // up as a reviewed diff of qeetrix/gradle.lockfile (refresh with `./gradlew :qeetrix:dependencies
 // --write-locks`). Test and tooling classpaths are not locked; they never reach a consumer.
@@ -217,7 +240,7 @@ dokka {
     }
 }
 
-// Screenshot baselines (Roborazzi, Documentation/Decisions/0012-screenshot-testing.md).
+// Screenshot baselines (Roborazzi, Documentation/Decisions/0012-visual-regression-testing.md).
 roborazzi {
     outputDir.set(file("src/test/screenshots"))
 }

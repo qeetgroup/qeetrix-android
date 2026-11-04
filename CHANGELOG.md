@@ -40,7 +40,8 @@ The first version. Built from `@qeetrix/react` 0.4.0, `@qeetrix/tokens` 0.0.13 a
 - An independent consumer app that builds against the published library.
 - `Scripts/release-candidate`, and the Qeetrix release flow: merging to `main` publishes the version in
   `gradle.properties` to GitHub Packages after an approver approves, then tags it and opens a GitHub Release.
-- CodeQL code scanning, OpenSSF Scorecard and monthly Dependabot updates.
+- CodeQL code scanning and monthly Dependabot updates.
+- Test coverage with Kover: 94.0 % of lines; CI fails below 92 %.
 - CI with device tests on API 29 and API 36.
 
 ### ⚠️ Breaking, since `0.1.0-rc.1`

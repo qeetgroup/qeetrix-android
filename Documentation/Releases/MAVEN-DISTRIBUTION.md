@@ -84,8 +84,12 @@ The owner chose **GitHub Packages** on 4 November 2026; the options are compared
 [0018](../Decisions/0018-maven-distribution.md). The repository is public, so the package is public too, which the MIT
 licence allows. GitHub's Maven registry still asks for a token to download, even for a public package. An app adds the
 repository `https://maven.pkg.github.com/qeetgroup/qeetrix-android` with a GitHub user and a token that has
-`read:packages`, kept in `~/.gradle/gradle.properties` or the CI's secrets, never in the app's repository. Maven
-Central, which needs no token, can be added later if developers outside Qeet Group need the library.
+`read:packages`, kept in `~/.gradle/gradle.properties` or the CI's secrets, never in the app's repository.
+
+Maven Central, which needs no token, is not used for now (the owner's decision, 4 November 2026). It would need proof
+that Qeet owns the domain behind the group: for `com.qeetgroup`, `qeetgroup.com`, which nobody had registered on that
+date (Qeet's domain is `qeet.in`). Adding it later keeps the same coordinates once that domain is registered, plus a
+Sonatype Central account, a signing key, and a `developers` section and a docs jar in the POM.
 
 ## Publishing
 

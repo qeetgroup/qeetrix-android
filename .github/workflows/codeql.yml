@@ -1,10 +1,10 @@
 name: CodeQL
 
 # GitHub's code scanning: finds security problems in the Kotlin code and in these workflows. Results appear in the
-# repository's Security tab. Runs on every push and pull request to main and develop, and weekly for new queries.
+# repository's Security tab. Runs on every pull request, on main after each merge, and weekly for new queries.
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
   schedule:
     - cron: "0 5 * * 1"

@@ -55,6 +55,7 @@ flowchart LR
 | `./gradlew :qeetrix:recordRoborazziDebug` | Record the baselines. Review every image before relying on it. |
 | `./gradlew :qeetrix:apiDump` / `apiCheck` | Update or check `Documentation/API/qeetrix.api` |
 | `./gradlew :qeetrix:dokkaGenerate` | Build the API reference into `qeetrix/build/dokka/html` |
+| `./gradlew :qeetrix:koverHtmlReportDebug` | A test-coverage report in `qeetrix/build/reports/kover/htmlDebug`. CI fails below 92 % of lines (`koverVerifyDebug`). |
 
 **Devices and releases**
 

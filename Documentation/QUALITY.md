@@ -27,6 +27,7 @@ flowchart LR
 | ♿ **Accessibility Test Framework** | Device tests on API 36 | Google's accessibility checks pass on every component, in light and dark |
 | 📸 **Screenshots** | `verifyRoborazziDebug`, on a maintainer's machine | Every component in light, dark, 200 % text and right to left matches its reviewed image |
 | 🔌 **Public API** | `apiCheck` | No public signature changes by accident |
+| 📊 **Test coverage** | Kover, in CI | At least 92 % of the library's lines run in tests (94.0 % on 4 November 2026). Generated token and icon data are left out. |
 
 Every public composable has a specimen in the
 [quality catalogue](../qeetrix/src/sharedTest/kotlin/com/qeetgroup/qeetrix/quality/QualityCatalog.kt), and a test
