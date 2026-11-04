@@ -58,6 +58,9 @@ android {
         warningsAsErrors = true
         abortOnError = true
         disable += setOf("GradleDependency", "NewerVersionAvailable", "AndroidGradlePluginVersion")
+        // A library's own lint checks built for an older lint (AndroidX Lifecycle's, under AGP 9.5) are skipped either
+        // way; this notice of that is not a finding in this code.
+        disable += "ObsoleteLintCustomCheck"
     }
 }
 

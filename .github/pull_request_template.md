@@ -26,7 +26,7 @@
 - [ ] **Public API change:** KDoc written, `./gradlew :qeetrix:apiDump` run, and the CHANGELOG updated
 - [ ] **Visual change:** `./gradlew :qeetrix:verifyRoborazziDebug` passes, or the screenshots are re-recorded and every
       changed image reviewed
-- [ ] **New component:** created with `Scripts/new-component`, with its tests, sample page and docs page
+- [ ] **New component:** its tests, screenshot test, sample page and row in `docs/components.md`
 - [ ] Nothing in `Upstream/` or a `generated/` folder is edited by hand
 - [ ] Docs match the change (CHANGELOG, component page, decision record if structural)
 

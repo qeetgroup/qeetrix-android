@@ -1,7 +1,7 @@
 name: Rollback
 
 # Withdraws a bad release, so app teams stop adopting it and go back to a good one: the Qeetrix rollback flow, for
-# Maven (Documentation/Releases/ROLLBACK-PROCEDURE.md).
+# Maven (docs/releases.md).
 #
 # A published Maven version is immutable and apps pin exact versions, so the bad version is not deleted: deleting it
 # would break every build that already pins it. Instead this makes the good version GitHub's latest release, and marks

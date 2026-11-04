@@ -2,7 +2,7 @@
 # workflows use: the Compose BOM itself is released monthly. Security fixes don't wait for this schedule: Dependabot
 # security updates open them as soon as a vulnerability is published. Each update is a reviewed pull request that CI
 # must pass. A Gradle update also needs its lock file refreshed (`./gradlew :qeetrix:dependencies --write-locks`)
-# before it can merge (Documentation/Decisions/0002-gradle-build-and-dependency-policy.md).
+# before it can merge (docs/decisions.md).
 version: 2
 updates:
   - package-ecosystem: github-actions

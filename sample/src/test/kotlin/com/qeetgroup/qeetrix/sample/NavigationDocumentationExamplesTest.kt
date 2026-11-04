@@ -70,7 +70,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /**
- * The Phase 4 examples in the component pages in `Documentation/Components` (and one that was in README.md), as written
+ * The Phase 4 examples in the component pages in `docs/components` (and one that was in README.md), as written
  * there — each overlay shown — so they keep compiling against the public API and composing. Only the
  * surrounding state and the app's own functions are added, with a field or a filter where a page writes
  * "the form's fields" or "the filters". Values are synthetic.

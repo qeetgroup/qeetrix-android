@@ -23,7 +23,7 @@ import xml.etree.ElementTree as ET
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(os.environ.get('GRADLE_USER_HOME', os.path.expanduser('~/.gradle')), 'caches', 'modules-2', 'files-2.1')
 NS = {'m': 'http://maven.apache.org/POM/4.0.0'}
-# Licences reviewed for distribution inside apps (Documentation/Releases/LICENSE-COMPLIANCE.md).
+# Licences reviewed for distribution inside apps (docs/third-party.md).
 ALLOWED = {
     'The Apache Software License, Version 2.0',
     'The Apache License, Version 2.0',

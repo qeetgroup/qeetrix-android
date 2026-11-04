@@ -24,7 +24,7 @@ plugins {
     `maven-publish`
 }
 
-// Maven coordinates com.qeetgroup:qeetrix (Documentation/Decisions/0018-maven-distribution.md). The version is
+// Maven coordinates com.qeetgroup:qeetrix (docs/decisions.md). The version is
 // `qeetrix.version` in gradle.properties, the one the next release publishes; a release-candidate trial passes its own
 // (`-Pqeetrix.version=…`, Scripts/release-candidate). Only the Release workflow publishes, after the owner approves.
 group = "com.qeetgroup"
@@ -86,8 +86,11 @@ android {
         abortOnError = true
         checkDependencies = false
         // A new AGP/AndroidX release is not a defect in this repository; dependency versions are
-        // reviewed deliberately (Documentation/Decisions/0002-gradle-build-and-dependency-policy.md).
+        // reviewed deliberately (docs/decisions.md).
         disable += setOf("GradleDependency", "NewerVersionAvailable", "AndroidGradlePluginVersion")
+        // A library's own lint checks built for an older lint (AndroidX Lifecycle's, under AGP 9.5) are skipped either
+        // way; this notice of that is not a finding in this code.
+        disable += "ObsoleteLintCustomCheck"
     }
 }
 
@@ -118,7 +121,7 @@ dependencies {
     api(libs.compose.animation.core)
     api(libs.compose.foundation)
     // Only for the date and time fields (the platform's pickers in Qeetrix's colours) and pull to refresh; no Material
-    // type is public and no Material theme value is drawn (Documentation/Decisions/0015-navigation-overlays-and-feedback.md).
+    // type is public and no Material theme value is drawn (docs/decisions.md).
     implementation(libs.compose.material3)
     // The sheets' window takes Back from its own dispatcher, predictive back gesture included.
     implementation(libs.androidx.activity)
@@ -142,7 +145,7 @@ dependencies {
 }
 
 // Test coverage (Kover) of the JVM tests, debug variant: `./gradlew :qeetrix:koverHtmlReportDebug` for a report,
-// `:qeetrix:koverVerifyDebug` (in CI) fails below the minimum (Documentation/QUALITY.md). Generated token and icon
+// `:qeetrix:koverVerifyDebug` (in CI) fails below the minimum (docs/quality.md). Generated token and icon
 // data, and the classes the Compose compiler writes, are not code anyone writes tests for.
 kover {
     reports {
@@ -173,8 +176,8 @@ configurations.matching { it.name == "releaseCompileClasspath" || it.name == "re
     resolutionStrategy.activateDependencyLocking()
 }
 
-// The Maven publication (Documentation/Releases/MAVEN-DISTRIBUTION.md). Its repository is a local directory a
-// release-candidate build fills and an independent consumer resolves from. The registry below exists only in the
+// The Maven publication (docs/releases.md). Its repository is a local directory a
+// release-candidate build fills and checks. The registry below exists only in the
 // Release workflow, which runs on merge to main after an approver approves it, so a local build uploads nothing.
 publishing {
     publications {
@@ -221,7 +224,7 @@ publishing {
         }
         // The registry, only when the Release workflow names one (-Pqeetrix.registry.url). Its credentials are the
         // Gradle properties registryUsername and registryPassword, which the workflow sets from its own token; they are
-        // never in this repository (Documentation/Releases/MAVEN-DISTRIBUTION.md).
+        // never in this repository (docs/releases.md).
         providers.gradleProperty("qeetrix.registry.url").orNull?.let { registryUrl ->
             maven {
                 name = "registry"
@@ -240,12 +243,12 @@ dokka {
     }
 }
 
-// Screenshot baselines (Roborazzi, Documentation/Decisions/0012-visual-regression-testing.md).
+// Screenshot baselines (Roborazzi, docs/decisions.md).
 roborazzi {
     outputDir.set(file("src/test/screenshots"))
 }
 
-// The public API baseline (Documentation/Decisions/0013-public-api-baseline.md).
+// The public API baseline (docs/decisions.md).
 abstract class QeetrixApiTask : DefaultTask() {
     @get:InputFile
     abstract val aar: RegularFileProperty
@@ -294,10 +297,10 @@ abstract class QeetrixApiTask : DefaultTask() {
 }
 
 val releaseAar = layout.buildDirectory.file("outputs/aar/qeetrix-release.aar")
-val apiBaseline = rootProject.layout.projectDirectory.file("Documentation/API/qeetrix.api")
+val apiBaseline = rootProject.layout.projectDirectory.file("qeetrix/api/qeetrix.api")
 tasks.register<QeetrixApiTask>("apiDump") {
     group = "verification"
-    description = "Writes the public API to Documentation/API/qeetrix.api."
+    description = "Writes the public API to qeetrix/api/qeetrix.api."
     dependsOn("bundleReleaseAar")
     aar.set(releaseAar)
     baseline.set(apiBaseline)
@@ -306,7 +309,7 @@ tasks.register<QeetrixApiTask>("apiDump") {
 val apiCheck =
     tasks.register<QeetrixApiTask>("apiCheck") {
         group = "verification"
-        description = "Fails if the public API differs from Documentation/API/qeetrix.api."
+        description = "Fails if the public API differs from qeetrix/api/qeetrix.api."
         dependsOn("bundleReleaseAar")
         aar.set(releaseAar)
         baseline.set(apiBaseline)

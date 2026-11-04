@@ -42,7 +42,7 @@ data class Provenance(
  * Writes the resolved token model as Kotlin under `tokens/generated`. Every declaration is `internal`:
  * the public API is the hand-written foundation and theme types, which these files construct.
  *
- * Naming, the same rule for every token (Documentation/MIGRATION_QEETRIX_REACT.md has the full table):
+ * Naming, the same rule for every token:
  * colours are `QeetrixColors` properties, camelCase of the path after `color.`
  * (`color.bg.brand.bold` → `bgBrandBold`); shadows are `QeetrixShadow` entries; typography roles are
  * `QeetrixTextRole` entries (`typography.body.md` → `BodyMd`); a token the density modifier changes is a
