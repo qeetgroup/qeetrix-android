@@ -184,7 +184,7 @@ class DocumentationExamplesTest {
     }
 }
 
-// README.md, "Theme" (inside `setContent`)
+// README.md, "Getting started" (inside `setContent`)
 @Composable
 private fun ReadmeTheme() {
     QeetrixTheme {
@@ -196,7 +196,7 @@ private fun ReadmeTheme() {
     }
 }
 
-// README.md, "Components"
+// README.md, "Getting started"
 @Composable
 private fun ReadmeCard() {
     var alerts by remember { mutableStateOf(true) }

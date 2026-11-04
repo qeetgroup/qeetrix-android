@@ -1,129 +1,166 @@
-# Contributing
+# 🤝 Contributing
 
-## Setting up
+Thanks for helping build Qeetrix for Android. This page covers setting up, the commands, and the three things you
+are most likely to do: change something, change how something looks, and add a component.
 
-- **JDK** 17 or newer (21 recommended) to run Gradle.
-- **Android SDK** with `platforms;android-37.0` and `build-tools;36.0.0`. Set `ANDROID_HOME`, or put
-  `sdk.dir=…` in `local.properties` (not committed). Android Studio installs both.
-- **Network**, only for `Scripts/sync-tokens` and the first dependency download.
+## 🛠️ Setting up
 
-Open the repository root in Android Studio, or use the command line:
+- **JDK** 17 or newer (21 recommended).
+- **Android SDK** with `platforms;android-37.0` and `build-tools;36.0.0`. Android Studio installs both. Set
+  `ANDROID_HOME`, or put `sdk.dir=…` in `local.properties` (not committed).
+- **Network**, only for the first dependency download and for `Scripts/sync-tokens`.
+
+Open the repository root in Android Studio, or check that everything works from the command line:
 
 ```sh
-./gradlew check                # what CI runs first; must pass before a pull request
+./gradlew check
 ```
 
-## Commands
+## 🔁 Making a change
+
+```mermaid
+flowchart LR
+    A["🌿 Branch"] --> B["✍️ Change<br/>with a test"]
+    B --> C["./gradlew check"]
+    C -- "draws differently?" --> D["📸 Verify or record<br/>the screenshots"]
+    C --> E["📬 Pull request<br/>with the template"]
+    D --> E
+    E --> F["🤖 CI passes"]
+    F --> G["👀 Review"]
+    G --> H["✅ Merge"]
+```
+
+- **One topic per pull request.** Fill in the template's checklist.
+- **A maintainer reviews** changes to the public API, the generator's scope rules or a dependency. Anything
+  structural also needs a [decision record](Documentation/Decisions/README.md).
+- **Mirror cross-platform changes** (naming, conversion, scope) in qeetrix-ios, or record the difference in the
+  [cross-platform contract](Documentation/CROSS_PLATFORM_CONTRACT.md).
+
+## ⌨️ Commands
+
+**Every day**
 
 | Command | What it does |
 |:--|:--|
-| `./gradlew check` | Generator and new-component tests, drift verification; Android Lint, ktlint, the library's and sample's JVM tests (behaviour, semantics, Compose UI); the public API check |
-| `./gradlew :qeetrix:verifyRoborazziDebug` | Compare every screenshot with your local, reviewed baselines; fails on any difference or a missing baseline |
-| `./gradlew :qeetrix:recordRoborazziDebug` | Record the baselines into `qeetrix/src/test/screenshots/` (git-ignored); review every image before relying on it |
-| `./gradlew :qeetrix:apiDump` / `apiCheck` | Update / check `Documentation/API/qeetrix.api` |
-| `Scripts/new-component <Family> <Component> --category "<group>" [--dry-run]` | Scaffold a component ([Templates/Component](Templates/Component/README.md)) |
-| `./gradlew ktlintFormat` | Fix formatting (ktlint, `ktlint_official` style, `.editorconfig`) |
+| `./gradlew check` | Lint, ktlint, every JVM test, the generator's tests and drift check, the public API check |
+| `./gradlew ktlintFormat` | Fix formatting |
+| `./gradlew :sample:installDebug` | Install the sample app on a device or emulator |
 | `./gradlew :qeetrix:assembleRelease` | Build the AAR |
+
+**Screenshots and API**
+
+| Command | What it does |
+|:--|:--|
+| `./gradlew :qeetrix:verifyRoborazziDebug` | Compare every screenshot with your local baselines |
+| `./gradlew :qeetrix:recordRoborazziDebug` | Record the baselines. Review every image before relying on it. |
+| `./gradlew :qeetrix:apiDump` / `apiCheck` | Update or check `Documentation/API/qeetrix.api` |
+| `./gradlew :qeetrix:dokkaGenerate` | Build the API reference into `qeetrix/build/dokka/html` |
+
+**Devices and releases**
+
+| Command | What it does |
+|:--|:--|
+| `./gradlew :qeetrix:connectedDebugAndroidTest` | Device tests on every connected device or emulator, including the Accessibility Test Framework from API 36 |
 | `Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar` | Check the AAR ships only what it should |
-| `./gradlew :sample:installDebug` | Install the sample |
-| `./gradlew :qeetrix:connectedDebugAndroidTest` | Device tests on every connected device or emulator, the Accessibility Test Framework included (from API 36, where it was verified to run; left out below it) |
-| `./gradlew :qeetrix:dokkaGenerate` | API reference into `qeetrix/build/dokka/html` |
-| `Scripts/release-candidate <X.Y.Z-rc.N> [--devices] [--allow-dirty]` | Every release gate, a local publication, the independent consumer, and evidence in `build/release-candidate/` ([RELEASE-CHECKLIST.md](Documentation/Releases/RELEASE-CHECKLIST.md)) |
-| `./gradlew -p Integration/Consumer :app:assembleRelease` | Build the independent consumer against a published candidate ([Integration/Consumer](Integration/Consumer/README.md)) |
-| `Scripts/sync-tokens [--check]` | Fetch and verify the pinned npm packages — `@qeetrix/tokens`, `@qeetrix/react`, `@qeetrix/icons` (network) |
-| `Scripts/generate-tokens` | Regenerate everything derived from the snapshot |
-| `Scripts/verify-tokens` | Only the drift verification |
+| `Scripts/release-candidate <X.Y.Z-rc.N> [--devices]` | Every release gate and a local publication ([checklist](Documentation/Releases/RELEASE-CHECKLIST.md)) |
+| `./gradlew -p Integration/Consumer :app:assembleRelease` | Build the [independent consumer](Integration/Consumer/README.md) against a published candidate |
 
-## Tokens, fonts, icons and component looks come from upstream
+**Upstream and components**
 
-Nothing visual is decided in this repository. To change a colour, size, font, icon or how a component looks:
+| Command | What it does |
+|:--|:--|
+| `Scripts/sync-tokens [--check]` | Fetch and verify the pinned npm packages (network) |
+| `Scripts/generate-tokens` | Regenerate everything made from `Upstream/` |
+| `Scripts/verify-tokens` | Only the drift check |
+| `Scripts/new-component <Family> <Component> --category "<group>" [--dry-run]` | Create a new component ([template](Templates/Component/README.md)) |
 
-1. Change it in [qeetrix-tokens](https://github.com/qeetgroup/qeetrix-tokens) (tokens and fonts),
-   [qeetrix-icons](https://github.com/qeetgroup/qeetrix-icons) or [qeetrix-react](https://github.com/qeetgroup/qeetrix-react)
-   (a component's CSS and props), and publish the package to npm.
-2. Bump its pin in `Upstream/manifest.json` — `qeetrixTokens`, `qeetrixReact` or `qeetrixIcons` — and tell the
-   qeetrix-ios maintainers, so both move together.
-3. `Scripts/sync-tokens`, then `Scripts/generate-tokens`.
-4. If the build now fails to compile, upstream added, removed or renamed a token: update the public type in
-   `foundation/` or `theme/` deliberately, and note it in `CHANGELOG.md`.
-5. If generation fails on a new token group, decide whether Android consumes it and add a rule to
-   `Tools/QeetrixGen/.../tokens/Scope.kt` (mirroring qeetrix-ios). A component-token group is adopted by
-   adding it to `qeetrixTokens.componentTokens` in `Upstream/manifest.json` (`new-component` does this when
-   `@qeetrix/tokens` defines one for the component).
-6. Review the diff of `Upstream/`, the generated files and `Documentation/Foundations/`. A change under
-   `Upstream/qeetrix-react/css/` is a component's look changing: update the values restated in that component's
-   file (each sits beside the CSS it came from), its page and its screenshots.
+## 🎨 Changing how something looks
 
-A component whose family Android implements for the first time gets its CSS by adding the family to
-`qeetrixReact.families` in `Upstream/manifest.json`. To add an icon, add its name to `qeetrixIcons.icons`, sync,
-generate, and add the entry to `QeetrixIconName` (the build fails until you do).
+A colour, size, font, icon or component look is never changed here. It changes on the web first, then reaches
+Android through a pin bump:
 
-Never edit `Upstream/`, a `generated/` package or `Documentation/Foundations/` by hand: `./gradlew check`
-fails if you do.
+```mermaid
+flowchart TD
+    A["1️⃣ Change it upstream<br/>qeetrix-tokens · qeetrix-icons · qeetrix-react"] --> B["2️⃣ Publish to npm"]
+    B --> C["3️⃣ Bump the pin in Upstream/manifest.json<br/>and tell the qeetrix-ios maintainers"]
+    C --> D["4️⃣ Scripts/sync-tokens<br/>then Scripts/generate-tokens"]
+    D --> E{"Does it build?"}
+    E -- "no: a token was added, removed or renamed" --> F["Update the public type on purpose<br/>and note it in CHANGELOG.md"]
+    E -- "yes" --> G["5️⃣ Review the diff"]
+    F --> G
+    G --> H["CSS changed? Update that component's<br/>values, page and screenshots"]
+```
 
-When the generator itself changes, its tests check it against the snapshot: the colour conversion against the
-`hex` `@qeetrix/tokens` records beside every colour (`ColorMathTest`), the resolver against the published light and
-dark documents, and the committed files against a fresh generation (`SnapshotTest`).
+- **Never edit `Upstream/`, a `generated/` package or `Documentation/Foundations/` by hand.** `./gradlew check` fails
+  if you do.
+- **A new token group** fails generation until you add a rule for it in
+  [Scope.kt](Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt), mirroring qeetrix-ios.
+- **A new component family** gets its CSS by adding the family to `qeetrixReact.families` in `Upstream/manifest.json`.
+- **A new icon:** add its name to `qeetrixIcons.icons`, sync, generate, then add it to `QeetrixIconName`.
 
-## Code
+## 🧩 Adding a component
 
-- Kotlin official style, enforced by ktlint; Android Lint with warnings as errors.
-- Explicit API mode: every public declaration states its visibility; keep the public surface small
-  ([Documentation/Standards/PUBLIC_API.md](Documentation/Standards/PUBLIC_API.md)).
-- No literal colours, durations or fonts outside the generated code; use the foundation types. A size the tokens
-  don't name comes from the component's CSS, with the CSS beside it.
-- No Material 3 for appearance, no product-specific code (Qeet ID or any other), no new runtime
-  dependencies without a decision record.
-- Resource names start with `qx_` (enforced by `resourcePrefix`).
+```mermaid
+flowchart LR
+    A["Scripts/new-component<br/>try --dry-run first"] --> B["Source, tests, screenshot test,<br/>sample page, docs page"]
+    B --> C["Implement it<br/>from the @qeetrix/react CSS"]
+    C --> D["./gradlew :qeetrix:apiDump"]
+    D --> E["Record and review<br/>the screenshots"]
+    E --> F["📬 Pull request"]
+```
 
-## Components
+`new-component` checks the name against `@qeetrix/react`'s component list and never overwrites a file. The new
+component won't build until you implement it. Follow the
+[component contract](Documentation/Standards/COMPONENT_CONTRACT.md): the web component's props, variants and states,
+48 dp touch targets, and full TalkBack support.
 
-Start every component with `Scripts/new-component` (try `--dry-run` first): it validates the name
-against the pinned `@qeetrix/react` component manifest, never overwrites, and creates the source, tests, sample page and
-documentation page in the right places. The scaffold deliberately does not build until you implement it.
-Follow [COMPONENT_CONTRACT.md](Documentation/Standards/COMPONENT_CONTRACT.md) — the `@qeetrix/react`
-component's props, variants and states, its CSS restated with the CSS beside each literal, the design rules,
-48 dp targets, semantics — and finish with
-`./gradlew :qeetrix:apiDump`, recorded and reviewed screenshots, and its page in
-`Documentation/Components/`.
+## 🚀 Releasing
 
-## Tests
+Like every Qeetrix package, **merging to `main` releases the version in `gradle.properties`**:
 
-- New behaviour comes with a test that would fail without it. Check values against an independent source
-  (the generator's table, upstream records, real rendering) — never a constant against itself.
-- Prefer JVM tests (Robolectric + Compose UI Test) in `qeetrix/src/test`; use
-  `@GraphicsMode(GraphicsMode.Mode.NATIVE)` when real text layout or pixels matter.
-- What only a device proves goes in `qeetrix/src/androidTest`. Say in the pull request whether you ran
-  it; never report it as passing otherwise.
-- A new in-place component gets a specimen in the quality catalog
-  (`qeetrix/src/sharedTest/kotlin/com/qeetgroup/qeetrix/quality/QualityCatalog.kt`) in its risky states, so
-  the touch, clipping, contrast and accessibility scans cover it
-  ([0017](Documentation/Decisions/0017-quality-gates-and-verification.md)).
-- A check must be able to fail: give a new scan a negative control in the same class, and treat a check
-  whose control is not caught as not run.
-- **Screenshots** stay on your machine: `qeetrix/src/test/screenshots/` is git-ignored and never
-  committed, and CI does not compare images
-  ([0012](Documentation/Decisions/0012-visual-regression-testing.md)). Before a pull request that changes
-  how a component draws, run `verifyRoborazziDebug`; when a difference is intended, record, review each
-  changed image, and say in the pull request that you did.
+```mermaid
+flowchart LR
+    A["📬 Pull request<br/>develop → main"] --> B["version.yml<br/>raises the patch"]
+    B --> C["✅ Merge"]
+    C --> D["release.yml<br/>every gate"]
+    D --> E{"👤 Approve"}
+    E --> F["📦 GitHub Packages<br/>🏷️ tag and release"]
+```
 
-## Accessibility
+- **The version is in the pull request's diff.** `version.yml` raises the patch; raise the minor or major by hand.
+- **The CHANGELOG entry** (`## [X.Y.Z] — YYYY-MM-DD`) becomes the GitHub Release's notes.
+- **A bad release** is withdrawn with **Actions › Rollback**, and the fix is a new version.
 
-Every change keeps the guarantees in
-[Documentation/Standards/ACCESSIBILITY.md](Documentation/Standards/ACCESSIBILITY.md): contrast pairs, font
-scaling, 48 dp touch targets, semantics, RTL and reduced motion. The contrast, touch-area, clipping and
-reduced-motion scans run in `./gradlew check`; the Accessibility Test Framework runs in
-`connectedDebugAndroidTest` on API 36; TalkBack and Bold Text need a person with a device
-([Accessibility report](Documentation/Quality/ACCESSIBILITY-REPORT.md)).
+The details are in [MAVEN-DISTRIBUTION.md](Documentation/Releases/MAVEN-DISTRIBUTION.md#publishing).
 
-## Review
+## ✍️ Code
 
-- One topic per pull request, using the template's checklist. CI must pass.
-- Changes to the public API, the generator's scope rules, or a dependency need a maintainer's review and,
-  for anything structural, a decision record in `Documentation/Decisions/`.
-- Cross-platform changes (naming, conversion, scope) are mirrored in qeetrix-ios or recorded in
-  [Documentation/CROSS_PLATFORM_CONTRACT.md](Documentation/CROSS_PLATFORM_CONTRACT.md) as a difference.
+- **Kotlin official style**, enforced by ktlint. Android Lint treats warnings as errors.
+- **Explicit API mode**, with KDoc on everything public. Keep the public surface small
+  ([PUBLIC_API.md](Documentation/Standards/PUBLIC_API.md)).
+- **No literal colours, durations or fonts.** Use the foundation types. A size the tokens don't name comes from the
+  component's CSS, with the CSS beside it.
+- **No Material for appearance, no product-specific code, and no new runtime dependency** without a decision record.
+- **Resource names start with `qx_`.**
 
-## Licence
+## 🧪 Tests
 
-Qeetrix for Android is MIT-licensed ([LICENSE](LICENSE)); contributions are made under the same licence.
+- **New behaviour comes with a test that would fail without it.** Check values against an independent source, never a
+  constant against itself.
+- **Prefer JVM tests** (Robolectric and Compose UI Test) in `qeetrix/src/test`. Put what only a device can prove in
+  `qeetrix/src/androidTest`, and say in the pull request whether you ran it.
+- **Add a new component to the [quality catalogue](qeetrix/src/sharedTest/kotlin/com/qeetgroup/qeetrix/quality/QualityCatalog.kt)**,
+  so the touch, clipping, contrast and accessibility scans cover it.
+- **Screenshots stay on your machine.** They aren't committed and CI doesn't compare them. If your change alters how a
+  component draws, run `verifyRoborazziDebug`. If the difference is intended, record, review each image, and say so in
+  the pull request.
+
+## ♿ Accessibility
+
+Every change keeps the guarantees in [ACCESSIBILITY.md](Documentation/Standards/ACCESSIBILITY.md): contrast, font
+scaling, 48 dp touch targets, TalkBack, right to left and reduced motion. `./gradlew check` scans most of these
+automatically. TalkBack and Bold Text still need a person with a device.
+
+## 📜 Licence
+
+Qeetrix for Android is [MIT](LICENSE)-licensed, and contributions are made under the same licence.

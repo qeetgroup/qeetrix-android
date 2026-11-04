@@ -2,58 +2,72 @@
 
 # 🎨 Qeetrix for Android
 
-**Qeet Group's design system for native Android apps, in Kotlin and Jetpack Compose.**
+**Qeet Group's design system for Jetpack Compose: the Qeetrix look of the web and iOS, as native Android components.**
 
-[![Android](https://img.shields.io/badge/Android-API%2029%2B-3DDC84?logo=android&logoColor=white)](#-requirements)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.21-7F52FF?logo=kotlin&logoColor=white)](#-requirements)
-[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-1.12.1-4285F4?logo=jetpackcompose&logoColor=white)](#-requirements)
+[![Android](https://img.shields.io/badge/Android-API%2029%2B-3DDC84?logo=android&logoColor=white)](#-getting-started)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.21-7F52FF?logo=kotlin&logoColor=white)](#-getting-started)
+[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-1.12.1-4285F4?logo=jetpackcompose&logoColor=white)](#-getting-started)
 [![@qeetrix/react](https://img.shields.io/badge/%40qeetrix%2Freact-0.4.0-D04800)](Upstream/manifest.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Status](https://img.shields.io/badge/status-pre--release-F59E0B)](#-status)
 
-[📖 Docs](https://ui.qeet.in) · [🧩 Components](Documentation/Components/README.md) · [📝 Changelog](CHANGELOG.md) · [🤝 Contributing](CONTRIBUTING.md)
+[📖 Design system](https://ui.qeet.in) · [🧩 Components](Documentation/Components/README.md) · [🏗️ Architecture](ARCHITECTURE.md) · [📝 Changelog](CHANGELOG.md)
 
 </div>
 
-Qeetrix is the one design language of every Qeet product. This library brings it to Compose, with the same tokens,
-fonts and icons as [`@qeetrix/react`](https://github.com/qeetgroup/qeetrix-react) on the web and
-[qeetrix-ios](https://github.com/qeetgroup/qeetrix-ios) on iOS, so a colour or a size is the same on every platform.
-
-## ✨ Highlights
-
-- 🎯 **One source of truth.** Tokens, fonts and icons are generated from `@qeetrix/tokens` and `@qeetrix/icons`.
-- 🧩 **60+ components**, drawn as their `@qeetrix/react` counterparts draw them, plus native ones: OTP code, QR
-  scanner, swipe actions, pull to refresh and more.
-- ♿ **Accessible by default.** TalkBack, 48 dp touch targets, checked contrast, text up to 200 % and reduced motion.
-- 🌍 **Every locale.** Right-to-left layouts, and numbers, money and dates in the device's locale.
-- 🪶 **Small and stable.** No Material types in the public API, no network access, no permissions.
-
-## 📍 Status
-
-🚧 **Pre-release.** Release candidate `0.1.0-rc.2` passed every release check. No version is published yet.
-
-## 🧰 Requirements
+## 📦 What's inside
 
 | | |
 |:--|:--|
-| 🤖 Android | API 29 (Android 10) and newer |
-| 📲 Your app | Compile SDK 37, Android Gradle Plugin 9.1+, Kotlin 2.3+ |
+| 🧩 **64 components** | Buttons, forms, dialogs, sheets, menus and navigation, plus native-only ones such as the OTP code, QR scanner, swipe actions and pull to refresh |
+| 🎨 **Foundations** | 109 colour roles in light and dark, 18 text styles, spacing, radii, shadows, motion and three densities |
+| ✨ **59 icons** | From `@qeetrix/icons`, in sharp and round shapes, outline and filled |
+| 🔤 **Fonts** | Qeet Sans and Fira Code, the same files the web uses |
+| 🌐 **Formatting** | Numbers, money, dates, times and durations in the device's locale (`QeetrixFormat`) |
+| ♿ **Accessibility** | TalkBack support, 48 dp touch targets, checked contrast, text up to 200 %, right to left |
+
+## 🔗 How it fits
+
+The web's packages are the single source of truth. Android's tokens, fonts and icons are generated from them, never
+copied by hand, so a colour or a size is the same on every platform.
+
+```mermaid
+flowchart LR
+    subgraph web["🌐 Qeetrix on the web"]
+        T["@qeetrix/tokens"]
+        R["@qeetrix/react"]
+        I["@qeetrix/icons"]
+    end
+    web -->|"generated"| A["🤖 Qeetrix for Android"]
+    web -->|"generated"| S["🍎 qeetrix-ios"]
+    A --> Apps["📱 Qeet Android apps<br/>Qeet ID · Pay · People · Notify · Logs"]
+```
+
+## 📍 Status
+
+| Version | State |
+|:--|:--|
+| `0.1.0-rc.2` | ✅ Release candidate. Passed all ten release checks on 31 October 2026. |
+| `0.1.0` | ⏳ Next. The first published version. |
 
 ## 🚀 Getting started
 
-**Install.** Once a version is published:
+**Requirements:** Android 10 (API 29) or newer. Your app needs compile SDK 37, Android Gradle Plugin 9.1+ and
+Kotlin 2.3+.
+
+**Install.** Once `0.1.0` is published:
 
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("com.qeetgroup:qeetrix:<version>")
+    implementation("com.qeetgroup:qeetrix:0.1.0")
 }
 ```
 
 Until then, use it from source: add `includeBuild("../qeetrix-android")` to your app's `settings.gradle.kts`, and
 depend on `com.qeetgroup:qeetrix` without a version.
 
-**Use.** Wrap your UI in `QeetrixTheme`, then use the components:
+**Use.** Wrap your UI in `QeetrixTheme`. It follows the device's light or dark setting:
 
 ```kotlin
 setContent {
@@ -66,6 +80,8 @@ setContent {
 }
 ```
 
+Then build screens from the components. The app owns the state, and Qeetrix draws it:
+
 ```kotlin
 val email = rememberTextFieldState()
 QeetrixCard(title = "Sign-in email", description = "Where receipts are sent") {
@@ -77,22 +93,23 @@ QeetrixCard(title = "Sign-in email", description = "Where receipts are sent") {
 
 ## 🧩 Components
 
-| Group | Examples |
+| Group | Components |
 |:--|:--|
-| 👆 **Actions** | Button, icon button, copy button, segmented control, bottom action bar |
-| ✍️ **Forms** | Text field, select, checkbox, radio group, switch, slider, date and time fields, OTP input |
-| 📊 **Data display** | List item, avatar, badge, chip, stat, timeline, QR code |
-| 💬 **Feedback** | Alert, progress, spinner, skeleton, snackbar, empty state |
-| 🪟 **Overlays** | Dialog, bottom sheet, side sheet, menu |
-| 🧭 **Navigation** | Top app bar, tabs, navigation bar and rail, steps |
-| 📐 **Layout** | Card, accordion, separator |
+| 👆 **Actions** | `QeetrixButton` · `QeetrixIconButton` · `QeetrixCopyButton` · `QeetrixBottomActionBar` |
+| ✍️ **Forms** | `QeetrixTextField` · `QeetrixPasswordInput` · `QeetrixSelect` · `QeetrixSearchableSelect` · `QeetrixCheckbox` · `QeetrixRadioGroup` · `QeetrixSwitch` · `QeetrixSlider` · `QeetrixOTPInput` · `QeetrixDateField` · `QeetrixForm` |
+| 📊 **Data display** | `QeetrixListItem` · `QeetrixAvatar` · `QeetrixBadge` · `QeetrixChip` · `QeetrixStat` · `QeetrixTimeline` · `QeetrixQRCode` · `QeetrixOTPCode` |
+| 💬 **Feedback** | `QeetrixAlert` · `QeetrixProgress` · `QeetrixSpinner` · `QeetrixSkeleton` · `QeetrixSnackbar` · `QeetrixEmptyState` |
+| 🪟 **Overlays** | `QeetrixDialog` · `QeetrixBottomSheet` · `QeetrixSideSheet` · `QeetrixMenu` · `QeetrixFullScreenForm` |
+| 🧭 **Navigation** | `QeetrixTopAppBar` · `QeetrixTabs` · `QeetrixNavigationBar` · `QeetrixNavigationRail` · `QeetrixSteps` |
+| 📐 **Layout** | `QeetrixCard` · `QeetrixAccordion` · `QeetrixSeparator` |
 
-Each one has its own page in [Documentation/Components](Documentation/Components/README.md).
+These are the main ones. Every component has its own page, with its options, looks and accessibility, in
+[Documentation/Components](Documentation/Components/README.md).
 
 ## 📲 Sample app
 
-[`sample/`](sample) has a page for every component, and switches for dark theme, density, right to left and large
-text.
+[`sample/`](sample) shows every component on its own page. The home screen switches the theme, density, right to left
+and text size for all of them.
 
 ```sh
 ./gradlew :sample:installDebug
@@ -100,26 +117,30 @@ text.
 
 ## 🔨 Building
 
-You need JDK 17 or newer and the Android SDK with platform 37.
+You need JDK 17+ and the Android SDK with platform 37.
 
 ```sh
 ./gradlew check                      # lint, tests and the public API check
-./gradlew :qeetrix:assembleRelease   # the AAR, in qeetrix/build/outputs/aar/
+./gradlew :qeetrix:assembleRelease   # the library, in qeetrix/build/outputs/aar/
 ```
 
 Every other command is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 📚 Learn more
 
-- 📖 [ui.qeet.in](https://ui.qeet.in): the Qeetrix design system
-- 🧩 [Components](Documentation/Components/README.md): a page for each Android component
-- 🏗️ [ARCHITECTURE.md](ARCHITECTURE.md): how the library is built
-- 📝 [CHANGELOG.md](CHANGELOG.md): what changed
+| | |
+|:--|:--|
+| 📖 [ui.qeet.in](https://ui.qeet.in) | The Qeetrix design system |
+| 🧩 [Components](Documentation/Components/README.md) | A page for each Android component |
+| 🏗️ [Architecture](ARCHITECTURE.md) | How the library is generated and built |
+| 🤝 [Contributing](CONTRIBUTING.md) | Setting up, commands, adding a component |
+| 📝 [Changelog](CHANGELOG.md) | What's in each version |
+| 🔒 [Security](SECURITY.md) | What the library touches, and how to report a vulnerability |
 
 ## 📜 License
 
 [MIT](LICENSE) © 2026 Qeet Group. The bundled fonts and icons keep their own licences
-([notices](Documentation/THIRD_PARTY_NOTICES.md)). To report a vulnerability, see [SECURITY.md](SECURITY.md).
+([notices](Documentation/THIRD_PARTY_NOTICES.md)).
 
 ---
 

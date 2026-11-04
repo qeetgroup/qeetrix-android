@@ -106,7 +106,7 @@ merged and unmerged semantics trees.
 ## What Phase 6 verified
 
 Automated, over every in-place component through the quality catalog
-([ACCESSIBILITY-REPORT.md](../Quality/ACCESSIBILITY-REPORT.md), [0017](../Decisions/0017-quality-gates-and-verification.md)):
+([QUALITY.md](../QUALITY.md), [0017](../Decisions/0017-quality-gates-and-verification.md)):
 the Accessibility Test Framework on an API 36 emulator in light and dark; 48 dp touch areas in layout, or a
 proven tap landing for the kinds of control drawn inside another; no clipped text at 100 % and 200 %
 (linear and Android's non-linear scale), left to right and right to left; contrast of the colours components

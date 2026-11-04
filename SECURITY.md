@@ -1,77 +1,75 @@
-# Security
+# 🔒 Security
 
-## Scope
+Qeetrix for Android is a UI library. It draws what the app gives it, and nothing more.
 
-Qeetrix for Android is a UI library. It makes no network requests, declares no permissions or
-components, stores nothing and reads no user data. The security-relevant parts are:
+| | |
+|:--|:--|
+| 🌐 **Network** | None. It makes no requests and loads no images. |
+| 🔑 **Permissions** | None declared. The QR scanner uses the camera only through the app's own permission. |
+| 💾 **Data** | Nothing stored, logged or sent. What a person types stays in state the app owns. |
+| 📦 **Ships with** | Compose and AndroidX libraries at locked versions, two font files, licence texts and `qx_` strings. |
 
-- **Supply chain.** The upstream packages it is built from — `@qeetrix/tokens` (tokens and fonts),
-  `@qeetrix/react` (the component manifest and CSS) and `@qeetrix/icons` (icon drawings) — are pinned by version
-  in `Upstream/manifest.json`, and every file taken from them is locked by sha256 in `Upstream/manifest.lock.json`.
-  Each tarball is checked against the npm registry's integrity hash at sync time, and each bundled font is
-  accepted only if its sha256, size and axes match `@qeetrix/tokens`' `fonts/native.json` and the WOFF2 it was made
-  from is the one the web loads. The icon drawings are rebuilt from the package's JavaScript modules by a parser
-  that accepts only the literal subset those modules use, and never runs them. `./gradlew check` (run in CI) fails
-  if any locked file changes, and `Scripts/sync-tokens --check` re-fetches the pinned packages and compares them
-  (weekly in CI).
-- **Dependencies.** The library's release classpaths are locked in `qeetrix/gradle.lockfile`
-  (strict mode), so a transitive change is a reviewed diff. The Gradle wrapper's distribution is
-  pinned by sha256 and validated in CI. Gradle's dependency *verification* (checksums of every artifact in
-  `gradle/verification-metadata.xml`) was evaluated in Phase 7 and is not enabled: locking already fixes every
-  version an app receives, both repositories are TLS-served with their own checksums, and verification metadata for
-  this build (AGP, Lint, Dokka, Robolectric, Roborazzi and their trees) would run to thousands of entries regenerated
-  on every update. It is recommended once publishing runs from CI, where an unreviewed artifact would be published
-  on.
-- **Bundled resources.** Two font files, four licence texts and the `qx_` strings, loaded only from
-  the app's own resources and assets.
-- **Text input.** Every input keeps what is typed only in the state the app owns (`TextFieldState`, or
-  the value the app passes); the library never logs, stores or sends it.
-- **Passwords and one-time codes.** `QeetrixPasswordInput` is Compose's `BasicSecureTextField`: masked,
-  copy and cut disabled, suggestions off. Neither it nor `QeetrixOTPInput` copies the text, saves it
-  across configuration changes (only the password's visibility is saved) or puts it in any label, description or
-  accessibility text; a test scans every semantics node for it. Like every Android password field, the
-  text is exposed to accessibility services marked as a password; that is the platform's behaviour.
-  Qeetrix reads no SMS, requests no permissions, uses no Play services, stores no credentials and adds
-  no encryption of its own. AutoFill types are set so the user's password manager works; only the app turns AutoFill
-  off, for a secret it should never hold (`autoComplete = Off`). See [Documentation/Standards/FORMS.md](Documentation/Standards/FORMS.md).
-- **Snackbars and dialogs.** Their text is shown on screen and announced aloud; never put a password, a
-  code or another secret in them. A confirmation dialog records a person's choice and authorises nothing:
-  whatever performs the action checks permission. Snackbars end with their screen, so a message never
-  reaches a later one.
-- **Displayed data.** Rows, description lists, timelines, chips and empty states display the values the app
-  passes and nothing else; they log, copy and announce nothing beyond them, and a data state's error
-  shows the app's words or Qeetrix's default ones, never an exception's (its `error` is a Boolean). The search field keeps its query in the app's
-  `TextFieldState` and remembers no history. Qeetrix loads no images and makes no requests, so it sends no
-  credentials; an app's image loader should not attach cookies or authorisation to image URLs implicitly.
-  See [Documentation/Standards/DATA_DISPLAY_AND_COLLECTIONS.md](Documentation/Standards/DATA_DISPLAY_AND_COLLECTIONS.md).
+## 🛡️ Supply chain
 
-- **Publishing.** The build publishes only to a local directory (`build/release-candidate/maven`); it has no
-  remote repository, credential or upload step, and neither do the CI workflows. Publishing to a registry is a
-  separate step the owner approves, with credentials held in a protected GitHub environment
-  ([Documentation/Releases/MAVEN-DISTRIBUTION.md](Documentation/Releases/MAVEN-DISTRIBUTION.md)). The published POM
-  and module metadata name only Google Maven and Maven Central dependencies, at the locked versions, and
-  `Scripts/verify-publication` checks it. A consumer should resolve `com.qeetgroup` only from the approved registry
-  (`exclusiveContent`), as `Integration/Consumer` does.
-- **Release evidence.** `Scripts/release-candidate` records the source revision, the toolchain, the token source,
-  SHA-256 checksums of every published file, an inventory of runtime dependencies with their licences, and a
-  CycloneDX 1.5 SBOM generated from the same locked resolution. Builds are not claimed to be bit-for-bit
-  reproducible.
+Everything the library is built from is pinned, checked and locked:
 
-## Supported versions
+```mermaid
+flowchart LR
+    N["📦 npm packages<br/>@qeetrix/tokens · react · icons"] -->|"integrity hash checked"| S["Scripts/sync-tokens"]
+    S --> L[("Upstream/manifest.lock.json<br/>sha256 of every file")]
+    L --> C{"./gradlew check<br/>on every push"}
+    C -->|"a locked file changed"| F["❌ Build fails"]
+    W["🗓️ Weekly CI job"] -->|"re-fetches and compares"| L
+```
 
-The library has no released versions yet. Only `main` is supported. Once released, security fixes go into a patch
-release of the latest minor version ([RELEASE-POLICY.md](Documentation/Releases/RELEASE-POLICY.md)).
+- **Upstream packages** are pinned by version in `Upstream/manifest.json`. Each bundled font must also match the
+  size, checksum and axes `@qeetrix/tokens` publishes for it.
+- **Dependencies** are locked in `qeetrix/gradle.lockfile` (strict mode), so any change is a reviewed diff. The
+  Gradle wrapper is pinned by checksum and validated in CI.
+- **Gradle dependency verification** (a checksum for every artifact) is not turned on yet. It's recommended once
+  publishing runs from CI.
 
-## Reporting a vulnerability
+## 🔐 Sensitive input and content
 
-This repository is public. Report a vulnerability **privately to a repository administrator**. Do not
-describe it in an issue or a pull request, which anyone can read.
+- **Passwords and one-time codes.** `QeetrixPasswordInput` is masked, with copy, cut and suggestions off. Neither it
+  nor `QeetrixOTPInput` saves the text or puts it in any label or accessibility text, and a test checks this.
+  Password managers still work through AutoFill.
+- **Snackbars and dialogs** are shown on screen and read aloud. Never put a password, code or other secret in them.
+  A confirmation dialog records a choice and authorises nothing: the code that acts must check permission.
+- **Displayed data.** Lists, rows and empty states show only what the app passes. An error state shows the app's
+  words or Qeetrix's defaults, never an exception's message.
 
-Include:
+More detail: [FORMS.md](Documentation/Standards/FORMS.md) and
+[DATA_DISPLAY_AND_COLLECTIONS.md](Documentation/Standards/DATA_DISPLAY_AND_COLLECTIONS.md).
 
-- what you found and its impact;
-- how to reproduce it;
-- the commit you tested.
+## 🚢 Publishing
 
-A dedicated security contact for this repository has not been designated yet. Until one is, reports
-go to the administrators directly.
+- **Builds publish only to a local folder.** The one exception is the Release workflow, which runs when a pull
+  request is merged to `main` and uploads to GitHub Packages.
+- **It waits for an approver** in the protected `maven-publish` environment, and uses the run's own short-lived token;
+  no long-lived credential is stored ([MAVEN-DISTRIBUTION.md](Documentation/Releases/MAVEN-DISTRIBUTION.md)).
+- **It publishes what it verified.** It runs every release gate first, checks the files it sent against the verified
+  checksums, and attests their build provenance (`gh attestation verify`).
+- **Every release candidate** records its source commit, toolchain, SHA-256 checksums of every file, and a CycloneDX
+  SBOM.
+- **Apps should fetch `com.qeetgroup` only from the approved registry** (`exclusiveContent`), as
+  `Integration/Consumer` does.
+
+## 📅 Supported versions
+
+| Version | Security fixes |
+|:--|:--|
+| `main` | ✅ Yes |
+| Released versions | None released yet. Once they are, fixes go into a patch of the latest minor version ([RELEASE-POLICY.md](Documentation/Releases/RELEASE-POLICY.md)). |
+
+## 🚨 Reporting a vulnerability
+
+This repository is public, so **don't report a vulnerability in an issue or a pull request.** Anyone can read those.
+
+1. Contact a **repository administrator** privately.
+2. Say what you found and its impact.
+3. Explain how to reproduce it.
+4. Name the commit you tested.
+
+There is no dedicated security contact for this repository yet. Until there is, reports go to the administrators
+directly.

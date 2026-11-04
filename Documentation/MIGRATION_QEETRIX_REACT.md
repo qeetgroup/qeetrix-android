@@ -297,7 +297,7 @@ reduced-motion rule) and G8 (Android strings, not an upstream gap).
 | B25 | QTRX-177, QTRX-178 | Select options, Menu items and AvatarItem ended in an ellipsis | react 0.4.0: they wrap, the side parts on the first line | Options and items already wrapped; their icon, mark, shortcut, meta and check now stay on the first line; AvatarItem wraps; Q-14 no longer happens and is removed |
 | B26 | QTRX-179 | DescriptionItem's `description` and `action` weren't in 07 | specs list them | Unchanged |
 
-Also recorded for the owner, Android's own and still open: OTP slots at 200 % in a compact phone (Q-15, above). Done in the
+OTP slots at 200 % in a compact phone (Q-15) are settled by B12's rule: a code never goes in a column that narrow. Done in the
 ticket work: paragraphs take their direction from their text in right to left (Q-13, QTRX-199), a long placeholder ends in
 an ellipsis at large text (Q-5, QTRX-197), and the bottom sheet is built on Compose foundation, so Material's 12 dp
 clickable drag-handle row (Q-6) is gone and the sheet moves on `motion.duration.slow` (QTRX-198).

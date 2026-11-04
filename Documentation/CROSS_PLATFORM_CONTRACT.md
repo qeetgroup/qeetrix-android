@@ -273,7 +273,7 @@ Compared through qeetrix-ios's sources and ADR 0015, not side by side on devices
 |:--|:--|
 | Upstream inputs | The four `@qeetrix/ui` files sha256-identical; of 133 icon files both pin, 132 identical — the 133rd is `icons.json`, whose 37 shared entries are identical and which lists Android's two chrome icons (`arrow-left`, `ellipsis-vertical`, below) |
 | Tokens | No value changed in Phase 6; `Scripts/verify-tokens` and `TokenParityTest` pass against the pinned files |
-| Behaviour Android changed | Short labels take their paragraph direction from their text in right-to-left layouts, and a field without a visible label reserves a 48 dp touch height. Both are Android fixes for defects found on Android ([localization](Quality/LOCALIZATION-RTL-REPORT.md) L2, [accessibility](Quality/ACCESSIBILITY-REPORT.md) A1); iOS's behaviour in the same cases was not assessed |
+| Behaviour Android changed | Short labels take their paragraph direction from their text in right-to-left layouts, and a field without a visible label reserves a 48 dp touch height. Both are Android fixes for defects found on Android ([localization](QUALITY.md) L2, [accessibility](QUALITY.md) A1); iOS's behaviour in the same cases was not assessed |
 
 No token difference without a recorded reason: every Android-only token group and icon is in the deliberate
 differences below.

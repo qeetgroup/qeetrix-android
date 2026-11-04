@@ -19,7 +19,7 @@ unverified ground.
 ### Conditions for GO
 
 1. A manual **TalkBack, Switch Access and keyboard** pass on a physical phone, with every P0/P1 finding fixed
-   ([RELEASE-READINESS-GAPS.md](../Quality/RELEASE-READINESS-GAPS.md) G1, G2).
+   ([QUALITY.md](../QUALITY.md#-known-gaps) G1, G2).
 2. `Scripts/release-candidate` re-run from a commit with nothing uncommitted (no `--allow-dirty`). This candidate was
    built from commit `9291aa1` on `develop`, pushed; the two uncommitted entries were an editor settings folder
    (`.vscode/`) and the dependency-inventory fix below, which writes the evidence and does not touch the artifact.

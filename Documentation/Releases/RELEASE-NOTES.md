@@ -58,7 +58,7 @@ counterpart.
 - **Accessibility, automated:** semantics tests for every component; the Accessibility Test Framework over every
   component on Android 16; 48 dp touch areas; no clipped text at 200 % or right to left; WCAG contrast for the colours
   components draw; stillness with animations removed. **Not yet:** a manual TalkBack, Switch Access or keyboard pass
-  ([RELEASE-READINESS-GAPS.md](../Quality/RELEASE-READINESS-GAPS.md)).
+  ([QUALITY.md](../QUALITY.md#-known-gaps)).
 - **Localization:** right-to-left layouts; labels take their direction from their text; locale-aware numbers,
   including Indian grouping and native digits. Built-in strings (85, and one plural) are English; apps override them to translate.
 - **Verified** on an Android 16 phone emulator — every component added for the Android tickets tried one by one in
