@@ -7,6 +7,9 @@ name: Version
 # Want a minor or major release instead? Edit `qeetrix.version` yourself. This workflow only acts while the pull
 # request's version still equals main's, so a version raised by hand is left alone. A breaking API change before 1.0
 # needs a minor (Documentation/Releases/RELEASE-POLICY.md).
+#
+# It never checks out the pull request's code: it reads and writes the one file through the GitHub API, so a token
+# that can push never sits beside untrusted code.
 on:
   pull_request:
     branches: [main]
@@ -32,23 +35,29 @@ jobs:
       contents: write
       actions: write # start CI on the bumped commit (the last step)
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
       - id: bump
         name: Raise the patch unless the version is already raised
         env:
+          GH_TOKEN: ${{ github.token }}
           BASE: ${{ github.base_ref }}
           HEAD_REF: ${{ github.head_ref }}
         run: |
           set -euo pipefail
+          repo="$GITHUB_REPOSITORY"
+          version_at() {
+            gh api "repos/$repo/contents/gradle.properties?ref=$1" --jq .content 2>/dev/null | base64 -d \
+              | sed -n 's/^qeetrix\.version=//p'
+          }
+          tag_exists() { gh api "repos/$repo/git/ref/tags/v$1" > /dev/null 2>&1; }
+
           # A pull request can be merged before this runs; its head is then already in the base branch.
-          if git merge-base --is-ancestor HEAD "origin/$BASE"; then
+          status=$(gh api "repos/$repo/compare/$BASE...$HEAD_REF" --jq .status)
+          if [ "$status" = "identical" ] || [ "$status" = "behind" ]; then
             echo "This pull request's head is already in $BASE. Nothing to raise."; exit 0
           fi
-          current=$(sed -n 's/^qeetrix\.version=//p' gradle.properties)
-          base=$(git show "origin/$BASE:gradle.properties" 2>/dev/null | sed -n 's/^qeetrix\.version=//p' || true)
+
+          current=$(version_at "$HEAD_REF")
+          base=$(version_at "$BASE" || true)
           echo "This pull request: $current"
           echo "$BASE: ${base:-none}"
           if [ -z "$base" ]; then
@@ -60,7 +69,7 @@ jobs:
 
           # The next patch (or, after a release candidate, the next candidate) that has no tag yet.
           next="$base"
-          while git rev-parse -q --verify "refs/tags/v$next" >/dev/null || [ "$next" = "$base" ]; do
+          while tag_exists "$next" || [ "$next" = "$base" ]; do
             if [[ "$next" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-rc\.([0-9]+)$ ]]; then
               next="${BASH_REMATCH[1]}-rc.$((BASH_REMATCH[2] + 1))"
             else
@@ -69,19 +78,20 @@ jobs:
             fi
           done
           echo "Raising $current -> $next"
-          sed -i "s/^qeetrix\.version=.*/qeetrix.version=$next/" gradle.properties
 
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add gradle.properties
-          git commit -m "chore: bump version to $next"
-          git push origin "HEAD:$HEAD_REF"
+          # Commit the one-line change on the pull request's branch. The file's blob SHA makes it fail, rather than
+          # overwrite, if the branch moved meanwhile; the next push runs this again.
+          file=$(gh api "repos/$repo/contents/gradle.properties?ref=$HEAD_REF")
+          sha=$(jq -r .sha <<< "$file")
+          content=$(jq -r .content <<< "$file" | base64 -d | sed "s/^qeetrix\.version=.*/qeetrix.version=$next/" | base64 -w0)
+          gh api -X PUT "repos/$repo/contents/gradle.properties" \
+            -f message="chore: bump version to $next" -f content="$content" -f sha="$sha" -f branch="$HEAD_REF" > /dev/null
           echo "bumped=true" >> "$GITHUB_OUTPUT"
 
-      # A commit pushed with this workflow's token starts no other workflow, so start CI on it explicitly: its result is
-      # what branch protection checks.
+      # A commit made with this workflow's token starts no other workflow, so start CI on it explicitly, device tests
+      # included: its result is what branch protection checks.
       - name: Run CI on the bumped commit
         if: steps.bump.outputs.bumped == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run ci.yml --ref "${{ github.head_ref }}" --repo "${{ github.repository }}"
+        run: gh workflow run ci.yml --ref "${{ github.head_ref }}" --repo "${{ github.repository }}" -f instrumented=true
