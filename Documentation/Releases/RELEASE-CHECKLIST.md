@@ -5,8 +5,10 @@ else is automated and fails loudly. The policy is [RELEASE-POLICY.md](RELEASE-PO
 
 ## 1. Prepare (maintainer)
 
-- [ ] Everything to release is committed; `git status` is clean.
-- [ ] `CHANGELOG.md` has the version's entry: additions, changes, fixes, and **Breaking** with migration steps.
+- [ ] A pull request from `develop` into `main`. `qeetrix.version` in `gradle.properties` is the version to release:
+      `version.yml` raises the patch, and a minor or major is raised by hand.
+- [ ] `CHANGELOG.md` has the version's entry, headed `## [X.Y.Z] — YYYY-MM-DD`: additions, changes, fixes, and
+      **Breaking** with migration steps. The GitHub Release's notes are taken from it.
 - [ ] `Documentation/Releases/RELEASE-NOTES.md` describes this version.
 - [ ] Screenshot baselines are current on the maintainer's machine and every changed image was reviewed.
 - [ ] Two emulators or devices are connected: API 29 and API 36.
@@ -40,18 +42,22 @@ notices, the release notes and every gate's log — and
 ## 3. Review (maintainer, then **Owner**)
 
 - [ ] The evidence shows every gate passed, on a clean revision.
-- [ ] Manual checks still open for this release are listed in the report ([RELEASE-READINESS-GAPS.md](../Quality/RELEASE-READINESS-GAPS.md)).
-- [ ] **Owner:** approves the version, the registry, and the release.
+- [ ] Manual checks still open for this release are listed in the report ([QUALITY.md](../QUALITY.md#-known-gaps)).
+- [ ] **Owner:** approves the pull request into `main`.
 
-## 4. Publish (**Owner** approval required)
+## 4. Release (automated, **Owner** approval required)
 
-- [ ] **Owner:** the registry and its credentials exist in a protected environment ([MAVEN-DISTRIBUTION.md](MAVEN-DISTRIBUTION.md)).
-- [ ] The approved candidate is rebuilt from the same commit with its final version and verified again.
-- [ ] Published once, through the approved workflow.
-- [ ] **Owner:** tags the commit `v<version>` and pushes the tag.
-- [ ] The release notes are published where app teams read them; the ui.qeet.in handoff is passed to the docs team.
+Merging the pull request starts `release.yml` ([MAVEN-DISTRIBUTION.md](MAVEN-DISTRIBUTION.md#publishing)).
+
+- [ ] **Owner, once:** the `maven-publish` environment exists with the owner as a required reviewer.
+- [ ] The gate passes: the version is new, and every release gate passes on the merge commit.
+- [ ] **Owner:** approves the publish job.
+- [ ] The workflow publishes once, checks the files sent against the verified checksums, attests their provenance,
+      tags the commit `vX.Y.Z` and opens the GitHub Release.
+- [ ] The release notes reach app teams, and the docs team is told, with `Documentation/Components/` as the source for
+      ui.qeet.in's Android pages.
 
 ## 5. After
 
 - [ ] An app resolves the published version from the registry (the consumer, pointed at it with `-Pqeetrix.repository`).
-- [ ] A bad release is superseded, never edited ([ROLLBACK-PROCEDURE.md](ROLLBACK-PROCEDURE.md)).
+- [ ] A bad release is withdrawn with `rollback.yml` and superseded, never edited ([ROLLBACK-PROCEDURE.md](ROLLBACK-PROCEDURE.md)).

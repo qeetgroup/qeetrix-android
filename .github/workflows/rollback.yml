@@ -1,0 +1,88 @@
+name: Rollback
+
+# Withdraws a bad release, so app teams stop adopting it and go back to a good one: the Qeetrix rollback flow, for
+# Maven (Documentation/Releases/ROLLBACK-PROCEDURE.md).
+#
+# A published Maven version is immutable and apps pin exact versions, so the bad version is not deleted: deleting it
+# would break every build that already pins it. Instead this makes the good version GitHub's latest release, and marks
+# the bad one withdrawn, with a note pointing to the good one. The fix is then a new patch release.
+#
+# Run it from Actions › Rollback › Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      good:
+        description: "Published version to go back to (e.g. 0.1.0)"
+        required: true
+        type: string
+      bad:
+        description: "Published version to withdraw (e.g. 0.1.1)"
+        required: true
+        type: string
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  rollback:
+    name: Withdraw ${{ inputs.bad }}, back to ${{ inputs.good }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: maven-publish
+    permissions:
+      contents: write # edit the GitHub Releases
+      packages: read
+    steps:
+      - name: Both versions are published
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GOOD: ${{ inputs.good }}
+          BAD: ${{ inputs.bad }}
+        run: |
+          set -uo pipefail
+          [ "$GOOD" != "$BAD" ] || { echo "::error::The good and bad versions are the same."; exit 1; }
+          for v in "$GOOD" "$BAD"; do
+            status=$(curl -s -o /dev/null -w '%{http_code}' -u "$GITHUB_ACTOR:$GH_TOKEN" \
+              "https://maven.pkg.github.com/$GITHUB_REPOSITORY/com/qeetgroup/qeetrix/$v/qeetrix-$v.pom")
+            [ "$status" = "200" ] || { echo "::error::$v is not in GitHub Packages (answered $status)."; exit 1; }
+            gh release view "v$v" --repo "$GITHUB_REPOSITORY" > /dev/null || { echo "::error::No GitHub Release v$v."; exit 1; }
+          done
+
+      - name: Make the good version latest, and mark the bad one withdrawn
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GOOD: ${{ inputs.good }}
+          BAD: ${{ inputs.bad }}
+        run: |
+          set -euo pipefail
+          gh release edit "v$GOOD" --repo "$GITHUB_REPOSITORY" --latest
+          {
+            echo "> [!WARNING]"
+            echo "> **Withdrawn. Do not use this version.** Use \`com.qeetgroup:qeetrix:$GOOD\` instead, until a fixed"
+            echo "> version is released."
+            echo
+            gh release view "v$BAD" --repo "$GITHUB_REPOSITORY" --json body --jq .body
+          } > notes.md
+          gh release edit "v$BAD" --repo "$GITHUB_REPOSITORY" --prerelease --latest=false \
+            --title "v$BAD (withdrawn: use v$GOOD)" --notes-file notes.md
+
+      - name: Summarise
+        env:
+          GOOD: ${{ inputs.good }}
+          BAD: ${{ inputs.bad }}
+        run: |
+          {
+            echo "## Rolled back"
+            echo
+            echo "\`v$BAD\` is marked withdrawn and \`v$GOOD\` is the latest release."
+            echo
+            echo "1. Tell app teams: change \`com.qeetgroup:qeetrix:$BAD\` to \`$GOOD\` and rebuild."
+            echo "2. Fix forward: release a new patch from a commit that fixes the defect."
+            echo "3. Record it in the CHANGELOG under that patch."
+            echo
+            echo "\`$BAD\` stays in GitHub Packages on purpose: deleting it would break builds that pin it."
+          } >> "$GITHUB_STEP_SUMMARY"

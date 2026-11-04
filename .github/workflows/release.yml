@@ -1,0 +1,199 @@
+name: Release
+
+# Publishes com.qeetgroup:qeetrix to GitHub Packages on merge to main, then tags the commit: the Qeetrix release flow
+# (qeetrix-react's decision D-07), for Maven.
+#
+#   1. Open a pull request into main. version.yml raises the patch of `qeetrix.version` in gradle.properties on the
+#      pull request's branch; raise the minor or major by hand.
+#   2. Merge to main. The gate job checks the version is new, then runs every release gate (Scripts/release-candidate).
+#   3. The publish job waits for an approver in the `maven-publish` environment. Once approved it verifies the commit
+#      again, publishes with the run's own short-lived token, checks the files sent are the files verified, attests
+#      their build provenance, then pushes the vX.Y.Z tag and opens a GitHub Release.
+#   4. Bad release? Run rollback.yml. A published Maven version is never replaced: a fix is a new version.
+#
+# Re-running is safe: if the version is already in the registry, nothing is published.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  ANDROID_PLATFORM: "platforms;android-37.0"
+  ANDROID_BUILD_TOOLS: "build-tools;36.0.0"
+
+jobs:
+  gate:
+    name: New version, and every gate passes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      release: ${{ steps.version.outputs.release }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0 # tags must be visible
+          persist-credentials: false
+      - id: version
+        name: Is there anything to release?
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          version=$(sed -n 's/^qeetrix\.version=//p' gradle.properties)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$ ]]; then
+            echo "::error::qeetrix.version '$version' in gradle.properties is not X.Y.Z or X.Y.Z-rc.N."; exit 1
+          fi
+          status=$(curl -s -o /dev/null -w '%{http_code}' -u "$GITHUB_ACTOR:$GH_TOKEN" \
+            "https://maven.pkg.github.com/$GITHUB_REPOSITORY/com/qeetgroup/qeetrix/$version/qeetrix-$version.pom")
+          if [ "$status" = "200" ]; then
+            echo "com.qeetgroup:qeetrix:$version is already published — nothing to do."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          elif [ "$status" != "404" ]; then
+            echo "::error::Could not tell whether $version is published (GitHub Packages answered $status)."; exit 1
+          elif git rev-parse -q --verify "refs/tags/v$version" >/dev/null; then
+            echo "::error::Tag v$version exists but $version is not published. Resolve by hand."; exit 1
+          else
+            echo "com.qeetgroup:qeetrix:$version is new — releasing."
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # GitHub would create a missing environment on the fly, with no approval step: never publish through one.
+      - if: steps.version.outputs.release == 'true'
+        name: The maven-publish environment needs an approver
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          reviewers=$(gh api "repos/$GITHUB_REPOSITORY/environments/maven-publish" \
+            --jq '[.protection_rules[]? | select(.type == "required_reviewers")] | length' 2>/dev/null || echo 0)
+          if [ "${reviewers:-0}" -lt 1 ]; then
+            echo "::error::Create the maven-publish environment with a required reviewer (Settings › Environments) before releasing."
+            exit 1
+          fi
+
+      # The same gates a release candidate passes. Nothing below runs when the version is unchanged.
+      - if: steps.version.outputs.release == 'true'
+        name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+      - if: steps.version.outputs.release == 'true'
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - if: steps.version.outputs.release == 'true'
+        name: Android SDK packages
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$ANDROID_PLATFORM" "$ANDROID_BUILD_TOOLS" platform-tools > /dev/null
+      - if: steps.version.outputs.release == 'true'
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+        with:
+          cache-read-only: true
+      - if: steps.version.outputs.release == 'true'
+        name: Every release gate
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: Scripts/release-candidate "$VERSION"
+
+      - if: steps.version.outputs.release == 'false'
+        name: Report that the version is unchanged
+        run: |
+          {
+            echo "## Nothing to release"
+            echo
+            echo "\`${{ steps.version.outputs.version }}\` is already in GitHub Packages."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    name: Publish ${{ needs.gate.outputs.version }}
+    needs: gate
+    if: needs.gate.outputs.release == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    # Required reviewer: nothing reaches the registry until an approver approves this job.
+    environment: maven-publish
+    permissions:
+      contents: write # push the version tag and create the release
+      packages: write # publish to GitHub Packages
+      id-token: write # build provenance
+      attestations: write
+    env:
+      VERSION: ${{ needs.gate.outputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Android SDK packages
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$ANDROID_PLATFORM" "$ANDROID_BUILD_TOOLS" platform-tools > /dev/null
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+        with:
+          cache-read-only: true
+
+      # Builds are not bit-for-bit reproducible across machines, so this job verifies the build it publishes.
+      - name: Verify this build (every release gate; publishes to build/release-candidate/maven only)
+        run: Scripts/release-candidate "$VERSION"
+      - name: Publish to GitHub Packages
+        env:
+          ORG_GRADLE_PROJECT_registryUsername: ${{ github.actor }}
+          ORG_GRADLE_PROJECT_registryPassword: ${{ secrets.GITHUB_TOKEN }}
+        # The same publication goes to the local repository again, so the next step can compare what was sent.
+        run: >-
+          ./gradlew --console=plain
+          :qeetrix:publishReleasePublicationToRegistryRepository
+          :qeetrix:publishReleasePublicationToReleaseCandidateRepository
+          -Pqeetrix.version="$VERSION"
+          -Pqeetrix.registry.url="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
+      - name: The files sent are the files verified
+        run: (cd build/release-candidate/maven && shasum -a 256 -c ../evidence/SHA256SUMS)
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            build/release-candidate/maven/com/qeetgroup/qeetrix/${{ env.VERSION }}/qeetrix-${{ env.VERSION }}.aar
+            build/release-candidate/maven/com/qeetgroup/qeetrix/${{ env.VERSION }}/qeetrix-${{ env.VERSION }}-sources.jar
+            build/release-candidate/maven/com/qeetgroup/qeetrix/${{ env.VERSION }}/qeetrix-${{ env.VERSION }}.pom
+            build/release-candidate/maven/com/qeetgroup/qeetrix/${{ env.VERSION }}/qeetrix-${{ env.VERSION }}.module
+
+      # Tag AFTER a successful publish, so every tag is a version that shipped.
+      - name: Tag the release and open a GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+
+          # The release notes are the version's CHANGELOG entry ("## [X.Y.Z] — date"), or GitHub's generated notes.
+          awk -v v="[$VERSION]" '/^## /{on = index($0, v) > 0; next} on' CHANGELOG.md > notes.md
+          dir="build/release-candidate/maven/com/qeetgroup/qeetrix/$VERSION"
+          flags=()
+          [[ "$VERSION" == *-rc.* ]] && flags+=(--prerelease)
+          if [ -s notes.md ]; then flags+=(--notes-file notes.md); else flags+=(--generate-notes); fi
+          gh release create "v$VERSION" --verify-tag --title "v$VERSION" "${flags[@]}" \
+            "$dir/qeetrix-$VERSION.aar" "$dir/qeetrix-$VERSION-sources.jar" "$dir/qeetrix-$VERSION.pom" \
+            "build/release-candidate/evidence/qeetrix-$VERSION.cdx.json" "build/release-candidate/evidence/SHA256SUMS"
+      - name: Version and evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-${{ env.VERSION }}
+          path: build/release-candidate/
+          retention-days: 90

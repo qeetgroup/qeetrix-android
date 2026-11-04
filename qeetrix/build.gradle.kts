@@ -23,11 +23,11 @@ plugins {
     `maven-publish`
 }
 
-// Maven coordinates com.qeetgroup:qeetrix (Documentation/Decisions/0018-maven-distribution.md). The version is a
-// development snapshot unless a release-candidate build passes one (`-Pqeetrix.version=…`, Scripts/release-candidate);
-// no version is final until the owner approves it.
+// Maven coordinates com.qeetgroup:qeetrix (Documentation/Decisions/0018-maven-distribution.md). The version is
+// `qeetrix.version` in gradle.properties, the one the next release publishes; a release-candidate trial passes its own
+// (`-Pqeetrix.version=…`, Scripts/release-candidate). Only the Release workflow publishes, after the owner approves.
 group = "com.qeetgroup"
-version = providers.gradleProperty("qeetrix.version").getOrElse("0.1.0-SNAPSHOT")
+version = providers.gradleProperty("qeetrix.version").get()
 
 android {
     namespace = "com.qeetgroup.qeetrix"
@@ -150,9 +150,9 @@ configurations.matching { it.name == "releaseCompileClasspath" || it.name == "re
     resolutionStrategy.activateDependencyLocking()
 }
 
-// The Maven publication (Documentation/Releases/MAVEN-DISTRIBUTION.md). Its only repository is a local directory a
-// release-candidate build fills and an independent consumer resolves from; no remote repository is configured, so
-// nothing can be uploaded from this build.
+// The Maven publication (Documentation/Releases/MAVEN-DISTRIBUTION.md). Its repository is a local directory a
+// release-candidate build fills and an independent consumer resolves from. The registry below exists only in the
+// Release workflow, which runs on merge to main after an approver approves it, so a local build uploads nothing.
 publishing {
     publications {
         register<MavenPublication>("release") {
@@ -195,6 +195,16 @@ publishing {
         maven {
             name = "releaseCandidate"
             url = uri(rootProject.layout.buildDirectory.dir("release-candidate/maven"))
+        }
+        // The registry, only when the Release workflow names one (-Pqeetrix.registry.url). Its credentials are the
+        // Gradle properties registryUsername and registryPassword, which the workflow sets from its own token; they are
+        // never in this repository (Documentation/Releases/MAVEN-DISTRIBUTION.md).
+        providers.gradleProperty("qeetrix.registry.url").orNull?.let { registryUrl ->
+            maven {
+                name = "registry"
+                url = uri(registryUrl)
+                credentials(PasswordCredentials::class)
+            }
         }
     }
 }
