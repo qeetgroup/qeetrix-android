@@ -6,7 +6,10 @@ describes.
 
 ## [Unreleased]
 
-A source-breaking change, which before 1.0 takes a minor release ([docs/releases.md](docs/releases.md)): 0.3.0.
+## [0.3.0] — 2026-11-08
+
+A source-breaking change, which before 1.0 takes a minor release ([docs/releases.md](docs/releases.md)). Built from
+`@qeetrix/react` 0.5.1, `@qeetrix/tokens` 0.0.15 and `@qeetrix/icons` 2.1.2.
 
 ### ⚠️ Breaking
 
