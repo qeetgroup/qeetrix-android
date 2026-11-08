@@ -69,6 +69,8 @@ public class QeetrixColors internal constructor(
     public val bgBrandBoldPressed: Color,
     /** `color.bg.danger.subtle` */
     public val bgDangerSubtle: Color,
+    /** `color.bg.danger.subtle-pressed` */
+    public val bgDangerSubtlePressed: Color,
     /** `color.bg.danger.bold` */
     public val bgDangerBold: Color,
     /** `color.bg.danger.bold-hover` */
@@ -281,6 +283,7 @@ public class QeetrixColors internal constructor(
             bgBrandBoldHover,
             bgBrandBoldPressed,
             bgDangerSubtle,
+            bgDangerSubtlePressed,
             bgDangerBold,
             bgDangerBoldHover,
             bgDangerBoldPressed,

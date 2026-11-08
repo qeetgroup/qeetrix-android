@@ -1214,6 +1214,7 @@ public final class com/qeetgroup/qeetrix/foundation/color/QeetrixColors {
 	public final fun getBgDangerBoldHover-0d7_KjU ()J
 	public final fun getBgDangerBoldPressed-0d7_KjU ()J
 	public final fun getBgDangerSubtle-0d7_KjU ()J
+	public final fun getBgDangerSubtlePressed-0d7_KjU ()J
 	public final fun getBgDisabled-0d7_KjU ()J
 	public final fun getBgInfoBold-0d7_KjU ()J
 	public final fun getBgInfoSubtle-0d7_KjU ()J

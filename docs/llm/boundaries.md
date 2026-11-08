@@ -20,7 +20,7 @@ and sample pages, and the release of `com.qeetgroup:qeetrix` to GitHub Packages.
 
 ## Consumes
 
-`@qeetrix/tokens` 0.0.13, `@qeetrix/react` 0.4.0 and `@qeetrix/icons` 2.1.0, pinned and integrity-checked in
+`@qeetrix/tokens` 0.0.15, `@qeetrix/react` 0.5.1 and `@qeetrix/icons` 2.1.2, pinned and integrity-checked in
 `Upstream/`.
 
 ## Rules that the build enforces

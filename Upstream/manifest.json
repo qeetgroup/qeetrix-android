@@ -2,7 +2,7 @@
   "$comment": "What qeetrix-android is built from: the npm-published @qeetrix/tokens, @qeetrix/react and @qeetrix/icons, the same pins as qeetrix-ios, with Android destinations. Edit a pin, then run Scripts/sync-tokens: it fetches these exact tarballs, checks each against the registry's integrity hash, takes the TrueType fonts @qeetrix/tokens ships for native platforms (checked against its fonts/native.json) and rewrites Upstream/manifest.lock.json. Nothing else in Upstream/ is edited by hand. Repository paths are relative to the repository root; package paths are inside the npm tarball.",
   "qeetrixTokens": {
     "package": "@qeetrix/tokens",
-    "version": "0.0.13",
+    "version": "0.0.15",
     "dtcg": "package/dist/dtcg",
     "destination": "Upstream/qeetrix-tokens/dtcg",
     "componentTokens": [
@@ -12,7 +12,7 @@
   },
   "qeetrixReact": {
     "package": "@qeetrix/react",
-    "version": "0.4.0",
+    "version": "0.5.1",
     "manifest": "package/dist/manifest.json",
     "manifestDestination": "Upstream/qeetrix-react/component-manifest.json",
     "css": "package/dist/css",
@@ -107,7 +107,7 @@
   "nativeFonts": "package/dist/fonts/native.json",
   "qeetrixIcons": {
     "package": "@qeetrix/icons",
-    "version": "2.1.0",
+    "version": "2.1.2",
     "manifest": "package/dist/manifest.json",
     "svg": "package/dist/svg",
     "license": "package/LICENSE",

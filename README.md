@@ -7,7 +7,7 @@
 [![Android](https://img.shields.io/badge/Android-API%2029%2B-3DDC84?logo=android&logoColor=white)](#-getting-started)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4.21-7F52FF?logo=kotlin&logoColor=white)](#-getting-started)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-1.12.1-4285F4?logo=jetpackcompose&logoColor=white)](#-getting-started)
-[![@qeetrix/react](https://img.shields.io/badge/%40qeetrix%2Freact-0.4.0-D04800)](Upstream/manifest.json)
+[![@qeetrix/react](https://img.shields.io/badge/%40qeetrix%2Freact-0.5.1-D04800)](Upstream/manifest.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Release](https://img.shields.io/badge/release-0.1.0-2EA043)](https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.1.0)
 

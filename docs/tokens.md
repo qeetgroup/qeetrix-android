@@ -2,9 +2,9 @@
 
 # Token coverage
 
-Source: `@qeetrix/tokens@0.0.13` (git `4483f96`), its DTCG build resolved as `qeetrix.resolver.json` says: colour schemes `light`, `dark` at the `default` density, and densities `default`, `comfortable`, `compact`.
+Source: `@qeetrix/tokens@0.0.15` (git `3826870`), its DTCG build resolved as `qeetrix.resolver.json` says: colour schemes `light`, `dark` at the `default` density, and densities `default`, `comfortable`, `compact`.
 
-202 tokens are generated as Kotlin; 137 are not. The rule is in
+204 tokens are generated as Kotlin; 140 are not. The rule is in
 [`Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt`](../Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt);
 every value, with the DTCG token it came from, is in [token-values.json](token-values.json).
 
@@ -15,6 +15,7 @@ every value, with the DTCG token it came from, is in [token-values.json](token-v
 | `font.family.heading` | `internal: the font of the typography roles that use it` |
 | `font.family.sans` | `internal: the font of the typography roles that use it` |
 | `font.family.mono` | `internal: the font of the typography roles that use it` |
+| `font.family.text` | `internal: the font of the typography roles that use it` |
 | `font.geometry.display` | `QeetrixFontGeometry.Display` |
 | `font.geometry.heading` | `QeetrixFontGeometry.Heading` |
 | `font.geometry.body` | `QeetrixFontGeometry.Body` |
@@ -114,6 +115,7 @@ every value, with the DTCG token it came from, is in [token-values.json](token-v
 | `color.bg.brand.bold-hover` | `QeetrixTheme.colors.bgBrandBoldHover` |
 | `color.bg.brand.bold-pressed` | `QeetrixTheme.colors.bgBrandBoldPressed` |
 | `color.bg.danger.subtle` | `QeetrixTheme.colors.bgDangerSubtle` |
+| `color.bg.danger.subtle-pressed` | `QeetrixTheme.colors.bgDangerSubtlePressed` |
 | `color.bg.danger.bold` | `QeetrixTheme.colors.bgDangerBold` |
 | `color.bg.danger.bold-hover` | `QeetrixTheme.colors.bgDangerBoldHover` |
 | `color.bg.danger.bold-pressed` | `QeetrixTheme.colors.bgDangerBoldPressed` |
@@ -219,8 +221,9 @@ every value, with the DTCG token it came from, is in [token-values.json](token-v
 
 | Reason | Tokens | Examples |
 |:--|--:|:--|
-| Primitive (`primitive.*`): private to @qeetrix/tokens and not published as CSS. Semantic tokens carry the decision; product code never reads a raw palette or scale value. | 122 | `primitive.color.graphite.0`, `primitive.color.graphite.25`, `primitive.color.graphite.50`, … |
+| Primitive (`primitive.*`): private to @qeetrix/tokens and not published as CSS. Semantic tokens carry the decision; product code never reads a raw palette or scale value. | 124 | `primitive.color.graphite.0`, `primitive.color.graphite.25`, `primitive.color.graphite.50`, … |
 | A Noto stack for Indian scripts. Qeet Sans has no Indic glyphs and Android already draws them in its system Noto fonts, character by character, so nothing is bundled for it. | 1 | `font.family.indic` |
+| Noto Sans JP and SC with the platforms' Japanese and Chinese fonts. Android already draws Japanese and Chinese in its system Noto CJK fonts, character by character, so nothing is bundled for it. | 1 | `font.family.cjk` |
 | Web stacking order. Compose zIndex only orders siblings and overlays are separate windows, so a global scale has no meaning (the package says z-index is web-only). | 10 | `z.base`, `z.sticky`, `z.dropdown`, … |
 | Component tokens for a component Android does not implement. Adopted groups are listed in Upstream/manifest.json. | 4 | `component.tour.card-width`, `component.tour.offset`, `component.tour.spotlight-padding`, … |
 

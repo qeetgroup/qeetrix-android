@@ -2,6 +2,7 @@
 @import "../base.css";
 @import "../state.css";
 @import "../avatar.css";
+@import "../visually-hidden.css";
 
 @layer qx.components {
   .qx-avatar-item {
@@ -23,7 +24,7 @@
   
   .qx-avatar-item-name {
     font: var(--qx-typography-label-md);
-    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+    font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
     line-height: calc(var(--qx-typography-body-sm-font-size) *
       var(--qx-typography-body-sm-line-height));
     color: var(--qx-color-text-default);
@@ -31,7 +32,7 @@
   
   .qx-avatar-item-description {
     font: var(--qx-typography-body-sm);
-    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+    font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
     color: var(--qx-color-text-subtle);
   }
 }

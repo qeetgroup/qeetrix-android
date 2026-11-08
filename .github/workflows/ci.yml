@@ -1,14 +1,16 @@
 name: CI
 
-# Pull requests are checked once, and main again after each merge; a push to develop is covered by its pull request.
-# The device tests (two emulators, the slow part) run on pull requests into main and on main; everyday pull requests
-# into develop run the fast checks.
+# On develop only: every push to it and every pull request into it. A develop → main pull request is checked by
+# develop's run on the same commit, and main isn't checked again after the merge: main requires these checks on an
+# up-to-date branch, so what's merged is exactly what passed here. The device tests (two emulators, the slow part)
+# run on every push to develop and on request; pull requests into develop run the fast checks.
 on:
   push:
-    branches: [main]
+    branches: [develop]
   pull_request:
+    branches: [develop]
   schedule:
-    # Weekly: confirm the pinned upstream artifacts still match the lock.
+    # Weekly, on develop: confirm the pinned upstream artifacts still match the lock.
     - cron: "0 6 * * 1"
   workflow_dispatch:
     inputs:
@@ -36,6 +38,8 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'develop' || '' }} # the scheduled run checks develop too
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
@@ -46,8 +50,8 @@ jobs:
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$ANDROID_PLATFORM" "$ANDROID_BUILD_TOOLS" platform-tools > /dev/null
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
-          # Pull requests read the cache; only main writes it.
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+          # Pull requests read the cache; runs on develop write it, and the weekly run writes the copy every branch reads.
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
       # Lint, ktlint, every JVM test (behaviour, accessibility semantics, Compose UI), the generator's tests and drift
       # check, the public API check, and test coverage (fails below 92 % of lines).
       - name: Lint and tests
@@ -77,6 +81,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'develop' || '' }} # the scheduled run checks develop too
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
@@ -87,7 +93,7 @@ jobs:
       - name: Re-fetch the pinned artifacts and compare them with the lock (network)
         run: ./gradlew -p Tools/QeetrixGen run --args="sync --root $GITHUB_WORKSPACE --check"
 
-  # On every push and pull request (and on demand): the device-only checks — Back on popups and stacked overlays,
+  # On every push to develop (and on demand): the device-only checks — Back on popups and stacked overlays,
   # the Accessibility Test Framework over every component, number formats under Android's ICU, a long keyed list —
   # on the minimum supported API level and on API 36, the level the accessibility checks were verified to run on
   # (they are left out below it: docs/decisions.md).
@@ -95,7 +101,6 @@ jobs:
     name: Device tests on API ${{ matrix.api-level }}
     if: >-
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && github.base_ref == 'main') ||
       (github.event_name == 'workflow_dispatch' && inputs.instrumented)
     runs-on: ubuntu-24.04
     timeout-minutes: 60

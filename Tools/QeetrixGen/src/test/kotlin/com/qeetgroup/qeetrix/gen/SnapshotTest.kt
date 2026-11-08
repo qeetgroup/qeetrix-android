@@ -28,16 +28,17 @@ class SnapshotTest {
 
     @Test
     fun everyUpstreamTokenIsDecided() {
-        // Every token of @qeetrix/tokens 0.0.13 is decided: 122 primitives (0.0.13 adds qeet.650), 10 z-index steps,
-        // the Indic stack and the 4 unadopted component tokens are excluded; with sidebar and timeline adopted, 202
-        // are generated.
-        assertEquals(202, model.included.size)
-        assertEquals(137, model.excluded.size)
+        // Every token of @qeetrix/tokens 0.0.15 is decided: 124 primitives (0.0.13 adds qeet.650, 0.0.14 the
+        // multilingual and CJK stacks), 10 z-index steps, the Indic and CJK stacks and the 4 unadopted component
+        // tokens are excluded; with sidebar and timeline adopted, 204 are generated (0.0.14 adds
+        // bg.danger.subtle-pressed and font.family.text).
+        assertEquals(204, model.included.size)
+        assertEquals(140, model.excluded.size)
         assertEquals(listOf("light", "dark"), model.themes)
         assertEquals(listOf("default", "comfortable", "compact"), model.densities)
         assertEquals("default", model.defaultDensity)
         val foundations = Snapshot.model(emptySet())
-        assertEquals(198, foundations.included.size)
+        assertEquals(200, foundations.included.size)
     }
 
     @Test

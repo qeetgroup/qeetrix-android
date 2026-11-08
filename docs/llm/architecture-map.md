@@ -49,6 +49,6 @@
 | Sync, generate, verify tokens | `Scripts/sync-tokens`, `Scripts/generate-tokens`, `Scripts/verify-tokens` |
 | Every release gate | `Scripts/release-candidate` |
 | Check the AAR and the publication | `Scripts/verify-aar`, `Scripts/verify-publication` |
-| CI | `.github/workflows/ci.yml` (build and test; device tests toward `main`) |
+| CI | `.github/workflows/ci.yml` (on develop: build and test; device tests on every push) |
 | Release | `.github/workflows/version.yml`, `release.yml`, `rollback.yml` |
 | Code scanning, updates | `.github/workflows/codeql.yml`, `.github/dependabot.yml` |

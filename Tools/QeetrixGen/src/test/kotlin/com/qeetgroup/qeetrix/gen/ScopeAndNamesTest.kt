@@ -16,6 +16,7 @@ class ScopeAndNamesTest {
         assertEquals(ScopeDecision.Include(TokenKind.SHADOW), Scope.decide(listOf("shadow", "overlay")))
         assertEquals(ScopeDecision.Include(TokenKind.NUMBER), Scope.decide(listOf("motion", "spring", "snappy", "stiffness")))
         assertTrue(Scope.decide(listOf("font", "family", "indic")) is ScopeDecision.Exclude)
+        assertTrue(Scope.decide(listOf("font", "family", "cjk")) is ScopeDecision.Exclude)
         assertTrue(Scope.decide(listOf("z", "modal")) is ScopeDecision.Exclude)
         assertEquals(ScopeDecision.Exclude(Scope.UNADOPTED_COMPONENT_REASON), Scope.decide(listOf("component", "tour", "offset")))
         assertEquals(

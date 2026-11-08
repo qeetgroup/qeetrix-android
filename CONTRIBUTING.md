@@ -20,16 +20,18 @@ Open the repository root in Android Studio, or check that everything works from 
 
 ```mermaid
 flowchart LR
-    A["🌿 Branch"] --> B["✍️ Change<br/>with a test"]
+    A["🌿 Branch from develop"] --> B["✍️ Change<br/>with a test"]
     B --> C["./gradlew check"]
     C -- "draws differently?" --> D["📸 Verify or record<br/>the screenshots"]
-    C --> E["📬 Pull request<br/>with the template"]
+    C --> E["📬 Pull request into develop<br/>with the template"]
     D --> E
     E --> F["🤖 CI passes"]
     F --> G["👀 Review"]
     G --> H["✅ Merge"]
 ```
 
+- **Pull requests go into `develop`.** Only `develop` goes into `main`, through a `develop` → `main` pull request the
+  maintainer opens; `main` refuses anything else.
 - **One topic per pull request.** Fill in the template's checklist.
 - **A maintainer reviews** changes to the public API, the generator's scope rules or a dependency. Anything
   structural also needs a [decision record](docs/decisions.md).
@@ -117,15 +119,16 @@ Like every Qeetrix package, **merging to `main` releases the version in `gradle.
 
 ```mermaid
 flowchart LR
-    A["📬 Pull request<br/>develop → main"] --> B["version.yml<br/>raises the patch"]
+    A["⬆️ Raise the version<br/>on develop"] --> B["📬 Pull request<br/>develop → main"]
     B --> C["✅ Merge"]
-    C --> D["release.yml<br/>every gate"]
+    C --> D["release.yml<br/>new version?"]
     D --> E{"👤 Approve"}
     E --> F["📦 GitHub Packages<br/>🏷️ tag and release"]
 ```
 
-- **The version is in the pull request's diff.** `version.yml` raises the patch when the library changes; raise the
-  minor or major by hand. Docs, tests and CI changes need no new version, and merging them publishes nothing.
+- **The version is in the pull request's diff.** When the library changes, raise `qeetrix.version` on develop (the next
+  patch, or a minor or major) before the develop → main pull request; its Version check fails until it's raised. Docs,
+  tests and CI changes need no new version, and merging them publishes nothing.
 - **The CHANGELOG entry** (`## [X.Y.Z] — YYYY-MM-DD`) becomes the GitHub Release's notes.
 - **A bad release** is withdrawn with **Actions › Rollback**, and the fix is a new version.
 
