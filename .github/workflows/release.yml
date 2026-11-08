@@ -3,11 +3,12 @@ name: Release
 # Publishes com.qeetgroup:qeetrix to GitHub Packages on merge to main, then tags the commit: the Qeetrix release flow
 # (qeetrix-react's decision D-07), for Maven.
 #
-#   1. Open a pull request into main. version.yml raises the patch of `qeetrix.version` in gradle.properties on the
-#      pull request's branch; raise the minor or major by hand.
-#   2. Merge to main. The gate job checks the version is new, then runs every release gate (Scripts/release-candidate).
-#   3. The publish job waits for an approver in the `maven-publish` environment. Once approved it verifies the commit
-#      again, publishes with the run's own short-lived token, checks the files sent are the files verified, attests
+#   1. Raise `qeetrix.version` in gradle.properties on develop when the library changes, then open the develop → main
+#      pull request; its Version check fails until it's raised.
+#   2. Merge to main. The gate job checks the version is new and that `maven-publish` has an approver. It runs no
+#      checks: they passed in develop's CI on this commit.
+#   3. The publish job waits for an approver in the `maven-publish` environment. Once approved it builds and verifies
+#      the artifacts (Scripts/release-candidate --tested), publishes with the run's own short-lived token, checks the files sent are the files verified, attests
 #      their build provenance, then pushes the vX.Y.Z tag and opens a GitHub Release.
 #   4. Bad release? Run rollback.yml. A published Maven version is never replaced: a fix is a new version.
 #
@@ -30,7 +31,7 @@ env:
 
 jobs:
   gate:
-    name: New version, and every gate passes
+    name: New version
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
@@ -84,27 +85,8 @@ jobs:
             exit 1
           fi
 
-      # The same gates a release candidate passes. Nothing below runs when the version is unchanged.
-      - if: steps.version.outputs.release == 'true'
-        name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
-      - if: steps.version.outputs.release == 'true'
-        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
-        with:
-          distribution: temurin
-          java-version: "21"
-      - if: steps.version.outputs.release == 'true'
-        name: Android SDK packages
-        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$ANDROID_PLATFORM" "$ANDROID_BUILD_TOOLS" platform-tools > /dev/null
-      - if: steps.version.outputs.release == 'true'
-        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
-        with:
-          cache-read-only: true
-      - if: steps.version.outputs.release == 'true'
-        name: Every release gate
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: Scripts/release-candidate "$VERSION"
+      # No gate runs here: develop's CI already passed every one on this commit (main takes develop only, on an
+      # up-to-date branch). The publish job builds and verifies the artifacts it sends.
 
       - if: steps.version.outputs.release == 'false'
         name: Report that the version is unchanged
@@ -146,9 +128,10 @@ jobs:
         with:
           cache-read-only: true
 
-      # Builds are not bit-for-bit reproducible across machines, so this job verifies the build it publishes.
-      - name: Verify this build (every release gate; publishes to build/release-candidate/maven only)
-        run: Scripts/release-candidate "$VERSION"
+      # Builds are not bit-for-bit reproducible across machines, so this job verifies the build it publishes: every
+      # artifact gate (AAR, publication, licences, SBOM). Lint and tests passed in develop's CI on this commit.
+      - name: Build and verify the artifacts (publishes to build/release-candidate/maven only)
+        run: Scripts/release-candidate "$VERSION" --tested
       - name: Publish to GitHub Packages
         env:
           ORG_GRADLE_PROJECT_registryUsername: ${{ github.actor }}

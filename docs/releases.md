@@ -22,22 +22,23 @@ Like every Qeetrix package, **merging to `main` releases the version in `gradle.
 
 ```mermaid
 flowchart LR
-    A["📬 Pull request<br/>develop → main"] --> B["version.yml<br/>raises the patch"]
+    A["⬆️ Raise the version<br/>on develop"] --> B["📬 Pull request<br/>develop → main"]
     B --> C["✅ Merge"]
-    C --> D["release.yml gate<br/>new version? every gate"]
+    C --> D["release.yml gate<br/>new version?"]
     D --> E{"👤 Approver<br/>maven-publish"}
     E --> F["📦 GitHub Packages"]
     F --> G["🏷️ Tag vX.Y.Z<br/>and GitHub Release"]
 ```
 
-1. **Pull request into `main`.** `version.yml` raises the patch of `qeetrix.version` when the pull request changes what
-   ships (the library's code and resources, its build and dependencies, or `Upstream/`); raise the minor or major by
-   hand. A docs, tests or CI change needs no new version: merging it publishes nothing.
+1. **Raise the version, then the pull request into `main`.** When a change ships (the library's code and resources, its
+   build and dependencies, or `Upstream/`), raise `qeetrix.version` on develop: the next patch, or a minor or major.
+   The pull request's Version check fails until it's raised. A docs, tests or CI change needs no new version: merging it publishes nothing.
    Date the CHANGELOG entry (`## [X.Y.Z] — YYYY-MM-DD`): it becomes the GitHub Release's notes.
-2. **Merge.** `release.yml` checks the version is new and that `maven-publish` has a required reviewer, then runs every
-   release gate (`Scripts/release-candidate`). `main`'s protection already required CI and the device tests.
+2. **Merge.** `release.yml` checks the version is new and that `maven-publish` has a required reviewer. It runs no
+   checks: `main`'s protection already required CI and the device tests, on develop, on the commit merged.
 3. **Approve.** The publish job waits for an approver: **Actions › Release › Review deployments › Approve**.
-4. **Publish.** It verifies the commit again, publishes with the run's own short-lived token, checks the files sent
+4. **Publish.** It builds and verifies the artifacts (`Scripts/release-candidate --tested`: the AAR, the publication,
+   the licences, the SBOM), publishes with the run's own short-lived token, checks the files sent
    against the verified checksums, and attests their build provenance.
 5. **Tag and release.** Only after a successful publish: the `vX.Y.Z` tag and a GitHub Release with the AAR, sources,
    POM, SBOM and checksums attached. A `-rc.N` version is marked as a pre-release.

@@ -36,11 +36,11 @@ JDK 17 or newer, and the Android SDK with platform 37 (`ANDROID_HOME` or `local.
 ## Release
 
 ```text
-1  pull request develop → main; version.yml raises the patch if the library changed (docs-only: no new version)
+1  raise qeetrix.version on develop if the library changed (docs-only: no new version); pull request develop → main
 2  date the CHANGELOG entry: ## [X.Y.Z] — YYYY-MM-DD
-3  merge; release.yml runs every gate
+3  merge; release.yml checks the version (no gate runs again: they passed in develop's CI)
 4  approve: Actions › Release › Review deployments › Approve
-5  it publishes to GitHub Packages, then tags vX.Y.Z and opens the GitHub Release
+5  it builds and verifies the artifacts, publishes to GitHub Packages, then tags vX.Y.Z and opens the GitHub Release
 ```
 
 A bad release: **Actions › Rollback**, then a new patch. Details: [../releases.md](../releases.md).

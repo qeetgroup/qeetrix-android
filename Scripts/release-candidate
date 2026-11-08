@@ -2,13 +2,15 @@
 # Build and verify a Qeetrix release candidate, end to end, without publishing anything remotely
 # (docs/releases.md). Every gate must pass; the first failure stops the run with status 1.
 #
-#   Scripts/release-candidate <version> [--devices] [--allow-dirty]
+#   Scripts/release-candidate <version> [--devices] [--allow-dirty] [--tested]
 #
 #   <version>      0.1.0-rc.1 and the like (X.Y.Z, optionally -alpha.N, -beta.N or -rc.N). A final X.Y.Z still needs
 #                  the owner's approval before it is published anywhere; this script only builds it.
 #   --devices      also run the library's device tests on every connected device or emulator.
 #   --allow-dirty  build from a working tree with uncommitted changes (recorded in the provenance; never for a
 #                  release that will be published).
+#   --tested       the commit already passed CI's lint and tests (the Release workflow: main takes develop only,
+#                  on an up-to-date branch), so the check gate only builds; every artifact gate still runs.
 #
 # Output, in build/release-candidate/: maven/ (the local repository),
 # qeetrix-<version>-maven.zip (that repository, for review), evidence/ (provenance, checksums, dependency inventory,
@@ -20,15 +22,17 @@ cd "$root"
 version=${1:-}
 devices=false
 allow_dirty=false
+tested=false
 for arg in "${@:2}"; do
     case $arg in
     --devices) devices=true ;;
     --allow-dirty) allow_dirty=true ;;
+    --tested) tested=true ;;
     *) echo "error: unknown option $arg" >&2; exit 2 ;;
     esac
 done
 if ! [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.[0-9]+)?$ ]]; then
-    echo "usage: Scripts/release-candidate <X.Y.Z[-rc.N]> [--devices] [--allow-dirty]" >&2
+    echo "usage: Scripts/release-candidate <X.Y.Z[-rc.N]> [--devices] [--allow-dirty] [--tested]" >&2
     exit 2
 fi
 
@@ -68,7 +72,11 @@ tree_digest=$(git ls-files -c -o --exclude-standard -z | sort -z \
 
 # 2–15. Tokens, tests, lint, formatting, the API baseline, the AAR, the API reference and the minified sample.
 gate tokens Scripts/verify-tokens
-gate check ./gradlew --console=plain check :qeetrix:assembleRelease :qeetrix:dokkaGenerate :sample:assembleRelease
+if [ "$tested" = true ]; then
+    gate build ./gradlew --console=plain :qeetrix:assembleRelease :qeetrix:dokkaGenerate :sample:assembleRelease
+else
+    gate check ./gradlew --console=plain check :qeetrix:assembleRelease :qeetrix:dokkaGenerate :sample:assembleRelease
+fi
 gate aar Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
 if compgen -G "qeetrix/src/test/screenshots/*/*.png" > /dev/null; then
     gate screenshots ./gradlew --console=plain :qeetrix:verifyRoborazziDebug
