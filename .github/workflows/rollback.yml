@@ -48,7 +48,8 @@ jobs:
           for v in "$GOOD" "$BAD"; do
             status=$(curl -s -o /dev/null -w '%{http_code}' -u "$GITHUB_ACTOR:$GH_TOKEN" \
               "https://maven.pkg.github.com/$GITHUB_REPOSITORY/com/qeetgroup/qeetrix/$v/qeetrix-$v.pom")
-            [ "$status" = "200" ] || { echo "::error::$v is not in GitHub Packages (answered $status)."; exit 1; }
+            # A published file answers with a redirect to its storage (302), or the file itself (200).
+            [ "$status" = "200" ] || [ "$status" = "302" ] || { echo "::error::$v is not in GitHub Packages (answered $status)."; exit 1; }
             gh release view "v$v" --repo "$GITHUB_REPOSITORY" > /dev/null || { echo "::error::No GitHub Release v$v."; exit 1; }
           done
 

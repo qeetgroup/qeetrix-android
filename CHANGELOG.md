@@ -6,6 +6,10 @@ describes.
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-11-08
+
+Additions, a minor release ([docs/releases.md](docs/releases.md)).
+
 ### ✨ Added
 
 - **29 icons** in `QeetrixIconName`, for the native Qeet ID app and to carry the same 88 names as Qeetrix for iOS:
@@ -169,5 +173,6 @@ Neither candidate was published.
 
 The phase-by-phase notes from before 4 November 2026 are in the git history (`git log -p -- CHANGELOG.md`).
 
-[Unreleased]: https://github.com/qeetgroup/qeetrix-android/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/qeetgroup/qeetrix-android/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.2.0
 [0.1.0]: https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.1.0
