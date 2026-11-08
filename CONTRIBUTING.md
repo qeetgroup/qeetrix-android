@@ -97,7 +97,9 @@ flowchart TD
 - **A new token group** fails generation until you add a rule for it in
   [Scope.kt](Tools/QeetrixGen/src/main/kotlin/com/qeetgroup/qeetrix/gen/tokens/Scope.kt), mirroring qeetrix-ios.
 - **A new component family** gets its CSS by adding the family to `qeetrixReact.families` in `Upstream/manifest.json`.
-- **A new icon:** add its name to `qeetrixIcons.icons`, sync, generate, then add it to `QeetrixIconName`.
+- **Icons:** every `@qeetrix/icons` icon is already generated — the core ones into `QeetrixIconName`, the rest into
+  `qeetrix-icons-extended`. To move one into the core set (a component or the sample draws it), add its name to
+  `qeetrixIcons.icons`, then sync and generate ([docs/icons.md](docs/icons.md)).
 
 ## 🧩 Adding a component
 

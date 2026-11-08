@@ -9,7 +9,7 @@
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-1.12.1-4285F4?logo=jetpackcompose&logoColor=white)](#-getting-started)
 [![@qeetrix/react](https://img.shields.io/badge/%40qeetrix%2Freact-0.5.1-D04800)](Upstream/manifest.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Release](https://img.shields.io/badge/release-0.1.0-2EA043)](https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.1.0)
+[![Release](https://img.shields.io/github/v/release/qeetgroup/qeetrix-android?label=release&color=2EA043)](https://github.com/qeetgroup/qeetrix-android/releases/latest)
 
 [📖 Design system](https://ui.qeet.in) · [🧩 Components](docs/components.md) · [🏗️ Architecture](ARCHITECTURE.md) · [📝 Changelog](CHANGELOG.md)
 
@@ -21,7 +21,7 @@
 |:--|:--|
 | 🧩 **66 components** | Buttons, forms, dialogs, sheets, menus and navigation, plus native-only ones such as the OTP code, QR scanner, swipe actions and pull to refresh |
 | 🎨 **Foundations** | 109 colour roles in light and dark, 18 text styles, spacing, radii, shadows, motion and three densities |
-| ✨ **88 icons** | From `@qeetrix/icons`, in sharp and round shapes, outline and filled |
+| ✨ **1,863 icons** | Every `@qeetrix/icons` icon, in sharp and round shapes, outline and filled: the 100 the components use in the library, the rest in the optional `qeetrix-icons-extended` ([icons](docs/icons.md)) |
 | 🔤 **Fonts** | Qeet Sans and Fira Code, the same files the web uses |
 | 🌐 **Formatting** | Numbers, money, dates, times and durations in the device's locale (`QeetrixFormat`) |
 | ♿ **Accessibility** | TalkBack support, 48 dp touch targets, checked contrast, text up to 200 %, right to left |
@@ -49,6 +49,7 @@ flowchart LR
 |:--|:--|
 | `0.1.0-rc.2` | ✅ Release candidate. Passed all ten release checks on 31 October 2026. |
 | `0.1.0` | ✅ Released on 4 November 2026, on [GitHub Packages](https://github.com/qeetgroup/qeetrix-android/packages) ([release](https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.1.0)) |
+| `0.2.0` | ✅ Released on 8 November 2026 ([release](https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.2.0)) |
 
 ## 🚀 Getting started
 
@@ -70,6 +71,8 @@ maven {
 
 // app/build.gradle.kts
 implementation("com.qeetgroup:qeetrix:0.1.0")
+// Optional, from 0.3.0: every other @qeetrix/icons icon, by name (QeetrixIconName.AlarmClock). R8 keeps only those used.
+implementation("com.qeetgroup:qeetrix-icons-extended:0.3.0")
 ```
 
 To work on the library beside an app, use it from source instead: `includeBuild("../qeetrix-android")` in the app's

@@ -63,8 +63,8 @@ jobs:
           gh release edit "v$GOOD" --repo "$GITHUB_REPOSITORY" --latest
           {
             echo "> [!WARNING]"
-            echo "> **Withdrawn. Do not use this version.** Use \`com.qeetgroup:qeetrix:$GOOD\` instead, until a fixed"
-            echo "> version is released."
+            echo "> **Withdrawn. Do not use this version.** Use \`com.qeetgroup:qeetrix:$GOOD\` (and"
+            echo "> \`com.qeetgroup:qeetrix-icons-extended:$GOOD\`) instead, until a fixed version is released."
             echo
             gh release view "v$BAD" --repo "$GITHUB_REPOSITORY" --json body --jq .body
           } > notes.md
@@ -81,7 +81,7 @@ jobs:
             echo
             echo "\`v$BAD\` is marked withdrawn and \`v$GOOD\` is the latest release."
             echo
-            echo "1. Tell app teams: change \`com.qeetgroup:qeetrix:$BAD\` to \`$GOOD\` and rebuild."
+            echo "1. Tell app teams: change \`com.qeetgroup:qeetrix:$BAD\` (and \`qeetrix-icons-extended\`) to \`$GOOD\` and rebuild."
             echo "2. Fix forward: release a new patch from a commit that fixes the defect."
             echo "3. Record it in the CHANGELOG under that patch."
             echo

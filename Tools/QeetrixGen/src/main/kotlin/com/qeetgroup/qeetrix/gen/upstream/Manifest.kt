@@ -77,7 +77,10 @@ data class Manifest(
         val svg: String,
         val license: String,
         val licenseDestination: String,
+        /** The core icons, in `QeetrixIconName`: the ones the components and the sample draw. */
         val names: List<String>,
+        /** Whether every other icon in the catalogue is generated too, into the optional extended module. */
+        val extended: Boolean,
     ) : NpmPin
 
     companion object {
@@ -147,6 +150,11 @@ data class Manifest(
                         license = icons.string("license", "qeetrixIcons"),
                         licenseDestination = icons.string("licenseDestination", "qeetrixIcons"),
                         names = icons.strings("icons", "qeetrixIcons"),
+                        extended =
+                            (icons["extended"] ?: throw GeneratorError("$PATH: qeetrixIcons needs \"extended\"."))
+                                .jsonPrimitive.content
+                                .toBooleanStrictOrNull()
+                                ?: throw GeneratorError("$PATH: qeetrixIcons.extended must be true or false."),
                     ),
             )
         }

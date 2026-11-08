@@ -592,13 +592,14 @@ private fun IconSection() {
     Section("Icons") {
         Caption(
             "@qeetrix/icons in both shapes and both variants: sharp on controls, round in navigation, filled only for a " +
-                "selected or active state. An icon with no filled drawing is left out of the filled rows.",
+                "selected or active state. An icon with no filled drawing is left out of the filled rows. These are the core icons; " +
+                "the Icons page has every one, qeetrix-icons-extended included.",
         )
         for (shape in QeetrixIconShape.entries) {
             for (variant in QeetrixIconVariant.entries) {
                 GroupLabel("${shape.value} ${variant.value}")
                 FlowGrid {
-                    for (name in QeetrixIconName.entries) {
+                    for (name in QeetrixIconName.catalogue) {
                         if (name.hasDrawing(shape, variant)) {
                             QeetrixIcon(name, contentDescription = name.value, size = QeetrixSize.IconLg, shape = shape, variant = variant)
                         }

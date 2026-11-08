@@ -103,7 +103,7 @@ someone changes the public API on purpose.
 | 🎨 **Theme** | `QeetrixTheme(mode)` picks light or dark and provides colours, type, density and reduced motion through composition locals. No global state, no Material ([0006](docs/decisions.md)). |
 | 🔤 **Typography** | The web's own font files (Qeet Sans, Fira Code), with each role's weight, letter style and optical size ([0007](docs/decisions.md)). |
 | 🌫️ **Shadows** | Only floating layers have them, drawn the way CSS `box-shadow` draws. |
-| ✨ **Icons** | SVGs turned into Compose paths by the generator, tinted with the content colour, mirrored in right to left where the meaning has a direction ([0008](docs/decisions.md)). |
+| ✨ **Icons** | Every `@qeetrix/icons` SVG turned into path data by the generator — the core icons in the library, the rest in the optional `qeetrix-icons-extended` — tinted with the content colour, mirrored in right to left where the meaning has a direction ([0008, 0020](docs/decisions.md)). |
 
 ## 🧩 How a component is built
 

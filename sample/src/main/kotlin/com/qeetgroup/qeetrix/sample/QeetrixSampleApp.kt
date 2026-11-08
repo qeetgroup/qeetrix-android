@@ -50,6 +50,7 @@ import com.qeetgroup.qeetrix.sample.composition.CollectionsScreen
 import com.qeetgroup.qeetrix.sample.composition.CompositionScreen
 import com.qeetgroup.qeetrix.sample.composition.WorkspaceScreen
 import com.qeetgroup.qeetrix.sample.foundations.FoundationsScreen
+import com.qeetgroup.qeetrix.sample.foundations.IconCatalogueScreen
 import com.qeetgroup.qeetrix.theme.LocalQeetrixDensity
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import com.qeetgroup.qeetrix.theme.QeetrixThemeMode
@@ -57,6 +58,7 @@ import com.qeetgroup.qeetrix.tokens.QeetrixProvenance
 
 private const val HOME = "home"
 private const val FOUNDATIONS = "foundations"
+private const val ICONS = "icons"
 private const val COMPOSITION = "composition"
 private const val ACCOUNT_PREFERENCES = "account-preferences"
 private const val WORKSPACE = "workspace"
@@ -102,6 +104,11 @@ fun QeetrixSampleApp(
             FOUNDATIONS -> {
                 // Its own layout for wide windows: two columns from breakpoint.medium.
                 SampleScaffold("Foundations", back, wide = true) { FoundationsScreen() }
+            }
+
+            // A lazy grid of every icon: it scrolls itself, so it draws its own bar.
+            ICONS -> {
+                IconCatalogueScreen(onExit = back)
             }
 
             COMPOSITION -> {
@@ -244,6 +251,7 @@ private val Overview =
             "Colour roles, type roles, space, radius, borders, shadows, motion, densities and icons: the tokens themselves.",
             FOUNDATIONS,
         ),
+        Triple("Icons", "Every @qeetrix/icons icon, the core set and qeetrix-icons-extended, searchable by name.", ICONS),
         Triple("Composition", "Several components working together in one settings form, with live state.", COMPOSITION),
         Triple(
             "Account preferences",

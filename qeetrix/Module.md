@@ -144,7 +144,10 @@ needs testing on a device.
 
 [com.qeetgroup.qeetrix.icons.QeetrixIcon] draws a Qeetrix icon from vector paths in the inherited content
 colour. The library carries the `@qeetrix/icons` icons its components use
-([com.qeetgroup.qeetrix.icons.QeetrixIconName]) in both shapes — sharp, the default, on controls; round in
+([com.qeetgroup.qeetrix.icons.QeetrixIconName]: `QeetrixIconName.Send`); the optional
+`com.qeetgroup:qeetrix-icons-extended` adds every other one by the same kind of name (`QeetrixIconName.AlarmClock`,
+imported from `com.qeetgroup.qeetrix.icons.extended`), and R8 keeps only the ones an app names. Every icon comes in both
+shapes — sharp, the default, on controls; round in
 navigation ([com.qeetgroup.qeetrix.icons.QeetrixIconShape]) — outline, and filled where `@qeetrix/icons` draws it
 ([com.qeetgroup.qeetrix.icons.QeetrixIconVariant]), for a current or selected state. Sizes are `QeetrixSize`'s: 16 dp
 inside controls, 20 dp standalone (the default), 24 dp in empty states; the stroke follows the density.

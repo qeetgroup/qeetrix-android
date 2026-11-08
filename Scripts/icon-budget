@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+"""The extended icons' size budget (docs/icons.md). Reads the two R8 builds of :icon-budget — `none` draws one core
+icon, `twenty` adds twenty icons from qeetrix-icons-extended — and fails unless:
+
+- R8 kept no extended icon in `none` and exactly the twenty in `twenty` (an icon's round outline drawing is a string
+  only its own class holds, so its presence in the DEX string table says whether the icon shipped; a name such as
+  `delete` can't say that, as the platform uses the same word), and
+- `twenty`'s DEX is no more than BUDGET_PER_ICON bytes per icon larger than `none`'s.
+
+    ./gradlew :icon-budget:assembleNoneRelease :icon-budget:assembleTwentyRelease && Scripts/icon-budget
+"""
+import glob
+import json
+import os
+import re
+import struct
+import sys
+import zipfile
+
+# Bytes of DEX each extended icon may add to a minified app: its encoded drawings (round and sharp outline, and the
+# two filled drawings when upstream draws them) and its small class. Measured 2026-11-08; see docs/icons.md.
+BUDGET_PER_ICON = 4096
+TWENTY = [
+    "alarm-clock", "anchor", "award", "backpack", "bike", "binoculars", "bird", "book-open", "brain", "bus",
+    "cake", "car", "cat", "compass", "dog", "flame", "gift", "globe-lock", "heart", "sun",
+]
+
+root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def apk(flavor):
+    path = os.path.join(root, f"icon-budget/build/outputs/apk/{flavor}/release/icon-budget-{flavor}-release.apk")
+    if not os.path.exists(path):
+        sys.exit(f"error: {path} is missing — build it with ./gradlew :icon-budget:assemble{flavor.title()}Release")
+    return path
+
+
+def uleb128(data, offset):
+    value, shift = 0, 0
+    while True:
+        byte = data[offset]
+        offset += 1
+        value |= (byte & 0x7F) << shift
+        if byte < 0x80:
+            return value, offset
+        shift += 7
+
+
+def dex_strings(data):
+    """Every string in a DEX file's string table (MUTF-8, read as UTF-8: icon names are ASCII)."""
+    size, offset = struct.unpack_from("<II", data, 0x38)
+    strings = set()
+    for i in range(size):
+        (item,) = struct.unpack_from("<I", data, offset + 4 * i)
+        _, start = uleb128(data, item)
+        end = data.index(0, start)
+        strings.add(data[start:end].decode("utf-8", "replace"))
+    return strings
+
+
+def measure(flavor):
+    with zipfile.ZipFile(apk(flavor)) as z:
+        dexes = [n for n in z.namelist() if n.startswith("classes") and n.endswith(".dex")]
+        size = sum(z.getinfo(n).file_size for n in dexes)
+        strings = set().union(*(dex_strings(z.read(n)) for n in dexes))
+    return size, strings
+
+
+# Each extended icon's round outline, as its generated file holds it.
+declaration = re.compile(r'value = "([^"]+)",\s*mirrorsInRightToLeft = (?:true|false),\s*roundOutline = "([^"]+)"')
+outline = {}
+for path in glob.glob(os.path.join(root, "qeetrix-icons-extended/src/main/kotlin/com/qeetgroup/qeetrix/icons/extended/*.kt")):
+    for name, drawing in declaration.findall(open(path).read()):
+        outline[name] = drawing
+missing = [n for n in TWENTY if n not in outline]
+if len(outline) < 1000 or missing:
+    sys.exit(f"error: read {len(outline)} extended icons, without {missing}; icon-budget/src/twenty lists the same twenty")
+# An icon whose drawing another icon shares — extended or core (clock-4 draws as clock) — can't be told apart by it;
+# leave those out of the census.
+core = open(os.path.join(root, "qeetrix/src/main/kotlin/com/qeetgroup/qeetrix/icons/generated/QeetrixIconCatalogue.kt")).read()
+counts = {}
+for drawing in list(outline.values()) + [d for _, d in declaration.findall(core)]:
+    counts[drawing] = counts.get(drawing, 0) + 1
+unique = {name: drawing for name, drawing in outline.items() if counts[drawing] == 1}
+
+
+def kept(strings):
+    return {name for name, drawing in unique.items() if drawing in strings}
+
+
+none_size, none_strings = measure("none")
+twenty_size, twenty_strings = measure("twenty")
+problems = []
+none_kept = sorted(kept(none_strings))
+if none_kept:
+    problems.append(f"the build without extended icons kept {len(none_kept)} of them: {none_kept[:10]}")
+twenty_kept = kept(twenty_strings)
+expected = {name for name in TWENTY if name in unique}
+if twenty_kept != expected:
+    extra, lost = sorted(twenty_kept - expected), sorted(expected - twenty_kept)
+    problems.append(f"the build with twenty extended icons kept {len(twenty_kept)}: extra {extra[:10]}, missing {lost}")
+growth = twenty_size - none_size
+budget = BUDGET_PER_ICON * len(TWENTY)
+if growth > budget:
+    problems.append(f"twenty extended icons add {growth} bytes of DEX, over the budget of {budget} ({BUDGET_PER_ICON} per icon)")
+if problems:
+    print("error: " + "\nerror: ".join(problems), file=sys.stderr)
+    sys.exit(1)
+print(
+    f"✓ R8 keeps only the extended icons an app names: none without them, exactly twenty with them, "
+    f"{growth} bytes of DEX for twenty ({growth // len(TWENTY)} per icon; budget {BUDGET_PER_ICON})"
+)

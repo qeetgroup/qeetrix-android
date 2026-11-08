@@ -73,9 +73,9 @@ tree_digest=$(git ls-files -c -o --exclude-standard -z | sort -z \
 # 2–15. Tokens, tests, lint, formatting, the API baseline, the AAR, the API reference and the minified sample.
 gate tokens Scripts/verify-tokens
 if [ "$tested" = true ]; then
-    gate build ./gradlew --console=plain :qeetrix:assembleRelease :qeetrix:dokkaGenerate :sample:assembleRelease
+    gate build ./gradlew --console=plain :qeetrix:assembleRelease :qeetrix-icons-extended:assembleRelease :qeetrix:dokkaGenerate :sample:assembleRelease
 else
-    gate check ./gradlew --console=plain check :qeetrix:assembleRelease :qeetrix:dokkaGenerate :sample:assembleRelease
+    gate check ./gradlew --console=plain check :qeetrix:assembleRelease :qeetrix-icons-extended:assembleRelease :qeetrix:dokkaGenerate :sample:assembleRelease
 fi
 gate aar Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
 if compgen -G "qeetrix/src/test/screenshots/*/*.png" > /dev/null; then
@@ -86,8 +86,11 @@ else
 fi
 
 # 16–18. Publish to the local repository only, and check what was published.
-gate publish ./gradlew --console=plain :qeetrix:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version="$version"
+gate publish ./gradlew --console=plain :qeetrix:publishReleasePublicationToReleaseCandidateRepository \
+    :qeetrix-icons-extended:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version="$version"
 gate publication Scripts/verify-publication "$out/maven" "$version" qeetrix/build/outputs/aar/qeetrix-release.aar
+gate publication-extended Scripts/verify-publication "$out/maven" "$version" \
+    qeetrix-icons-extended/build/outputs/aar/qeetrix-icons-extended-release.aar qeetrix-icons-extended
 gate dependencies Scripts/dependency-inventory "$evidence/dependencies.md" --cyclonedx "$evidence/qeetrix-$version.cdx.json" --version "$version"
 
 # 19. On devices: the library's own device tests.

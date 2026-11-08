@@ -87,6 +87,8 @@ dependencyResolutionManagement {
 // app/build.gradle.kts
 dependencies {
     implementation("com.qeetgroup:qeetrix:0.1.0")
+    // Optional, from 0.3.0: every other @qeetrix/icons icon (docs/icons.md). Always the same version as qeetrix.
+    implementation("com.qeetgroup:qeetrix-icons-extended:0.3.0")
 }
 ```
 
@@ -128,6 +130,8 @@ was built and run for `0.1.0-rc.1`.
   permissions or components. `Scripts/verify-aar` checks this on every build, and fails on anything unexpected.
 - **The POM and module metadata** name only Google Maven and Maven Central dependencies, at the locked versions;
   `Scripts/verify-publication` checks them.
+- **`qeetrix-icons-extended`**, released with the library at the same version, holds generated icon data only and
+  depends on `com.qeetgroup:qeetrix` at that version; `Scripts/verify-publication` checks its POM and metadata too.
 - **Licences:** the library is MIT. The bundled fonts are SIL OFL 1.1 and the icons MIT (with Lucide's ISC notice),
   all unmodified, with their texts in the AAR. The runtime dependencies are Apache 2.0. Each release carries a
   CycloneDX SBOM. Details: [third-party-notices.md](third-party.md).

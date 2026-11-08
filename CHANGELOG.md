@@ -6,6 +6,38 @@ describes.
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-11-08
+
+A source-breaking change, which before 1.0 takes a minor release ([docs/releases.md](docs/releases.md)). Built from
+`@qeetrix/react` 0.5.1, `@qeetrix/tokens` 0.0.15 and `@qeetrix/icons` 2.1.2.
+
+### ⚠️ Breaking
+
+- **`QeetrixIconName` is a class, not an enum**, so every component can take an icon from the extended catalogue too.
+  `QeetrixIconName.Send` and every other core name still compile, and names compare by `value`. What changes:
+  `QeetrixIconName.entries` is now `QeetrixIconName.catalogue`; `name`, `ordinal` and `valueOf` are gone (use `value`);
+  and a `when` over an icon needs an `else` branch.
+
+### ✨ Added
+
+- **Every `@qeetrix/icons` icon** (2.1.2: 1,863 in outline, 775 of them filled too), by its upstream name, in sharp and
+  round, mirrored in right to left as upstream says ([docs/icons.md](docs/icons.md), decision 0020).
+  - **`com.qeetgroup:qeetrix-icons-extended`**, a new optional module released with the library at the same version:
+    the 1,763 icons beyond the core set, as `QeetrixIconName.AlarmClock` (imported from
+    `com.qeetgroup.qeetrix.icons.extended`), and `QeetrixIconName.extendedCatalogue`. Each icon is its own class, so
+    R8 keeps only the icons an app names; `Scripts/icon-budget` checks that in CI, against a budget of 4 KiB per icon.
+  - **12 more core icons** the Qeet ID screens draw, so iOS and Android carry the same 100: `ArrowLeftRight`,
+    `BellRing`, `BotOff`, `ClipboardPaste`, `Download`, `Globe`, `Laptop`, `Monitor`, `QrCode`, `RotateCcw`,
+    `ShieldAlert` and `Sparkles`, filled for `BellRing`, `Laptop`, `Monitor`, `ShieldAlert` and `Sparkles`. None
+    mirrors in right to left: upstream marks every one, the two-way `ArrowLeftRight` included, as reading the same either
+    way.
+- **The sample's Icons page**: every icon, core and extended, searchable by name.
+
+### 🔧 Changed
+
+- **Icon drawings are compact path strings** decoded the first time an icon is drawn, instead of generated path code:
+  the core icons' generated source is 168 KB instead of 900 KB, and the drawings are unchanged.
+
 ## [0.2.0] — 2026-11-08
 
 Additions, a minor release ([docs/releases.md](docs/releases.md)). Built from `@qeetrix/react` 0.5.1, `@qeetrix/tokens` 0.0.15 and `@qeetrix/icons` 2.1.2.

@@ -1,6 +1,6 @@
 name: Release
 
-# Publishes com.qeetgroup:qeetrix to GitHub Packages on merge to main, then tags the commit: the Qeetrix release flow
+# Publishes com.qeetgroup:qeetrix and com.qeetgroup:qeetrix-icons-extended to GitHub Packages on merge to main, then tags the commit: the Qeetrix release flow
 # (qeetrix-react's decision D-07), for Maven.
 #
 #   1. Raise `qeetrix.version` in gradle.properties on develop when the library changes, then open the develop → main
@@ -141,6 +141,8 @@ jobs:
           ./gradlew --console=plain
           :qeetrix:publishReleasePublicationToRegistryRepository
           :qeetrix:publishReleasePublicationToReleaseCandidateRepository
+          :qeetrix-icons-extended:publishReleasePublicationToRegistryRepository
+          :qeetrix-icons-extended:publishReleasePublicationToReleaseCandidateRepository
           -Pqeetrix.version="$VERSION"
           -Pqeetrix.registry.url="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
       - name: The files sent are the files verified
@@ -153,6 +155,10 @@ jobs:
             build/release-candidate/maven/com/qeetgroup/qeetrix/${{ env.VERSION }}/qeetrix-${{ env.VERSION }}-sources.jar
             build/release-candidate/maven/com/qeetgroup/qeetrix/${{ env.VERSION }}/qeetrix-${{ env.VERSION }}.pom
             build/release-candidate/maven/com/qeetgroup/qeetrix/${{ env.VERSION }}/qeetrix-${{ env.VERSION }}.module
+            build/release-candidate/maven/com/qeetgroup/qeetrix-icons-extended/${{ env.VERSION }}/qeetrix-icons-extended-${{ env.VERSION }}.aar
+            build/release-candidate/maven/com/qeetgroup/qeetrix-icons-extended/${{ env.VERSION }}/qeetrix-icons-extended-${{ env.VERSION }}-sources.jar
+            build/release-candidate/maven/com/qeetgroup/qeetrix-icons-extended/${{ env.VERSION }}/qeetrix-icons-extended-${{ env.VERSION }}.pom
+            build/release-candidate/maven/com/qeetgroup/qeetrix-icons-extended/${{ env.VERSION }}/qeetrix-icons-extended-${{ env.VERSION }}.module
 
       # Tag AFTER a successful publish, so every tag is a version that shipped.
       - name: Tag the release and open a GitHub Release
@@ -168,11 +174,13 @@ jobs:
           # The release notes are the version's CHANGELOG entry ("## [X.Y.Z] — date"), or GitHub's generated notes.
           awk -v v="[$VERSION]" '/^## /{on = index($0, v) > 0; next} on' CHANGELOG.md > notes.md
           dir="build/release-candidate/maven/com/qeetgroup/qeetrix/$VERSION"
+          extended="build/release-candidate/maven/com/qeetgroup/qeetrix-icons-extended/$VERSION"
           flags=()
           [[ "$VERSION" == *-rc.* ]] && flags+=(--prerelease)
           if [ -s notes.md ]; then flags+=(--notes-file notes.md); else flags+=(--generate-notes); fi
           gh release create "v$VERSION" --verify-tag --title "v$VERSION" "${flags[@]}" \
             "$dir/qeetrix-$VERSION.aar" "$dir/qeetrix-$VERSION-sources.jar" "$dir/qeetrix-$VERSION.pom" \
+            "$extended/qeetrix-icons-extended-$VERSION.aar" "$extended/qeetrix-icons-extended-$VERSION.pom" \
             "build/release-candidate/evidence/qeetrix-$VERSION.cdx.json" "build/release-candidate/evidence/SHA256SUMS"
       - name: Version and evidence
         if: always()
