@@ -19,7 +19,7 @@
 |---|---|
 | `foundation/*` | Public types: colour, typography, spacing, sizing, shape, elevation, motion, layout, accessibility, format, haptics |
 | `theme/` | `QeetrixTheme` and its composition locals |
-| `icons/` | `QeetrixIcon`, `QeetrixIconName`; drawings in `icons/generated/` |
+| `icons/` | `QeetrixIcon`, `QeetrixIconName`; the core icons' drawings in `icons/generated/`. Every other icon: `qeetrix-icons-extended/` (generated, one file per icon) |
 | `components/<family>/` | One file per component (`QeetrixButton`, …) and its option enums |
 | `tokens/generated/` | Generated token values, internal |
 | `internal/` | Shared helpers: popups, focus frame, motion, system bars |

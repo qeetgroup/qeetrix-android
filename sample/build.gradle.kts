@@ -78,6 +78,8 @@ ktlint {
 dependencies {
     // The sample consumes Qeetrix exactly as an app would: through its public API.
     implementation(project(":qeetrix"))
+    // The icon page shows every @qeetrix/icons icon.
+    implementation(project(":qeetrix-icons-extended"))
     implementation(platform(libs.compose.bom))
     implementation(libs.activity.compose)
     implementation(libs.lifecycle.runtime.compose)

@@ -28,7 +28,7 @@ class Generator(
     private val log: (String) -> Unit = {},
 ) {
     /** Directories the generator owns outright: any file in them it did not produce is stale. */
-    private val ownedDirectories = listOf(TokenEmitter.GENERATED_DIR, IconEmitter.GENERATED_DIR)
+    private val ownedDirectories = listOf(TokenEmitter.GENERATED_DIR, IconEmitter.GENERATED_DIR, IconEmitter.EXTENDED_DIR)
 
     /** Every generated file, repository-relative path → content. */
     fun outputs(): Map<String, String> {
@@ -76,36 +76,47 @@ class Generator(
             }
 
         val iconEntries = Json.parseToJsonElement(upstream("Upstream/qeetrix-icons/icons.json")).jsonArray.map { it.jsonObject }
-        val icons =
-            manifest.icons.names.map { name ->
-                val entry =
-                    iconEntries.firstOrNull { it["name"]?.jsonPrimitive?.content == name }
-                        ?: throw GeneratorError("Upstream/qeetrix-icons/icons.json has no \"$name\" — run Scripts/sync-tokens.")
-                val shapes = entry["shapes"]!!.jsonArray.map { it.jsonPrimitive.content }
-                val variants = entry["variants"]!!.jsonArray.map { it.jsonPrimitive.content }
-                val drawings = linkedMapOf<String, com.qeetgroup.qeetrix.gen.icons.IconDrawing>()
-                for (shape in shapes) {
-                    for (variant in variants) {
-                        val path = "Upstream/qeetrix-icons/svg/$shape-$variant/$name.svg"
-                        drawings["$shape-$variant"] = SvgParser.parse(upstream(path), path)
-                    }
-                }
-                IconSource(
-                    name = name,
-                    componentName = entry["componentName"]!!.jsonPrimitive.content,
-                    directionality = entry["directionality"]!!.jsonPrimitive.content,
-                    shapes = shapes,
-                    variants = variants,
-                    drawings = drawings,
-                )
+        val entriesByName = iconEntries.associateBy { it["name"]?.jsonPrimitive?.content }
+        val pinned = manifest.icons.names.toSet()
+        // The core icons are the pins; with the extended catalogue, every other icon in the snapshot is generated too.
+        val extendedNames =
+            if (manifest.icons.extended) {
+                iconEntries.map { it["name"]!!.jsonPrimitive.content }.filter { it !in pinned }.sorted()
+            } else {
+                emptyList()
             }
+
+        fun iconSource(name: String): IconSource {
+            val entry =
+                entriesByName[name]
+                    ?: throw GeneratorError("Upstream/qeetrix-icons/icons.json has no \"$name\" — run Scripts/sync-tokens.")
+            val shapes = entry["shapes"]!!.jsonArray.map { it.jsonPrimitive.content }
+            val variants = entry["variants"]!!.jsonArray.map { it.jsonPrimitive.content }
+            val drawings = linkedMapOf<String, com.qeetgroup.qeetrix.gen.icons.IconDrawing>()
+            for (shape in shapes) {
+                for (variant in variants) {
+                    val path = "Upstream/qeetrix-icons/svg/$shape-$variant/$name.svg"
+                    drawings["$shape-$variant"] = SvgParser.parse(upstream(path), path)
+                }
+            }
+            return IconSource(
+                name = name,
+                componentName = entry["componentName"]!!.jsonPrimitive.content,
+                directionality = entry["directionality"]!!.jsonPrimitive.content,
+                shapes = shapes,
+                variants = variants,
+                drawings = drawings,
+            )
+        }
+        val coreIcons = manifest.icons.names.sorted().map(::iconSource)
+        val extendedIcons = extendedNames.map(::iconSource)
 
         val outputs = sortedMapOf<String, String>()
         outputs += TokenEmitter(model, provenance, fonts).files()
         outputs += ComponentTokenEmitter(model, provenance).files()
-        outputs += IconEmitter(icons, provenance).files()
+        outputs += IconEmitter(coreIcons, extendedIcons, provenance).files()
         outputs += Reports(model, provenance).files()
-        log("Generated ${model.included.size} tokens (${model.excluded.size} excluded), ${icons.size} icons, ${fonts.size} fonts.")
+        log("Generated ${model.included.size} tokens (${model.excluded.size} excluded), ${coreIcons.size} core and ${extendedIcons.size} extended icons, ${fonts.size} fonts.")
         return outputs
     }
 

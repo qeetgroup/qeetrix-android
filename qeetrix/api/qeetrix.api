@@ -1623,105 +1623,26 @@ public final class com/qeetgroup/qeetrix/foundation/typography/QeetrixTypography
 	public fun toString ()Ljava/lang/String;
 }
 
+public abstract interface annotation class com/qeetgroup/qeetrix/icons/QeetrixGeneratedIconApi : java/lang/annotation/Annotation {
+}
+
 public final class com/qeetgroup/qeetrix/icons/QeetrixIconKt {
 	public static final fun QeetrixIcon-xf_YDTo (Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;Ljava/lang/String;Landroidx/compose/ui/Modifier;FFLcom/qeetgroup/qeetrix/icons/QeetrixIconShape;Lcom/qeetgroup/qeetrix/icons/QeetrixIconVariant;JZLandroidx/compose/runtime/Composer;II)V
 }
 
-public final class com/qeetgroup/qeetrix/icons/QeetrixIconName : java/lang/Enum {
-	public static final field Archive Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ArrowBigUp Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ArrowDown Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ArrowLeft Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ArrowRight Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ArrowUp Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Bell Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field BellOff Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Calendar Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Camera Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field CameraOff Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Check Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ChevronDown Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ChevronLeft Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ChevronRight Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ChevronUp Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ChevronsUpDown Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field CircleAlert Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field CircleCheck Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field CircleDashed Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field CirclePlus Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field CircleQuestionMark Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field CircleX Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Clock Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field CloudUpload Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ContactRound Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Copy Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Database Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Ellipsis Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field EllipsisVertical Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ExternalLink Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Eye Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field EyeOff Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field File Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field FileArchive Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field FileCode Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field FileImage Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field FileSpreadsheet Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field FileText Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field FingerprintPattern Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Flashlight Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field FlashlightOff Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Folder Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Hourglass Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field House Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Image Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ImagePlus Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Inbox Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Info Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Key Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field KeyRound Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Keyboard Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Link Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field LoaderCircle Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Lock Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field LockOpen Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Mail Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field MapPin Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Menu Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Minus Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Navigation Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field PanelRight Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Paperclip Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Pencil Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Pin Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Plus Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field RectangleEllipsis Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field RefreshCw Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ScanFace Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ScanLine Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ScanQrCode Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Search Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field SearchX Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Send Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Server Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Settings Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Share2 Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ShieldCheck Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field ShieldX Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Smartphone Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Timer Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Trash Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field TriangleAlert Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field UserPlus Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field UserRound Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field Users Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field WifiOff Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static final field X Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+public final class com/qeetgroup/qeetrix/icons/QeetrixIconName {
+	public static final field $stable I
+	public static final field Companion Lcom/qeetgroup/qeetrix/icons/QeetrixIconName$Companion;
+	public fun <init> (Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
 	public final fun getMirrorsInRightToLeft ()Z
 	public final fun getValue ()Ljava/lang/String;
 	public final fun hasDrawing (Lcom/qeetgroup/qeetrix/icons/QeetrixIconShape;Lcom/qeetgroup/qeetrix/icons/QeetrixIconVariant;)Z
-	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
-	public static fun values ()[Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/qeetgroup/qeetrix/icons/QeetrixIconName$Companion : com/qeetgroup/qeetrix/icons/generated/QeetrixIconCatalogue {
 }
 
 public final class com/qeetgroup/qeetrix/icons/QeetrixIconShape : java/lang/Enum {
@@ -1740,6 +1661,111 @@ public final class com/qeetgroup/qeetrix/icons/QeetrixIconVariant : java/lang/En
 	public final fun getValue ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/icons/QeetrixIconVariant;
 	public static fun values ()[Lcom/qeetgroup/qeetrix/icons/QeetrixIconVariant;
+}
+
+public abstract class com/qeetgroup/qeetrix/icons/generated/QeetrixIconCatalogue {
+	public static final field $stable I
+	public final fun getArchive ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getArrowBigUp ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getArrowDown ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getArrowLeft ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getArrowLeftRight ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getArrowRight ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getArrowUp ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getBell ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getBellOff ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getBellRing ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getBotOff ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCalendar ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCamera ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCameraOff ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCatalogue ()Ljava/util/List;
+	public final fun getCheck ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getChevronDown ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getChevronLeft ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getChevronRight ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getChevronUp ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getChevronsUpDown ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCircleAlert ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCircleCheck ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCircleDashed ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCirclePlus ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCircleQuestionMark ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCircleX ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getClipboardPaste ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getClock ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCloudUpload ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getContactRound ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getCopy ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getDatabase ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getDownload ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getEllipsis ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getEllipsisVertical ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getExternalLink ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getEye ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getEyeOff ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getFile ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getFileArchive ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getFileCode ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getFileImage ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getFileSpreadsheet ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getFileText ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getFingerprintPattern ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getFlashlight ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getFlashlightOff ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getFolder ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getGlobe ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getHourglass ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getHouse ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getImage ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getImagePlus ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getInbox ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getInfo ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getKey ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getKeyRound ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getKeyboard ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getLaptop ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getLink ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getLoaderCircle ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getLock ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getLockOpen ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getMail ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getMapPin ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getMenu ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getMinus ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getMonitor ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getNavigation ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getPanelRight ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getPaperclip ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getPencil ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getPin ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getPlus ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getQrCode ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getRectangleEllipsis ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getRefreshCw ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getRotateCcw ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getScanFace ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getScanLine ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getScanQrCode ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getSearch ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getSearchX ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getSend ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getServer ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getSettings ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getShare2 ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getShieldAlert ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getShieldCheck ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getShieldX ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getSmartphone ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getSparkles ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getTimer ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getTrash ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getTriangleAlert ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getUserPlus ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getUserRound ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getUsers ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getWifiOff ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public final fun getX ()Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 }
 
 public final class com/qeetgroup/qeetrix/theme/QeetrixTheme {

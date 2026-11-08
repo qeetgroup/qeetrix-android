@@ -32,7 +32,7 @@ qeet-context (L0)  →  Qeetrix design system  →  @qeetrix/tokens · @qeetrix/
 
 ## Key numbers
 
-66 components · 109 colour roles · 18 text roles · 88 icons · 94.0 % line coverage (CI minimum 92 %) · 263 screenshots.
+66 components · 109 colour roles · 18 text roles · 1,863 icons (100 core, 1,763 in qeetrix-icons-extended) · 94.0 % line coverage (CI minimum 92 %) · 263 screenshots.
 
 ## Where to read next
 

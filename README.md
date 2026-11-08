@@ -21,7 +21,7 @@
 |:--|:--|
 | 🧩 **66 components** | Buttons, forms, dialogs, sheets, menus and navigation, plus native-only ones such as the OTP code, QR scanner, swipe actions and pull to refresh |
 | 🎨 **Foundations** | 109 colour roles in light and dark, 18 text styles, spacing, radii, shadows, motion and three densities |
-| ✨ **88 icons** | From `@qeetrix/icons`, in sharp and round shapes, outline and filled |
+| ✨ **1,863 icons** | Every `@qeetrix/icons` icon, in sharp and round shapes, outline and filled: the 100 the components use in the library, the rest in the optional `qeetrix-icons-extended` ([icons](docs/icons.md)) |
 | 🔤 **Fonts** | Qeet Sans and Fira Code, the same files the web uses |
 | 🌐 **Formatting** | Numbers, money, dates, times and durations in the device's locale (`QeetrixFormat`) |
 | ♿ **Accessibility** | TalkBack support, 48 dp touch targets, checked contrast, text up to 200 %, right to left |
@@ -70,6 +70,8 @@ maven {
 
 // app/build.gradle.kts
 implementation("com.qeetgroup:qeetrix:0.1.0")
+// Optional, from 0.3.0: every other @qeetrix/icons icon, by name (QeetrixIconName.AlarmClock). R8 keeps only those used.
+implementation("com.qeetgroup:qeetrix-icons-extended:0.3.0")
 ```
 
 To work on the library beside an app, use it from source instead: `includeBuild("../qeetrix-android")` in the app's

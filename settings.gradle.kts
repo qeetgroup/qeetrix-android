@@ -29,4 +29,6 @@ includeBuild("Tools/QeetrixGen") {
 }
 
 include(":qeetrix")
+include(":qeetrix-icons-extended")
 include(":sample")
+include(":icon-budget")

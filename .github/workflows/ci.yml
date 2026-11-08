@@ -58,13 +58,18 @@ jobs:
         run: ./gradlew check :qeetrix:koverVerifyDebug
       # The sample's release build is minified as an app's would be, so R8 runs over the library.
       - name: Build the library and the sample
-        run: ./gradlew :qeetrix:assembleRelease :sample:assembleRelease :qeetrix:assembleDebugAndroidTest
+        run: ./gradlew :qeetrix:assembleRelease :qeetrix-icons-extended:assembleRelease :sample:assembleRelease :qeetrix:assembleDebugAndroidTest
       # What an app receives: the AAR's contents, and the POM and module metadata of a local publication.
       - name: Check the package apps receive
         run: |
           Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
-          ./gradlew :qeetrix:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version=0.0.0-ci
+          ./gradlew :qeetrix:publishReleasePublicationToReleaseCandidateRepository \
+            :qeetrix-icons-extended:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version=0.0.0-ci
           Scripts/verify-publication build/release-candidate/maven 0.0.0-ci qeetrix/build/outputs/aar/qeetrix-release.aar
+          Scripts/verify-publication build/release-candidate/maven 0.0.0-ci \
+            qeetrix-icons-extended/build/outputs/aar/qeetrix-icons-extended-release.aar qeetrix-icons-extended
+      - name: Extended icons cost only what an app uses (R8 build with none and with twenty)
+        run: ./gradlew :icon-budget:assembleNoneRelease :icon-budget:assembleTwentyRelease && Scripts/icon-budget
       - name: Reports
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

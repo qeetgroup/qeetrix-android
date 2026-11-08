@@ -31,7 +31,7 @@ class IconScreenshotTest {
                                 horizontalArrangement = Arrangement.spacedBy(ScreenshotGap),
                                 verticalArrangement = Arrangement.spacedBy(ScreenshotGap),
                             ) {
-                                for (name in QeetrixIconName.entries) {
+                                for (name in QeetrixIconName.catalogue) {
                                     if (name.hasDrawing(shape, variant)) {
                                         QeetrixIcon(
                                             name,

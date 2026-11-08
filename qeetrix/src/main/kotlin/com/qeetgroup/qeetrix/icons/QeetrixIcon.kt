@@ -3,6 +3,7 @@ package com.qeetgroup.qeetrix.icons
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,126 +17,79 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixIconStroke
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
-import com.qeetgroup.qeetrix.icons.generated.drawing
-import com.qeetgroup.qeetrix.icons.generated.mirrorsInRtl
-import com.qeetgroup.qeetrix.icons.generated.upstreamName
+import com.qeetgroup.qeetrix.icons.generated.QeetrixIconCatalogue
 import com.qeetgroup.qeetrix.internal.QeetrixIconDrawing
+import com.qeetgroup.qeetrix.internal.decodeIconDrawing
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
 /**
- * The Qeetrix icons available natively. Names are `@qeetrix/icons` 2.1's (Lucide's): the icons the
- * components, the sample and the first native apps draw — not the full catalogue. qeetrix-ios carries the same
- * names. Adding one is a pin in `Upstream/manifest.json`.
+ * A Qeetrix icon: one of `@qeetrix/icons` 2.1's icons (Lucide's names), drawn by [QeetrixIcon] and taken by every
+ * component with an icon. qeetrix-ios carries the same names.
+ *
+ * - **Core icons** — the ones the components and the sample draw — are members: `QeetrixIconName.Send`. Adding one is a
+ *   pin in `Upstream/manifest.json`.
+ * - **Every other icon** in `@qeetrix/icons` is in the optional `com.qeetgroup:qeetrix-icons-extended` module, by the
+ *   same kind of name: `QeetrixIconName.AlarmClock`, imported from `com.qeetgroup.qeetrix.icons.extended`. Each is its
+ *   own class, so R8 keeps only the icons an app names.
+ *
+ * Two names are equal when their [value]s are. Match icons with `==` or a `when` with an `else` branch: the catalogue
+ * grows with `@qeetrix/icons`.
  */
-public enum class QeetrixIconName {
-    Archive,
-    ArrowBigUp,
-    ArrowDown,
-    ArrowLeft,
-    ArrowRight,
-    ArrowUp,
-    Bell,
-    BellOff,
-    Calendar,
-    Camera,
-    CameraOff,
-    Check,
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    ChevronUp,
-    ChevronsUpDown,
-    CircleAlert,
-    CircleCheck,
-    CircleDashed,
-    CirclePlus,
-    CircleQuestionMark,
-    CircleX,
-    Clock,
-    CloudUpload,
-    ContactRound,
-    Copy,
-    Database,
-    Ellipsis,
-    EllipsisVertical,
-    ExternalLink,
-    Eye,
-    EyeOff,
-    File,
-    FileArchive,
-    FileCode,
-    FileImage,
-    FileSpreadsheet,
-    FileText,
-    FingerprintPattern,
-    Flashlight,
-    FlashlightOff,
-    Folder,
-    Hourglass,
-    House,
-    Image,
-    ImagePlus,
-    Inbox,
-    Info,
-    Key,
-    KeyRound,
-    Keyboard,
-    Link,
-    LoaderCircle,
-    Lock,
-    LockOpen,
-    Mail,
-    MapPin,
-    Menu,
-    Minus,
-    Navigation,
-    PanelRight,
-    Paperclip,
-    Pencil,
-    Pin,
-    Plus,
-    RectangleEllipsis,
-    RefreshCw,
-    ScanFace,
-    ScanLine,
-    ScanQrCode,
-    Search,
-    SearchX,
-    Send,
-    Server,
-    Settings,
-    Share2,
-    ShieldCheck,
-    ShieldX,
-    Smartphone,
-    Timer,
-    Trash,
-    TriangleAlert,
-    UserPlus,
-    UserRound,
-    Users,
-    WifiOff,
-    X,
-    ;
+@Immutable
+public class QeetrixIconName
+    @QeetrixGeneratedIconApi
+    constructor(
+        /** The upstream name (`send`), the same string on every platform. */
+        public val value: String,
+        /**
+         * Whether `@qeetrix/icons` says this drawing points a reading direction (`directionality: "mirror"`: send, undo,
+         * log-in, …), so it mirrors in right-to-left layouts. Physical arrows and chevrons ([ArrowLeft], [ChevronRight],
+         * …) never do by themselves: the place they are used decides, as the web's `mirrorInRtl()` does — [QeetrixIcon]'s
+         * `mirrorInRightToLeft`, and Button's `iconMirrorsInRightToLeft` for a navigation arrow.
+         */
+        public val mirrorsInRightToLeft: Boolean,
+        roundOutline: String?,
+        roundFilled: String?,
+        sharpOutline: String?,
+        sharpFilled: String?,
+    ) {
+        // The drawings stay encoded until first drawn (QeetrixIconCodec), then are kept.
+        private val encoded = arrayOf(roundOutline, roundFilled, sharpOutline, sharpFilled)
+        private val decoded = arrayOfNulls<QeetrixIconDrawing>(4)
 
-    /** The upstream name (`send`), the same string on every platform. */
-    public val value: String get() = upstreamName
+        /** Whether `@qeetrix/icons` draws this icon in [shape] and [variant]. Without it, [QeetrixIcon] draws the outline. */
+        public fun hasDrawing(
+            shape: QeetrixIconShape,
+            variant: QeetrixIconVariant,
+        ): Boolean = encoded[index(shape, variant)] != null
 
-    /**
-     * Whether `@qeetrix/icons` says this drawing points a reading direction (`directionality: "mirror"`: send, undo,
-     * log-in, …), so it mirrors in right-to-left layouts. Physical arrows and chevrons ([ArrowLeft], [ChevronRight], …)
-     * never do by themselves: the place they are used decides, as the web's `mirrorInRtl()` does —
-     * [QeetrixIcon]'s `mirrorInRightToLeft`, and Button's `iconMirrorsInRightToLeft` for a navigation arrow.
-     */
-    public val mirrorsInRightToLeft: Boolean get() = mirrorsInRtl
+        /** The drawing for a shape and variant, or null when `@qeetrix/icons` does not draw that combination. */
+        internal fun drawing(
+            shape: QeetrixIconShape,
+            variant: QeetrixIconVariant,
+        ): QeetrixIconDrawing? {
+            val index = index(shape, variant)
+            decoded[index]?.let { return it }
+            val text = encoded[index] ?: return null
+            // A race decodes twice and keeps either: both are the same drawing.
+            return decodeIconDrawing(text, value).also { decoded[index] = it }
+        }
 
-    /** Whether `@qeetrix/icons` draws this icon in [shape] and [variant]. Without it, [QeetrixIcon] draws the outline. */
-    public fun hasDrawing(
-        shape: QeetrixIconShape,
-        variant: QeetrixIconVariant,
-    ): Boolean = drawing(shape, variant) != null
-}
+        private fun index(
+            shape: QeetrixIconShape,
+            variant: QeetrixIconVariant,
+        ): Int = shape.ordinal * 2 + variant.ordinal
+
+        override fun equals(other: Any?): Boolean = other is QeetrixIconName && other.value == value
+
+        override fun hashCode(): Int = value.hashCode()
+
+        override fun toString(): String = value
+
+        /** The core icons, by name ([QeetrixIconCatalogue]), and [QeetrixIconCatalogue.catalogue], all of them. */
+        public companion object : QeetrixIconCatalogue()
+    }
 
 /**
  * The two drawing shapes `@qeetrix/icons` provides. Qeetrix draws [Sharp] on controls — buttons,

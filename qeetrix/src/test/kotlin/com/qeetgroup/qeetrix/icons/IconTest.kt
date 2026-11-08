@@ -15,6 +15,7 @@ import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import com.qeetgroup.qeetrix.theme.QeetrixThemeMode
 import org.json.JSONArray
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
@@ -30,19 +31,38 @@ class IconTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val manifest = JSONArray(File(TestSupport.root, "Upstream/qeetrix-icons/icons.json").readText())
+    private val pins =
+        JSONObject(File(TestSupport.root, "Upstream/manifest.json").readText())
+            .getJSONObject("qeetrixIcons")
+            .getJSONArray("icons")
+            .let { a -> (0 until a.length()).map(a::getString) }
+
+    // The snapshot holds every icon in the package; the core catalogue is the pinned ones.
+    private val manifest =
+        JSONArray(File(TestSupport.root, "Upstream/qeetrix-icons/icons.json").readText()).let { all ->
+            JSONArray((0 until all.length()).map(all::getJSONObject).filter { it.getString("name") in pins })
+        }
 
     @Test
     fun theCatalogueIsThePinnedSetWithUpstreamNames() {
-        val upstream = (0 until manifest.length()).map { manifest.getJSONObject(it).getString("name") }
-        assertEquals(upstream, QeetrixIconName.entries.map { it.value })
+        assertEquals(pins.sorted(), QeetrixIconName.catalogue.map { it.value })
+        assertEquals(100, QeetrixIconName.catalogue.size)
+        assertEquals(pins.size, manifest.length())
+    }
+
+    @Test
+    fun namesAreEqualByValue() {
+        assertEquals(QeetrixIconName.Send, QeetrixIconName.catalogue.single { it.value == "send" })
+        assertEquals(QeetrixIconName.Send.hashCode(), "send".hashCode())
+        assertEquals("send", QeetrixIconName.Send.toString())
+        assertFalse(QeetrixIconName.Send == QeetrixIconName.Search)
     }
 
     @Test
     fun drawingsExistExactlyWhereUpstreamDrawsThem() {
         for (index in 0 until manifest.length()) {
             val entry = manifest.getJSONObject(index)
-            val name = QeetrixIconName.entries.single { it.value == entry.getString("name") }
+            val name = QeetrixIconName.catalogue.single { it.value == entry.getString("name") }
             val shapes = entry.getJSONArray("shapes").let { a -> (0 until a.length()).map(a::getString) }
             val variants = entry.getJSONArray("variants").let { a -> (0 until a.length()).map(a::getString) }
             for (shape in QeetrixIconShape.entries) {
@@ -86,11 +106,40 @@ class IconTest {
                 "rectangle-ellipsis",
             )
         for (value in authenticator) {
-            val name = QeetrixIconName.entries.singleOrNull { it.value == value }
+            val name = QeetrixIconName.catalogue.singleOrNull { it.value == value }
             assertTrue(
                 "$value is not in the catalogue",
                 name != null && name.hasDrawing(QeetrixIconShape.Sharp, QeetrixIconVariant.Outline),
             )
+        }
+    }
+
+    /** The Qeet ID screens draw these, sharp on controls; none mirrors, as on iOS. */
+    @Test
+    fun theQeetIdScreensIconsHaveTheirSharpOutlineAndDoNotMirror() {
+        val screens =
+            listOf(
+                "qr-code",
+                "clipboard-paste",
+                "arrow-left-right",
+                "bell-ring",
+                "bot-off",
+                "download",
+                "globe",
+                "laptop",
+                "monitor",
+                "rotate-ccw",
+                "shield-alert",
+                "sparkles",
+            )
+        for (value in screens) {
+            val name = QeetrixIconName.catalogue.singleOrNull { it.value == value }
+            assertTrue(
+                "$value is not in the catalogue",
+                name != null && name.hasDrawing(QeetrixIconShape.Sharp, QeetrixIconVariant.Outline),
+            )
+            // A two-way arrow reads the same either way: upstream marks arrow-left-right "preserve".
+            assertFalse("$value mirrors", name!!.mirrorsInRightToLeft)
         }
     }
 

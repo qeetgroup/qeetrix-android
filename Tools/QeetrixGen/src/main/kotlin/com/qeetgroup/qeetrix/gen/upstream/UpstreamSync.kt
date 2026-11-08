@@ -34,9 +34,9 @@ import java.util.zip.GZIPInputStream
  * - **`@qeetrix/react`**: the component manifest (`dist/manifest.json`) becomes
  *   `component-manifest.json`; the compiled CSS of the families Android implements is copied, so a pin
  *   bump shows exactly how each component's look changed.
- * - **`@qeetrix/icons`**: each pinned icon's entry in the catalogue (`dist/manifest.json`) and its plain SVG
+ * - **`@qeetrix/icons`**: each icon's entry in the catalogue (`dist/manifest.json`) and its plain SVG
  *   drawings (`dist/svg/<shape>-<variant>/<id>.svg`, one per shape and variant the entry declares), copied
- *   unchanged.
+ *   unchanged: the pinned core icons, and with `extended` every other icon the package publishes.
  *
  * Every tarball is checked against the registry's integrity hash. With [check] nothing is written; the
  * fetched bytes are compared with the lock instead.
@@ -130,8 +130,29 @@ class UpstreamSync(
                 .map { it.removePrefix("$svgPrefix/").substringBefore('/') }
                 .filter { it != "logos" }
                 .toSortedSet()
+        val names = icons.names.toSet()
+        icons.names.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.firstOrNull()?.let {
+            throw GeneratorError("Upstream/manifest.json pins \"$it\" twice.")
+        }
+        // The core pins, then — with the extended catalogue — every other icon the package publishes.
+        val wanted =
+            if (icons.extended) {
+                val all = entries.map { it.jsonObject["name"]?.stringOrNull() ?: throw GeneratorError("$iconContext: an icon has no name.") }
+                for (name in icons.names) {
+                    if (name !in all) {
+                        val renamed = entries.firstOrNull { e -> e.jsonObject["aliases"]?.jsonArray?.any { it.stringOrNull() == name } == true }
+                        throw GeneratorError(
+                            "$iconContext has no icon named \"$name\"" +
+                                (renamed?.let { " — it is now \"${it.jsonObject["name"]!!.jsonPrimitive.content}\"" } ?: "") + ".",
+                        )
+                    }
+                }
+                all
+            } else {
+                icons.names
+            }
         val selected =
-            icons.names.map { name ->
+            wanted.map { name ->
                 val entry =
                     entries.firstOrNull { it.jsonObject["name"]?.stringOrNull() == name }?.jsonObject
                         ?: run {
@@ -157,7 +178,7 @@ class UpstreamSync(
             }
         staged["Upstream/qeetrix-icons/icons.json"] = pretty(JsonArray(selected))
         staged[icons.licenseDestination] = iconFiles.need(icons.license, icons)
-        log("  ${icons.names.size} icons")
+        log("  ${names.size} core icons" + if (icons.extended) ", ${selected.size - names.size} more in the extended catalogue" else "")
 
         val lock =
             Lock(
