@@ -58,8 +58,8 @@ class SnapshotTest {
 
     @Test
     fun everyRoleNamesItsLetterStyleAndLandsOnTheGrid() {
-        // @qeetrix/tokens 0.0.13: each composite names its font.geometry token (QTRX-186) and its line height as a
-        // length on the 4 px grid (QTRX-184), the web's pairing of design rules §5.
+        // @qeetrix/tokens 0.0.13: each composite names its font.geometry token and its line height as a
+        // length on the 4 px grid, the web's pairing of design rules §5.
         val roles = model.tokensUnder("typography").map { it to it.themes.getValue("light") as TokenValue.Typography }
         val geometry = roles.groupBy({ it.first.path[1] }, { it.second.geometry.joinToString(".") }).mapValues { it.value.toSet() }
         assertEquals(setOf("font.geometry.display"), geometry["display"])

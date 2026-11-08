@@ -41,7 +41,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-/** QTRX-191: the menu's side and align, submenus, and a context menu that opens where an area is long-pressed. */
+/** The menu's side and align, submenus, and a context menu that opens where an area is long-pressed. */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixMenuMoreTest {
     @get:Rule

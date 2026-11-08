@@ -30,8 +30,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
@@ -46,10 +48,12 @@ import com.qeetgroup.qeetrix.icons.QeetrixIcon
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.icons.QeetrixIconShape
 import com.qeetgroup.qeetrix.internal.FocusFrame
+import com.qeetgroup.qeetrix.internal.QeetrixTextWeight
 import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
+import java.text.BreakIterator
 
 /**
  * A row of a collection — a file, a member, a setting, a device — with a [title] and, optionally, a [description],
@@ -100,8 +104,11 @@ import com.qeetgroup.qeetrix.theme.QeetrixTheme
  * @param description A second line, `body.sm` in `color.text.subtle`.
  * @param metadata A short note at the end of the title line — a time, a size, a count — in tabular figures.
  * @param onLongClickLabel What a long press does, for accessibility services ("Select").
- * @param leading Before the text: a [QeetrixListItemIcon], a [com.qeetgroup.qeetrix.components.avatar.QeetrixAvatar],
- *   a checkbox.
+ * @param content Under the description, `space.gap.xs` below it: an authenticator's
+ *   [com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPCode], a progress bar. A control there stays its own
+ *   focusable element, as in [trailing].
+ * @param leading Before the text: a [QeetrixListItemIcon] (an icon, or one or two characters), a
+ *   [com.qeetgroup.qeetrix.components.avatar.QeetrixAvatar], a checkbox.
  * @param trailing After the text: a badge, a value, an icon button.
  */
 @OptIn(ExperimentalFoundationApi::class)
@@ -117,6 +124,7 @@ public fun QeetrixListItem(
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     interactionSource: MutableInteractionSource? = null,
+    content: (@Composable () -> Unit)? = null,
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
 ) {
@@ -142,7 +150,7 @@ public fun QeetrixListItem(
         label = "list-item",
     )
     val trailingBelow = LocalDensity.current.fontScale >= LARGE_FONT_SCALE
-    val content = if (enabled) colors.textDefault else colors.textDisabled
+    val contentColor = if (enabled) colors.textDefault else colors.textDisabled
 
     Row(
         modifier
@@ -169,17 +177,69 @@ public fun QeetrixListItem(
         horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd),
         verticalAlignment = if (trailingBelow) Alignment.Top else Alignment.CenterVertically,
     ) {
-        CompositionLocalProvider(LocalQeetrixContentColor provides content, LocalListItemEnabled provides enabled) {
+        CompositionLocalProvider(LocalQeetrixContentColor provides contentColor, LocalListItemEnabled provides enabled) {
             leading?.invoke()
             if (trailingBelow && trailing != null) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm)) {
-                    ListItemText(title, description, metadata, enabled)
+                    TextAndContent(title, description, metadata, enabled, content)
                     trailing()
                 }
             } else {
-                Box(Modifier.weight(1f)) { ListItemText(title, description, metadata, enabled) }
+                Box(Modifier.weight(1f)) { TextAndContent(title, description, metadata, enabled, content) }
                 trailing?.invoke()
             }
+        }
+    }
+}
+
+/** 0.1.0's signature without `content`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun QeetrixListItem(
+    title: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    metadata: String? = null,
+    selected: Boolean = false,
+    enabled: Boolean = true,
+    onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
+    interactionSource: MutableInteractionSource? = null,
+    leading: (@Composable () -> Unit)? = null,
+    trailing: (@Composable () -> Unit)? = null,
+): Unit =
+    QeetrixListItem(
+        title = title,
+        modifier = modifier,
+        description = description,
+        metadata = metadata,
+        selected = selected,
+        enabled = enabled,
+        onClick = onClick,
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
+        interactionSource = interactionSource,
+        content = null,
+        leading = leading,
+        trailing = trailing,
+    )
+
+/** The row's text, and the app's [content] `space.gap.xs` under it. */
+@Composable
+private fun TextAndContent(
+    title: String,
+    description: String?,
+    metadata: String?,
+    enabled: Boolean,
+    content: (@Composable () -> Unit)?,
+) {
+    if (content == null) {
+        ListItemText(title, description, metadata, enabled)
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs)) {
+            ListItemText(title, description, metadata, enabled)
+            content()
         }
     }
 }
@@ -207,6 +267,58 @@ public fun QeetrixListItemIcon(
         val tint = if (LocalListItemEnabled.current) colors.iconSubtle else colors.iconDisabled
         QeetrixIcon(icon, contentDescription = null, size = QeetrixSize.IconSm, shape = QeetrixIconShape.Sharp, tint = tint)
     }
+}
+
+/**
+ * A row's tile with one or two characters — an issuer's initial ("G") where it has no logo, a step's number ("2") —
+ * for the [QeetrixListItem]'s `leading` slot. Drawn as the icon tile: 32 dp, `color.bg.neutral.subtle` with
+ * a 1 dp `color.border.subtle` edge inside and 4 dp corners, the [text] centred in `label.md` at weight 600 in
+ * `color.text.subtle` (`color.text.disabled` in a disabled row). A person is an
+ * [com.qeetgroup.qeetrix.components.avatar.QeetrixAvatar], which is round; this square tile is for things.
+ *
+ * - **Two characters at most**, as written: longer text is cut to its first two, a letter with its combining marks
+ *   counting as one.
+ * - **It grows with the font scale**, `space.gap.xs` around the text, so large text is never clipped.
+ * - **Decorative**: hidden from accessibility services, as the row's title already names the item.
+ */
+@Composable
+public fun QeetrixListItemIcon(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    val colors = QeetrixTheme.colors
+    val shape = QeetrixShapes.Control
+    val shown = remember(text) { firstCharacters(text, MAX_TILE_CHARACTERS) }
+    val style =
+        QeetrixTheme.typography.labelMd.copy(
+            color = if (LocalListItemEnabled.current) colors.textSubtle else colors.textDisabled,
+            fontWeight = QeetrixTextWeight.Semibold,
+            textAlign = TextAlign.Center,
+        )
+    Layout(
+        content = { BasicText(shown, style = style, maxLines = 1, softWrap = false) },
+        modifier =
+            modifier
+                .clearAndSetSemantics {}
+                .background(colors.bgNeutralSubtle, shape)
+                .border(QeetrixBorder.WidthDefault, colors.borderSubtle, shape),
+    ) { measurables, _ ->
+        val placeable = measurables.single().measure(Constraints())
+        val inset = QeetrixSpace.GapXs.roundToPx() * 2
+        val side = maxOf(ICON_TILE.roundToPx(), placeable.width + inset, placeable.height + inset)
+        layout(side, side) { placeable.placeRelative((side - placeable.width) / 2, (side - placeable.height) / 2) }
+    }
+}
+
+/** The first [count] user-perceived characters of [text]: a letter with its combining marks is one. */
+internal fun firstCharacters(
+    text: String,
+    count: Int,
+): String {
+    val characters = BreakIterator.getCharacterInstance().apply { setText(text) }
+    var end = 0
+    repeat(count) { characters.next().takeIf { it != BreakIterator.DONE }?.let { end = it } }
+    return text.substring(0, end)
 }
 
 /**
@@ -280,6 +392,9 @@ internal val HorizontalPadding = QeetrixSpace.InsetLg
 
 /** A `md` avatar's side: two lines of a row (`label.md` and `body.sm`) are this tall. */
 private val ICON_TILE = 32.dp
+
+/** The most characters a [QeetrixListItemIcon] tile shows. */
+private const val MAX_TILE_CHARACTERS = 2
 
 /** The font scale from which a row's trailing element moves below its text, as at iOS's accessibility sizes. */
 internal const val LARGE_FONT_SCALE = 1.5f

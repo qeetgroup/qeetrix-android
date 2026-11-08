@@ -98,7 +98,7 @@ class QeetrixAccessibilityDeviceTest {
     /**
      * The overlays as apps open them, each in its own window ([OverlayCatalog]): the checks run on every window's
      * root, in light and dark. Nothing is excluded: the recorded finding Q-6, Material's 12 dp clickable handle row on
-     * the bottom sheet, went with Material's sheet (QTRX-198).
+     * the bottom sheet, went with Material's sheet.
      */
     @Test
     fun everyOverlayWindowPassesTheAccessibilityTestFramework() {

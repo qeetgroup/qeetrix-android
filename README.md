@@ -19,9 +19,9 @@
 
 | | |
 |:--|:--|
-| 🧩 **64 components** | Buttons, forms, dialogs, sheets, menus and navigation, plus native-only ones such as the OTP code, QR scanner, swipe actions and pull to refresh |
+| 🧩 **66 components** | Buttons, forms, dialogs, sheets, menus and navigation, plus native-only ones such as the OTP code, QR scanner, swipe actions and pull to refresh |
 | 🎨 **Foundations** | 109 colour roles in light and dark, 18 text styles, spacing, radii, shadows, motion and three densities |
-| ✨ **59 icons** | From `@qeetrix/icons`, in sharp and round shapes, outline and filled |
+| ✨ **88 icons** | From `@qeetrix/icons`, in sharp and round shapes, outline and filled |
 | 🔤 **Fonts** | Qeet Sans and Fira Code, the same files the web uses |
 | 🌐 **Formatting** | Numbers, money, dates, times and durations in the device's locale (`QeetrixFormat`) |
 | ♿ **Accessibility** | TalkBack support, 48 dp touch targets, checked contrast, text up to 200 %, right to left |

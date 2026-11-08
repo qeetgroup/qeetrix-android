@@ -39,6 +39,12 @@ class QeetrixOTPInputScreenshotTest {
                     validationType = QeetrixOTPValidationType.Alphanumeric,
                     modifier = Modifier.width(300.dp),
                 )
+                QeetrixOTPInput(
+                    TextFieldState("7"),
+                    label = "Number match (square slots)",
+                    length = 2,
+                    slotWidth = QeetrixOTPSlotWidth.Square,
+                )
                 QeetrixOTPInput(TextFieldState("482105"), label = "Read-only", readOnly = true)
                 QeetrixOTPInput(TextFieldState("12"), label = "Disabled", length = 4, enabled = false)
             }

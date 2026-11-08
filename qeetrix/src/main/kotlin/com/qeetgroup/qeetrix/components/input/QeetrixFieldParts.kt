@@ -315,7 +315,7 @@ internal class FieldColors(
  * input.css's states, applied in its cascade order so each later rule wins as it does there: hover
  * (`bg.neutral.subtle-hover`); invalid (a 2 dp `border.danger` frame instead of the line); focus — any focus, since
  * the caret needs context — (a 2 dp `border.focus` frame instead of the line, and the resting fill); read-only (no
- * fill and the editable field's `border.strong` line, which keeps 3:1: QTRX-175); disabled (`bg.disabled`, a `border.disabled` line, `text.disabled`).
+ * fill and the editable field's `border.strong` line, which keeps 3:1); disabled (`bg.disabled`, a `border.disabled` line, `text.disabled`).
  */
 @Composable
 internal fun fieldColors(
@@ -542,7 +542,7 @@ private val HELP_MAX_WIDTH = 360.dp
 
 /**
  * The placeholder (`::placeholder`): `color.text.subtlest`, an example, never the label. A single-line field's ends in
- * an ellipsis where it doesn't fit, as at 200 % text, so it is never cut silently (QTRX-197); a placeholder is a short
+ * an ellipsis where it doesn't fit, as at 200 % text, so it is never cut silently; a placeholder is a short
  * example (design rules §8), and the field doesn't grow for it.
  */
 @Composable

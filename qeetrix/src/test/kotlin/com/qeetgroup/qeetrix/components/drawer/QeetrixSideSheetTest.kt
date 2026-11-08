@@ -28,7 +28,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * The side sheet (QTRX-195): at the end or start edge from `breakpoint.medium`, full height and `min(size, 100vw -
+ * The side sheet: at the end or start edge from `breakpoint.medium`, full height and `min(size, 100vw -
  * 48px)` wide as `.qx-drawer` is, mirrored in right to left; a bottom sheet below that width.
  */
 @RunWith(RobolectricTestRunner::class)

@@ -10,8 +10,8 @@ import java.util.jar.JarFile
 
 /**
  * Material 3 is an implementation detail of a few components (docs/decisions.md):
- * the platform's own date and time pickers (QTRX-120, QTRX-128 ask for them, themed by Qeetrix) and pull to refresh's
- * nested-scroll handling (QTRX-107, drawn by Qeetrix). The bottom sheet no longer is (QTRX-198). Only those files may use
+ * the platform's own date and time pickers (themed by Qeetrix) and pull to refresh's
+ * nested-scroll handling (drawn by Qeetrix). The bottom sheet no longer is. Only those files may use
  * it, and nothing public may mention it. This keeps Material from becoming the design authority one convenient import at a time.
  */
 class MaterialBoundaryTest {

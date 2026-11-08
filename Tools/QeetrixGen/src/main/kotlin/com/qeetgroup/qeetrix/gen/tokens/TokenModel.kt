@@ -251,7 +251,7 @@ class TokenModel(
                     val spacing = px(obj.need("letterSpacing", context), context)
                     val ratio = number(obj.need("lineHeight", context), context)
                     // The line height as a length and the role's letter style are Qeetrix's extension of the composite
-                    // (@qeetrix/tokens 0.0.13, QTRX-184 and QTRX-186); the ratio DTCG requires is the length over the size.
+                    // (@qeetrix/tokens 0.0.13); the ratio DTCG requires is the length over the size.
                     val qeetrix = extension ?: throw GeneratorError("$context: no \$extensions[\"${DtcgToken.QEETRIX_EXTENSION}\"].")
                     val lineHeightPx = px(qeetrix.need("lineHeight", "$context \$extensions"), "$context \$extensions")
                     if (Math.abs(size * ratio - lineHeightPx) > LINE_HEIGHT_EPSILON) {

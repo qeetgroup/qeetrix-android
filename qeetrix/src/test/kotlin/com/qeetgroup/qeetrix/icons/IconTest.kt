@@ -54,14 +54,44 @@ class IconTest {
                     )
                 }
             }
-            // The catalogue's mirroring only: arrows and chevrons are "preserve", and the place they're used decides
-            // (QTRX-200).
+            // The catalogue's mirroring only: arrows and chevrons are "preserve", and the place they're used decides.
             assertEquals(name.value, entry.getString("directionality") == "mirror", name.mirrorsInRightToLeft)
         }
         assertTrue(QeetrixIconName.Send.mirrorsInRightToLeft)
         assertFalse(QeetrixIconName.ChevronRight.mirrorsInRightToLeft)
         assertFalse(QeetrixIconName.ChevronDown.mirrorsInRightToLeft)
         assertFalse(QeetrixIconName.Search.mirrorsInRightToLeft)
+    }
+
+    /** The native Qeet ID apps draw these, sharp on controls, so the pin must keep them. */
+    @Test
+    fun theAuthenticatorIconsHaveTheirSharpOutline() {
+        val authenticator =
+            listOf(
+                "key",
+                "shield-check",
+                "shield-x",
+                "scan-line",
+                "link",
+                "lock-open",
+                "timer",
+                "hourglass",
+                "bell-off",
+                "wifi-off",
+                "fingerprint-pattern",
+                "arrow-right",
+                "external-link",
+                "scan-face",
+                "scan-qr-code",
+                "rectangle-ellipsis",
+            )
+        for (value in authenticator) {
+            val name = QeetrixIconName.entries.singleOrNull { it.value == value }
+            assertTrue(
+                "$value is not in the catalogue",
+                name != null && name.hasDrawing(QeetrixIconShape.Sharp, QeetrixIconVariant.Outline),
+            )
+        }
     }
 
     @Test

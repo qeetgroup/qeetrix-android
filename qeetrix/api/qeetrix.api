@@ -1,12 +1,24 @@
 public final class com/qeetgroup/qeetrix/components/accordion/QeetrixAccordionKt {
 	public static final fun QeetrixAccordion (Ljava/util/List;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;ZZLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
-	public static final fun QeetrixAccordionItem (Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/ui/Modifier;ZLandroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixAccordionItem (Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;ZLandroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun QeetrixAccordionItem (Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/ui/Modifier;ZLandroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
 	public static final fun QeetrixCollapsiblePanel (ZLandroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
 	public static final fun QeetrixCollapsibleTrigger (Ljava/lang/String;ZLkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/components/button/QeetrixButtonVariant;Lcom/qeetgroup/qeetrix/components/button/QeetrixButtonTone;Lcom/qeetgroup/qeetrix/components/button/QeetrixButtonSize;ZLandroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;II)V
 }
 
+public final class com/qeetgroup/qeetrix/components/actionbar/QeetrixBottomActionBarArrangement : java/lang/Enum {
+	public static final field Equal Lcom/qeetgroup/qeetrix/components/actionbar/QeetrixBottomActionBarArrangement;
+	public static final field PrimaryFills Lcom/qeetgroup/qeetrix/components/actionbar/QeetrixBottomActionBarArrangement;
+	public static final field Stacked Lcom/qeetgroup/qeetrix/components/actionbar/QeetrixBottomActionBarArrangement;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/actionbar/QeetrixBottomActionBarArrangement;
+	public static fun values ()[Lcom/qeetgroup/qeetrix/components/actionbar/QeetrixBottomActionBarArrangement;
+}
+
 public final class com/qeetgroup/qeetrix/components/actionbar/QeetrixBottomActionBarKt {
-	public static final fun QeetrixBottomActionBar (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollState;ZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixBottomActionBar (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollState;ZLcom/qeetgroup/qeetrix/components/actionbar/QeetrixBottomActionBarArrangement;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun QeetrixBottomActionBar (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollState;ZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/qeetgroup/qeetrix/components/alert/QeetrixAlertAnnounce : java/lang/Enum {
@@ -226,8 +238,10 @@ public final class com/qeetgroup/qeetrix/components/copy/QeetrixCopyFieldLayout 
 }
 
 public final class com/qeetgroup/qeetrix/components/copy/QeetrixCopyKt {
-	public static final fun QeetrixCopyButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;ZLcom/qeetgroup/qeetrix/components/button/QeetrixButtonVariant;Lcom/qeetgroup/qeetrix/components/button/QeetrixButtonTone;Lcom/qeetgroup/qeetrix/components/button/QeetrixButtonSize;ZLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
-	public static final fun QeetrixCopyField (Ljava/lang/String;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/copy/QeetrixCopyFieldLayout;ZZLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun QeetrixCopyButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;ZLcom/qeetgroup/qeetrix/components/button/QeetrixButtonVariant;Lcom/qeetgroup/qeetrix/components/button/QeetrixButtonTone;Lcom/qeetgroup/qeetrix/components/button/QeetrixButtonSize;ZLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixCopyButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;ZLcom/qeetgroup/qeetrix/components/button/QeetrixButtonVariant;Lcom/qeetgroup/qeetrix/components/button/QeetrixButtonTone;Lcom/qeetgroup/qeetrix/components/button/QeetrixButtonSize;ZZLjava/time/Duration;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun QeetrixCopyField (Ljava/lang/String;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/copy/QeetrixCopyFieldLayout;ZZLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixCopyField (Ljava/lang/String;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/copy/QeetrixCopyFieldLayout;ZZZLjava/time/Duration;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/qeetgroup/qeetrix/components/copy/QeetrixCopyState : java/lang/Enum {
@@ -319,6 +333,15 @@ public final class com/qeetgroup/qeetrix/components/dialog/QeetrixDialogSize : j
 
 public final class com/qeetgroup/qeetrix/components/dialog/QeetrixFullScreenFormKt {
 	public static final fun QeetrixFullScreenForm (ZLkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZZLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class com/qeetgroup/qeetrix/components/drawer/QeetrixActionSheetKt {
+	public static final fun QeetrixActionSheet (ZLkotlin/jvm/functions/Function1;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/drawer/QeetrixSheetSize;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixSheetAction (Lcom/qeetgroup/qeetrix/components/drawer/QeetrixActionSheetScope;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/dropdownmenu/QeetrixMenuItemTone;ZZLandroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixSheetActionSeparator (Lcom/qeetgroup/qeetrix/components/drawer/QeetrixActionSheetScope;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+}
+
+public abstract interface class com/qeetgroup/qeetrix/components/drawer/QeetrixActionSheetScope {
 }
 
 public final class com/qeetgroup/qeetrix/components/drawer/QeetrixBottomSheetKt {
@@ -414,6 +437,8 @@ public final class com/qeetgroup/qeetrix/components/emptystate/QeetrixEmptyState
 public final class com/qeetgroup/qeetrix/components/emptystate/QeetrixEmptyStateTone : java/lang/Enum {
 	public static final field Danger Lcom/qeetgroup/qeetrix/components/emptystate/QeetrixEmptyStateTone;
 	public static final field Neutral Lcom/qeetgroup/qeetrix/components/emptystate/QeetrixEmptyStateTone;
+	public static final field Success Lcom/qeetgroup/qeetrix/components/emptystate/QeetrixEmptyStateTone;
+	public static final field Warning Lcom/qeetgroup/qeetrix/components/emptystate/QeetrixEmptyStateTone;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun getValue ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/emptystate/QeetrixEmptyStateTone;
@@ -536,7 +561,8 @@ public final class com/qeetgroup/qeetrix/components/input/QeetrixSearchFieldKt {
 }
 
 public final class com/qeetgroup/qeetrix/components/input/QeetrixTextFieldKt {
-	public static final fun QeetrixTextField (Landroidx/compose/foundation/text/input/TextFieldState;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZZZLjava/lang/String;ZZLcom/qeetgroup/qeetrix/icons/QeetrixIconName;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/foundation/text/KeyboardOptions;Landroidx/compose/ui/autofill/ContentType;Landroidx/compose/foundation/text/input/KeyboardActionHandler;Landroidx/compose/foundation/text/input/InputTransformation;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;IIII)V
+	public static final synthetic fun QeetrixTextField (Landroidx/compose/foundation/text/input/TextFieldState;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZZZLjava/lang/String;ZZLcom/qeetgroup/qeetrix/icons/QeetrixIconName;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/foundation/text/KeyboardOptions;Landroidx/compose/ui/autofill/ContentType;Landroidx/compose/foundation/text/input/KeyboardActionHandler;Landroidx/compose/foundation/text/input/InputTransformation;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;IIII)V
+	public static final fun QeetrixTextField (Landroidx/compose/foundation/text/input/TextFieldState;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZZZLjava/lang/String;ZZZLcom/qeetgroup/qeetrix/icons/QeetrixIconName;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/foundation/text/KeyboardOptions;Landroidx/compose/ui/autofill/ContentType;Landroidx/compose/foundation/text/input/KeyboardActionHandler;Landroidx/compose/foundation/text/input/InputTransformation;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;IIII)V
 }
 
 public final class com/qeetgroup/qeetrix/components/input/QeetrixTextareaKt {
@@ -544,8 +570,10 @@ public final class com/qeetgroup/qeetrix/components/input/QeetrixTextareaKt {
 }
 
 public final class com/qeetgroup/qeetrix/components/list/QeetrixListItemKt {
-	public static final fun QeetrixListItem (Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;ZZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun QeetrixListItem (Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;ZZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
+	public static final fun QeetrixListItem (Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Ljava/lang/String;ZZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
 	public static final fun QeetrixListItemIcon (Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixListItemIcon (Ljava/lang/String;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/qeetgroup/qeetrix/components/list/QeetrixPullToRefreshKt {
@@ -651,7 +679,8 @@ public final class com/qeetgroup/qeetrix/components/numberfield/QeetrixNumberFie
 }
 
 public final class com/qeetgroup/qeetrix/components/otpinput/QeetrixOTPCodeKt {
-	public static final fun QeetrixOTPCode (Ljava/lang/String;Ljava/time/Instant;Landroidx/compose/ui/Modifier;Ljava/time/Duration;Ljava/lang/String;ZLcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPCodeSize;Ljava/time/Instant;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun QeetrixOTPCode (Ljava/lang/String;Ljava/time/Instant;Landroidx/compose/ui/Modifier;Ljava/time/Duration;Ljava/lang/String;ZLcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPCodeSize;Ljava/time/Instant;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixOTPCode (Ljava/lang/String;Ljava/time/Instant;Landroidx/compose/ui/Modifier;Ljava/time/Duration;Ljava/lang/String;ZLcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPCodeSize;Ljava/time/Instant;ZLjava/time/Duration;ZLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
 }
 
 public final class com/qeetgroup/qeetrix/components/otpinput/QeetrixOTPCodeSize : java/lang/Enum {
@@ -664,7 +693,8 @@ public final class com/qeetgroup/qeetrix/components/otpinput/QeetrixOTPCodeSize 
 }
 
 public final class com/qeetgroup/qeetrix/components/otpinput/QeetrixOTPInputKt {
-	public static final fun QeetrixOTPInput (Landroidx/compose/foundation/text/input/TextFieldState;Ljava/lang/String;Landroidx/compose/ui/Modifier;ILjava/util/List;Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPInputSize;Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPValidationType;Ljava/lang/String;Ljava/lang/String;ZZZZLjava/lang/String;ZZZLandroidx/compose/foundation/text/input/KeyboardActionHandler;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
+	public static final fun QeetrixOTPInput (Landroidx/compose/foundation/text/input/TextFieldState;Ljava/lang/String;Landroidx/compose/ui/Modifier;ILjava/util/List;Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPInputSize;Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPSlotWidth;Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPValidationType;Ljava/lang/String;Ljava/lang/String;ZZZZLjava/lang/String;ZZZLandroidx/compose/foundation/text/input/KeyboardActionHandler;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;IIII)V
+	public static final synthetic fun QeetrixOTPInput (Landroidx/compose/foundation/text/input/TextFieldState;Ljava/lang/String;Landroidx/compose/ui/Modifier;ILjava/util/List;Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPInputSize;Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPValidationType;Ljava/lang/String;Ljava/lang/String;ZZZZLjava/lang/String;ZZZLandroidx/compose/foundation/text/input/KeyboardActionHandler;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
 }
 
 public final class com/qeetgroup/qeetrix/components/otpinput/QeetrixOTPInputSize : java/lang/Enum {
@@ -674,6 +704,15 @@ public final class com/qeetgroup/qeetrix/components/otpinput/QeetrixOTPInputSize
 	public final fun getValue ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPInputSize;
 	public static fun values ()[Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPInputSize;
+}
+
+public final class com/qeetgroup/qeetrix/components/otpinput/QeetrixOTPSlotWidth : java/lang/Enum {
+	public static final field Fill Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPSlotWidth;
+	public static final field Square Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPSlotWidth;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPSlotWidth;
+	public static fun values ()[Lcom/qeetgroup/qeetrix/components/otpinput/QeetrixOTPSlotWidth;
 }
 
 public final class com/qeetgroup/qeetrix/components/otpinput/QeetrixOTPValidationType : java/lang/Enum {
@@ -717,7 +756,8 @@ public final class com/qeetgroup/qeetrix/components/permission/QeetrixPermission
 }
 
 public final class com/qeetgroup/qeetrix/components/permission/QeetrixPermissionPrimerKt {
-	public static final fun QeetrixPermissionPrimer (Lcom/qeetgroup/qeetrix/components/permission/QeetrixPermission;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/components/permission/QeetrixPermissionStatus;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun QeetrixPermissionPrimer (Lcom/qeetgroup/qeetrix/components/permission/QeetrixPermission;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/components/permission/QeetrixPermissionStatus;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixPermissionPrimer (Lcom/qeetgroup/qeetrix/components/permission/QeetrixPermission;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/components/permission/QeetrixPermissionStatus;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/qeetgroup/qeetrix/components/permission/QeetrixPermissionStatus : java/lang/Enum {
@@ -795,7 +835,17 @@ public final class com/qeetgroup/qeetrix/components/relativetime/QeetrixRelative
 }
 
 public final class com/qeetgroup/qeetrix/components/scanner/QeetrixQRScannerKt {
-	public static final fun QeetrixQRScanner (Lcom/qeetgroup/qeetrix/components/scanner/QeetrixScannerState;Landroidx/compose/ui/Modifier;Ljava/lang/String;ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final fun QeetrixQRScanner (Lcom/qeetgroup/qeetrix/components/scanner/QeetrixScannerState;Landroidx/compose/ui/Modifier;Ljava/lang/String;ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;Lcom/qeetgroup/qeetrix/components/scanner/QeetrixScannerControlsLayout;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun QeetrixQRScanner (Lcom/qeetgroup/qeetrix/components/scanner/QeetrixScannerState;Landroidx/compose/ui/Modifier;Ljava/lang/String;ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class com/qeetgroup/qeetrix/components/scanner/QeetrixScannerControlsLayout : java/lang/Enum {
+	public static final field Row Lcom/qeetgroup/qeetrix/components/scanner/QeetrixScannerControlsLayout;
+	public static final field Stacked Lcom/qeetgroup/qeetrix/components/scanner/QeetrixScannerControlsLayout;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/scanner/QeetrixScannerControlsLayout;
+	public static fun values ()[Lcom/qeetgroup/qeetrix/components/scanner/QeetrixScannerControlsLayout;
 }
 
 public final class com/qeetgroup/qeetrix/components/scanner/QeetrixScannerState : java/lang/Enum {
@@ -1075,6 +1125,21 @@ public final class com/qeetgroup/qeetrix/components/typography/QeetrixHeadingTon
 	public static fun values ()[Lcom/qeetgroup/qeetrix/components/typography/QeetrixHeadingTone;
 }
 
+public final class com/qeetgroup/qeetrix/components/typography/QeetrixLinkKt {
+	public static final fun QeetrixLink (Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/components/typography/QeetrixLinkTone;Lcom/qeetgroup/qeetrix/components/typography/QeetrixTextSize;Landroidx/compose/runtime/Composer;II)V
+	public static final fun qeetrixLink (Lkotlin/jvm/functions/Function0;Lcom/qeetgroup/qeetrix/components/typography/QeetrixLinkTone;Landroidx/compose/runtime/Composer;II)Landroidx/compose/ui/text/LinkAnnotation;
+}
+
+public final class com/qeetgroup/qeetrix/components/typography/QeetrixLinkTone : java/lang/Enum {
+	public static final field Default Lcom/qeetgroup/qeetrix/components/typography/QeetrixLinkTone;
+	public static final field Inherit Lcom/qeetgroup/qeetrix/components/typography/QeetrixLinkTone;
+	public static final field Subtle Lcom/qeetgroup/qeetrix/components/typography/QeetrixLinkTone;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcom/qeetgroup/qeetrix/components/typography/QeetrixLinkTone;
+	public static fun values ()[Lcom/qeetgroup/qeetrix/components/typography/QeetrixLinkTone;
+}
+
 public final class com/qeetgroup/qeetrix/components/typography/QeetrixTextKt {
 	public static final fun QeetrixHeading-sXL4qRs (Ljava/lang/String;ILandroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/components/typography/QeetrixHeadingSize;Lcom/qeetgroup/qeetrix/components/typography/QeetrixHeadingTone;IILkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
 	public static final fun QeetrixText-PPkNJQ0 (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/Modifier;Lcom/qeetgroup/qeetrix/components/typography/QeetrixTextSize;Lcom/qeetgroup/qeetrix/components/typography/QeetrixTextWeight;Lcom/qeetgroup/qeetrix/components/typography/QeetrixTextTone;ZIIILkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
@@ -1330,6 +1395,10 @@ public final class com/qeetgroup/qeetrix/foundation/format/QeetrixFormat {
 	public static synthetic fun percent$default (Lcom/qeetgroup/qeetrix/foundation/format/QeetrixFormat;Ljava/lang/Number;Ljava/util/Locale;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Ljava/lang/String;
 	public final fun relativeTime (Ljava/time/Instant;Ljava/util/Locale;Ljava/time/Instant;)Ljava/lang/String;
 	public static synthetic fun relativeTime$default (Lcom/qeetgroup/qeetrix/foundation/format/QeetrixFormat;Ljava/time/Instant;Ljava/util/Locale;Ljava/time/Instant;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun time (Ljava/time/Instant;Ljava/util/Locale;Lcom/qeetgroup/qeetrix/foundation/format/QeetrixTimeStyle;Ljava/time/ZoneId;Ljava/lang/Boolean;)Ljava/lang/String;
+	public final fun time (Ljava/time/LocalTime;Ljava/util/Locale;Lcom/qeetgroup/qeetrix/foundation/format/QeetrixTimeStyle;Ljava/lang/Boolean;)Ljava/lang/String;
+	public static synthetic fun time$default (Lcom/qeetgroup/qeetrix/foundation/format/QeetrixFormat;Ljava/time/Instant;Ljava/util/Locale;Lcom/qeetgroup/qeetrix/foundation/format/QeetrixTimeStyle;Ljava/time/ZoneId;Ljava/lang/Boolean;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun time$default (Lcom/qeetgroup/qeetrix/foundation/format/QeetrixFormat;Ljava/time/LocalTime;Ljava/util/Locale;Lcom/qeetgroup/qeetrix/foundation/format/QeetrixTimeStyle;Ljava/lang/Boolean;ILjava/lang/Object;)Ljava/lang/String;
 }
 
 public final class com/qeetgroup/qeetrix/foundation/format/QeetrixTimeStyle : java/lang/Enum {
@@ -1558,10 +1627,14 @@ public final class com/qeetgroup/qeetrix/icons/QeetrixIconKt {
 }
 
 public final class com/qeetgroup/qeetrix/icons/QeetrixIconName : java/lang/Enum {
+	public static final field Archive Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field ArrowBigUp Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ArrowDown Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field ArrowLeft Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field ArrowRight Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ArrowUp Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Bell Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field BellOff Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Calendar Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Camera Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field CameraOff Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
@@ -1569,17 +1642,22 @@ public final class com/qeetgroup/qeetrix/icons/QeetrixIconName : java/lang/Enum 
 	public static final field ChevronDown Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field ChevronLeft Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field ChevronRight Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ChevronUp Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ChevronsUpDown Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field CircleAlert Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field CircleCheck Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field CircleDashed Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field CirclePlus Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field CircleQuestionMark Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field CircleX Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Clock Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field CloudUpload Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field ContactRound Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Copy Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field Database Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Ellipsis Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field EllipsisVertical Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ExternalLink Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Eye Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field EyeOff Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field File Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
@@ -1588,34 +1666,54 @@ public final class com/qeetgroup/qeetrix/icons/QeetrixIconName : java/lang/Enum 
 	public static final field FileImage Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field FileSpreadsheet Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field FileText Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field FingerprintPattern Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Flashlight Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field FlashlightOff Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Folder Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field Hourglass Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field House Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Image Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ImagePlus Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Inbox Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Info Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field Key Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field KeyRound Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Keyboard Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field Link Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field LoaderCircle Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Lock Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field LockOpen Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Mail Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field MapPin Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Menu Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Minus Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Navigation Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field PanelRight Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Paperclip Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Pencil Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field Pin Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Plus Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field RectangleEllipsis Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field RefreshCw Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ScanFace Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ScanLine Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ScanQrCode Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Search Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field SearchX Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Send Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Server Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Settings Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Share2 Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ShieldCheck Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field ShieldX Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field Smartphone Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field Timer Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Trash Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field TriangleAlert Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field UserPlus Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field UserRound Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field Users Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
+	public static final field WifiOff Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static final field X Lcom/qeetgroup/qeetrix/icons/QeetrixIconName;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun getMirrorsInRightToLeft ()Z

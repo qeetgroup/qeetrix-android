@@ -44,6 +44,7 @@ class QeetrixNavigationScreenshotTest {
                     },
                 )
                 QeetrixTopAppBar(title = "Settings")
+                QeetrixTopAppBar(title = null, description = "Step 1 of 2", navigationIcon = { QeetrixBackButton(onClick = {}) })
                 QeetrixNavigationBar(items, value = "inbox", onValueChange = {})
                 Box(Modifier.height(320.dp)) {
                     QeetrixNavigationRail(items, value = "activity", onValueChange = {}) {

@@ -1,11 +1,18 @@
 package com.qeetgroup.qeetrix.components.copy
 
+import android.app.Activity
+import android.app.Application
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PersistableBundle
+import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -52,6 +59,8 @@ import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import kotlinx.coroutines.delay
+import java.lang.ref.WeakReference
+import java.time.Duration
 
 /** Where a copy stands (`value` is `@qeetrix/react`'s CopyButtonState). */
 public enum class QeetrixCopyState(
@@ -71,7 +80,8 @@ public enum class QeetrixCopyState(
  * Puts text on the clipboard the way every Qeetrix copy does: as plain text named [label], marked sensitive when
  * [sensitive] (`ClipDescription.EXTRA_IS_SENSITIVE`, so Android 13 and later hide it in the clipboard preview and keep
  * it out of suggestions), with a [QeetrixHapticRole.LightImpact] haptic. Android 13 and later confirm a copy
- * themselves; below them a short toast says "Copied". Returns whether the clipboard took it.
+ * themselves; below them a short toast says "Copied", unless [confirm] is false because the app confirms it. Returns
+ * whether the clipboard took it.
  */
 internal fun copyToClipboard(
     context: Context,
@@ -79,6 +89,8 @@ internal fun copyToClipboard(
     label: String,
     sensitive: Boolean,
     copied: String,
+    confirm: Boolean = true,
+    sdk: Int = Build.VERSION.SDK_INT,
 ): Boolean {
     val clipboard = context.getSystemService(ClipboardManager::class.java) ?: return false
     val clip = ClipData.newPlainText(label, text)
@@ -90,8 +102,123 @@ internal fun copyToClipboard(
             }
     }
     val taken = runCatching { clipboard.setPrimaryClip(clip) }.isSuccess
-    if (taken && Build.VERSION.SDK_INT < 33) Toast.makeText(context, copied, Toast.LENGTH_SHORT).show()
+    if (taken && confirm && sdk < 33) Toast.makeText(context, copied, Toast.LENGTH_SHORT).show()
     return taken
+}
+
+/**
+ * A copy's timed clear: when the delay has passed, the clipboard is cleared if it still holds the copied
+ * text, so a newer copy — the app's or another app's — is left alone. Android lets only the app with focus read the
+ * clipboard, so a deadline that passes while the app is in the background waits until one of its windows next has
+ * focus. A newer timed copy replaces the pending one; the clear lasts as long as the app's process.
+ */
+internal object ClipboardClear {
+    private val main by lazy { Handler(Looper.getMainLooper()) }
+    private var pending: Pending? = null
+
+    fun schedule(
+        context: Context,
+        text: String,
+        after: Duration,
+    ) {
+        cancel()
+        val clipboard = context.getSystemService(ClipboardManager::class.java) ?: return
+        val next = Pending(clipboard, text)
+        pending = next
+        (context.applicationContext as? Application)?.registerActivityLifecycleCallbacks(next)
+        main.postDelayed(next, after.toMillis().coerceAtLeast(0))
+    }
+
+    fun cancel() {
+        pending?.let {
+            main.removeCallbacks(it)
+            it.stop()
+        }
+    }
+
+    /**
+     * One timed clear. It keeps no context: it is told of the app's activities from the copy on, acts on them only once
+     * its deadline has passed unread, and unregisters itself through the next one once it is done.
+     */
+    private class Pending(
+        private val clipboard: ClipboardManager,
+        private val text: String,
+    ) : Runnable,
+        Application.ActivityLifecycleCallbacks {
+        private var done = false
+        private var waiting = false
+        private var watched: WeakReference<View>? = null
+        private val focus = ViewTreeObserver.OnWindowFocusChangeListener { hasFocus -> if (hasFocus) clear(focused = true) }
+
+        /** The deadline. Nothing to read means either an empty clipboard or no focus: wait for focus to tell. */
+        override fun run() {
+            if (!clear(focused = false)) waiting = true
+        }
+
+        /** Clears the clipboard if it holds [text]; false while it can't be read without focus. */
+        fun clear(focused: Boolean): Boolean {
+            if (done) return true
+            val clip = clipboard.primaryClip
+            if (clip == null && !focused) return false
+            if (clip != null && clip.itemCount > 0 && clip.getItemAt(0).text?.toString() == text) clipboard.clearPrimaryClip()
+            stop()
+            return true
+        }
+
+        fun stop() {
+            done = true
+            if (pending === this) pending = null
+            unwatch()
+        }
+
+        // A window's focus listeners move to its attached observer, so the observer is looked up again to remove one.
+        private fun unwatch() {
+            watched
+                ?.get()
+                ?.viewTreeObserver
+                ?.takeIf { it.isAlive }
+                ?.removeOnWindowFocusChangeListener(focus)
+            watched = null
+        }
+
+        /** Done: stop hearing about activities. */
+        private fun retireThrough(activity: Activity): Boolean {
+            if (done) activity.application.unregisterActivityLifecycleCallbacks(this)
+            return done
+        }
+
+        override fun onActivityResumed(activity: Activity) {
+            if (retireThrough(activity) || !waiting) return
+            val decor = activity.window?.decorView ?: return
+            if (decor.hasWindowFocus()) {
+                clear(focused = true)
+            } else if (watched?.get() !== decor) {
+                unwatch()
+                decor.viewTreeObserver.addOnWindowFocusChangeListener(focus)
+                watched = WeakReference(decor)
+            }
+        }
+
+        override fun onActivityPaused(activity: Activity) {
+            retireThrough(activity)
+        }
+
+        override fun onActivityCreated(
+            activity: Activity,
+            savedInstanceState: Bundle?,
+        ) = Unit
+
+        override fun onActivityStarted(activity: Activity) = Unit
+
+        override fun onActivityStopped(activity: Activity) = Unit
+
+        override fun onActivitySaveInstanceState(
+            activity: Activity,
+            outState: Bundle,
+        ) = Unit
+
+        override fun onActivityDestroyed(activity: Activity) = Unit
+    }
 }
 
 private const val SENSITIVE_KEY = "android.content.extra.IS_SENSITIVE"
@@ -124,17 +251,22 @@ internal fun rememberCopyAction(
     label: String,
     sensitive: Boolean,
     onCopied: ((String) -> Unit)?,
+    confirm: Boolean = true,
+    clearAfter: Duration? = null,
 ): CopyAction {
     val context = LocalContext.current
     val haptics = rememberQeetrixHaptics()
     val copied = stringResource(R.string.qx_copy_copied)
     val action =
-        remember(context, label, sensitive) {
+        remember(context, label, sensitive, confirm, clearAfter) {
             CopyAction {
                 val text = value()
-                val taken = copyToClipboard(context, text, label, sensitive, copied)
+                val taken = copyToClipboard(context, text, label, sensitive, copied, confirm)
                 haptics.perform(if (taken) QeetrixHapticRole.LightImpact else QeetrixHapticRole.Error)
-                if (taken) onCopied?.invoke(text)
+                if (taken) {
+                    clearAfter?.let { ClipboardClear.schedule(context, text, it) }
+                    onCopied?.invoke(text)
+                }
                 taken
             }
         }
@@ -157,6 +289,11 @@ internal fun rememberCopyAction(
  * - [value] is read at the moment of the copy, so it can be a fresh token.
  * - [sensitive] marks the clipboard entry sensitive (a secret, a one-time code): Android 13 and later hide it in the
  *   clipboard preview.
+ * - [confirm] `false` drops the "Copied" toast below Android 13, for an app that confirms the copy itself — a snackbar
+ *   from [onCopied]. Android 13 and later always show the system's own confirmation.
+ * - [clearAfter] clears the clipboard after that long if it still holds the copy: 30 seconds for a one-time code.
+ *   While the app is in the background Android doesn't let it read the clipboard, so the clear then waits until the
+ *   app is back in front.
  * - [text] makes it a [com.qeetgroup.qeetrix.components.button.QeetrixButton] with a visible label and the icon in its
  *   trailing zone, named by the label.
  *
@@ -175,12 +312,44 @@ public fun QeetrixCopyButton(
     tone: QeetrixButtonTone = QeetrixButtonTone.Neutral,
     size: QeetrixButtonSize = QeetrixButtonSize.Md,
     enabled: Boolean = true,
+    confirm: Boolean = true,
+    clearAfter: Duration? = null,
     onCopied: ((String) -> Unit)? = null,
 ) {
     val name = label ?: stringResource(R.string.qx_copy)
-    val action = rememberCopyAction(value, name, sensitive, onCopied)
+    val action = rememberCopyAction(value, name, sensitive, onCopied, confirm, clearAfter)
     CopyButtonFrame(action, name, text, modifier, variant, tone, size, enabled)
 }
+
+/** 0.1.0's signature without `confirm` and `clearAfter`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun QeetrixCopyButton(
+    value: () -> String,
+    modifier: Modifier = Modifier,
+    label: String? = null,
+    text: String? = null,
+    sensitive: Boolean = false,
+    variant: QeetrixButtonVariant = QeetrixButtonVariant.Ghost,
+    tone: QeetrixButtonTone = QeetrixButtonTone.Neutral,
+    size: QeetrixButtonSize = QeetrixButtonSize.Md,
+    enabled: Boolean = true,
+    onCopied: ((String) -> Unit)? = null,
+): Unit =
+    QeetrixCopyButton(
+        value = value,
+        modifier = modifier,
+        label = label,
+        text = text,
+        sensitive = sensitive,
+        variant = variant,
+        tone = tone,
+        size = size,
+        enabled = enabled,
+        confirm = true,
+        clearAfter = null,
+        onCopied = onCopied,
+    )
 
 @Composable
 internal fun CopyButtonFrame(
@@ -275,7 +444,8 @@ public enum class QeetrixCopyFieldLayout(
  *   `color.text.subtle`) under it.
  * - [QeetrixCopyFieldLayout.Row]: the label in the first 30 % (at least 128 dp), the value and Copy after it,
  *   `space.gap.sm` above and below, no line; consecutive rows are ruled in `color.border.subtle` by the caller's list.
- * - [sensitive] marks the clipboard entry sensitive, for a secret.
+ * - [sensitive] marks the clipboard entry sensitive, for a secret. [confirm] and [clearAfter] are
+ *   [QeetrixCopyButton]'s: no toast where the app confirms the copy, and a timed clear.
  *
  * ```
  * QeetrixCopyField("ACS URL", acsUrl, description = "Paste it into your identity provider.")
@@ -290,12 +460,14 @@ public fun QeetrixCopyField(
     layout: QeetrixCopyFieldLayout = QeetrixCopyFieldLayout.Field,
     wrap: Boolean = true,
     sensitive: Boolean = false,
+    confirm: Boolean = true,
+    clearAfter: Duration? = null,
     onCopied: ((String) -> Unit)? = null,
 ) {
     val colors = QeetrixTheme.colors
     val typography = QeetrixTheme.typography
     val name = stringResource(R.string.qx_copy_label, label)
-    val action = rememberCopyAction({ value }, name, sensitive, onCopied)
+    val action = rememberCopyAction({ value }, name, sensitive, onCopied, confirm, clearAfter)
     val labelText: @Composable (Modifier) -> Unit = { m ->
         // .qx-copy-field-label: label.sm, color.text.subtle
         BasicText(label, m, style = typography.labelSm.copy(color = colors.textSubtle).labelDirection(alignToLayout = true))
@@ -372,3 +544,29 @@ public fun QeetrixCopyField(
 /** copy-field.css `minmax(8rem, 30%)`: the row's label column. */
 private val ROW_LABEL_MIN = 128.dp
 private const val ROW_LABEL_SHARE = 0.3f
+
+/** 0.1.0's signature without `confirm` and `clearAfter`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun QeetrixCopyField(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    layout: QeetrixCopyFieldLayout = QeetrixCopyFieldLayout.Field,
+    wrap: Boolean = true,
+    sensitive: Boolean = false,
+    onCopied: ((String) -> Unit)? = null,
+): Unit =
+    QeetrixCopyField(
+        label = label,
+        value = value,
+        modifier = modifier,
+        description = description,
+        layout = layout,
+        wrap = wrap,
+        sensitive = sensitive,
+        confirm = true,
+        clearAfter = null,
+        onCopied = onCopied,
+    )

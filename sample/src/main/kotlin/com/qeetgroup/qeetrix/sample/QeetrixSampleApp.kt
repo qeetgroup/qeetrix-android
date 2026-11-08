@@ -220,7 +220,7 @@ private fun HomeScreen(
             )
         }
         DisplayCard(settings, onSettingsChange)
-        // Places to go are list rows, not clickable cards: a card is not a click target (06 §9, QTRX-182).
+        // Places to go are list rows, not clickable cards: a card is not a click target (06 §9).
         SampleSection("Overview") {
             for ((title, description, route) in Overview) OverviewRow(title, description) { onOpen(route) }
         }

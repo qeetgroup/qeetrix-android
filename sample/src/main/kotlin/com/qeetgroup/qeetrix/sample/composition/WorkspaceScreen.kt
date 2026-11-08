@@ -176,7 +176,7 @@ private fun ProjectList(
             verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd),
         ) {
             if (projects.isNotEmpty()) {
-                // Projects to open are list rows on one card: a card is not a click target (QTRX-182).
+                // Projects to open are list rows on one card: a card is not a click target.
                 QeetrixCard {
                     for (project in projects) QeetrixListItem(project, description = "Updated this week", onClick = { onOpen(project) })
                 }

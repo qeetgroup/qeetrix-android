@@ -9,6 +9,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.util.Locale
 
@@ -72,6 +73,17 @@ class QeetrixFormatTest {
                 QeetrixFormat.duration(Duration.ofSeconds(case.getLong("seconds")), locale, style)
             }
 
+            "time" -> {
+                val time = if (case.getString("timeStyle") == "medium") QeetrixTimeStyle.Medium else QeetrixTimeStyle.Short
+                val hour24 =
+                    when (case.getString("hourCycle")) {
+                        "h23" -> true
+                        "h12" -> false
+                        else -> null
+                    }
+                QeetrixFormat.time(Instant.ofEpochMilli(case.getLong("epochMillis")), locale, time, kolkata, hour24)
+            }
+
             else -> {
                 error("Unknown case ${case.getString("fn")}")
             }
@@ -100,7 +112,12 @@ class QeetrixFormatTest {
         }
     }
 
-    private fun key(case: JSONObject): String = listOf("fn", "locale", "style", "seconds").joinToString("|") { case.optString(it) }
+    /** The fields a case has, so a known difference names its case alone: "duration|de-DE|narrow|3900". */
+    private fun key(case: JSONObject): String =
+        listOf("fn", "locale", "style", "seconds", "epochMillis", "timeStyle", "hourCycle")
+            .map { case.optString(it) }
+            .filter { it.isNotEmpty() }
+            .joinToString("|")
 
     private companion object {
         /**
@@ -128,6 +145,17 @@ class QeetrixFormatTest {
         assertEquals("last year", QeetrixFormat.relativeTime(now.minus(Duration.ofDays(364)), india, now))
         assertEquals("25 Oct 2026", QeetrixFormat.date(LocalDate.of(2026, 10, 25), india))
         assertEquals("25 Oct 2026", QeetrixFormat.dateTime(LocalDateTime.of(2026, 10, 25, 14, 30), india).substringBefore(","))
+    }
+
+    /** A time without its date, on the locale's clock or the phone's 12- or 24-hour setting. */
+    @Test
+    fun timesWithoutADate() {
+        val india = Locale.forLanguageTag("en-IN")
+        assertEquals("10:47 am", QeetrixFormat.time(LocalTime.of(10, 47), india))
+        assertEquals("10:47", QeetrixFormat.time(LocalTime.of(10, 47), india, hour24 = true))
+        assertEquals("22:05:30", QeetrixFormat.time(LocalTime.of(22, 5, 30), india, QeetrixTimeStyle.Medium, hour24 = true))
+        assertEquals("10:05 pm", QeetrixFormat.time(LocalTime.of(22, 5), india, hour24 = false))
+        assertEquals("10:05 PM", QeetrixFormat.time(LocalTime.of(22, 5), Locale.forLanguageTag("de-DE"), hour24 = false))
     }
 
     /** A calendar date is never moved by a zone: 25 October is the 25th in Kolkata, New York and Auckland alike. */

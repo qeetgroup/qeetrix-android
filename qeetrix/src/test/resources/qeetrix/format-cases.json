@@ -1,5 +1,5 @@
 {
- "$comment": "Expected strings for QeetrixFormat: @qeetrix/react 0.4.0's format rules (dist/format/format.js: formatNumber, formatCurrency, formatRelativeTime, formatDate, formatDateTime), restated in Tools/FormatCases/format-cases.mjs and run on Node 24.15.0's Intl (ICU 78.2, CLDR 48.0). Relative cases give the moment's distance from now in ms; date cases an instant (shown in Asia/Kolkata unless a zone is named) or a calendar date. Duration cases are Intl.DurationFormat's, which the web has no wrapper for yet. Regenerate with: node Tools/FormatCases/format-cases.mjs > qeetrix/src/test/resources/qeetrix/format-cases.json",
+ "$comment": "Expected strings for QeetrixFormat: @qeetrix/react's format rules (dist/format/format.js: formatNumber, formatCurrency, formatRelativeTime, formatDate, formatDateTime, formatDuration, formatTime), restated in Tools/FormatCases/format-cases.mjs and run on Node 24.15.0's Intl (ICU 78.2, CLDR 48.0). Relative cases give the moment's distance from now in ms; date cases an instant (shown in Asia/Kolkata unless a zone is named) or a calendar date. Duration cases are Intl.DurationFormat's and time cases Intl.DateTimeFormat's timeStyle, as formatDuration and formatTime (0.5.0) write them. Regenerate with: node Tools/FormatCases/format-cases.mjs > qeetrix/src/test/resources/qeetrix/format-cases.json",
  "icu": "78.2",
  "cldr": "48.0",
  "cases": [
@@ -394,6 +394,102 @@
    "seconds": 90061,
    "style": "narrow",
    "out": "1d 1h 1m 1s"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "",
+   "out": "2:30 pm"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "h23",
+   "out": "14:30"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "h12",
+   "out": "2:30 pm"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "",
+   "out": "2:30:00 pm"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "h23",
+   "out": "14:30:00"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "h12",
+   "out": "2:30:00 pm"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "",
+   "out": "10:47 am"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "h23",
+   "out": "10:47"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "h12",
+   "out": "10:47 am"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "",
+   "out": "10:47:09 am"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "h23",
+   "out": "10:47:09"
+  },
+  {
+   "fn": "time",
+   "locale": "en-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "h12",
+   "out": "10:47:09 am"
   },
   {
    "fn": "dateInstant",
@@ -795,6 +891,102 @@
    "out": "1 दि, 1 घं, 1 मि 1 से"
   },
   {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "",
+   "out": "2:30 pm"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "h23",
+   "out": "14:30"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "h12",
+   "out": "2:30 pm"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "",
+   "out": "2:30:00 pm"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "h23",
+   "out": "14:30:00"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "h12",
+   "out": "2:30:00 pm"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "",
+   "out": "10:47 am"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "h23",
+   "out": "10:47"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "h12",
+   "out": "10:47 am"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "",
+   "out": "10:47:09 am"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "h23",
+   "out": "10:47:09"
+  },
+  {
+   "fn": "time",
+   "locale": "hi-IN",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "h12",
+   "out": "10:47:09 am"
+  },
+  {
    "fn": "dateInstant",
    "locale": "hi-IN",
    "epochMillis": 1798747200000,
@@ -1192,6 +1384,102 @@
    "seconds": 90061,
    "style": "narrow",
    "out": "1d 1h 1m 1s"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "",
+   "out": "2:30 PM"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "h23",
+   "out": "14:30"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "h12",
+   "out": "2:30 PM"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "",
+   "out": "2:30:00 PM"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "h23",
+   "out": "14:30:00"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "h12",
+   "out": "2:30:00 PM"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "",
+   "out": "10:47 AM"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "h23",
+   "out": "10:47"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "h12",
+   "out": "10:47 AM"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "",
+   "out": "10:47:09 AM"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "h23",
+   "out": "10:47:09"
+  },
+  {
+   "fn": "time",
+   "locale": "en-US",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "h12",
+   "out": "10:47:09 AM"
   },
   {
    "fn": "dateInstant",
@@ -1593,6 +1881,102 @@
    "out": "١ ي و١ س و١ د و١ ث"
   },
   {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "",
+   "out": "٢:٣٠ م"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "h23",
+   "out": "١٤:٣٠"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "h12",
+   "out": "٢:٣٠ م"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "",
+   "out": "٢:٣٠:٠٠ م"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "h23",
+   "out": "١٤:٣٠:٠٠"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "h12",
+   "out": "٢:٣٠:٠٠ م"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "",
+   "out": "١٠:٤٧ ص"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "h23",
+   "out": "١٠:٤٧"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "h12",
+   "out": "١٠:٤٧ ص"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "",
+   "out": "١٠:٤٧:٠٩ ص"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "h23",
+   "out": "١٠:٤٧:٠٩"
+  },
+  {
+   "fn": "time",
+   "locale": "ar-EG",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "h12",
+   "out": "١٠:٤٧:٠٩ ص"
+  },
+  {
    "fn": "dateInstant",
    "locale": "ar-EG",
    "epochMillis": 1798747200000,
@@ -1990,6 +2374,102 @@
    "seconds": 90061,
    "style": "narrow",
    "out": "1 T, 1h, 1 Min. und 1 Sek."
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "",
+   "out": "14:30"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "h23",
+   "out": "14:30"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "timeStyle": "short",
+   "hourCycle": "h12",
+   "out": "02:30 PM"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "",
+   "out": "14:30:00"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "h23",
+   "out": "14:30:00"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792918800000,
+   "timeStyle": "medium",
+   "hourCycle": "h12",
+   "out": "02:30:00 PM"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "",
+   "out": "10:47"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "h23",
+   "out": "10:47"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792905429000,
+   "timeStyle": "short",
+   "hourCycle": "h12",
+   "out": "10:47 AM"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "",
+   "out": "10:47:09"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "h23",
+   "out": "10:47:09"
+  },
+  {
+   "fn": "time",
+   "locale": "de-DE",
+   "epochMillis": 1792905429000,
+   "timeStyle": "medium",
+   "hourCycle": "h12",
+   "out": "10:47:09 AM"
   },
   {
    "fn": "dateInstant",

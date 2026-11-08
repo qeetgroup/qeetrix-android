@@ -159,7 +159,7 @@ private fun Modifier.switchToggle(
  * `color.border.strong-hover`; on, the track and edge `color.bg.brand.bold` (`-hover` under the pointer); invalid
  * `color.border.danger`, on or off and under the pointer too; disabled `color.bg.disabled` with
  * `color.border.disabled`. The thumb is `color.icon.subtle` off and `color.icon.on-brand` on, white in both
- * schemes as the checkbox's tick (`.qx-switch-thumb[data-checked]`, QTRX-162). The thumb sits 2 dp in
+ * schemes as the checkbox's tick (`.qx-switch-thumb[data-checked]`). The thumb sits 2 dp in
  * from the start of the track's inside off (`inset-inline-start: 2px`) and 16 dp in on, centred on its height.
  */
 @Composable
@@ -213,7 +213,7 @@ private fun SwitchTrack(
 
 /**
  * `.qx-switch-thumb`: `color.icon.subtle` off, `color.icon.on-brand` on — white in both schemes, as the checkbox's
- * tick on the same Ember (`[data-checked]`, QTRX-162) — and `color.icon.disabled` when disabled.
+ * tick on the same Ember (`[data-checked]`) — and `color.icon.disabled` when disabled.
  */
 internal fun switchThumb(
     colors: QeetrixColors,

@@ -43,6 +43,7 @@ Every component in Qeetrix for Android, and its `@qeetrix/react` counterpart. Ea
 | Data display | Relative time | `QeetrixRelativeTime` | `relativetime` | RelativeTime (experimental) |
 | Data display | Section header | `QeetrixSectionHeader` | `list` | none (drawn as Sidebar's group label) |
 | Data display | Text | `QeetrixText`, `QeetrixHeading` | `typography` | Text, Heading |
+| Data display | Link | `QeetrixLink`, `qeetrixLink` | `typography` | Link |
 | Data display | Timeline | `QeetrixTimeline`, `QeetrixTimelineGroup`, `QeetrixTimelineItem` | `feed` | Timeline, TimelineGroup, TimelineItem (experimental) |
 | Feedback | Alert | `QeetrixAlert` | `alert` | Alert (experimental) |
 | Feedback | Data state | `QeetrixDataState` | `emptystate` | DataState (experimental) |
@@ -57,6 +58,7 @@ Every component in Qeetrix for Android, and its `@qeetrix/react` counterpart. Ea
 | Overlays | Confirmation dialog | `QeetrixConfirmationDialog` | `dialog` | Dialog with Cancel and a confirming Button |
 | Overlays | Dialog | `QeetrixDialog` | `dialog` | Dialog, DialogContent, DialogBody, DialogFooter |
 | Overlays | Bottom sheet | `QeetrixBottomSheet` | `drawer` | Drawer, as a bottom sheet |
+| Overlays | Action sheet | `QeetrixActionSheet`, `QeetrixSheetAction`, `QeetrixSheetActionSeparator` | `drawer` | none (a phone's form of a Menu) |
 | Overlays | Side sheet | `QeetrixSideSheet` | `drawer` | Drawer, at the side (a bottom sheet on a phone) |
 | Overlays | Full-screen form | `QeetrixFullScreenForm` | `dialog` | none (Dialog's `fullscreen` size is the nearest) |
 | Overlays | Menu | `QeetrixMenu`, `QeetrixMenuItem`, `QeetrixMenuCheckboxItem`, `QeetrixMenuRadioGroup`, `QeetrixMenuRadioItem`, `QeetrixMenuGroupLabel`, `QeetrixMenuSeparator` | `dropdownmenu` | Menu and the same items |

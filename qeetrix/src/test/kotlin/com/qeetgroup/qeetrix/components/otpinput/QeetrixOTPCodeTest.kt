@@ -2,10 +2,18 @@ package com.qeetgroup.qeetrix.components.otpinput
 
 import android.content.ClipDescription
 import android.content.ClipboardManager
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.qeetgroup.qeetrix.components.setQeetrix
 import org.junit.Assert.assertEquals
@@ -15,6 +23,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
 import java.time.Duration
 import java.time.Instant
 
@@ -70,5 +79,28 @@ class QeetrixOTPCodeTest {
         assertThrows(IllegalArgumentException::class.java) {
             compose.setQeetrix { QeetrixOTPCode("1", expires, period = Duration.ZERO) }
         }
+    }
+
+    /** In an account row the countdown sits at the end of the code's width; by default it follows the digits. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun theCountdownCanSitAtTheEnd() {
+        compose.setQeetrix {
+            Column(Modifier.width(300.dp)) {
+                QeetrixOTPCode("482105", expires, Modifier.fillMaxWidth().testTag("end"), label = "End", now = now, countdownAtEnd = true)
+                QeetrixOTPCode(
+                    "730194",
+                    expires,
+                    Modifier.fillMaxWidth().testTag("beside"),
+                    label = "Beside",
+                    now = now.plusSeconds(2),
+                )
+            }
+        }
+        val end = compose.onNodeWithTag("end").getUnclippedBoundsInRoot()
+        assertEquals(end.right, compose.onNodeWithText("12", useUnmergedTree = true).getUnclippedBoundsInRoot().right)
+        val beside = compose.onNodeWithTag("beside").getUnclippedBoundsInRoot()
+        val secondsBeside = compose.onNodeWithText("10", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertTrue("the default countdown follows the digits", secondsBeside.right < beside.right - 50.dp)
     }
 }

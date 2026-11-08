@@ -30,7 +30,7 @@ class UpstreamFixesLookTest {
 
     private val schemes = listOf(QeetrixLightColors, QeetrixDarkColors)
 
-    /** checkbox.css, radio.css, switch.css: `[data-invalid]` after the checked and hover rules (QTRX-161). */
+    /** checkbox.css, radio.css, switch.css: `[data-invalid]` after the checked and hover rules. */
     @Test
     fun anInvalidSelectionControlKeepsItsDangerEdgeCheckedAndUnderThePointer() {
         for (colors in schemes) {
@@ -47,7 +47,7 @@ class UpstreamFixesLookTest {
         }
     }
 
-    /** switch.css `.qx-switch-thumb[data-checked]`: `color.icon.on-brand`, white in both schemes (QTRX-162). */
+    /** switch.css `.qx-switch-thumb[data-checked]`: `color.icon.on-brand`, white in both schemes. */
     @Test
     fun theSwitchsOnThumbIsWhiteInBothSchemes() {
         for (colors in schemes) {
@@ -56,7 +56,7 @@ class UpstreamFixesLookTest {
         }
     }
 
-    /** otp-input.css: the typing slot of an invalid code shows focus (QTRX-163); a read-only code looks read-only (QTRX-165). */
+    /** otp-input.css: the typing slot of an invalid code shows focus; a read-only code looks read-only. */
     @Test
     fun anOtpSlotShowsFocusOverInvalidAndAReadOnlyCodeHasNoFill() {
         for (colors in schemes) {
@@ -73,7 +73,7 @@ class UpstreamFixesLookTest {
         }
     }
 
-    /** input.css, select.css, number-field.css: a read-only field's line is `border.strong`, with no fill (QTRX-175). */
+    /** input.css, select.css, number-field.css: a read-only field's line is `border.strong`, with no fill. */
     @Test
     fun aReadOnlyFieldDrawsTheEditableFieldsLine() {
         lateinit var readOnly: FieldColors
@@ -83,7 +83,7 @@ class UpstreamFixesLookTest {
         assertEquals(Color.Transparent, readOnly.fill)
     }
 
-    /** progress.css `--qx-progress-track` and `--qx-progress-warning` (QTRX-176). */
+    /** progress.css `--qx-progress-track` and `--qx-progress-warning`. */
     @Test
     fun progressTracksAndTheWarningFillFollowTheScheme() {
         assertEquals(QeetrixLightColors.borderDefault, progressTrack(QeetrixLightColors, dark = false))

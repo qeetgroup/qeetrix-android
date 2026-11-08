@@ -1,5 +1,32 @@
 [
   {
+    "id": "archive",
+    "name": "archive",
+    "componentName": "ArchiveIcon",
+    "category": "files",
+    "categories": [
+      "files",
+      "mail"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "index",
+      "backup",
+      "box",
+      "storage",
+      "records"
+    ],
+    "aliases": []
+  },
+  {
     "id": "arrow-big-up",
     "name": "arrow-big-up",
     "componentName": "ArrowBigUpIcon",
@@ -29,6 +56,30 @@
       "forward",
       "direction",
       "north"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "arrow-down",
+    "name": "arrow-down",
+    "componentName": "ArrowDownIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "backwards",
+      "reverse",
+      "direction",
+      "south"
     ],
     "aliases": []
   },
@@ -83,6 +134,29 @@
     "aliases": []
   },
   {
+    "id": "arrow-up",
+    "name": "arrow-up",
+    "componentName": "ArrowUpIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "forward",
+      "direction",
+      "north"
+    ],
+    "aliases": []
+  },
+  {
     "id": "bell",
     "name": "bell",
     "componentName": "BellIcon",
@@ -104,6 +178,31 @@
       "alarm",
       "notification",
       "sound",
+      "reminder"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "bell-off",
+    "name": "bell-off",
+    "componentName": "BellOffIcon",
+    "category": "notifications",
+    "categories": [
+      "notifications"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "alarm",
+      "notification",
+      "silent",
       "reminder"
     ],
     "aliases": []
@@ -306,6 +405,63 @@
     "aliases": []
   },
   {
+    "id": "chevron-up",
+    "name": "chevron-up",
+    "componentName": "ChevronUpIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows",
+      "math",
+      "gaming"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "caret",
+      "keyboard",
+      "mac",
+      "control",
+      "ctrl",
+      "superscript",
+      "exponential",
+      "power",
+      "ahead",
+      "fast",
+      "^",
+      "dropdown"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "chevrons-up-down",
+    "name": "chevrons-up-down",
+    "componentName": "ChevronsUpDownIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "expand",
+      "unfold",
+      "vertical"
+    ],
+    "aliases": []
+  },
+  {
     "id": "circle-alert",
     "name": "circle-alert",
     "componentName": "CircleAlertIcon",
@@ -388,6 +544,53 @@
       "version control"
     ],
     "aliases": []
+  },
+  {
+    "id": "circle-plus",
+    "name": "circle-plus",
+    "componentName": "CirclePlusIcon",
+    "category": "math",
+    "categories": [
+      "math",
+      "development",
+      "cursors",
+      "gaming"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "add",
+      "new",
+      "increase",
+      "increment",
+      "positive",
+      "calculate",
+      "crosshair",
+      "aim",
+      "target",
+      "scope",
+      "sight",
+      "reticule",
+      "maximum",
+      "upgrade",
+      "extra",
+      "operator",
+      "join",
+      "concatenate",
+      "code",
+      "coding",
+      "+"
+    ],
+    "aliases": [
+      "plus-circle"
+    ]
   },
   {
     "id": "circle-question-mark",
@@ -560,6 +763,35 @@
     "aliases": []
   },
   {
+    "id": "database",
+    "name": "database",
+    "componentName": "DatabaseIcon",
+    "category": "devices",
+    "categories": [
+      "devices",
+      "development"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "storage",
+      "memory",
+      "container",
+      "tin",
+      "pot",
+      "bytes",
+      "servers"
+    ],
+    "aliases": []
+  },
+  {
     "id": "ellipsis",
     "name": "ellipsis",
     "componentName": "EllipsisIcon",
@@ -634,6 +866,31 @@
     "aliases": [
       "more-vertical"
     ]
+  },
+  {
+    "id": "external-link",
+    "name": "external-link",
+    "componentName": "ExternalLinkIcon",
+    "category": "arrows",
+    "categories": [
+      "arrows",
+      "text",
+      "social"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "outbound",
+      "open",
+      "share"
+    ],
+    "aliases": []
   },
   {
     "id": "eye",
@@ -853,6 +1110,36 @@
     "aliases": []
   },
   {
+    "id": "fingerprint-pattern",
+    "name": "fingerprint-pattern",
+    "componentName": "FingerprintPatternIcon",
+    "category": "account",
+    "categories": [
+      "account",
+      "security",
+      "medical",
+      "devices"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "2fa",
+      "authentication",
+      "biometric",
+      "identity",
+      "security"
+    ],
+    "aliases": [
+      "fingerprint"
+    ]
+  },
+  {
     "id": "flashlight",
     "name": "flashlight",
     "componentName": "FlashlightIcon",
@@ -932,6 +1219,31 @@
     "aliases": []
   },
   {
+    "id": "hourglass",
+    "name": "hourglass",
+    "componentName": "HourglassIcon",
+    "category": "time",
+    "categories": [
+      "time",
+      "gaming"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "timer",
+      "time",
+      "sandglass"
+    ],
+    "aliases": []
+  },
+  {
     "id": "house",
     "name": "house",
     "componentName": "HouseIcon",
@@ -984,6 +1296,31 @@
     "tags": [
       "picture",
       "photo"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "image-plus",
+    "name": "image-plus",
+    "componentName": "ImagePlusIcon",
+    "category": "photography",
+    "categories": [
+      "photography",
+      "multimedia",
+      "files"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "add",
+      "create",
+      "picture"
     ],
     "aliases": []
   },
@@ -1046,6 +1383,62 @@
     "aliases": []
   },
   {
+    "id": "key",
+    "name": "key",
+    "componentName": "KeyIcon",
+    "category": "security",
+    "categories": [
+      "security",
+      "account"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "password",
+      "login",
+      "authentication",
+      "secure",
+      "unlock",
+      "keychain",
+      "key ring",
+      "fob"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "key-round",
+    "name": "key-round",
+    "componentName": "KeyRoundIcon",
+    "category": "security",
+    "categories": [
+      "security",
+      "account"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "password",
+      "login",
+      "authentication",
+      "secure",
+      "unlock"
+    ],
+    "aliases": []
+  },
+  {
     "id": "keyboard",
     "name": "keyboard",
     "componentName": "KeyboardIcon",
@@ -1073,6 +1466,61 @@
     "aliases": []
   },
   {
+    "id": "link",
+    "name": "link",
+    "componentName": "LinkIcon",
+    "category": "text",
+    "categories": [
+      "text",
+      "account"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "chain",
+      "url"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "loader-circle",
+    "name": "loader-circle",
+    "componentName": "LoaderCircleIcon",
+    "category": "cursors",
+    "categories": [
+      "cursors",
+      "multimedia",
+      "layout"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "loading",
+      "wait",
+      "busy",
+      "progress",
+      "spinner",
+      "spinning",
+      "throbber",
+      "circle"
+    ],
+    "aliases": [
+      "loader-2"
+    ]
+  },
+  {
     "id": "lock",
     "name": "lock",
     "componentName": "LockIcon",
@@ -1096,6 +1544,30 @@
       "admin"
     ],
     "aliases": []
+  },
+  {
+    "id": "lock-open",
+    "name": "lock-open",
+    "componentName": "LockOpenIcon",
+    "category": "security",
+    "categories": [
+      "security"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "security"
+    ],
+    "aliases": [
+      "unlock"
+    ]
   },
   {
     "id": "mail",
@@ -1245,6 +1717,30 @@
     "aliases": []
   },
   {
+    "id": "panel-right",
+    "name": "panel-right",
+    "componentName": "PanelRightIcon",
+    "category": "layout",
+    "categories": [
+      "layout"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "sidebar",
+      "secondary",
+      "drawer"
+    ],
+    "aliases": []
+  },
+  {
     "id": "paperclip",
     "name": "paperclip",
     "componentName": "PaperclipIcon",
@@ -1304,6 +1800,32 @@
     "aliases": []
   },
   {
+    "id": "pin",
+    "name": "pin",
+    "componentName": "PinIcon",
+    "category": "navigation",
+    "categories": [
+      "navigation",
+      "account"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "save",
+      "map",
+      "lock",
+      "fix"
+    ],
+    "aliases": []
+  },
+  {
     "id": "plus",
     "name": "plus",
     "componentName": "PlusIcon",
@@ -1346,6 +1868,57 @@
     "aliases": []
   },
   {
+    "id": "rectangle-ellipsis",
+    "name": "rectangle-ellipsis",
+    "componentName": "RectangleEllipsisIcon",
+    "category": "text",
+    "categories": [
+      "text",
+      "development"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "login",
+      "password",
+      "authenticate",
+      "2fa",
+      "field",
+      "fill",
+      "ellipsis",
+      "et cetera",
+      "etc",
+      "loader",
+      "loading",
+      "progress",
+      "pending",
+      "throbber",
+      "menu",
+      "options",
+      "operator",
+      "code",
+      "spread",
+      "rest",
+      "more",
+      "further",
+      "extra",
+      "overflow",
+      "dots",
+      "…",
+      "..."
+    ],
+    "aliases": [
+      "form-input"
+    ]
+  },
+  {
     "id": "refresh-cw",
     "name": "refresh-cw",
     "componentName": "RefreshCwIcon",
@@ -1370,6 +1943,100 @@
       "arrows",
       "circular",
       "cycle"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "scan-face",
+    "name": "scan-face",
+    "componentName": "ScanFaceIcon",
+    "category": "account",
+    "categories": [
+      "account",
+      "security",
+      "devices",
+      "social"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "face",
+      "biometric",
+      "identification",
+      "authentication",
+      "2fa",
+      "access",
+      "login",
+      "dashed"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "scan-line",
+    "name": "scan-line",
+    "componentName": "ScanLineIcon",
+    "category": "devices",
+    "categories": [
+      "devices",
+      "shopping"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "checkout",
+      "till",
+      "cart",
+      "transaction",
+      "purchase",
+      "buy",
+      "product",
+      "packaging",
+      "retail",
+      "consumer",
+      "qr-code",
+      "dashed"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "scan-qr-code",
+    "name": "scan-qr-code",
+    "componentName": "ScanQrCodeIcon",
+    "category": "account",
+    "categories": [
+      "account",
+      "shopping",
+      "devices",
+      "security"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "barcode",
+      "scan",
+      "qrcode",
+      "url",
+      "information",
+      "digital",
+      "scanner"
     ],
     "aliases": []
   },
@@ -1544,6 +2211,224 @@
     "aliases": []
   },
   {
+    "id": "shield-check",
+    "name": "shield-check",
+    "componentName": "ShieldCheckIcon",
+    "category": "account",
+    "categories": [
+      "account",
+      "security",
+      "development",
+      "gaming"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "cybersecurity",
+      "secured",
+      "safety",
+      "protection",
+      "protected",
+      "guardian",
+      "guarded",
+      "armored",
+      "armoured",
+      "defense",
+      "defence",
+      "defended",
+      "blocked",
+      "threat",
+      "prevention",
+      "prevented",
+      "antivirus",
+      "vigilance",
+      "vigilant",
+      "active",
+      "activated",
+      "enabled",
+      "detection",
+      "scanned",
+      "found",
+      "strength",
+      "strong",
+      "tough",
+      "invincible",
+      "invincibility",
+      "invulnerable",
+      "undamaged",
+      "audited",
+      "admin",
+      "verification",
+      "verified",
+      "certification",
+      "certified",
+      "tested",
+      "passed",
+      "qualified",
+      "cleared",
+      "cleaned",
+      "disinfected",
+      "uninfected",
+      "task",
+      "completed",
+      "todo",
+      "done",
+      "ticked",
+      "checked",
+      "crest",
+      "bravery"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "shield-x",
+    "name": "shield-x",
+    "componentName": "ShieldXIcon",
+    "category": "account",
+    "categories": [
+      "account",
+      "security",
+      "development",
+      "gaming"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "unshielded",
+      "cybersecurity",
+      "insecure",
+      "unsecured",
+      "safety",
+      "unsafe",
+      "protection",
+      "unprotected",
+      "guardian",
+      "unguarded",
+      "unarmored",
+      "unarmoured",
+      "defenseless",
+      "defenceless",
+      "undefended",
+      "defender",
+      "blocked",
+      "stopped",
+      "intercepted",
+      "interception",
+      "saved",
+      "thwarted",
+      "threat",
+      "prevention",
+      "prevented",
+      "antivirus",
+      "vigilance",
+      "vigilant",
+      "detection",
+      "detected",
+      "scanned",
+      "found",
+      "exploit",
+      "vulnerability",
+      "vulnerable",
+      "weakness",
+      "infection",
+      "infected",
+      "compromised",
+      "data leak",
+      "audited",
+      "admin",
+      "verification",
+      "unverified",
+      "inactive",
+      "cancel",
+      "error",
+      "wrong",
+      "false",
+      "crest",
+      "bravery",
+      "attacked",
+      "damaged",
+      "injured",
+      "hit",
+      "dead",
+      "deceased",
+      "expired",
+      "eliminated",
+      "exterminated"
+    ],
+    "aliases": [
+      "shield-close"
+    ]
+  },
+  {
+    "id": "smartphone",
+    "name": "smartphone",
+    "componentName": "SmartphoneIcon",
+    "category": "connectivity",
+    "categories": [
+      "connectivity",
+      "devices"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "phone",
+      "cellphone",
+      "device",
+      "mobile",
+      "screen",
+      "display",
+      "touchscreen",
+      "portable",
+      "responsive"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "timer",
+    "name": "timer",
+    "componentName": "TimerIcon",
+    "category": "time",
+    "categories": [
+      "time"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "time",
+      "timer",
+      "stopwatch"
+    ],
+    "aliases": []
+  },
+  {
     "id": "trash",
     "name": "trash",
     "componentName": "TrashIcon",
@@ -1612,6 +2497,32 @@
     ]
   },
   {
+    "id": "user-plus",
+    "name": "user-plus",
+    "componentName": "UserPlusIcon",
+    "category": "account",
+    "categories": [
+      "account"
+    ],
+    "variants": [
+      "outline",
+      "filled"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "new",
+      "add",
+      "create",
+      "follow",
+      "subscribe"
+    ],
+    "aliases": []
+  },
+  {
     "id": "user-round",
     "name": "user-round",
     "componentName": "UserRoundIcon",
@@ -1657,6 +2568,28 @@
     "tags": [
       "group",
       "people"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "wifi-off",
+    "name": "wifi-off",
+    "componentName": "WifiOffIcon",
+    "category": "connectivity",
+    "categories": [
+      "connectivity",
+      "devices"
+    ],
+    "variants": [
+      "outline"
+    ],
+    "shapes": [
+      "round",
+      "sharp"
+    ],
+    "directionality": "preserve",
+    "tags": [
+      "disabled"
     ],
     "aliases": []
   },

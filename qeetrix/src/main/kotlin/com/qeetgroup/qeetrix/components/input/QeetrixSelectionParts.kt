@@ -373,7 +373,7 @@ private const val MAX_COLUMNS = 4
  * The edge of a checkbox, a radio's ring or a switch's track (checkbox.css, radio.css and switch.css, in their cascade
  * order): `border.strong`, `border.strong-hover` under the pointer, the Ember `bg.brand.bold` when on (`-hover` under the
  * pointer), then `border.danger` while invalid — on or off, under the pointer too (`[data-invalid]` after the checked
- * and hover rules, QTRX-161) — and `border.disabled` when disabled.
+ * and hover rules) — and `border.disabled` when disabled.
  */
 internal fun selectionControlEdge(
     colors: QeetrixColors,

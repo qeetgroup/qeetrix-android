@@ -62,10 +62,10 @@ internal val EllipsizedByDesign: List<SpecimenText> =
         SpecimenText("navigation-bar"),
         SpecimenText("navigation-scaffold"),
         SpecimenText("select"),
-        // A multiple select's trigger lists the chosen labels on one line, cut with an ellipsis (06 Increment 5; QTRX-190).
+        // A multiple select's trigger lists the chosen labels on one line, cut with an ellipsis (06 Increment 5).
         SpecimenText("multi-select", "India, United Kingdom of Great Britain and Northern Ireland"),
         SpecimenText("copy", "https://hooks.acme.in/qeet/events/payroll"),
-        // A single-line field's placeholder ends in an ellipsis where it doesn't fit (QTRX-197; once finding Q-5).
+        // A single-line field's placeholder ends in an ellipsis where it doesn't fit (once finding Q-5).
         SpecimenText("pseudo-expanded", pseudo("e.g. asha@acme.in")),
         // A button's label keeps one line and ends in an ellipsis where there is no room (Button.md), as the web's does.
         SpecimenText("alert", "Allow notifications"),
@@ -82,7 +82,7 @@ internal val ClippingFindings: Map<SpecimenText, String> =
         SpecimenText("otp-input-long", Regex(".")) to
             "Q-15: OTP slots share the width and keep shrinking (the web stops them at 24px and runs past the column); at 2× " +
             "and 200 % a 10-character code's slots in a compact phone are narrower than their characters, which overflow " +
-            "into the gaps. 07-components (QTRX-164) says a code never goes in a column narrower than it needs (328px for " +
+            "into the gaps. 07-components says a code never goes in a column narrower than it needs (328px for " +
             "[5, 5]) and a longer code is one Input: settled by the spec, not a defect",
     )
 

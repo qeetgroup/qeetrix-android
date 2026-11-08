@@ -11,11 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.actionbar.QeetrixBottomActionBar
+import com.qeetgroup.qeetrix.components.actionbar.QeetrixBottomActionBarArrangement
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.descriptionlist.QeetrixDescriptionItem
 import com.qeetgroup.qeetrix.components.descriptionlist.QeetrixDescriptionList
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
+import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
@@ -56,6 +58,24 @@ fun BottomActionBarSample() {
             SampleSurface {
                 QeetrixBottomActionBar(ruled = true) { QeetrixButton("Continue", onClick = {}, fullWidth = true) }
             }
+        }
+        SampleSection("Not now, then the primary") {
+            SampleSurface {
+                QeetrixBottomActionBar(ruled = true, arrangement = QeetrixBottomActionBarArrangement.PrimaryFills) {
+                    QeetrixButton("Not now", onClick = {}, variant = QeetrixButtonVariant.Ghost, fullWidth = true)
+                    QeetrixButton("Continue", onClick = {}, icon = QeetrixIconName.ArrowRight, fullWidth = true)
+                }
+            }
+            SampleNote("The ghost action keeps its own width at the start; the primary fills the rest.")
+        }
+        SampleSection("Stacked") {
+            SampleSurface {
+                QeetrixBottomActionBar(ruled = true, arrangement = QeetrixBottomActionBarArrangement.Stacked) {
+                    QeetrixButton("Enter the code instead", onClick = {}, variant = QeetrixButtonVariant.Ghost)
+                    QeetrixButton("Scan the QR code", onClick = {}, fullWidth = true)
+                }
+            }
+            SampleNote("The primary full width on top, the other way in centred under it.")
         }
     }
 }

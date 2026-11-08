@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -69,6 +70,24 @@ public enum class QeetrixOTPInputSize(
     Lg("lg"),
 }
 
+/**
+ * How [QeetrixOTPInput]'s slots take the width. Native only: the web's slots always share the container's width, and a
+ * web page narrows the input with a layout class, which on a phone would narrow the label and help text with it.
+ */
+public enum class QeetrixOTPSlotWidth(
+    public val value: String,
+) {
+    /** The slots share the container's width (`flex: 1 1 0`), as on the web. The default. */
+    Fill("fill"),
+
+    /**
+     * Each slot is as wide as it is tall, the slots at the start: a short code, such as a 2-digit number match. The
+     * label, description and error keep the container's width. In a column too narrow for square slots they shrink as
+     * [Fill]'s do.
+     */
+    Square("square"),
+}
+
 /** The characters a code is made of (`value` is Base UI's OTP Field `validationType`). */
 public enum class QeetrixOTPValidationType(
     public val value: String,
@@ -91,7 +110,8 @@ public enum class QeetrixOTPValidationType(
  *   narrow column the slots shrink with it (a 10-character recovery code keeps 24 dp slots from 400 dp). [size] [QeetrixOTPInputSize.Md] makes a slot exactly a
  *   field's height; [QeetrixOTPInputSize.Lg] adds 16 dp for sign-in screens. The character is in `title.md`
  *   (`title.lg` at `lg`) with tabular figures. [groups] splits the slots — `listOf(3, 3)` shows 123 – 456 — with a
- *   short `color.border.strong` rule between groups. The typing slot shows the Ember frame and caret; an invalid
+ *   short `color.border.strong` rule between groups. [slotWidth] [QeetrixOTPSlotWidth.Square] keeps a short code's slots
+ *   square at the start, the label and help text still at the container's width. The typing slot shows the Ember frame and caret; an invalid
  *   code ([error] or [invalid]) frames the other slots in `color.border.danger`, the typing slot keeping its focus
  *   frame. A [readOnly] code has no fill and keeps the bottom line, as a read-only field. After a failed attempt,
  *   clear the code.
@@ -121,6 +141,7 @@ public fun QeetrixOTPInput(
     length: Int = 6,
     groups: List<Int>? = null,
     size: QeetrixOTPInputSize = QeetrixOTPInputSize.Md,
+    slotWidth: QeetrixOTPSlotWidth = QeetrixOTPSlotWidth.Fill,
     validationType: QeetrixOTPValidationType = QeetrixOTPValidationType.Numeric,
     description: String? = null,
     error: String? = null,
@@ -196,7 +217,7 @@ public fun QeetrixOTPInput(
             decorator = { inner ->
                 LabelledControl(label, optional, required, hideLabel, active, help) {
                     Box(Modifier.fillMaxWidth()) {
-                        Slots(state.text, length, groups, size, focused && active, active, readOnly, invalid || error != null)
+                        Slots(state.text, length, groups, size, slotWidth, focused && active, active, readOnly, invalid || error != null)
                         // The text field spans the slots, so a tap anywhere focuses it and a long press offers Paste.
                         Box(Modifier.matchParentSize()) { inner() }
                     }
@@ -205,6 +226,55 @@ public fun QeetrixOTPInput(
         )
     }
 }
+
+/** 0.1.0's signature without [QeetrixOTPSlotWidth], kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun QeetrixOTPInput(
+    state: TextFieldState,
+    label: String,
+    modifier: Modifier = Modifier,
+    length: Int = 6,
+    groups: List<Int>? = null,
+    size: QeetrixOTPInputSize = QeetrixOTPInputSize.Md,
+    validationType: QeetrixOTPValidationType = QeetrixOTPValidationType.Numeric,
+    description: String? = null,
+    error: String? = null,
+    invalid: Boolean = false,
+    optional: Boolean = false,
+    required: Boolean = false,
+    hideLabel: Boolean = false,
+    help: String? = null,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    smsCodeAutofill: Boolean = true,
+    onKeyboardAction: KeyboardActionHandler? = null,
+    interactionSource: MutableInteractionSource? = null,
+    onValueComplete: ((String) -> Unit)? = null,
+): Unit =
+    QeetrixOTPInput(
+        state = state,
+        label = label,
+        modifier = modifier,
+        length = length,
+        groups = groups,
+        size = size,
+        slotWidth = QeetrixOTPSlotWidth.Fill,
+        validationType = validationType,
+        description = description,
+        error = error,
+        invalid = invalid,
+        optional = optional,
+        required = required,
+        hideLabel = hideLabel,
+        help = help,
+        enabled = enabled,
+        readOnly = readOnly,
+        smsCodeAutofill = smsCodeAutofill,
+        onKeyboardAction = onKeyboardAction,
+        interactionSource = interactionSource,
+        onValueComplete = onValueComplete,
+    )
 
 /**
  * The slots, always left to right (otp-input.css): the code's characters, the caret in the typing slot while
@@ -217,6 +287,7 @@ private fun Slots(
     length: Int,
     groups: List<Int>?,
     size: QeetrixOTPInputSize,
+    slotWidth: QeetrixOTPSlotWidth,
     focused: Boolean,
     enabled: Boolean,
     readOnly: Boolean,
@@ -236,7 +307,9 @@ private fun Slots(
     val style = slotStyle(size).copy(color = if (enabled) colors.textDefault else colors.textDisabled, textAlign = TextAlign.Center)
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
-            Modifier.fillMaxWidth().clearAndSetSemantics {},
+            // Square slots wrap, so the field places them at its start: the right in right to left, the code still
+            // reading left to right inside.
+            (if (slotWidth == QeetrixOTPSlotWidth.Fill) Modifier.fillMaxWidth() else Modifier).clearAndSetSemantics {},
             horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm), // .qx-otp-input { gap: space.gap.sm }
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -248,11 +321,14 @@ private fun Slots(
                 val typing = focused && index == typingAt
                 val slot = otpSlotColors(colors, enabled, readOnly, invalid, typing)
                 Box(
-                    Modifier
+                    when (slotWidth) {
                         // flex: 1 1 0 — an equal share of the width. The web stops shrinking at size.target.min
                         // (min-inline-size) and overflows a column too narrow for it; here the slots keep shrinking.
-                        .weight(1f)
-                        .heightIn(min = height)
+                        QeetrixOTPSlotWidth.Fill -> Modifier.weight(1f)
+
+                        // As wide as tall, or the equal share when that is narrower; spacedBy packs them at the start.
+                        QeetrixOTPSlotWidth.Square -> Modifier.weight(1f, fill = false).widthIn(max = height).fillMaxWidth()
+                    }.heightIn(min = height)
                         .fieldSurface(slot.fill, slot.line, slot.frame, QeetrixShapes.Field),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -273,8 +349,8 @@ private fun Slots(
 /**
  * One slot's look (otp-input.css, in its cascade order): `bg.neutral.subtle` with a `border.strong` line; invalid, a
  * 2 dp `border.danger` frame instead of the line; the typing slot, the 2 dp `border.focus` frame on the resting fill,
- * invalid or not, so focus is never hidden (`:focus` after `[data-invalid]`, QTRX-163); read-only, no fill and the
- * `border.strong` line, as a read-only field (`[data-readonly]`, QTRX-165); disabled, `bg.disabled` with a
+ * invalid or not, so focus is never hidden (`:focus` after `[data-invalid]`); read-only, no fill and the
+ * `border.strong` line, as a read-only field (`[data-readonly]`); disabled, `bg.disabled` with a
  * `border.disabled` line.
  */
 internal fun otpSlotColors(

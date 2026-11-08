@@ -46,6 +46,9 @@ fun AccordionSample() {
             QeetrixAccordion(value = open, onValueChange = { open = it }, multiple = true) {
                 QeetrixAccordionItem("security", "Security") { QeetrixText("Two passkeys and one active session.") }
                 QeetrixAccordionItem("notifications", "Notifications") { QeetrixText("Email for invoices; push for sign-ins.") }
+                QeetrixAccordionItem("advanced", "Advanced", description = "6 digits · every 30 seconds · SHA-1") {
+                    QeetrixText("Change these only if the service asks you to.")
+                }
                 QeetrixAccordionItem("export", "Data export", enabled = false) {}
             }
             SampleNote("Open: ${open.joinToString()}. Data export is disabled, for workspace owners only.")

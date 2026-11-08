@@ -46,6 +46,8 @@ import com.qeetgroup.qeetrix.theme.QeetrixTheme
  * - **Adornments.** [icon] is a 16 dp sharp leading icon in `color.icon.subtle` (search, mail);
  *   [startAdornment] and [endAdornment] hold text affixes (₹, %, .qeet.in), which take `color.text.subtle`, or
  *   tools, 8 dp from the value.
+ * - **[mono]** draws the value and the placeholder in `code.md` (Fira Code), as `QeetrixText(mono = true)` does — for a
+ *   setup key, a pairing code or an ID, where 0 and O, 1, I and l must differ. The box keeps its height.
  * - [contentType] tells AutoFill and password managers what the field holds (`ContentType.Username`, …); without
  *   one, Compose derives it from the keyboard type.
  *
@@ -70,6 +72,7 @@ public fun QeetrixTextField(
     help: String? = null,
     enabled: Boolean = true,
     readOnly: Boolean = false,
+    mono: Boolean = false,
     icon: QeetrixIconName? = null,
     startAdornment: (@Composable () -> Unit)? = null,
     endAdornment: (@Composable () -> Unit)? = null,
@@ -83,7 +86,8 @@ public fun QeetrixTextField(
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val focused by source.collectIsFocusedAsState()
     val hovered by source.collectIsHoveredAsState()
-    val textStyle = fieldTextStyle().copy(color = if (active) QeetrixTheme.colors.textDefault else QeetrixTheme.colors.textDisabled)
+    val base = if (mono) QeetrixTheme.typography.codeMd else fieldTextStyle()
+    val textStyle = base.copy(color = if (active) QeetrixTheme.colors.textDefault else QeetrixTheme.colors.textDisabled)
 
     FieldFrame(description, error, active, modifier) {
         BasicTextField(
@@ -130,3 +134,54 @@ internal fun RowScope.FieldContent(
     }
     if (endAdornment != null) FieldAdornment(endAdornment)
 }
+
+/** 0.1.0's signature without `mono`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun QeetrixTextField(
+    state: TextFieldState,
+    label: String,
+    modifier: Modifier = Modifier,
+    placeholder: String? = null,
+    description: String? = null,
+    error: String? = null,
+    invalid: Boolean = false,
+    optional: Boolean = false,
+    required: Boolean = false,
+    hideLabel: Boolean = false,
+    help: String? = null,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    icon: QeetrixIconName? = null,
+    startAdornment: (@Composable () -> Unit)? = null,
+    endAdornment: (@Composable () -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    contentType: ContentType? = null,
+    onKeyboardAction: KeyboardActionHandler? = null,
+    inputTransformation: InputTransformation? = null,
+    interactionSource: MutableInteractionSource? = null,
+): Unit =
+    QeetrixTextField(
+        state = state,
+        label = label,
+        modifier = modifier,
+        placeholder = placeholder,
+        description = description,
+        error = error,
+        invalid = invalid,
+        optional = optional,
+        required = required,
+        hideLabel = hideLabel,
+        help = help,
+        enabled = enabled,
+        readOnly = readOnly,
+        mono = false,
+        icon = icon,
+        startAdornment = startAdornment,
+        endAdornment = endAdornment,
+        keyboardOptions = keyboardOptions,
+        contentType = contentType,
+        onKeyboardAction = onKeyboardAction,
+        inputTransformation = inputTransformation,
+        interactionSource = interactionSource,
+    )

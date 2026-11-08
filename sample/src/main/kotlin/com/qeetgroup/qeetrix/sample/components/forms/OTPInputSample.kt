@@ -10,13 +10,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPInput
 import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPInputSize
+import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPSlotWidth
 import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPValidationType
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-/** One-time codes: a sign-in code with a failed attempt, a console code, and an alphanumeric recovery code. */
+/** One-time codes: a sign-in code with a failed attempt, a number match, and an alphanumeric recovery code. */
 @Composable
 fun OTPInputSample() {
     SamplePage {
@@ -39,6 +40,16 @@ fun OTPInputSample() {
                 "One field drawn as slots: paste and SMS AutoFill fill it at once, and TalkBack reads one field. " +
                     "The check here is this sample's.",
             )
+        }
+        SampleSection("Number match") {
+            QeetrixOTPInput(
+                rememberTextFieldState(),
+                label = "Enter the number shown on your other device",
+                length = 2,
+                slotWidth = QeetrixOTPSlotWidth.Square,
+                smsCodeAutofill = false,
+            )
+            SampleNote("Square slots keep a short code compact at the start; the label keeps the full width.")
         }
         SampleSection("Recovery code") {
             QeetrixOTPInput(

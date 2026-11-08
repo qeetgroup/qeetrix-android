@@ -16,6 +16,7 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -23,6 +24,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.badge.QeetrixChip
@@ -35,6 +38,9 @@ import com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch
 import com.qeetgroup.qeetrix.components.tabs.QeetrixTab
 import com.qeetgroup.qeetrix.components.tabs.QeetrixTabs
 import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbar
+import com.qeetgroup.qeetrix.components.typography.QeetrixText
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
+import com.qeetgroup.qeetrix.components.typography.qeetrixLink
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -182,7 +188,29 @@ class TouchLandingTest {
         compose.runOnIdle { assertEquals(2, dismissed) }
     }
 
+    /** A link in a footnote is a line tall: a tap 14 dp below its middle, within 48 dp, still follows it. */
+    @Test
+    fun aLinkInTextTakesTapsWithin48Dp() {
+        var followed = 0
+        compose.setContent {
+            QeetrixTheme {
+                Box(Modifier.width(320.dp).padding(16.dp)) {
+                    val link = qeetrixLink(onClick = { followed++ })
+                    val sentence =
+                        buildAnnotatedString {
+                            append("Using Qeet ID? ")
+                            withLink(link) { append("Link this phone") }
+                        }
+                    QeetrixText(sentence, size = QeetrixTextSize.Sm)
+                }
+            }
+        }
+        tapNear(compose.onNode(hasClickAction()), dx = 0.dp, dy = 14.dp)
+        compose.runOnIdle { assertEquals(1, followed) }
+    }
+
     /** The negative control: a tap 30 dp from the clear button's centre, past its 48 dp target, does not clear. */
+
     @Test
     fun aTapPastThe48DpTargetMissesIt() {
         val query = TextFieldState("Ada")

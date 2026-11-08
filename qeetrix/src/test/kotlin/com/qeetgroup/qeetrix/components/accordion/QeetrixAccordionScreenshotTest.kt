@@ -25,6 +25,7 @@ class QeetrixAccordionScreenshotTest {
                         QeetrixText("Monthly, on the date you subscribed. Invoices include GST.")
                     }
                     QeetrixAccordionItem("numbering", "Invoice numbering") { QeetrixText("INV-YYYY-NNNN") }
+                    QeetrixAccordionItem("advanced", "Advanced", description = "6 digits · every 30 seconds · SHA-1") {}
                     QeetrixAccordionItem("long", "A question long enough to wrap onto a second line of the trigger") {}
                     QeetrixAccordionItem("legacy", "Legacy export", enabled = false) {}
                 }

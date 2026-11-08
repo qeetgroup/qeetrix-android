@@ -74,7 +74,7 @@ public enum class QeetrixMeterTone(
 
     /**
      * How it stands — nearly full: `color.border.warning` in light and `color.bg.warning.bold` in dark, so it keeps
-     * 3:1 against the track (`--qx-progress-warning`, QTRX-176).
+     * 3:1 against the track (`--qx-progress-warning`).
      */
     Warning("warning"),
 
@@ -218,7 +218,7 @@ private fun Bar(
 /**
  * `.qx-progress-track`: 4 dp of `--qx-progress-track`, square ends, with the indicator from the start to
  * [fraction] — or, with `null`, the indeterminate segment — and a [target] tick. The track is `color.border.default` in
- * light and `color.surface.sunken` in dark, where every tone's fill keeps 3:1 against it (QTRX-176).
+ * light and `color.surface.sunken` in dark, where every tone's fill keeps 3:1 against it.
  */
 @Composable
 private fun Track(
@@ -259,7 +259,7 @@ private fun Track(
                             drawRect(indicator, alpha = sweep.value)
                         } else {
                             // inline-size 30%, translate -100% → 334% of itself from the start side: qx-progress-slide,
-                            // and qx-progress-slide-rtl (100% → -334%) in right to left (QTRX-166)
+                            // and qx-progress-slide-rtl (100% → -334%) in right to left
                             val segment = size.width * SEGMENT
                             drawFromStart(indicator, segment * sweep.value, segment, rtl)
                         }
@@ -333,7 +333,7 @@ private fun rememberWritten(
 
 /**
  * `--qx-progress-track`: `color.border.default` in light, `color.surface.sunken` in dark, where every tone's fill keeps 3:1
- * against it (progress.css 0.4.0, QTRX-176).
+ * against it (progress.css 0.4.0).
  */
 internal fun progressTrack(
     colors: QeetrixColors,

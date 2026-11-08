@@ -26,7 +26,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.IOException
 
-/** QTRX-192: a snackbar for work in progress (`promise`), and several at once from `breakpoint.medium`. */
+/** A snackbar for work in progress (`promise`), and several at once from `breakpoint.medium`. */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixSnackbarStackTest {
     @get:Rule

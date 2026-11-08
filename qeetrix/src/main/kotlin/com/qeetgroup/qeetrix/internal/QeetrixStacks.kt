@@ -85,7 +85,7 @@ internal fun firstLineHeight(style: TextStyle): Dp = with(LocalDensity.current) 
 
 /**
  * A list row whose text may wrap — menu.css `.qx-menu-item` and select.css `.qx-select-option` (`@qeetrix/react`
- * 0.4.0, QTRX-177): the [leading] part, the [text] taking the rest of the width, then the [trailing] parts, [gap]
+ * 0.4.0): the [leading] part, the [text] taking the rest of the width, then the [trailing] parts, [gap]
  * apart. The row is at least [minHeight] tall, a text that fits in one line centred in it. As the text wraps the row
  * grows, keeping [padding] above and below it (`padding-block: (size.control.md − line) / 2`), and every side part
  * stays centred on the text's first [line] (`margin-block: (line − 16px) / 2`; the shortcut's and meta's

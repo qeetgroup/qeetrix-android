@@ -78,7 +78,7 @@ public enum class QeetrixCardTone(
  * The title is a heading for accessibility services, so TalkBack's heading navigation reaches the card. The web
  * takes a heading `level` with the title; Android has no heading levels.
  *
- * **A card is not a click target** (06-component-specs §9, QTRX-182). A card that is chosen — a plan, a sign-in method —
+ * **A card is not a click target** (06-component-specs §9). A card that is chosen — a plan, a sign-in method —
  * is a choice tile: [com.qeetgroup.qeetrix.components.radiogroup.QeetrixRadioGroup] or
  * [com.qeetgroup.qeetrix.components.checkbox.QeetrixCheckboxGroup] with `variant` Tile. A card that opens a page keeps
  * that action in its content — a button in [actions] or [footer] — and a list of places to go is a list of
@@ -237,7 +237,7 @@ private val ACTIONS_BLEED = 4.dp + TOUCH_SLACK
  *
  * After a header ([ruled]) the body draws the header's 1 dp `color.border.default` rule along its top
  * (`.qx-card-header` `border-block-end`). Content that emits nothing takes no room and draws no rule
- * (`.qx-card-body:empty { display: none }`, QTRX-174).
+ * (`.qx-card-body:empty { display: none }`).
  */
 @Composable
 private fun CardBody(

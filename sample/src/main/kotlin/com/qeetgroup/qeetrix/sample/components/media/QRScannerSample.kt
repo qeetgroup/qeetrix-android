@@ -32,6 +32,7 @@ import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.qrcode.QeetrixQRCode
 import com.qeetgroup.qeetrix.components.scanner.QeetrixQRScanner
+import com.qeetgroup.qeetrix.components.scanner.QeetrixScannerControlsLayout
 import com.qeetgroup.qeetrix.components.scanner.QeetrixScannerState
 import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
 import com.qeetgroup.qeetrix.sample.SampleFlow
@@ -90,6 +91,19 @@ fun QRScannerSample() {
                         "Open Settings. The sample has no camera library, so a drawing stands in for the app's CameraX preview."
                 },
             )
+        }
+        SampleSection("Pair a phone") {
+            ScannerBox {
+                QeetrixQRScanner(
+                    QeetrixScannerState.Scanning,
+                    guidance = "Point the camera at the code on your computer",
+                    onTorchChange = {},
+                    onEnterKey = {},
+                    enterKeyLabel = "Type the code instead",
+                    controlsLayout = QeetrixScannerControlsLayout.Row,
+                ) { StandInPreview() }
+            }
+            SampleNote("The fallback's words fit what is scanned; in a row, the fallback fills it and the torch keeps its size.")
         }
         SampleSection("Every state") {
             var shown by rememberSaveable { mutableStateOf(QeetrixScannerState.PermissionNeeded) }

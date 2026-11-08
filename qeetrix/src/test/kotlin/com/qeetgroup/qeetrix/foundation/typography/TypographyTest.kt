@@ -66,7 +66,7 @@ class TypographyTest {
                 style.fontSize,
             )
             assertEquals(role.value, token.getInt("fontWeight"), style.fontWeight!!.weight)
-            // The token's line height is a length on the 4 px grid (@qeetrix/tokens 0.0.13, QTRX-184); the style's ratio
+            // The token's line height is a length on the 4 px grid (@qeetrix/tokens 0.0.13); the style's ratio
             // times the size is that length exactly, in the Float arithmetic Compose lays lines out with.
             val size =
                 token

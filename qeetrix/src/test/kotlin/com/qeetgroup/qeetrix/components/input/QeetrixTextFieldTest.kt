@@ -9,8 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -22,6 +24,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.qeetgroup.qeetrix.components.setQeetrix
@@ -29,6 +34,7 @@ import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.theme.LocalQeetrixDensity
+import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -155,6 +161,41 @@ class QeetrixTextFieldTest {
     fun theBoxIsTheLargeControlHeight() {
         compose.setQeetrix { QeetrixTextField(rememberTextFieldState(), label = "City", modifier = Modifier.testTag("f")) }
         val bounds = compose.onNodeWithTag("f").getUnclippedBoundsInRoot()
+        assertEquals(16f + 4f + 40f, (bounds.bottom - bounds.top).value, 0.5f)
+    }
+
+    /** Mono draws the value and the placeholder in code.md, read-only too, and keeps the box's 40 dp. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE) // real text metrics
+    fun aMonoFieldDrawsItsValueAndPlaceholderInTheCodeFont() {
+        var code: FontFamily? = null
+        compose.setQeetrix {
+            code = QeetrixTheme.typography.codeMd.fontFamily
+            Column {
+                QeetrixTextField(TextFieldState("JBSW Y3DP"), label = "Setup key", mono = true, modifier = Modifier.testTag("key"))
+                QeetrixTextField(TextFieldState(), label = "Pairing code", placeholder = "e.g. KM7QX-4TRWP", mono = true)
+                QeetrixTextField(
+                    TextFieldState("KM7QX-4TRWP"),
+                    label = "Code",
+                    mono = true,
+                    readOnly = true,
+                )
+            }
+        }
+
+        fun family(node: SemanticsNodeInteraction): FontFamily? {
+            val layouts = mutableListOf<TextLayoutResult>()
+            node.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action!!(layouts)
+            return layouts
+                .first()
+                .layoutInput.style.fontFamily
+        }
+
+        fun editing(value: String) = compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString(value)))
+        assertEquals(code, family(editing("JBSW Y3DP")))
+        assertEquals(code, family(editing("KM7QX-4TRWP"))) // read-only
+        assertEquals(code, family(compose.onNodeWithText("e.g. KM7QX-4TRWP", useUnmergedTree = true)))
+        val bounds = compose.onNodeWithTag("key").getUnclippedBoundsInRoot()
         assertEquals(16f + 4f + 40f, (bounds.bottom - bounds.top).value, 0.5f)
     }
 

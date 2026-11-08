@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.qeetgroup.qeetrix.components.setQeetrix
+import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -34,5 +35,14 @@ class QeetrixAlertTest {
         assertEquals(true, dismissed)
         assertEquals(listOf("info", "success", "warning", "danger"), QeetrixAlertTone.entries.map { it.value })
         assertEquals(listOf("default", "banner"), QeetrixAlertVariant.entries.map { it.value })
+    }
+
+    /** An app's own icon (wifi-off for "no connection") replaces the tone's, and the tone is still read. */
+    @Test
+    fun anAppIconReplacesTheTonesAndKeepsTheAnnouncement() {
+        compose.setQeetrix {
+            QeetrixAlert("You're offline", tone = QeetrixAlertTone.Warning, icon = QeetrixIconName.WifiOff)
+        }
+        compose.onNodeWithContentDescription("Warning: You're offline").assertExists()
     }
 }
