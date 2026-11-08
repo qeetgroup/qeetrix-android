@@ -20,16 +20,18 @@ Open the repository root in Android Studio, or check that everything works from 
 
 ```mermaid
 flowchart LR
-    A["🌿 Branch"] --> B["✍️ Change<br/>with a test"]
+    A["🌿 Branch from develop"] --> B["✍️ Change<br/>with a test"]
     B --> C["./gradlew check"]
     C -- "draws differently?" --> D["📸 Verify or record<br/>the screenshots"]
-    C --> E["📬 Pull request<br/>with the template"]
+    C --> E["📬 Pull request into develop<br/>with the template"]
     D --> E
     E --> F["🤖 CI passes"]
     F --> G["👀 Review"]
     G --> H["✅ Merge"]
 ```
 
+- **Pull requests go into `develop`.** Only `develop` goes into `main`, through a `develop` → `main` pull request the
+  maintainer opens; `main` refuses anything else.
 - **One topic per pull request.** Fill in the template's checklist.
 - **A maintainer reviews** changes to the public API, the generator's scope rules or a dependency. Anything
   structural also needs a [decision record](docs/decisions.md).
