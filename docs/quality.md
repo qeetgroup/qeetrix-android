@@ -5,7 +5,7 @@ How Qeetrix for Android is checked, what it promises about its API, and what is 
 
 ## ✅ Checked automatically
 
-Every push and pull request runs the same gates in CI:
+Every push to develop and every pull request into it runs the same gates in CI:
 
 ```mermaid
 flowchart LR
