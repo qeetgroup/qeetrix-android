@@ -200,7 +200,11 @@ class LayoutQualityTest {
         val text = config.getOrNull(SemanticsProperties.Text)?.joinToString { it.text }
         val description = config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString()
         val role = config.getOrNull(SemanticsProperties.Role)
-        return listOfNotNull(role?.toString(), text, description).joinToString(" / ").ifEmpty { "node $id" }
+        // A link in text is a child of its text, with no words of its own: named by the sentence it is in.
+        val sentence = parent?.config?.getOrNull(SemanticsProperties.Text)?.joinToString { it.text }
+        return listOfNotNull(role?.toString(), text, description).joinToString(" / ").ifEmpty {
+            sentence?.let { "Link in $it" } ?: "node $id"
+        }
     }
 }
 
@@ -210,8 +214,8 @@ private val CompactWidth = 328.dp
 /**
  * Controls drawn smaller than 48 dp inside or beside another control, at the web's size, which take touches within
  * 48 dp through Compose's hit-test expansion — each proven by `TouchLandingTest`: the tools inside a field (28 dp),
- * a number field's steppers (28 × 40 dp), a chip's remove button (28 dp), and tabs, drawn `size.control.lg` tall in a
- * 48 dp band.
+ * a number field's steppers (28 × 40 dp), a chip's remove button (28 dp), tabs, drawn `size.control.lg` tall in a
+ * 48 dp band, and links in text, a line tall so the sentence keeps its spacing.
  */
 private val SmallByDesign: List<String> =
     listOf(
@@ -238,11 +242,13 @@ private val SmallByDesign: List<String> =
         "pseudo-expanded: Tab / [Övérvîéw on]",
         "top-app-bar-large: Tab / All",
         "top-app-bar-large: Tab / Invited",
+        "text: Link in Using Qeet ID? Link this phone",
+        "text: Link in Forgot your password?",
     )
 
 /**
  * Controls under 48 dp that are recorded findings, not by design, each excluded here by name until the component
  * changes: the control, and the finding. None now: Q-6, Material's 12 dp clickable handle row on the bottom sheet, went
- * with Material's sheet (QTRX-198).
+ * with Material's sheet.
  */
 private val SmallFindings: Map<String, String> = emptyMap()

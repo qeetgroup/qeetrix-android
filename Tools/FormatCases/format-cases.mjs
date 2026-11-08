@@ -1,5 +1,5 @@
-// The expected strings for QeetrixFormatTest: @qeetrix/react 0.4.0's format rules (dist/format/format.js:
-// formatNumber, formatCurrency, formatRelativeTime, formatDate, formatDateTime), restated here and run on Node's Intl,
+// The expected strings for QeetrixFormatTest: @qeetrix/react's format rules (dist/format/format.js: formatNumber,
+// formatCurrency, formatRelativeTime, formatDate, formatDateTime, and 0.5.0's formatDuration and formatTime), restated here and run on Node's Intl,
 // which the web's functions call. Not the package's code: its rules, so this runs without installing it.
 //
 //   node Tools/FormatCases/format-cases.mjs > qeetrix/src/test/resources/qeetrix/format-cases.json
@@ -31,22 +31,32 @@ for (const l of ["en-IN", "hi-IN", "en-US", "ar-EG", "de-DE"]) {
   }
   for (const ts of ["short", "medium"]) out.push({ fn: "dateTimeInstant", locale: l, epochMillis: instant, dateStyle: "medium", timeStyle: ts, out: date(instant, l, "medium", ts) });
   out.push({ fn: "dateTimeInstantZone", locale: l, epochMillis: instant, zone: "America/New_York", out: date(instant, l, "medium", "short", "America/New_York") });
-  // Durations: the web has no duration function; Intl.DurationFormat is the platform's, which QeetrixFormat.duration matches.
+  // Durations: Intl.DurationFormat, as the web's formatDuration writes them and QeetrixFormat.duration matches.
   for (const style of ["long", "short", "narrow"]) {
     for (const [seconds, parts] of [[3900, { hours: 1, minutes: 5 }], [172803, { days: 2, seconds: 3 }], [45, { seconds: 45 }], [90061, { days: 1, hours: 1, minutes: 1, seconds: 1 }]])
       out.push({ fn: "duration", locale: l, seconds, style, out: new Intl.DurationFormat(l, { style }).format(parts) });
   }
+  // Times: Intl.DateTimeFormat's timeStyle, as the web's formatTime writes them — the time part formatDateTime
+  // writes — with hourCycle for a phone's 12- or 24-hour setting.
+  const morning = Date.UTC(2026, 9, 25, 5, 17, 9); // 10:47:09 in Asia/Kolkata
+  for (const t of [instant, morning])
+    for (const ts of ["short", "medium"])
+      for (const hc of ["", "h23", "h12"])
+        out.push({
+          fn: "time", locale: l, epochMillis: t, timeStyle: ts, hourCycle: hc,
+          out: new Intl.DateTimeFormat(l, { timeStyle: ts, timeZone: "Asia/Kolkata", ...(hc ? { hourCycle: hc } : {}) }).format(t),
+        });
   // Just before midnight UTC on 31 Dec: a later day in Kolkata, so the zone matters for an instant.
   const nye = Date.UTC(2026, 11, 31, 20, 0, 0);
   out.push({ fn: "dateInstant", locale: l, epochMillis: nye, dateStyle: "medium", out: date(nye, l, "medium") });
 }
 const doc = {
   $comment:
-    "Expected strings for QeetrixFormat: @qeetrix/react 0.4.0's format rules (dist/format/format.js: formatNumber, " +
-    "formatCurrency, formatRelativeTime, formatDate, formatDateTime), restated in Tools/FormatCases/format-cases.mjs and run " +
+    "Expected strings for QeetrixFormat: @qeetrix/react's format rules (dist/format/format.js: formatNumber, " +
+    "formatCurrency, formatRelativeTime, formatDate, formatDateTime, formatDuration, formatTime), restated in Tools/FormatCases/format-cases.mjs and run " +
     `on Node ${process.versions.node}'s Intl (ICU ${process.versions.icu}, CLDR ${process.versions.cldr}). Relative cases give the ` +
     "moment's distance from now in ms; date cases an instant (shown in Asia/Kolkata unless a zone is named) or a calendar " +
-    "date. Duration cases are Intl.DurationFormat's, which the web has no wrapper for yet. Regenerate with: node Tools/FormatCases/format-cases.mjs > qeetrix/src/test/resources/qeetrix/format-cases.json",
+    "date. Duration cases are Intl.DurationFormat's and time cases Intl.DateTimeFormat's timeStyle, as formatDuration and formatTime (0.5.0) write them. Regenerate with: node Tools/FormatCases/format-cases.mjs > qeetrix/src/test/resources/qeetrix/format-cases.json",
   icu: process.versions.icu,
   cldr: process.versions.cldr,
   cases: out,

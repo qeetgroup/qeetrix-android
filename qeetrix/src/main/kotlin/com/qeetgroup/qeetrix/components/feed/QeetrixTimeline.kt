@@ -340,7 +340,7 @@ private fun Events(
 
 /**
  * `component.timeline.marker-size`, 28px: timeline.css's `grid-template-columns: 28px …` and `.qx-timeline-marker`
- * block-size 28px, which the token agrees with since @qeetrix/tokens 0.0.13 (QTRX-185).
+ * block-size 28px, which the token agrees with since @qeetrix/tokens 0.0.13.
  */
 private val MARKER = QeetrixTimelineComponentTokens.MarkerSize
 

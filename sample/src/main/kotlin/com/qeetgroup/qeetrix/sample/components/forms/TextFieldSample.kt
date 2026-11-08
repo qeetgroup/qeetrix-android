@@ -93,6 +93,11 @@ fun TextFieldSample() {
             QeetrixTextField(rememberTextFieldState("Business"), label = "Plan", enabled = false, description = "Your admin sets this.")
             SampleNote("Read-only text can still be focused, selected and copied; disabled text cannot be focused.")
         }
+        SampleSection("Keys and codes") {
+            QeetrixTextField(rememberTextFieldState(), label = "Setup key", placeholder = "e.g. JBSW Y3DP EHPK 3PXP", mono = true)
+            QeetrixTextField(rememberTextFieldState("KM7QX-4TRWP"), label = "Pairing code", mono = true, readOnly = true)
+            SampleNote("Mono draws the value in Fira Code, so 0 and O, 1, I and l can't be confused; the box keeps its height.")
+        }
         SampleSection("A long placeholder") {
             QeetrixTextField(
                 rememberTextFieldState(),

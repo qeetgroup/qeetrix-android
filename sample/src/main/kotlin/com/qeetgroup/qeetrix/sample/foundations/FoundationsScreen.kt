@@ -619,7 +619,7 @@ private fun IconSection() {
             )
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 QeetrixIcon(QeetrixIconName.Send, contentDescription = "Send, right to left", size = QeetrixSize.IconLg)
-                // Arrows and chevrons never mirror by themselves (@qeetrix/icons' catalogue); "next" asks for it (QTRX-200).
+                // Arrows and chevrons never mirror by themselves (@qeetrix/icons' catalogue); "next" asks for it.
                 QeetrixIcon(
                     QeetrixIconName.ArrowRight,
                     contentDescription = "Next, right to left",

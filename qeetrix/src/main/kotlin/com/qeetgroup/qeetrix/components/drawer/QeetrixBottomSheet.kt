@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -143,6 +144,7 @@ internal fun SheetLayout(
     footer: (@Composable () -> Unit)?,
     modifier: Modifier = Modifier,
     handle: Boolean = true,
+    bodyPadding: PaddingValues = PaddingValues(QeetrixSpace.InsetXl),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val colors = QeetrixTheme.colors
@@ -169,7 +171,7 @@ internal fun SheetLayout(
                         .weight(1f, fill = !handle)
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
-                        .padding(QeetrixSpace.InsetXl),
+                        .padding(bodyPadding),
                     content = content,
                 )
                 if (footer != null || footerStart != null) {

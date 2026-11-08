@@ -97,7 +97,7 @@ import java.util.Locale
  *   `qx_increase`) as actions on the field.
  * - **Locale.** The device's locale — or [locale] — decides the decimal separator, grouping and digits; digits from any
  *   script are read. [grouping] `false` drops the group separators (an ID, a year).
- * - **Format** (`@qeetrix/react`'s `format`, QTRX-193): [currency] (an ISO 4217 code) shows the currency's symbol where
+ * - **Format** (`@qeetrix/react`'s `format`): [currency] (an ISO 4217 code) shows the currency's symbol where
  *   the locale writes it — "₹" before the number in `en-IN`, "€" after it in `de-DE` — and defaults [fractionDigits] to
  *   the currency's (two for INR), always written in full as Intl's currency style does ("1.234,50 €"); [percent] makes the value a share, 0.25 shown and typed as 25 beside "%", with [min],
  *   [max] and a [step] under 1 in the same shares. The web writes the marks inside the text; here they are adornments,

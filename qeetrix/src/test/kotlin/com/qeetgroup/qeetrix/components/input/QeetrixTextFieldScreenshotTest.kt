@@ -39,6 +39,8 @@ class QeetrixTextFieldScreenshotTest {
                     error = "Enter a work email, like asha@acme.in.",
                 )
                 QeetrixTextField(TextFieldState("QX-2041"), label = "Order", readOnly = true)
+                QeetrixTextField(TextFieldState("JBSW Y3DP EHPK 3PXP"), label = "Setup key (mono)", mono = true)
+                QeetrixTextField(TextFieldState(), label = "Pairing code (mono)", placeholder = "e.g. KM7QX-4TRWP", mono = true)
                 QeetrixTextField(
                     TextFieldState("Locked"),
                     label = "Plan",

@@ -25,14 +25,18 @@ import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
 /**
  * The Qeetrix icons available natively. Names are `@qeetrix/icons` 2.1's (Lucide's): the icons the
- * components and the sample draw — not the full catalogue, and the same set as qeetrix-ios. Adding one
- * is a pin in `Upstream/manifest.json`.
+ * components, the sample and the first native apps draw — not the full catalogue. qeetrix-ios carries the same
+ * names. Adding one is a pin in `Upstream/manifest.json`.
  */
 public enum class QeetrixIconName {
+    Archive,
     ArrowBigUp,
+    ArrowDown,
     ArrowLeft,
     ArrowRight,
+    ArrowUp,
     Bell,
+    BellOff,
     Calendar,
     Camera,
     CameraOff,
@@ -40,17 +44,22 @@ public enum class QeetrixIconName {
     ChevronDown,
     ChevronLeft,
     ChevronRight,
+    ChevronUp,
+    ChevronsUpDown,
     CircleAlert,
     CircleCheck,
     CircleDashed,
+    CirclePlus,
     CircleQuestionMark,
     CircleX,
     Clock,
     CloudUpload,
     ContactRound,
     Copy,
+    Database,
     Ellipsis,
     EllipsisVertical,
+    ExternalLink,
     Eye,
     EyeOff,
     File,
@@ -59,34 +68,54 @@ public enum class QeetrixIconName {
     FileImage,
     FileSpreadsheet,
     FileText,
+    FingerprintPattern,
     Flashlight,
     FlashlightOff,
     Folder,
+    Hourglass,
     House,
     Image,
+    ImagePlus,
     Inbox,
     Info,
+    Key,
+    KeyRound,
     Keyboard,
+    Link,
+    LoaderCircle,
     Lock,
+    LockOpen,
     Mail,
     MapPin,
     Menu,
     Minus,
     Navigation,
+    PanelRight,
     Paperclip,
     Pencil,
+    Pin,
     Plus,
+    RectangleEllipsis,
     RefreshCw,
+    ScanFace,
+    ScanLine,
+    ScanQrCode,
     Search,
     SearchX,
     Send,
     Server,
     Settings,
     Share2,
+    ShieldCheck,
+    ShieldX,
+    Smartphone,
+    Timer,
     Trash,
     TriangleAlert,
+    UserPlus,
     UserRound,
     Users,
+    WifiOff,
     X,
     ;
 
@@ -96,7 +125,7 @@ public enum class QeetrixIconName {
     /**
      * Whether `@qeetrix/icons` says this drawing points a reading direction (`directionality: "mirror"`: send, undo,
      * log-in, …), so it mirrors in right-to-left layouts. Physical arrows and chevrons ([ArrowLeft], [ChevronRight], …)
-     * never do by themselves: the place they are used decides (QTRX-200), as the web's `mirrorInRtl()` does —
+     * never do by themselves: the place they are used decides, as the web's `mirrorInRtl()` does —
      * [QeetrixIcon]'s `mirrorInRightToLeft`, and Button's `iconMirrorsInRightToLeft` for a navigation arrow.
      */
     public val mirrorsInRightToLeft: Boolean get() = mirrorsInRtl

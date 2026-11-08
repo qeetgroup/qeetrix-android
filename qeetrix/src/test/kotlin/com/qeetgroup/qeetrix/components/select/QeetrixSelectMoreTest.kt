@@ -29,7 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-/** QTRX-190: several choices (`QeetrixMultiSelect`), an open state the app can own, and type-to-jump. */
+/** Several choices (`QeetrixMultiSelect`), an open state the app can own, and type-to-jump. */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixSelectMoreTest {
     @get:Rule

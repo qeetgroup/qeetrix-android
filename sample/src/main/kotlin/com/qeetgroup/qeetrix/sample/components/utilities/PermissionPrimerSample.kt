@@ -18,6 +18,8 @@ import com.qeetgroup.qeetrix.components.alert.QeetrixAlertTone
 import com.qeetgroup.qeetrix.components.permission.QeetrixPermission
 import com.qeetgroup.qeetrix.components.permission.QeetrixPermissionPrimer
 import com.qeetgroup.qeetrix.components.permission.QeetrixPermissionStatus
+import com.qeetgroup.qeetrix.components.typography.QeetrixText
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
@@ -77,6 +79,7 @@ fun PermissionPrimerSample() {
                         onNotNow = { later = true },
                         status = if (refused || !canAsk) QeetrixPermissionStatus.Denied else QeetrixPermissionStatus.NotAsked,
                         deniedDescription = "Turn on notifications for this app in Settings.",
+                        footer = { QeetrixText("Only sign-in requests. Nothing else, no marketing.", size = QeetrixTextSize.Sm) },
                     )
                 }
             }

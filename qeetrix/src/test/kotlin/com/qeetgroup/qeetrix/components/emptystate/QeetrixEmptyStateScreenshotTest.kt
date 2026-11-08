@@ -50,6 +50,19 @@ class QeetrixEmptyStateScreenshotTest {
                     size = QeetrixEmptyStateSize.Section,
                     tone = QeetrixEmptyStateTone.Danger,
                 )
+                QeetrixEmptyState(
+                    "Sign-in approved",
+                    icon = QeetrixIconName.ShieldCheck,
+                    description = "You're signed in on Chrome on Windows.",
+                    size = QeetrixEmptyStateSize.Section,
+                    tone = QeetrixEmptyStateTone.Success,
+                )
+                QeetrixEmptyState(
+                    "Approve on your other phone",
+                    icon = QeetrixIconName.Smartphone,
+                    size = QeetrixEmptyStateSize.Section,
+                    tone = QeetrixEmptyStateTone.Warning,
+                )
             }
         }
 

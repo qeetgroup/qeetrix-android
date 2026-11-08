@@ -2,21 +2,29 @@ package com.qeetgroup.qeetrix.sample.components.datadisplay
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.typography.QeetrixHeading
 import com.qeetgroup.qeetrix.components.typography.QeetrixHeadingSize
 import com.qeetgroup.qeetrix.components.typography.QeetrixHeadingTone
+import com.qeetgroup.qeetrix.components.typography.QeetrixLink
+import com.qeetgroup.qeetrix.components.typography.QeetrixLinkTone
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextWeight
+import com.qeetgroup.qeetrix.components.typography.qeetrixLink
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
@@ -88,6 +96,26 @@ fun TextSample() {
                 },
             )
             SampleNote("An AnnotatedString takes spans: a word that matters at a role's own weight, or a link in a theme colour.")
+        }
+        SampleSection("Links") {
+            var linked by rememberSaveable { mutableStateOf(false) }
+            val link = qeetrixLink(onClick = { linked = true }, tone = QeetrixLinkTone.Subtle)
+            QeetrixText(
+                buildAnnotatedString {
+                    append("Using Qeet ID? ")
+                    withLink(link) { append("Link this phone") }
+                },
+                size = QeetrixTextSize.Sm,
+                tone = QeetrixTextTone.Subtle,
+            )
+            QeetrixLink("Forgot your password?", onClick = { linked = true })
+            SampleNote(
+                if (linked) {
+                    "A link was followed: the app would open its next screen."
+                } else {
+                    "A link flows inside its sentence and wraps with it; on its own it is a QeetrixLink. Each is read as a link."
+                },
+            )
         }
     }
 }

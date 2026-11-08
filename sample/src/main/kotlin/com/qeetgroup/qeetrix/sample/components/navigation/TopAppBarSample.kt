@@ -60,6 +60,10 @@ fun TopAppBarSample() {
             QeetrixTopAppBar(title = "Settings")
             SampleNote("A top-level screen has no back button: system Back is the app's navigation's, whether or not a bar shows one.")
         }
+        SampleSection("An onboarding step") {
+            QeetrixTopAppBar(title = null, description = "Step 1 of 2", navigationIcon = { QeetrixBackButton(onClick = {}) })
+            SampleNote("No title: the step is a caption, read as text; the screen's heading is in its content below.")
+        }
         SampleSection("Count, status and tabs") {
             var tab by rememberSaveable { mutableStateOf("all") }
             QeetrixTopAppBar(

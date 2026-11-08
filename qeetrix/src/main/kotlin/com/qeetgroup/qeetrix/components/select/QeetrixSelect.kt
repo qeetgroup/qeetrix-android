@@ -708,7 +708,7 @@ internal fun GroupLabel(text: String) {
  * `color.bg.neutral.subtle-hover` with a `border.width.strong` `color.border.brand` bar on the start edge; chosen,
  * `label.md`'s weight and a 16 dp `check` in `color.icon.brand`; disabled, `color.text.disabled`. The web's row is at
  * least `size.control.md` tall; here at least 48 dp, Android's touch target. A long label wraps and the row grows, the
- * meta and the check staying on its first line (select.css 0.4.0, QTRX-177), so every option can be read.
+ * meta and the check staying on its first line (select.css 0.4.0), so every option can be read.
  */
 @Composable
 internal fun OptionRow(
@@ -804,7 +804,7 @@ internal fun OptionRow(
                 typography.bodyMd
                     .copy(color = textColor, fontWeight = if (selected) QeetrixTextWeight.Medium else typography.bodyMd.fontWeight)
                     .labelDirection(alignToLayout = true),
-            // .qx-select-option-text: overflow-wrap anywhere — the label wraps and the row grows (QTRX-177), so 200 %
+            // .qx-select-option-text: overflow-wrap anywhere — the label wraps and the row grows, so 200 %
             // text still shows every option in full.
         )
     }

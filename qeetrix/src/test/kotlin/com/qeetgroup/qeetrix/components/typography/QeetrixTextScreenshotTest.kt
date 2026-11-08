@@ -1,5 +1,7 @@
 package com.qeetgroup.qeetrix.components.typography
 
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withLink
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
 import com.qeetgroup.qeetrix.screenshot.ScreenshotStack
 import com.qeetgroup.qeetrix.screenshot.captureStates
@@ -34,6 +36,14 @@ class QeetrixTextScreenshotTest {
                     "A long line that truncates after one line with an ellipsis at its end, as the web's truncate does",
                     maxLines = 1,
                 )
+                val link = qeetrixLink(onClick = {})
+                QeetrixText(
+                    buildAnnotatedString {
+                        append("Using Qeet ID? ")
+                        withLink(link) { append("Link this phone") }
+                    },
+                )
+                QeetrixLink("A subtle link", onClick = {}, tone = QeetrixLinkTone.Subtle, size = QeetrixTextSize.Sm)
             }
         }
 }

@@ -44,7 +44,7 @@ import org.robolectric.Shadows.shadowOf
 
 /**
  * The bottom sheet: presented by the app's flag, every way of closing it reported, nothing left behind; its
- * gestures, its motion (drawer.css, QTRX-198) and its handle, which is only a mark.
+ * gestures, its motion (drawer.css) and its handle, which is only a mark.
  */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixBottomSheetTest {

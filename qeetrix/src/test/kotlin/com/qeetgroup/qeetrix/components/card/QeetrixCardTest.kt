@@ -46,7 +46,7 @@ class QeetrixCardTest {
     }
 
     /**
-     * A card is not a click target (06-component-specs §9, QTRX-182): there is no clickable overload, and nothing on a
+     * A card is not a click target (06-component-specs §9): there is no clickable overload, and nothing on a
      * card is one control but what its content puts there.
      */
     @Test
@@ -91,7 +91,7 @@ class QeetrixCardTest {
     }
 
     /**
-     * card.css 0.4.0 (QTRX-174): a card with a header and no body ends at its header, a body whose content emits nothing
+     * card.css 0.4.0: a card with a header and no body ends at its header, a body whose content emits nothing
      * takes no room, and a header followed by the footer has no rule of its own, so the two share the footer's.
      */
     @Test

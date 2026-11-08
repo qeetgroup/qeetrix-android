@@ -19,7 +19,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /**
- * The menu item's and select option's row (menu.css, select.css 0.4.0, QTRX-177): one line centred in the 48 dp row; a
+ * The menu item's and select option's row (menu.css, select.css 0.4.0): one line centred in the 48 dp row; a
  * wrapped text grows it by the CSS's padding, and the side parts stay on the first line.
  */
 @RunWith(RobolectricTestRunner::class)

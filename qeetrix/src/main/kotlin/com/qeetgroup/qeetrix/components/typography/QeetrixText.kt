@@ -154,7 +154,7 @@ public fun QeetrixText(
     minLines: Int = 1,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
 ) {
-    // A paragraph takes its direction from its own text and its alignment from the layout (QTRX-199), as labels do: in
+    // A paragraph takes its direction from its own text and its alignment from the layout, as labels do: in
     // a right-to-left screen an English sentence keeps its full stop at its end and still lines up with its neighbours.
     val style = textStyle(size, weight, mono).copy(textAlign = textAlign).labelDirection(alignToLayout = true)
     BasicText(

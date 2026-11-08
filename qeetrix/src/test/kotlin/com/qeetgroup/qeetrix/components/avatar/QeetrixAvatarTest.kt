@@ -88,7 +88,7 @@ class QeetrixAvatarTest {
     }
 
     /**
-     * avatar-item.css 0.4.0 (QTRX-178): the name and description wrap (`overflow-wrap: anywhere`) instead of ending in an
+     * avatar-item.css 0.4.0: the name and description wrap (`overflow-wrap: anywhere`) instead of ending in an
      * ellipsis, so a long work email in a narrow column is shown whole, broken where it must. Real text layout.
      */
     @Test

@@ -70,8 +70,13 @@ public enum class QeetrixOTPCodeSize(
  *   seconds beside it (`label.md`, tabular). In its last 5 seconds both take the warning tone. It moves every frame,
  *   and once a second under reduced motion.
  * - **Tap to copy**: the code goes on the clipboard marked sensitive (Android 13 and later hide it in the clipboard
- *   preview), with a light haptic; Android 13 and later confirm it, and a toast says "Copied" below them. "Copied" is
- *   announced. With [hidden] the code shows as dots until the first tap, which reveals it.
+ *   preview), with a light haptic; Android 13 and later confirm it, and a toast says "Copied" below them — [confirm]
+ *   `false` drops the toast where the app shows its own confirmation. [clearAfter] (30 seconds, say) clears the
+ *   clipboard then if it still holds the code, or once the app is back in front. "Copied" is announced. With [hidden]
+ *   the code shows as dots until the first tap, which reveals it.
+ * - **[countdownAtEnd]** puts the ring and the seconds at the end of the code's width rather than beside the digits:
+ *   give it the width (`Modifier.fillMaxWidth()`), as in an account row's
+ *   [com.qeetgroup.qeetrix.components.list.QeetrixListItem] `content`.
  * - **Accessibility**: one button, read as [label], the digits one by one, then the time left ("Acme, 4 8 2 1 0 5, 12
  *   seconds left"); its action is "Copy code" (or "Show code" while hidden).
  *
@@ -94,6 +99,9 @@ public fun QeetrixOTPCode(
     hidden: Boolean = false,
     size: QeetrixOTPCodeSize = QeetrixOTPCodeSize.Lg,
     now: Instant? = null,
+    confirm: Boolean = true,
+    clearAfter: Duration? = null,
+    countdownAtEnd: Boolean = false,
     onCopied: ((String) -> Unit)? = null,
 ) {
     require(!period.isNegative && !period.isZero) { "A code's period is a positive duration, such as 30 seconds." }
@@ -122,7 +130,7 @@ public fun QeetrixOTPCode(
 
     val colors = QeetrixTheme.colors
     val copyName = stringResource(R.string.qx_otp_code_copy)
-    val action = rememberCopyAction({ code }, label ?: copyName, sensitive = true, onCopied = onCopied)
+    val action = rememberCopyAction({ code }, label ?: copyName, sensitive = true, onCopied, confirm, clearAfter)
     val left = pluralStringResource(R.plurals.qx_otp_code_seconds_left, secondsLeft, secondsLeft)
     val spoken = if (showing) code.toCharArray().joinToString(" ") else stringResource(R.string.qx_otp_code_hidden)
     val described = listOfNotNull(label, spoken, left).joinToString(", ")
@@ -154,7 +162,8 @@ public fun QeetrixOTPCode(
     ) {
         val style = codeStyle(size).copy(color = if (showing) colors.textDefault else colors.textSubtle)
         val groups = groupsOf(code)
-        Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd)) {
+        // At the end: the digits take the width the countdown leaves, so it sits at the end, gap.md after them at least.
+        Row(if (countdownAtEnd) Modifier.weight(1f) else Modifier, horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd)) {
             for (group in groups) {
                 BasicText(if (showing) group else HIDDEN.repeat(group.length), style = style, maxLines = 1, softWrap = false)
             }
@@ -176,6 +185,34 @@ public fun QeetrixOTPCode(
         }
     }
 }
+
+/** 0.1.0's signature without `confirm` and `clearAfter`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun QeetrixOTPCode(
+    code: String,
+    expiresAt: Instant,
+    modifier: Modifier = Modifier,
+    period: Duration = Duration.ofSeconds(30),
+    label: String? = null,
+    hidden: Boolean = false,
+    size: QeetrixOTPCodeSize = QeetrixOTPCodeSize.Lg,
+    now: Instant? = null,
+    onCopied: ((String) -> Unit)? = null,
+): Unit =
+    QeetrixOTPCode(
+        code = code,
+        expiresAt = expiresAt,
+        modifier = modifier,
+        period = period,
+        label = label,
+        hidden = hidden,
+        size = size,
+        now = now,
+        confirm = true,
+        clearAfter = null,
+        onCopied = onCopied,
+    )
 
 /** How a code is split for reading back: 123 456; 1234 5678; any other even length of 6 or more in halves. */
 internal fun groupsOf(code: String): List<String> =

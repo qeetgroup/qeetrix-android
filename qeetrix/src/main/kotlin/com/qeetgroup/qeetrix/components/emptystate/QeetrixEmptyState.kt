@@ -52,6 +52,15 @@ public enum class QeetrixEmptyStateTone(
 
     /** `color.icon.danger`: an error, such as a load that failed. */
     Danger("danger"),
+
+    /**
+     * `color.icon.success`: an outcome screen that went well — "Sign-in approved". Native only: the web's
+     * EmptyState has neutral and danger. The title says it, so the colour is never the only signal.
+     */
+    Success("success"),
+
+    /** `color.icon.warning`: an outcome that needs a look — "Approve on your other phone". Native only, as [Success]. */
+    Warning("warning"),
 }
 
 /**
@@ -138,7 +147,13 @@ internal fun EmptyStateContent(
                     modifier = Modifier.padding(bottom = QeetrixSpace.GapXs), // margin-block-end: space.gap.xs
                     size = EmptyStateIconSize,
                     shape = QeetrixIconShape.Sharp,
-                    tint = if (tone == QeetrixEmptyStateTone.Danger) colors.iconDanger else colors.iconSubtle,
+                    tint =
+                        when (tone) {
+                            QeetrixEmptyStateTone.Neutral -> colors.iconSubtle
+                            QeetrixEmptyStateTone.Danger -> colors.iconDanger
+                            QeetrixEmptyStateTone.Success -> colors.iconSuccess
+                            QeetrixEmptyStateTone.Warning -> colors.iconWarning
+                        },
                 )
             }
             // Text fills its line and is centred in it, rather than measured to its content: content-width text in a

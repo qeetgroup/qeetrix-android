@@ -27,7 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-/** QTRX-126: a select for long lists — a sheet with a search field, groups, the choice marked, one or several, and an empty state. */
+/** A select for long lists — a sheet with a search field, groups, the choice marked, one or several, and an empty state. */
 @RunWith(RobolectricTestRunner::class)
 class QeetrixSearchableSelectTest {
     @get:Rule

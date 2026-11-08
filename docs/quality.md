@@ -89,7 +89,7 @@ fix names its finding in a code comment beside it.
 ## ✔️ Accepted by design
 
 - **A long OTP code in a narrow column** (Q-15). A 10-character code needs a 312 dp column (328 dp in two groups). The
-  spec says a code never goes in a narrower one and a longer code is a single input (QTRX-164, settled 30 October
+  spec says a code never goes in a narrower one and a longer code is a single input (settled 30 October
   2026). The quality scans keep one such case to show what happens.
 - The navigation bar's labels end in an ellipsis at 200 % text when they don't fit. TalkBack reads them in full.
 - In a right-to-left screen, an English paragraph's punctuation follows Compose's default.

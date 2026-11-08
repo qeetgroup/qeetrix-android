@@ -24,12 +24,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.accordion.QeetrixAccordion
 import com.qeetgroup.qeetrix.components.accordion.QeetrixAccordionItem
 import com.qeetgroup.qeetrix.components.accordion.QeetrixCollapsiblePanel
 import com.qeetgroup.qeetrix.components.accordion.QeetrixCollapsibleTrigger
 import com.qeetgroup.qeetrix.components.actionbar.QeetrixBottomActionBar
+import com.qeetgroup.qeetrix.components.actionbar.QeetrixBottomActionBarArrangement
 import com.qeetgroup.qeetrix.components.alert.QeetrixAlert
 import com.qeetgroup.qeetrix.components.alert.QeetrixAlertTone
 import com.qeetgroup.qeetrix.components.alert.QeetrixAlertVariant
@@ -80,8 +83,13 @@ import com.qeetgroup.qeetrix.components.dialog.QeetrixDialogSize
 import com.qeetgroup.qeetrix.components.dialog.QeetrixFullScreenForm
 import com.qeetgroup.qeetrix.components.dialog.arrangeActions
 import com.qeetgroup.qeetrix.components.dialog.confirmationActions
+import com.qeetgroup.qeetrix.components.drawer.ActionSheetLayout
+import com.qeetgroup.qeetrix.components.drawer.ActionSheetScopeImpl
 import com.qeetgroup.qeetrix.components.drawer.DragHandle
+import com.qeetgroup.qeetrix.components.drawer.QeetrixActionSheet
 import com.qeetgroup.qeetrix.components.drawer.QeetrixBottomSheet
+import com.qeetgroup.qeetrix.components.drawer.QeetrixSheetAction
+import com.qeetgroup.qeetrix.components.drawer.QeetrixSheetActionSeparator
 import com.qeetgroup.qeetrix.components.drawer.QeetrixSideSheet
 import com.qeetgroup.qeetrix.components.drawer.SheetLayout
 import com.qeetgroup.qeetrix.components.dropdownmenu.MenuSurface
@@ -140,6 +148,7 @@ import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPCode
 import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPCodeSize
 import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPInput
 import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPInputSize
+import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPSlotWidth
 import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPValidationType
 import com.qeetgroup.qeetrix.components.pageindicator.QeetrixPageIndicator
 import com.qeetgroup.qeetrix.components.passwordinput.QeetrixPasswordAutoComplete
@@ -156,6 +165,7 @@ import com.qeetgroup.qeetrix.components.qrcode.QeetrixQRCode
 import com.qeetgroup.qeetrix.components.radiogroup.QeetrixRadioGroup
 import com.qeetgroup.qeetrix.components.relativetime.QeetrixRelativeTime
 import com.qeetgroup.qeetrix.components.scanner.QeetrixQRScanner
+import com.qeetgroup.qeetrix.components.scanner.QeetrixScannerControlsLayout
 import com.qeetgroup.qeetrix.components.scanner.QeetrixScannerState
 import com.qeetgroup.qeetrix.components.segmented.QeetrixSegmentedControl
 import com.qeetgroup.qeetrix.components.select.OptionListSurface
@@ -199,10 +209,13 @@ import com.qeetgroup.qeetrix.components.toast.rememberQeetrixSnackbarHostState
 import com.qeetgroup.qeetrix.components.typography.QeetrixHeading
 import com.qeetgroup.qeetrix.components.typography.QeetrixHeadingSize
 import com.qeetgroup.qeetrix.components.typography.QeetrixHeadingTone
+import com.qeetgroup.qeetrix.components.typography.QeetrixLink
+import com.qeetgroup.qeetrix.components.typography.QeetrixLinkTone
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextWeight
+import com.qeetgroup.qeetrix.components.typography.qeetrixLink
 import com.qeetgroup.qeetrix.foundation.typography.QeetrixTextRole
 import com.qeetgroup.qeetrix.icons.QeetrixIcon
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
@@ -210,6 +223,7 @@ import com.qeetgroup.qeetrix.icons.QeetrixIconShape
 import com.qeetgroup.qeetrix.icons.QeetrixIconVariant
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import java.math.BigDecimal
+import java.time.Instant
 import kotlin.time.Duration
 
 /**
@@ -248,6 +262,16 @@ internal val QualityCatalog: List<QualitySpecimen> =
                 for (tone in listOf(QeetrixTextTone.Brand, QeetrixTextTone.Success, QeetrixTextTone.Warning, QeetrixTextTone.Info)) {
                     QeetrixText("${tone.value} text", tone = tone)
                 }
+                val link = qeetrixLink(onClick = {}, tone = QeetrixLinkTone.Subtle)
+                QeetrixText(
+                    buildAnnotatedString {
+                        append("Using Qeet ID? ")
+                        withLink(link) { append("Link this phone") }
+                    },
+                    size = QeetrixTextSize.Sm,
+                    tone = QeetrixTextTone.Subtle,
+                )
+                QeetrixLink("Forgot your password?", onClick = {})
             }
         },
         QualitySpecimen("separator") {
@@ -485,6 +509,7 @@ internal val QualityCatalog: List<QualitySpecimen> =
                 QeetrixTextField(TextFieldState("asha@"), label = "Recovery email", error = "Enter an email address like name@company.com.")
                 QeetrixTextField(TextFieldState("Asha Rao"), label = "Name", description = "As it appears on your PAN.", invalid = true)
                 QeetrixTextField(TextFieldState("QX-2041"), label = "Order", readOnly = true)
+                QeetrixTextField(TextFieldState("JBSW Y3DP EHPK 3PXP"), label = "Setup key", mono = true)
                 QeetrixTextField(TextFieldState("Qeet Example"), label = "Organisation", enabled = false, optional = true)
                 QeetrixTextField(
                     TextFieldState("2,500"),
@@ -543,10 +568,11 @@ internal val QualityCatalog: List<QualitySpecimen> =
                     error = "That code has expired. Enter the new one we sent.",
                 )
                 QeetrixOTPInput(TextFieldState("12"), label = "Disabled", length = 4, enabled = false)
+                QeetrixOTPInput(TextFieldState("7"), label = "Number match", length = 2, slotWidth = QeetrixOTPSlotWidth.Square)
             }
         },
         QualitySpecimen("otp-input-long") {
-            // Q-15, settled by the spec (QTRX-164): ten slots in a compact phone are narrower than a wide character at 2×,
+            // Q-15, settled by the spec: ten slots in a compact phone are narrower than a wide character at 2×,
             // as the column is under the 328 dp a [5, 5] code needs. A code never goes there; a longer one is one input.
             QeetrixOTPInput(
                 TextFieldState("WM8KWX"),
@@ -675,6 +701,7 @@ internal val QualityCatalog: List<QualitySpecimen> =
                 QeetrixAccordion(value = listOf("billing"), onValueChange = {}) {
                     QeetrixAccordionItem("billing", "How am I billed?") { QeetrixText("Monthly, on the date you subscribed.") }
                     QeetrixAccordionItem("notifications", "Notifications") {}
+                    QeetrixAccordionItem("advanced", "Advanced", description = "6 digits · every 30 seconds · SHA-1") {}
                     QeetrixAccordionItem("long", "A question long enough to wrap onto a second line of the trigger") {}
                     QeetrixAccordionItem("export", "Data export", enabled = false) {}
                 }
@@ -707,7 +734,7 @@ internal val QualityCatalog: List<QualitySpecimen> =
             Column {
                 QeetrixAvatarItem("Priya Sharma", description = "Owner")
                 QeetrixAvatarItem("Acme Pvt Ltd", description = "Organisation", shape = QeetrixAvatarShape.Square)
-                // A work email longer than the line: it wraps, breaking where it must (avatar-item.css 0.4.0, QTRX-178).
+                // A work email longer than the line: it wraps, breaking where it must (avatar-item.css 0.4.0).
                 QeetrixAvatarItem("Priya Sharma", description = LongEmail)
             }
         },
@@ -763,6 +790,18 @@ internal val QualityCatalog: List<QualitySpecimen> =
                     size = QeetrixEmptyStateSize.Section,
                     tone = QeetrixEmptyStateTone.Danger,
                 )
+                QeetrixEmptyState(
+                    "Sign-in approved",
+                    icon = QeetrixIconName.ShieldCheck,
+                    size = QeetrixEmptyStateSize.Section,
+                    tone = QeetrixEmptyStateTone.Success,
+                )
+                QeetrixEmptyState(
+                    "Approve on your other phone",
+                    icon = QeetrixIconName.Smartphone,
+                    size = QeetrixEmptyStateSize.Section,
+                    tone = QeetrixEmptyStateTone.Warning,
+                )
             }
         },
         QualitySpecimen("data-state") {
@@ -803,6 +842,24 @@ internal val QualityCatalog: List<QualitySpecimen> =
                 })
                 QeetrixListItem("Priya Sharma", trailing = { QeetrixBadge("Owner", tone = QeetrixBadgeTone.Brand) })
                 QeetrixListItem("Archived project", description = "Read-only", enabled = false, onClick = {})
+                QeetrixListItem(
+                    "GitHub",
+                    description = "priya",
+                    onClick = {},
+                    content = {
+                        QeetrixOTPCode(
+                            "482105",
+                            Instant.parse("2026-11-07T10:00:30Z"),
+                            Modifier.fillMaxWidth(),
+                            label = "GitHub · priya",
+                            size = QeetrixOTPCodeSize.Md,
+                            now = Instant.parse("2026-11-07T10:00:12Z"),
+                            countdownAtEnd = true,
+                        )
+                    },
+                    leading = { QeetrixListItemIcon("G") },
+                )
+                QeetrixListItem("Verify your email", description = "Step 2 of 3", leading = { QeetrixListItemIcon("2") })
                 QeetrixSectionHeader("Files", ruled = false)
             }
         },
@@ -840,6 +897,7 @@ internal val QualityCatalog: List<QualitySpecimen> =
                     },
                 )
                 QeetrixTopAppBar("Settings")
+                QeetrixTopAppBar(title = null, description = "Step 1 of 2", navigationIcon = { QeetrixBackButton(onClick = {}) })
             }
         },
         QualitySpecimen("tabs") {
@@ -1027,6 +1085,18 @@ internal val QualityCatalog: List<QualitySpecimen> =
                 ) { QeetrixCheckbox(true, {}, label = "Overdue") }
             }
         },
+        QualitySpecimen("action-sheet") {
+            // QeetrixActionSheet's handle and parts, drawn in place: the sheet is a window of its own.
+            Column(Modifier.fillMaxWidth().background(QeetrixTheme.colors.surfaceOverlay)) {
+                DragHandle()
+                ActionSheetLayout("GitHub · priya", description = null, onClose = {}, scope = ActionSheetScopeImpl()) {
+                    QeetrixSheetAction("Copy code", onClick = {}, icon = QeetrixIconName.Copy)
+                    QeetrixSheetAction("Rename", onClick = {}, icon = QeetrixIconName.Pencil)
+                    QeetrixSheetActionSeparator()
+                    QeetrixSheetAction("Delete account", onClick = {}, icon = QeetrixIconName.Trash, tone = QeetrixMenuItemTone.Danger)
+                }
+            }
+        },
         QualitySpecimen("side-sheet") {
             // QeetrixSideSheet's parts, drawn in place at a fixed height: no handle, the footer at the bottom.
             Box(Modifier.width(320.dp).height(360.dp).background(QeetrixTheme.colors.surfaceOverlay)) {
@@ -1120,6 +1190,16 @@ internal val QualityCatalog: List<QualitySpecimen> =
                     }
                 }
                 // Each state fills the box it is given, as the camera view does.
+                Box(Modifier.height(560.dp)) {
+                    QeetrixQRScanner(
+                        QeetrixScannerState.Scanning,
+                        onTorchChange = {},
+                        onEnterKey = {},
+                        controlsLayout = QeetrixScannerControlsLayout.Row,
+                    ) {
+                        Box(Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.DarkGray))
+                    }
+                }
                 Box(Modifier.height(560.dp)) { QeetrixQRScanner(QeetrixScannerState.PermissionDenied, onEnterKey = {}) {} }
                 Box(Modifier.height(560.dp)) { QeetrixQRScanner(QeetrixScannerState.NoCamera, onEnterKey = {}) {} }
             }
@@ -1131,6 +1211,7 @@ internal val QualityCatalog: List<QualitySpecimen> =
                 description = "Qeet Auth asks you to approve each sign-in. Allow notifications so the requests reach you.",
                 onContinue = {},
                 onNotNow = {},
+                footer = { QeetrixText("Only sign-in requests. Nothing else, no marketing.", size = QeetrixTextSize.Sm) },
             )
         },
         QualitySpecimen("alert") {
@@ -1206,9 +1287,19 @@ internal val QualityCatalog: List<QualitySpecimen> =
             }
         },
         QualitySpecimen("bottom-action-bar") {
-            QeetrixBottomActionBar(ruled = true) {
-                QeetrixButton("Deny", onClick = {}, variant = QeetrixButtonVariant.Soft, fullWidth = true)
-                QeetrixButton("Approve", onClick = {}, fullWidth = true)
+            Column {
+                QeetrixBottomActionBar(ruled = true) {
+                    QeetrixButton("Deny", onClick = {}, variant = QeetrixButtonVariant.Soft, fullWidth = true)
+                    QeetrixButton("Approve", onClick = {}, fullWidth = true)
+                }
+                QeetrixBottomActionBar(arrangement = QeetrixBottomActionBarArrangement.PrimaryFills) {
+                    QeetrixButton("Not now", onClick = {}, variant = QeetrixButtonVariant.Ghost, fullWidth = true)
+                    QeetrixButton("Continue", onClick = {}, icon = QeetrixIconName.ArrowRight, fullWidth = true)
+                }
+                QeetrixBottomActionBar(arrangement = QeetrixBottomActionBarArrangement.Stacked) {
+                    QeetrixButton("Type it", onClick = {}, variant = QeetrixButtonVariant.Ghost)
+                    QeetrixButton("Scan the QR code", onClick = {}, fullWidth = true)
+                }
             }
         },
         QualitySpecimen("segmented-control") {
@@ -1380,6 +1471,13 @@ internal val OverlayCatalog: List<QualitySpecimen> =
                 footer = { QeetrixButton("Show results", onClick = {}) },
             ) { QeetrixCheckbox(true, {}, label = "Overdue") }
         },
+        QualitySpecimen("action-sheet window") {
+            QeetrixActionSheet(open = true, onOpenChange = {}, title = "GitHub · priya") {
+                QeetrixSheetAction("Copy code", onClick = {}, icon = QeetrixIconName.Copy)
+                QeetrixSheetActionSeparator()
+                QeetrixSheetAction("Delete account", onClick = {}, icon = QeetrixIconName.Trash, tone = QeetrixMenuItemTone.Danger)
+            }
+        },
         QualitySpecimen("side-sheet window") {
             QeetrixSideSheet(
                 open = true,
@@ -1399,7 +1497,7 @@ internal val OverlayCatalog: List<QualitySpecimen> =
         },
     )
 
-/** A work email longer than an avatar item's line, which wraps rather than being cut (QTRX-178, once finding Q-14). */
+/** A work email longer than an avatar item's line, which wraps rather than being cut (once finding Q-14). */
 internal const val LongEmail = "priya.sharma.accounts-payable@acme-industries.co.in"
 
 private val Countries =

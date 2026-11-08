@@ -68,11 +68,14 @@ import kotlin.math.roundToInt
  * - **Edge to edge.** [windowInsets] (by default the top and horizontal safe-drawing insets) keeps the content clear
  *   of the status bar and display cutouts while the surface runs under them.
  *
- * - **Count, status and tabs** (PageHeader's, QTRX-196): [count] beside the title in its size at `body.md`'s weight,
+ * - **Count, status and tabs** (PageHeader's): [count] beside the title in its size at `body.md`'s weight,
  *   `color.text.subtlest`, formatted for the locale ("Members 412"); [status] after it, usually a
  *   [com.qeetgroup.qeetrix.components.badge.QeetrixBadge]; [tabs] under the bar, a
  *   [com.qeetgroup.qeetrix.components.tabs.QeetrixTabs] edge to edge.
- * - **A large title** ([size] `Medium` or `Large`, QTRX-137): the title in `heading.sm` or `heading.md` under the bar,
+ * - **No title**: an onboarding step whose heading is in the content below passes `title = null` and the
+ *   step as [description] ("Step 1 of 2"), drawn as a caption in `body.sm` `color.text.subtle` beside the
+ *   [navigationIcon]. It is read as text, not a heading, and the bar keeps its height. A large [size] needs a title.
+ * - **A large title** ([size] `Medium` or `Large`): the title in `heading.sm` or `heading.md` under the bar,
  *   with the description, collapsing into the bar as the content scrolls up when [scrollState] is given
  *   ([rememberQeetrixTopAppBarScrollState]); the bar's own title fades in as it goes.
  *
@@ -90,7 +93,7 @@ import kotlin.math.roundToInt
  */
 @Composable
 public fun QeetrixTopAppBar(
-    title: String,
+    title: String?,
     modifier: Modifier = Modifier,
     description: String? = null,
     navigationIcon: (@Composable () -> Unit)? = null,
@@ -108,6 +111,7 @@ public fun QeetrixTopAppBar(
     val locale = LocalConfiguration.current.locales[0]
     val counted = count?.let { remember(it, locale) { QeetrixFormat.number(it, locale) } }
     val large = size != QeetrixTopAppBarSize.Small
+    require(title != null || !large) { "A ${size.value} top app bar shows its title large; give it a title." }
     // How far the large title has collapsed into the bar: 0 open, 1 gone (only with a scroll state).
     val collapsed = if (large) scrollState?.collapsedFraction ?: 0f else 1f
     Column(
@@ -148,17 +152,21 @@ public fun QeetrixTopAppBar(
                         ) {
                             Modifier.clearAndSetSemantics {}
                         } else {
-                            Modifier.semantics(mergeDescendants = true) { heading() }
+                            // Without a title the caption is read as text, not as the screen's heading.
+                            Modifier.semantics(mergeDescendants = true) { if (title != null) heading() }
                         },
                     ),
                 verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs),
             ) {
-                TitleRow(title, counted, status, typography.titleLg)
+                if (title != null) TitleRow(title, counted, status, typography.titleLg)
                 if (description != null && !large) {
                     BasicText(
                         description,
-                        // .qx-page-header-description
-                        style = typography.bodyMd.copy(color = colors.textSubtle).labelDirection(alignToLayout = true),
+                        // .qx-page-header-description; without a title, a caption in body.sm
+                        style =
+                            (if (title == null) typography.bodySm else typography.bodyMd)
+                                .copy(color = colors.textSubtle)
+                                .labelDirection(alignToLayout = true),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -190,7 +198,7 @@ public fun QeetrixTopAppBar(
                             ),
                         verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs),
                     ) {
-                        TitleRow(title, counted, status, role, wrap = true)
+                        TitleRow(checkNotNull(title), counted, status, role, wrap = true)
                         if (description !=
                             null
                         ) {

@@ -220,7 +220,7 @@ private fun capHeight(style: TextStyle): Float? {
  *
  * The two lines sit close: the name (`label.md`) on the second line's line height (`body.sm`'s, 16 sp), so
  * together they are as tall as a `md` avatar and a compact row. Both wrap rather than end in an ellipsis, a long
- * email breaking where it must, so neither is ever cut (`overflow-wrap: anywhere`, QTRX-178). The avatar is
+ * email breaking where it must, so neither is ever cut (`overflow-wrap: anywhere`). The avatar is
  * decorative, since the name is shown; the name and description are read as one element.
  *
  * ```

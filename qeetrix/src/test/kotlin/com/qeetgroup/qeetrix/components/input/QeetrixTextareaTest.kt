@@ -42,7 +42,7 @@ class QeetrixTextareaTest {
     /**
      * input.css `.qx-textarea`: rows lines plus `(size.control.lg − 1lh)` of padding — 3 × 20 + 20 = 80 dp at the
      * default density, under the 16 dp label and its 4 dp gap. Real text layout, so lines follow the bundled font,
-     * and exact: body.md's line height is 20 px to the bit (@qeetrix/tokens 0.0.13, QTRX-184), where 0.0.12's 1.4286
+     * and exact: body.md's line height is 20 px to the bit (@qeetrix/tokens 0.0.13), where 0.0.12's 1.4286
      * ratio made 20.0004 px, which Compose rounded up to 21 px a line.
      */
     @Test

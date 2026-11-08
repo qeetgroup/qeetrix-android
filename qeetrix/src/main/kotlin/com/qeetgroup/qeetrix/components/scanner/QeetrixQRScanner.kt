@@ -26,9 +26,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.R
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
@@ -64,6 +66,20 @@ public enum class QeetrixScannerState(
     NoCamera("no-camera"),
 }
 
+/** How a scanning [QeetrixQRScanner] lays out its torch and fallback (`value` is the name shared with qeetrix-ios). */
+public enum class QeetrixScannerControlsLayout(
+    public val value: String,
+) {
+    /** The torch above the fallback, both centred. The default. */
+    Stacked("stacked"),
+
+    /**
+     * One row: the fallback filling it, the torch at its own size at the end. Where the fallback's words don't fit beside
+     * the torch — a narrow phone, large text — the torch goes above a full-width fallback.
+     */
+    Row("row"),
+}
+
 /**
  * A QR scanner's screen over a camera preview the app supplies — for adding an account or pairing a phone. Qeetrix has
  * no camera dependency: the app brings CameraX (or any camera), decodes the frames, and passes its preview as
@@ -75,14 +91,17 @@ public enum class QeetrixScannerState(
  *   meet. The controls carry their own fills, as the scrim is translucent and the camera may see a white page: the
  *   [guidance] ("Point the camera at the QR code", `body.md`) in `color.text.inverse` on `color.bg.neutral.bold`;
  *   [onTorchChange]'s torch toggle (`flashlight` / `flashlight-off`, solid neutral; leave it null on a device with no
- *   flash); and the fallback, soft.
+ *   flash); and the fallback, soft. [controlsLayout] [QeetrixScannerControlsLayout.Row] puts the fallback and the torch
+ *   in one row, the fallback filling it.
  * - **Permission states**: a [QeetrixPermissionPrimer] for the camera, centred — Continue ([onAllowCamera]) while not
  *   yet asked, Open Settings once refused ([onOpenSettings], or the app's Settings page). It has no Not now: the way
- *   out is the fallback, or the app's Back. Check the permission again when the screen resumes (`LifecycleResumeEffect`):
+ *   out is the fallback, or the app's Back. [deniedDescription] says how to turn the camera on ("Turn on the camera for
+ *   Qeet ID in Settings…"); the default says "for this app". Check the permission again when the screen resumes (`LifecycleResumeEffect`):
  *   the person may have turned the camera on in Settings.
  * - **[QeetrixScannerState.NoCamera]**: an empty state saying so.
- * - **The fallback**: with [onEnterKey], "Type the key instead" (`keyboard`) is there in every state — ghost on the
- *   page, soft on the camera.
+ * - **The fallback**: with [onEnterKey], [enterKeyLabel] ("Type the key instead"; "Type the code instead" for a pairing
+ *   code) with the `keyboard` icon is there in every state — ghost on the page, soft on the camera. It is a button's
+ *   label, on one line, so keep it as short as the default: longer words end in an ellipsis on a small phone at 200 %.
  *
  * The bottom actions keep clear of the navigation bar. The preview is decorative to accessibility services; the
  * guidance, the torch and the fallback are read.
@@ -103,18 +122,34 @@ public fun QeetrixQRScanner(
     onEnterKey: (() -> Unit)? = null,
     onAllowCamera: () -> Unit = {},
     onOpenSettings: (() -> Unit)? = null,
+    enterKeyLabel: String = stringResource(R.string.qx_scanner_enter_key),
+    deniedDescription: String = stringResource(R.string.qx_scanner_permission_denied),
+    controlsLayout: QeetrixScannerControlsLayout = QeetrixScannerControlsLayout.Stacked,
     preview: @Composable () -> Unit,
 ) {
     val colors = QeetrixTheme.colors
-    // Ghost on the page; on the camera, filled (soft), as the scrim is translucent.
-    val fallback: @Composable (QeetrixButtonVariant) -> Unit = { variant ->
+    // Ghost on the page; on the camera, filled (soft), as the scrim is translucent. [fill] makes it fill its row.
+    val fallback: @Composable (QeetrixButtonVariant, Modifier?) -> Unit = { variant, fill ->
         if (onEnterKey != null) {
             QeetrixButton(
-                stringResource(R.string.qx_scanner_enter_key),
+                enterKeyLabel,
                 onClick = onEnterKey,
+                modifier = fill ?: Modifier,
                 variant = variant,
                 tone = QeetrixButtonTone.Neutral,
                 icon = QeetrixIconName.Keyboard,
+                fullWidth = fill != null,
+            )
+        }
+    }
+    val torchToggle: @Composable () -> Unit = {
+        if (onTorchChange != null) {
+            QeetrixIconButton(
+                if (torch) QeetrixIconName.FlashlightOff else QeetrixIconName.Flashlight,
+                stringResource(if (torch) R.string.qx_scanner_torch_off else R.string.qx_scanner_torch_on),
+                onClick = { onTorchChange(!torch) },
+                variant = QeetrixButtonVariant.Solid,
+                tone = QeetrixButtonTone.Neutral,
             )
         }
     }
@@ -185,16 +220,17 @@ public fun QeetrixQRScanner(
                                         textAlign = TextAlign.Center,
                                     ).labelDirection(alignToLayout = true),
                         )
-                        if (onTorchChange != null) {
-                            QeetrixIconButton(
-                                if (torch) QeetrixIconName.FlashlightOff else QeetrixIconName.Flashlight,
-                                stringResource(if (torch) R.string.qx_scanner_torch_off else R.string.qx_scanner_torch_on),
-                                onClick = { onTorchChange(!torch) },
-                                variant = QeetrixButtonVariant.Solid,
-                                tone = QeetrixButtonTone.Neutral,
-                            )
+                        when (controlsLayout) {
+                            QeetrixScannerControlsLayout.Stacked -> {
+                                torchToggle()
+                                fallback(QeetrixButtonVariant.Soft, null)
+                            }
+
+                            QeetrixScannerControlsLayout.Row -> {
+                                // A fill modifier makes the fallback full width; ControlsRow gives it the row's width.
+                                ControlsRow({ fallback(QeetrixButtonVariant.Soft, Modifier) }, torchToggle)
+                            }
                         }
-                        fallback(QeetrixButtonVariant.Soft)
                     }
                 }
             }
@@ -217,10 +253,10 @@ public fun QeetrixQRScanner(
                         } else {
                             QeetrixPermissionStatus.NotAsked
                         },
-                    deniedDescription = stringResource(R.string.qx_scanner_permission_denied),
+                    deniedDescription = deniedDescription,
                     onOpenSettings = onOpenSettings,
                 )
-                fallback(QeetrixButtonVariant.Ghost)
+                fallback(QeetrixButtonVariant.Ghost, null)
             }
         }
 
@@ -232,11 +268,77 @@ public fun QeetrixQRScanner(
                     description = stringResource(R.string.qx_scanner_no_camera_description),
                     size = QeetrixEmptyStateSize.Section,
                 )
-                fallback(QeetrixButtonVariant.Ghost)
+                fallback(QeetrixButtonVariant.Ghost, null)
             }
         }
     }
 }
+
+/**
+ * [QeetrixScannerControlsLayout.Row]: the fallback filling the row, `space.gap.sm` before the torch at the end — or, when
+ * the fallback's words need more than the row leaves beside the torch, the torch centred above the full-width fallback,
+ * `space.gap.md` apart, so they are never cut off.
+ */
+@Composable
+private fun ControlsRow(
+    fallback: @Composable () -> Unit,
+    torch: @Composable () -> Unit,
+) {
+    val rowGap = QeetrixSpace.GapSm
+    val stackGap = QeetrixSpace.GapMd
+    Layout(listOf(fallback, torch), Modifier.fillMaxWidth()) { (fallbacks, torches), constraints ->
+        val width = constraints.maxWidth
+        val torchPlaced = torches.firstOrNull()?.measure(constraints.copy(minWidth = 0, minHeight = 0))
+        val torchWidth = torchPlaced?.width ?: 0
+        val words = fallbacks.firstOrNull()
+        val gap = if (torchPlaced != null) rowGap.roundToPx() else 0
+        if (words == null || words.maxIntrinsicWidth(constraints.maxHeight) + gap + torchWidth <= width) {
+            val fallbackPlaced = words?.measure(Constraints.fixedWidth(width - gap - torchWidth))
+            val height = maxOf(fallbackPlaced?.height ?: 0, torchPlaced?.height ?: 0)
+            layout(width, height) {
+                fallbackPlaced?.placeRelative(0, (height - fallbackPlaced.height) / 2)
+                val torchX = if (fallbackPlaced == null) (width - torchWidth) / 2 else width - torchWidth
+                torchPlaced?.placeRelative(torchX, (height - torchPlaced.height) / 2)
+            }
+        } else {
+            val fallbackPlaced = words.measure(Constraints.fixedWidth(width))
+            val below = torchPlaced?.let { it.height + stackGap.roundToPx() } ?: 0
+            layout(width, below + fallbackPlaced.height) {
+                torchPlaced?.placeRelative((width - torchWidth) / 2, 0)
+                fallbackPlaced.placeRelative(0, below)
+            }
+        }
+    }
+}
+
+/** 0.1.0's signature without the label, message and layout, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun QeetrixQRScanner(
+    state: QeetrixScannerState,
+    modifier: Modifier = Modifier,
+    guidance: String = stringResource(R.string.qx_scanner_guidance),
+    torch: Boolean = false,
+    onTorchChange: ((Boolean) -> Unit)? = null,
+    onEnterKey: (() -> Unit)? = null,
+    onAllowCamera: () -> Unit = {},
+    onOpenSettings: (() -> Unit)? = null,
+    preview: @Composable () -> Unit,
+): Unit =
+    QeetrixQRScanner(
+        state = state,
+        modifier = modifier,
+        guidance = guidance,
+        torch = torch,
+        onTorchChange = onTorchChange,
+        onEnterKey = onEnterKey,
+        onAllowCamera = onAllowCamera,
+        onOpenSettings = onOpenSettings,
+        enterKeyLabel = stringResource(R.string.qx_scanner_enter_key),
+        deniedDescription = stringResource(R.string.qx_scanner_permission_denied),
+        controlsLayout = QeetrixScannerControlsLayout.Stacked,
+        preview = preview,
+    )
 
 /** A state without the camera: centred in the scanner's area, clear of the navigation bar. */
 @Composable

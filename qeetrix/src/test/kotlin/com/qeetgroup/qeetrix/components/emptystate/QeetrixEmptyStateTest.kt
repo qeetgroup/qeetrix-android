@@ -15,8 +15,12 @@ import androidx.compose.ui.test.performClick
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.setQeetrix
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
+import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixAccessibility
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixDarkColors
+import com.qeetgroup.qeetrix.tokens.generated.QeetrixLightColors
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -71,6 +75,19 @@ class QeetrixEmptyStateTest {
     @Test
     fun optionsCarryTheWebsNames() {
         assertEquals(listOf("page", "section"), QeetrixEmptyStateSize.entries.map { it.value })
-        assertEquals(listOf("neutral", "danger"), QeetrixEmptyStateTone.entries.map { it.value })
+        assertEquals(listOf("neutral", "danger", "success", "warning"), QeetrixEmptyStateTone.entries.map { it.value })
+    }
+
+    /** The outcome tones' icons keep 3:1 on the canvas and on a raised surface, light and dark. */
+    @Test
+    fun theOutcomeIconsKeep3To1() {
+        for ((scheme, colors) in listOf("light" to QeetrixLightColors, "dark" to QeetrixDarkColors)) {
+            for ((tone, icon) in listOf("success" to colors.iconSuccess, "warning" to colors.iconWarning)) {
+                for ((surface, background) in listOf("canvas" to colors.surfaceCanvas, "raised" to colors.surfaceRaised)) {
+                    val ratio = QeetrixAccessibility.contrastRatio(icon, background)
+                    assertTrue("$tone on $surface, $scheme: $ratio", ratio >= 3.0)
+                }
+            }
+        }
     }
 }

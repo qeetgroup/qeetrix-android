@@ -57,6 +57,10 @@ public enum class QeetrixPermissionStatus(
  * - [QeetrixPermissionStatus.Denied]: the system will not ask again, so the actions are **Open Settings**, which opens
  *   the app's page in Settings ([onOpenSettings] to do it yourself), and Not now; [deniedDescription] says what to turn on.
  *
+ * [footer] is a short reassurance under the actions, as the empty state's footer — "Only sign-in requests. Nothing
+ * else, no marketing." — in `color.text.subtle`: draw its text at `QeetrixTextSize.Sm`. It shows in both
+ * states.
+ *
  * Qeetrix asks for nothing itself: the app keeps the `ActivityResultLauncher` and decides the [status] — checking
  * again when the screen resumes, as the person may have changed it in Settings.
  *
@@ -81,9 +85,25 @@ public fun QeetrixPermissionPrimer(
     status: QeetrixPermissionStatus = QeetrixPermissionStatus.NotAsked,
     deniedDescription: String? = null,
     onOpenSettings: (() -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
 ) {
-    PermissionPrimer(permission, title, description, onContinue, onNotNow, modifier, status, deniedDescription, onOpenSettings)
+    PermissionPrimer(permission, title, description, onContinue, onNotNow, modifier, status, deniedDescription, onOpenSettings, footer)
 }
+
+/** 0.1.0's signature without `footer`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun QeetrixPermissionPrimer(
+    permission: QeetrixPermission,
+    title: String,
+    description: String,
+    onContinue: () -> Unit,
+    onNotNow: () -> Unit,
+    modifier: Modifier = Modifier,
+    status: QeetrixPermissionStatus = QeetrixPermissionStatus.NotAsked,
+    deniedDescription: String? = null,
+    onOpenSettings: (() -> Unit)? = null,
+): Unit = PermissionPrimer(permission, title, description, onContinue, onNotNow, modifier, status, deniedDescription, onOpenSettings)
 
 /**
  * [QeetrixPermissionPrimer], with Not now left out when [onNotNow] is null — for a screen whose way out is its own
@@ -100,6 +120,7 @@ internal fun PermissionPrimer(
     status: QeetrixPermissionStatus = QeetrixPermissionStatus.NotAsked,
     deniedDescription: String? = null,
     onOpenSettings: (() -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val denied = status == QeetrixPermissionStatus.Denied
@@ -109,6 +130,7 @@ internal fun PermissionPrimer(
         icon = permission.icon,
         description = if (denied) deniedDescription ?: description else description,
         size = QeetrixEmptyStateSize.Section,
+        footer = footer,
         actions = {
             if (denied) {
                 QeetrixButton(

@@ -177,7 +177,7 @@ public sealed interface QeetrixMenuRadioGroupScope<T> : QeetrixMenuScope
  *   on the right in a right-to-left layout — menu.css's `[data-highlighted]`, which is also its focus indicator.
  * - **Rows** run edge to edge with `space.inset.md` inline padding and `body.md` text; they are 48 dp tall — the
  *   web's `size.control.md` grown to Android's touch target — and a long label wraps, the row growing while the icon,
- *   mark and shortcut stay on its first line (menu.css 0.4.0, QTRX-177), so large text is never cut. The popup is 200 to 320 dp wide, with 4 dp above the
+ *   mark and shortcut stay on its first line (menu.css 0.4.0), so large text is never cut. The popup is 200 to 320 dp wide, with 4 dp above the
  *   first item and below the last. It fades and slides 4 dp from its trigger in `motion.duration.normal`, and
  *   leaves in `motion.duration.fast`; nothing moves under reduced motion.
  * - **Accessibility.** Items are read with their labels and descriptions; a checkbox item is a checkbox and a radio
@@ -618,7 +618,7 @@ public fun QeetrixMenuScope.QeetrixMenuSeparator(modifier: Modifier = Modifier) 
  * check mark (in its text colour).
  */
 @Composable
-private fun MenuRow(
+internal fun MenuRow(
     text: String,
     modifier: Modifier,
     enabled: Boolean,
@@ -628,6 +628,7 @@ private fun MenuRow(
     interaction: (MutableInteractionSource) -> Modifier,
     leading: (@Composable (icon: Color, text: Color) -> Unit)?,
     submenuOpen: Boolean? = null,
+    inlinePadding: Dp = QeetrixSpace.InsetMd,
 ) {
     val colors = QeetrixTheme.colors
     val typography = QeetrixTheme.typography
@@ -675,7 +676,7 @@ private fun MenuRow(
                     val width = QeetrixBorder.WidthStrong.toPx()
                     val x = if (layoutDirection == LayoutDirection.Rtl) size.width - width else 0f
                     drawRect(edge, Offset(x, 0f), Size(width, size.height))
-                }.padding(horizontal = QeetrixSpace.InsetMd), // padding-inline: space.inset.md
+                }.padding(horizontal = inlinePadding), // padding-inline: space.inset.md (a sheet's rows: its own inset)
         // > :is(.qx-menu-item-icon, .qx-menu-mark): margin-block (line − 16px) ÷ 2, on the label's first line
         leading = leading?.let { { it(iconColor, textColor) } },
         trailing =
@@ -704,7 +705,7 @@ private fun MenuRow(
                 },
             ),
     ) {
-        // .qx-menu-item-label: overflow-wrap anywhere — a long label wraps and the row grows (QTRX-177).
+        // .qx-menu-item-label: overflow-wrap anywhere — a long label wraps and the row grows.
         val label = typography.bodyMd.copy(color = textColor).labelDirection(alignToLayout = true)
         if (description == null) {
             BasicText(text, style = label)

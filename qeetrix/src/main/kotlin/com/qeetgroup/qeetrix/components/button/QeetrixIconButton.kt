@@ -62,7 +62,7 @@ public fun QeetrixIconButton(
         semantics = { this.contentDescription = contentDescription },
     ) { color ->
         ZoneContent(icon, loading, metrics, color, iconMirrorsInRightToLeft)
-        // IconButton's tooltip (QTRX-156): its name on long press, hover or keyboard focus, anchored to this button.
+        // IconButton's tooltip: its name on long press, hover or keyboard focus, anchored to this button.
         if (tooltip) TooltipAnchor(contentDescription, tooltipState, source)
     }
 }

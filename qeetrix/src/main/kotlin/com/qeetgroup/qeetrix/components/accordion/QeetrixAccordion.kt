@@ -40,6 +40,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.R
 import com.qeetgroup.qeetrix.components.button.ButtonFrame
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
@@ -57,6 +58,7 @@ import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.icons.QeetrixIconShape
 import com.qeetgroup.qeetrix.internal.FocusFrame
 import com.qeetgroup.qeetrix.internal.atAlpha
+import com.qeetgroup.qeetrix.internal.firstLineHeight
 import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
@@ -120,6 +122,9 @@ public fun <T> QeetrixAccordion(
  *   button and a heading for accessibility services, read with its title and "Expanded" or "Collapsed"
  *   (`qx_expanded`, `qx_collapsed`), with expand and collapse actions. Keyboard focus draws the 2 dp Ember frame
  *   inside it; Enter and Space toggle it. Each trigger is its own focus stop.
+ * - **[description]** is a short summary under the title in the trigger — today's choice while closed ("6 digits ·
+ *   every 30 seconds · SHA-1") — in `body.sm`, `color.text.subtle`, read with the title and the state; the
+ *   chevron stays on the title's first line.
  * - **The panel** opens and closes by height over `motion.duration.normal` with `motion.easing.standard` (at once
  *   under reduced motion), 16 dp of space below its content, which is `body.md` in `color.text.default` —
  *   [com.qeetgroup.qeetrix.components.typography.QeetrixText]'s default. A closed panel leaves the composition: keep
@@ -131,6 +136,7 @@ public fun <T> QeetrixAccordionItem(
     value: T,
     title: String,
     modifier: Modifier = Modifier,
+    description: String? = null,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
@@ -181,25 +187,42 @@ public fun <T> QeetrixAccordionItem(
             horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd), // gap: space.gap.md
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            BasicText(
-                title,
-                Modifier.weight(1f),
+            val titleStyle =
                 // .qx-accordion-trigger: title.sm, color.text.default; [data-disabled] color.text.disabled
-                style =
-                    QeetrixTheme.typography.titleSm
-                        .copy(
-                            color = if (active) colors.textDefault else colors.textDisabled,
-                        ).labelDirection(alignToLayout = true),
-            )
-            QeetrixIcon(
-                QeetrixIconName.ChevronDown,
-                contentDescription = null,
-                modifier = Modifier.graphicsLayer { rotationZ = turn },
-                size = QeetrixSize.IconSm,
-                shape = QeetrixIconShape.Sharp,
-                // .qx-accordion-icon: color.icon.subtle; [data-disabled] > .qx-accordion-icon: color.icon.disabled.
-                tint = if (active) colors.iconSubtle else colors.iconDisabled,
-            )
+                QeetrixTheme.typography.titleSm
+                    .copy(color = if (active) colors.textDefault else colors.textDisabled)
+                    .labelDirection(alignToLayout = true)
+            val chevron: @Composable (Modifier) -> Unit = { place ->
+                QeetrixIcon(
+                    QeetrixIconName.ChevronDown,
+                    contentDescription = null,
+                    modifier = place.graphicsLayer { rotationZ = turn },
+                    size = QeetrixSize.IconSm,
+                    shape = QeetrixIconShape.Sharp,
+                    // .qx-accordion-icon: color.icon.subtle; [data-disabled] > .qx-accordion-icon: color.icon.disabled.
+                    tint = if (active) colors.iconSubtle else colors.iconDisabled,
+                )
+            }
+            if (description == null) {
+                BasicText(title, Modifier.weight(1f), style = titleStyle)
+                chevron(Modifier)
+            } else {
+                Column(Modifier.weight(1f).padding(vertical = QeetrixSpace.GapXs)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd)) {
+                        BasicText(title, Modifier.weight(1f), style = titleStyle)
+                        // On the title's first line, however many lines the title and summary take.
+                        chevron(Modifier.padding(top = ((firstLineHeight(titleStyle) - QeetrixSize.IconSm) / 2).coerceAtLeast(0.dp)))
+                    }
+                    BasicText(
+                        description,
+                        Modifier.padding(end = QeetrixSize.IconSm + QeetrixSpace.GapMd),
+                        style =
+                            QeetrixTheme.typography.bodySm
+                                .copy(color = if (active) colors.textSubtle else colors.textDisabled)
+                                .labelDirection(alignToLayout = true),
+                    )
+                }
+            }
         }
         FoldingPanel(open) {
             // .qx-accordion-content: body.md, color.text.default, padding-block-end space.inset.lg
@@ -209,6 +232,18 @@ public fun <T> QeetrixAccordionItem(
         }
     }
 }
+
+/** 0.1.0's signature without `description`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun <T> QeetrixAccordionItem(
+    value: T,
+    title: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit,
+): Unit = QeetrixAccordionItem(value, title, modifier, null, enabled, interactionSource, content)
 
 /**
  * The trigger of a one-section fold — `@qeetrix/react`'s CollapsibleTrigger rendering a Button with a

@@ -1,13 +1,16 @@
 package com.qeetgroup.qeetrix.components.button
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -20,6 +23,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.setQeetrix
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
@@ -31,6 +37,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
+import kotlin.math.abs
 
 @RunWith(RobolectricTestRunner::class)
 class QeetrixButtonTest {
@@ -85,6 +92,49 @@ class QeetrixButtonTest {
         loading = true
         compose.onNodeWithTag("b").assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Loading"))
         assertEquals(resting, compose.onNodeWithTag("b").getUnclippedBoundsInRoot().let { it.right - it.left })
+    }
+
+    /**
+     * button.css `[data-full-width]`: the label's text is centred on the whole button, with or without an icon,
+     * at every size and right to left; the icon keeps its zone at the end.
+     */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun aFullWidthLabelIsCentredOnTheWholeButton() {
+        val cases =
+            listOf(null, QeetrixIconName.ArrowRight).flatMap { icon ->
+                QeetrixButtonSize.entries.flatMap { size ->
+                    listOf(LayoutDirection.Ltr, LayoutDirection.Rtl).map { direction -> Triple(icon, size, direction) }
+                }
+            }
+        var case by mutableStateOf(cases.first())
+        compose.setQeetrix {
+            CompositionLocalProvider(LocalLayoutDirection provides case.third) {
+                QeetrixButton(
+                    "Continue",
+                    onClick = {},
+                    modifier = Modifier.width(320.dp).testTag("b"),
+                    size = case.second,
+                    icon = case.first,
+                    fullWidth = true,
+                )
+            }
+        }
+        val offsets = mutableListOf<String>()
+        for (each in cases) {
+            case = each
+            compose.waitForIdle()
+            val button = compose.onNodeWithTag("b").getUnclippedBoundsInRoot()
+            val label = compose.onNodeWithText("Continue", useUnmergedTree = true)
+            val box = label.getUnclippedBoundsInRoot()
+            val layouts = mutableListOf<TextLayoutResult>()
+            label.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+            val line = layouts.first()
+            val centre = with(compose.density) { box.left + ((line.getLineLeft(0) + line.getLineRight(0)) / 2).toDp() }
+            val offset = centre - (button.left + button.right) / 2
+            if (abs(offset.value) > 1f) offsets += "$each: $offset"
+        }
+        assertEquals(emptyList<String>(), offsets)
     }
 
     /** button.css: block-size is size.control.* of the density. */

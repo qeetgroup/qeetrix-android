@@ -70,6 +70,27 @@ fun EmptyStateSample() {
             }
             SampleNote("Say what happened and what to do — never an error code or a stack trace.")
         }
+        SampleSection("Outcomes") {
+            SampleSurface {
+                QeetrixEmptyState(
+                    "Sign-in approved",
+                    icon = QeetrixIconName.ShieldCheck,
+                    description = "You're signed in on Chrome on Windows.",
+                    size = QeetrixEmptyStateSize.Section,
+                    tone = QeetrixEmptyStateTone.Success,
+                ) { QeetrixButton("Done", onClick = {}, variant = QeetrixButtonVariant.Soft) }
+            }
+            SampleSurface {
+                QeetrixEmptyState(
+                    "Approve on your other phone",
+                    icon = QeetrixIconName.Smartphone,
+                    description = "We sent a request to your Pixel 8.",
+                    size = QeetrixEmptyStateSize.Section,
+                    tone = QeetrixEmptyStateTone.Warning,
+                )
+            }
+            SampleNote("Success and warning tint only the icon; the title says what happened, so the colour is never alone.")
+        }
     }
 }
 

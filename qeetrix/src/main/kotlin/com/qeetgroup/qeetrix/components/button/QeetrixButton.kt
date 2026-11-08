@@ -14,7 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
 import com.qeetgroup.qeetrix.icons.QeetrixIcon
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
@@ -83,8 +86,9 @@ public enum class QeetrixButtonSize(
  *   disabled can be read. Prefer explaining over disabling.
  * - [loading] puts a spinner in the icon's place — a button without an icon gains the zone — keeps the
  *   label, ignores activation so an action is never sent twice, keeps focus and reports "Loading".
- * - [fullWidth] fills the container (forms, phones), keeping the label at the start and the icon at
- *   the end.
+ * - [fullWidth] fills the container (forms, phones) and centres the label on the whole button; an icon
+ *   keeps its zone at the end, and the start keeps as much room as the zone takes, so the label is centred
+ *   with or without one.
  *
  * The drawn button keeps the web's size; a 48 × 48 dp touch area is reserved around it. Text follows the
  * font scale and the button grows with it rather than clipping.
@@ -114,6 +118,15 @@ public fun QeetrixButton(
 ) {
     val metrics = buttonMetrics(size)
     val zone = icon != null || loading
+    // A full-width label is centred on the whole button: half of what the end's span (the gap, the rule, the zone's
+    // padding on both sides and the icon) takes beyond the start's padding, towards the end of the label's box.
+    val shift =
+        if (zone) {
+            (metrics.gap + QeetrixBorder.WidthDefault + metrics.zonePadding * 2 + metrics.iconSize - metrics.labelPadding) / 2
+        } else {
+            0
+                .dp
+        }
     ButtonFrame(
         onClick = onClick,
         modifier = if (fullWidth) modifier.fillMaxWidth() else modifier,
@@ -124,7 +137,7 @@ public fun QeetrixButton(
         enabled = enabled,
         loading = loading,
         interactionSource = interactionSource,
-        // justify-content: space-between; a full-width button keeps the label at the start, the icon at the end.
+        // justify-content: space-between: the icon at the end; a full-width label takes the free width, centred.
         horizontalArrangement = Arrangement.SpaceBetween,
         startPadding = metrics.labelPadding,
         semantics = {},
@@ -134,8 +147,9 @@ public fun QeetrixButton(
             // Without a zone the label pads both sides (`:not([data-icon]):not([data-loading])`).
             modifier =
                 Modifier
-                    .then(if (fullWidth) Modifier.weight(1f, fill = false) else Modifier)
-                    .padding(end = if (zone) metrics.gap else metrics.labelPadding),
+                    .then(if (fullWidth) Modifier.weight(1f) else Modifier)
+                    .padding(end = if (zone) metrics.gap else metrics.labelPadding)
+                    .then(if (fullWidth) Modifier.centredOnButton(shift) else Modifier),
             style = metrics.textStyle.copy(color = color).labelDirection(),
             maxLines = 1,
             softWrap = false,
@@ -144,6 +158,21 @@ public fun QeetrixButton(
         if (zone) IconZone(metrics, color) { ZoneContent(icon, loading, metrics, color, iconMirrorsInRightToLeft) }
     }
 }
+
+/**
+ * A full-width button's label (button.css `[data-full-width]`): centred on the whole button, [shift] towards the end of
+ * its own box, as far as the box allows. Where it's tight the start gives way first, and the label's natural width is
+ * the text's, so the button needs no more room than before. Placed relative to the layout direction, so right to left
+ * mirrors it.
+ */
+private fun Modifier.centredOnButton(shift: Dp): Modifier =
+    layout { measurable, constraints ->
+        val text = measurable.measure(constraints.copy(minWidth = 0))
+        val width = if (constraints.hasBoundedWidth) constraints.maxWidth else text.width
+        val free = (width - text.width).coerceAtLeast(0)
+        val x = (free / 2 + shift.roundToPx()).coerceIn(0, free)
+        layout(width, text.height) { text.placeRelative(x, 0) }
+    }
 
 /** The icon or, while loading, the spinner — the zone's content (button.tsx `content`). */
 @Composable

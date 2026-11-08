@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Baselines for the components the Android tickets added (QTRX-101 to 137, 156, 193 to 200), in
+ * Baselines for the components added after the first set, in
  * `src/test/screenshots/<specimen>/`: each drawn from its quality-catalogue specimen, in light, dark, 2× text and right
  * to left, so the scans and the renders show the same states.
  */

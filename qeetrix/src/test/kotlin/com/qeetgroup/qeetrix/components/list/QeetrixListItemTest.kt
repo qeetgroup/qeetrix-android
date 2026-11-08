@@ -1,5 +1,6 @@
 package com.qeetgroup.qeetrix.components.list
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -14,6 +15,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
@@ -22,17 +24,21 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.badge.QeetrixBadge
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
+import com.qeetgroup.qeetrix.components.otpinput.QeetrixOTPCode
 import com.qeetgroup.qeetrix.components.setQeetrix
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
@@ -45,6 +51,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
+import java.time.Instant
 
 /** List rows: one element in reading order, the app's clicks and selection, sizes, large text; section headers. */
 @RunWith(RobolectricTestRunner::class)
@@ -156,6 +164,99 @@ class QeetrixListItemTest {
                 .config
                 .getOrNull(SemanticsProperties.ContentDescription)
         assertTrue("the button isn't merged into the row: $rowText", rowText.isNullOrEmpty())
+    }
+
+    /** The letter tile is the icon tile's 32 dp, two characters at most, and not read: the title names the item. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE) // real text sizes
+    fun aLetterTileIsTheIconTileWithTwoCharactersAtMost() {
+        assertEquals("Go", firstCharacters("Google", 2))
+        assertEquals("A\u0304B", firstCharacters("A\u0304BC", 2)) // A with a combining macron is one character
+        assertEquals("7", firstCharacters("7", 2))
+        assertEquals("", firstCharacters("", 2))
+        compose.setQeetrix {
+            QeetrixListItem("GitHub", Modifier.testTag("row"), description = "priya", leading = {
+                QeetrixListItemIcon("GH", Modifier.testTag("tile"))
+            })
+        }
+        val tile = compose.onNodeWithTag("tile", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertEquals(32.dp, tile.right - tile.left)
+        assertEquals(32.dp, tile.bottom - tile.top)
+        val text =
+            compose
+                .onNodeWithTag("row")
+                .fetchSemanticsNode()
+                .config
+                .getOrNull(SemanticsProperties.Text)
+                ?.map { it.text }
+        assertEquals(listOf("GitHub", "priya"), text)
+        compose.onAllNodesWithText("GH").assertCountEquals(0)
+    }
+
+    /** At 200 % the tile grows past 32 dp, square, holding its text with gap.xs (4 dp) on every side. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE) // real text sizes
+    fun aLetterTileGrowsWithTheFontScale() {
+        var text = IntSize.Zero
+        var density = 1f
+        compose.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale = 2f)) {
+                com.qeetgroup.qeetrix.theme.QeetrixTheme {
+                    density = LocalDensity.current.density
+                    val style =
+                        com.qeetgroup.qeetrix.theme.QeetrixTheme.typography.labelMd
+                            .copy(fontWeight = com.qeetgroup.qeetrix.internal.QeetrixTextWeight.Semibold)
+                    text = rememberTextMeasurer().measure("12", style).size
+                    QeetrixListItemIcon("12", Modifier.testTag("tile"))
+                }
+            }
+        }
+        val tile = compose.onNodeWithTag("tile", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val side = tile.bottom - tile.top
+        assertEquals(side, tile.right - tile.left)
+        assertTrue("grows past the icon tile: $side", side > 32.dp)
+        assertTrue("holds the text's height: $side, $text", side.value >= text.height / density + 8f - 0.5f)
+        assertTrue("holds the text's width: $side, $text", side.value >= text.width / density + 8f - 0.5f)
+    }
+
+    /**
+     * An authenticator account row — the tile, issuer and account, then the code under them, its countdown at
+     * the end. The row (with its long press) and the code (copy) are two elements, and the code sits gap.xs under the
+     * description.
+     */
+    @Test
+    fun contentSitsUnderTheDescriptionAndAControlThereIsItsOwnElement() {
+        val now = Instant.parse("2026-11-07T10:00:12Z")
+        compose.setQeetrix {
+            QeetrixListItem(
+                "GitHub",
+                Modifier.testTag("row"),
+                description = "priya",
+                onClick = {},
+                onLongClick = {},
+                onLongClickLabel = "Account actions",
+                content = {
+                    QeetrixOTPCode(
+                        "482105",
+                        Instant.parse("2026-11-07T10:00:30Z"),
+                        Modifier.fillMaxWidth(),
+                        label = "GitHub",
+                        now = now,
+                        countdownAtEnd = true,
+                    )
+                },
+                leading = { QeetrixListItemIcon("G") },
+            )
+        }
+        compose.onAllNodes(hasClickAction()).assertCountEquals(2)
+        val row = compose.onNodeWithTag("row").fetchSemanticsNode().config
+        assertEquals(listOf("GitHub", "priya"), row.getOrNull(SemanticsProperties.Text)?.map { it.text })
+        assertEquals("Account actions", row.getOrNull(SemanticsActions.OnLongClick)?.label)
+        val code = compose.onNodeWithContentDescription("GitHub, 4 8 2 1 0 5, 18 seconds left")
+        code.assert(hasClickAction())
+        val description = compose.onNodeWithText("priya", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        // The code's 48 dp touch target starts gap.xs under the description.
+        assertEquals((description.bottom + 4.dp).value, code.getUnclippedBoundsInRoot().top.value, 0.5f)
     }
 
     @Test

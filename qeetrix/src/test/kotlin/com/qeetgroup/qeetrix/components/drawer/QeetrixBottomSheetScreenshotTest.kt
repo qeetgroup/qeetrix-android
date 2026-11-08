@@ -8,10 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
+import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuItemTone
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
+import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
 import com.qeetgroup.qeetrix.screenshot.ScreenshotStack
 import com.qeetgroup.qeetrix.screenshot.captureStates
@@ -60,6 +62,22 @@ class QeetrixBottomSheetScreenshotTest {
                         footerStart = null,
                         footer = { QeetrixButton("Send", onClick = {}) },
                     ) { QeetrixText("What could be better?") }
+                }
+            }
+        }
+
+    /** An action sheet's parts in place — menu rows edge to edge, a group rule, the danger row. */
+    @Test
+    fun actionSheet() =
+        captureStates("actionsheet") {
+            ScreenshotStack {
+                Sheet {
+                    ActionSheetLayout("GitHub · priya", description = null, onClose = {}, scope = ActionSheetScopeImpl()) {
+                        QeetrixSheetAction("Copy code", onClick = {}, icon = QeetrixIconName.Copy)
+                        QeetrixSheetAction("Rename", onClick = {}, icon = QeetrixIconName.Pencil)
+                        QeetrixSheetActionSeparator()
+                        QeetrixSheetAction("Delete account", onClick = {}, icon = QeetrixIconName.Trash, tone = QeetrixMenuItemTone.Danger)
+                    }
                 }
             }
         }

@@ -42,7 +42,7 @@ class QeetrixSnackbarScreenshotTest {
             }
         }
 
-    /** Baselines in `src/test/screenshots/snackbarpending/`: work in progress, its spinner in the icon's place (QTRX-192). */
+    /** Baselines in `src/test/screenshots/snackbarpending/`: work in progress, its spinner in the icon's place. */
     @Test
     fun pending() =
         captureStates("snackbarpending") {

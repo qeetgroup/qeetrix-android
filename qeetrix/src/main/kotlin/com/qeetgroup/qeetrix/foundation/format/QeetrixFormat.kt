@@ -1,9 +1,11 @@
 package com.qeetgroup.qeetrix.foundation.format
 
 import android.icu.text.DateFormat
+import android.icu.text.DateTimePatternGenerator
 import android.icu.text.MeasureFormat
 import android.icu.text.NumberFormat
 import android.icu.text.RelativeDateTimeFormatter
+import android.icu.text.SimpleDateFormat
 import android.icu.util.Currency
 import android.icu.util.GregorianCalendar
 import android.icu.util.Measure
@@ -14,6 +16,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.Locale
@@ -72,8 +75,11 @@ public enum class QeetrixDurationStyle(
  * - [date] and [dateTime] are `formatDate` and `formatDateTime`: always the Gregorian calendar. A [LocalDate] is a
  *   calendar date and a [LocalDateTime] a wall-clock time, so no time zone moves them; an [Instant] is shown in a
  *   zone, the device's by default (the web fixes `Asia/Kolkata` so its server and client agree; a phone has one clock).
- * - [duration] writes a length of time ("1 hour, 5 minutes"), as `Intl.DurationFormat` does; the web has no
- *   wrapper for it yet.
+ * - [duration] writes a length of time ("1 hour, 5 minutes"), as `Intl.DurationFormat` and the web's `formatDuration`
+ *   (`@qeetrix/react` 0.5.0) do.
+ * - [time] writes a time without its date ("10:47 am"), as the time part of [dateTime] and as the web's `formatTime`
+ *   (`@qeetrix/react` 0.5.0) does. Pass `hour24` to follow the phone's 12- or 24-hour setting, as the web passes
+ *   `hourCycle`.
  * - Times put a plain space before the day period ("2:30 pm"), as the web's current ICU data does, where Android's
  *   own data has a narrow no-break space.
  *
@@ -179,6 +185,53 @@ public object QeetrixFormat {
         dateStyle: QeetrixDateStyle = QeetrixDateStyle.Medium,
         timeStyle: QeetrixTimeStyle = QeetrixTimeStyle.Short,
     ): String = moment(dateTime.toInstant(ZoneOffset.UTC), UTC, locale, dateStyle, timeStyle)
+
+    /**
+     * [moment]'s time in [zone], without its date — the time part of [dateTime]: "10:47 am" in `en-IN`.
+     *
+     * [hour24] chooses the clock: `null` (the default) writes the locale's own, as the web does; to follow the phone's
+     * 12- or 24-hour setting, as Android's own screens do, pass `android.text.format.DateFormat.is24HourFormat(context)`
+     * (`LocalContext.current` in a composable).
+     */
+    public fun time(
+        moment: Instant,
+        locale: Locale = Locale.getDefault(),
+        style: QeetrixTimeStyle = QeetrixTimeStyle.Short,
+        zone: ZoneId = ZoneId.systemDefault(),
+        hour24: Boolean? = null,
+    ): String {
+        val uLocale = ULocale.forLocale(locale)
+        val own = DateFormat.getTimeInstance(if (style == QeetrixTimeStyle.Short) DateFormat.SHORT else DateFormat.MEDIUM, uLocale)
+        val formatter =
+            if (hour24 == null) {
+                own
+            } else {
+                // Intl's hourCycle: the locale's own pattern with its hours on the clock asked for, at the same width
+                // ("HH:mm" in 12 hours is "hh:mm a", as the web writes "02:30 PM" in de-DE), the day period as needed.
+                val generator = DateTimePatternGenerator.getInstance(uLocale)
+                val localized = own as SimpleDateFormat
+                val skeleton = generator.getSkeleton(localized.toPattern())
+                val clock =
+                    if (hour24) {
+                        skeleton.filterNot { it in "abB" }.map { if (it in "hK") 'H' else it }.joinToString("")
+                    } else {
+                        skeleton.map { if (it in "Hk") 'h' else it }.joinToString("")
+                    }
+                localized.apply { applyPattern(generator.getBestPattern(clock, DateTimePatternGenerator.MATCH_HOUR_FIELD_LENGTH)) }
+            }
+        val timeZone = TimeZone.getTimeZone(zone.id)
+        formatter.calendar = GregorianCalendar(timeZone, uLocale)
+        formatter.timeZone = timeZone
+        return formatter.format(java.util.Date(moment.toEpochMilli())).replace(NARROW_NO_BREAK_SPACE, ' ')
+    }
+
+    /** A wall-clock time with no zone, shown as written — "10:47 am" for 10:47 in `en-IN`. */
+    public fun time(
+        time: LocalTime,
+        locale: Locale = Locale.getDefault(),
+        style: QeetrixTimeStyle = QeetrixTimeStyle.Short,
+        hour24: Boolean? = null,
+    ): String = time(time.atDate(LocalDate.of(2026, 1, 1)).toInstant(ZoneOffset.UTC), locale, style, UTC, hour24)
 
     /**
      * A length of time in its non-zero units, largest first — days, hours, minutes, seconds — joined as the locale

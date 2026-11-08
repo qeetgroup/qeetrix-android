@@ -33,6 +33,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
 
 /** The scanner's states over the app's preview, the torch and the fallback; the permission primer's actions. */
 @RunWith(RobolectricTestRunner::class)
@@ -115,6 +116,76 @@ class QeetrixQRScannerTest {
         assertEquals(QeetrixScannerState.entries.size, typed)
     }
 
+    /** One app scans a pairing code and a setup key, so the fallback's words and the camera message are per call. */
+    @Test
+    fun theFallbackAndTheRefusalSayWhatTheAppAsks() {
+        var state by mutableStateOf(QeetrixScannerState.Scanning)
+        compose.setQeetrix {
+            Box(Modifier.size(360.dp, 640.dp)) {
+                QeetrixQRScanner(
+                    state,
+                    onEnterKey = {},
+                    enterKeyLabel = "Type the code instead",
+                    deniedDescription = "Turn on the camera for Qeet ID in Settings to scan the code.",
+                ) { Box(Modifier.fillMaxSize()) }
+            }
+        }
+        for (shown in QeetrixScannerState.entries) {
+            state = shown
+            compose.waitForIdle()
+            compose.onNodeWithText("Type the code instead").assertExists()
+            compose.onAllNodesWithText("Type the key instead").assertCountEquals(0)
+        }
+        state = QeetrixScannerState.PermissionDenied
+        compose.onNodeWithText("Turn on the camera for Qeet ID in Settings to scan the code.").assertExists()
+    }
+
+    /** In a row the fallback fills it from the start and the torch keeps its 48 dp touch target at the end. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE) // real text widths: the words fit beside the torch
+    fun inARowTheFallbackFillsItBesideTheTorch() {
+        compose.setQeetrix {
+            Box(Modifier.size(320.dp, 640.dp)) {
+                QeetrixQRScanner(
+                    QeetrixScannerState.Scanning,
+                    onTorchChange = {},
+                    onEnterKey = {},
+                    controlsLayout = QeetrixScannerControlsLayout.Row,
+                ) { Box(Modifier.fillMaxSize()) }
+            }
+        }
+        val fallback = compose.onNodeWithText("Type the key instead").getBoundsInRoot()
+        val torch = compose.onNodeWithContentDescription("Turn on the torch").getBoundsInRoot()
+        // One row, inside the controls' inset.lg (16 dp) padding, gap.sm (8 dp) apart.
+        assertEquals(fallback.top, torch.top)
+        assertEquals(16.dp, fallback.left)
+        assertEquals(320.dp - 16.dp, torch.right)
+        assertEquals(48.dp, torch.right - torch.left)
+        assertEquals(torch.left - 8.dp, fallback.right)
+    }
+
+    /** Where the words don't fit beside the torch, the torch goes above a full-width fallback, never cut off. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE) // real text widths
+    fun aRowTooNarrowForTheWordsStacksThem() {
+        compose.setQeetrix {
+            Box(Modifier.size(200.dp, 640.dp)) {
+                QeetrixQRScanner(
+                    QeetrixScannerState.Scanning,
+                    onTorchChange = {},
+                    onEnterKey = {},
+                    enterKeyLabel = "Type the code instead",
+                    controlsLayout = QeetrixScannerControlsLayout.Row,
+                ) { Box(Modifier.fillMaxSize()) }
+            }
+        }
+        val fallback = compose.onNodeWithText("Type the code instead").getBoundsInRoot()
+        val torch = compose.onNodeWithContentDescription("Turn on the torch").getBoundsInRoot()
+        assertEquals(torch.bottom + 12.dp, fallback.top) // gap.md
+        assertEquals(200.dp - 16.dp * 2, fallback.right - fallback.left)
+        assertEquals((torch.left + torch.right) / 2, 100.dp)
+    }
+
     @Test
     fun aRefusedPermissionOffersSettings() {
         var opened = false
@@ -138,5 +209,6 @@ class QeetrixQRScannerTest {
             listOf("scanning", "permission-needed", "permission-denied", "no-camera"),
             QeetrixScannerState.entries.map { it.value },
         )
+        assertEquals(listOf("stacked", "row"), QeetrixScannerControlsLayout.entries.map { it.value })
     }
 }

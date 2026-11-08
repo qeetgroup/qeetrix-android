@@ -352,7 +352,7 @@ class ComponentContrastTest {
         }
         // progress/QeetrixProgress.kt: each tone's indicator against the track it fills (opaque, so on any surface), from
         // the component's own rules: the track is border.default in light and surface.sunken in dark, the warning fill
-        // border.warning in light and bg.warning.bold in dark (progress.css 0.4.0, QTRX-176). Meter's six tones include
+        // border.warning in light and bg.warning.bold in dark (progress.css 0.4.0). Meter's six tones include
         // Progress's three.
         val track: @Composable () -> Color = { progressTrack(QeetrixTheme.colors, QeetrixTheme.isDark) }
         for (tone in QeetrixMeterTone.entries) {
@@ -448,8 +448,8 @@ class ComponentContrastTest {
          * proposed upstream: the failing check, and why it stands.
          *
          * Q-8 (read-only field lines), Q-9 (progress fills on their track) and Q-10 (a hovered checked control on the
-         * dark overlay) were fixed upstream in `@qeetrix/react` 0.4.0 and `@qeetrix/tokens` 0.0.13 (QTRX-175, QTRX-176,
-         * QTRX-187), and those checks pass; none is recorded.
+         * dark overlay) were fixed upstream in `@qeetrix/react` 0.4.0 and `@qeetrix/tokens` 0.0.13, and those
+         * checks pass; none is recorded.
          */
         val CanonicalFindings: Map<String, String> = emptyMap()
     }

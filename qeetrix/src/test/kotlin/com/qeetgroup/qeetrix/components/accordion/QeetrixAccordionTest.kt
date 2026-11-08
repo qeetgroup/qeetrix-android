@@ -11,6 +11,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -28,6 +29,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
 
 /** Accordions: the open values are the app's, the trigger's semantics and actions, one or several open, disabled; Collapsible. */
 @RunWith(RobolectricTestRunner::class)
@@ -64,6 +66,28 @@ class QeetrixAccordionTest {
         compose.onNodeWithText("Paid monthly").assertDoesNotExist()
         compose.onNode(trigger).performSemanticsAction(SemanticsActions.Expand)
         compose.onNodeWithText("Paid monthly").assertExists()
+    }
+
+    /** The summary is read with the title and the state, under the title, while the section is closed. */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE) // real text metrics
+    fun aSummaryIsReadWithTheTitleAndSitsUnderIt() {
+        compose.setQeetrix {
+            QeetrixAccordion(listOf<String>(), {}) {
+                QeetrixAccordionItem("advanced", "Advanced", description = "6 digits · every 30 seconds · SHA-1") {
+                    QeetrixText("Digits")
+                }
+            }
+        }
+        val node = compose.onNode(hasText("Advanced") and isHeading())
+        node
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Collapsed"))
+            .assert(hasText("6 digits · every 30 seconds · SHA-1"))
+        val title = compose.onNodeWithText("Advanced", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val summary = compose.onNodeWithText("6 digits · every 30 seconds · SHA-1", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertEquals(title.left, summary.left)
+        assertEquals(title.bottom, summary.top)
+        node.assertHeightIsAtLeast(48.dp)
     }
 
     @Test
