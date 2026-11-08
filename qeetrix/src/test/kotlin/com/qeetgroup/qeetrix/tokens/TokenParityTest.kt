@@ -53,7 +53,7 @@ class TokenParityTest {
     @Test
     fun everyColourTokenIsExposedInUpstreamOrder() {
         assertEquals(TestSupport.paths("color"), QeetrixColorTokenPaths.map { it.first })
-        assertEquals(109, QeetrixColorTokenPaths.size)
+        assertEquals(110, QeetrixColorTokenPaths.size)
     }
 
     @Test

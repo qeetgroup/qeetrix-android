@@ -10,7 +10,7 @@
     min-inline-size: 0;
     color: var(--qx-color-text-default);
     font: var(--qx-typography-label-sm);
-    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+    font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
     flex-wrap: wrap;
     display: flex;
   }

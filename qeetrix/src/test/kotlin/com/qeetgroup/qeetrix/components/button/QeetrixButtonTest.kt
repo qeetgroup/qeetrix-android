@@ -28,10 +28,13 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.setQeetrix
+import com.qeetgroup.qeetrix.foundation.color.QeetrixColors
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.theme.LocalQeetrixDensity
+import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -186,5 +189,22 @@ class QeetrixButtonTest {
         )
         assertEquals(listOf("brand", "danger", "neutral"), QeetrixButtonTone.entries.map { it.value })
         assertEquals(listOf("sm", "md", "lg"), QeetrixButtonSize.entries.map { it.value })
+    }
+
+    @Test
+    fun aGhostDangerButtonHoversAndPressesInDangerTints() {
+        lateinit var colors: QeetrixColors
+        lateinit var hover: ButtonColors
+        lateinit var press: ButtonColors
+        compose.setQeetrix {
+            colors = QeetrixTheme.colors
+            hover = buttonColors(QeetrixButtonVariant.Ghost, QeetrixButtonTone.Danger, enabled = true, hovered = true, pressed = false)
+            press = buttonColors(QeetrixButtonVariant.Ghost, QeetrixButtonTone.Danger, enabled = true, hovered = true, pressed = true)
+        }
+        compose.waitForIdle()
+        assertEquals(colors.bgDangerSubtle, hover.background)
+        assertEquals(colors.bgDangerSubtlePressed, press.background)
+        assertNotEquals(hover.background, press.background)
+        assertEquals(colors.textDanger, press.content)
     }
 }

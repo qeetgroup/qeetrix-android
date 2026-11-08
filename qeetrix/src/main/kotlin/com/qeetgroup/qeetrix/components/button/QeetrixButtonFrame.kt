@@ -95,8 +95,8 @@ internal class ButtonColors(
 
 /**
  * button.css's colours for a variant and tone in a state. A `solid` `neutral` button steps as `soft` does (06 §1, "a
- * solid or soft neutral button looks like soft"), and a `ghost` `danger` press stays in the danger tint: the tokens
- * have no `bg.danger.subtle-pressed`.
+ * solid or soft neutral button looks like soft"), and a `ghost` `danger` button hovers in `bg.danger.subtle` and presses in
+ * `bg.danger.subtle-pressed`, never the brand's tints.
  */
 @Composable
 internal fun buttonColors(
@@ -127,8 +127,9 @@ internal fun buttonColors(
         }
 
         variant == QeetrixButtonVariant.Ghost && tone == QeetrixButtonTone.Danger -> {
-            // .qx-button[data-tone="danger"][data-variant="ghost"]:is(:hover, :active): bg-danger-subtle
-            ButtonColors(step(Color.Transparent, c.bgDangerSubtle, c.bgDangerSubtle), c.textDanger)
+            // .qx-button[data-tone="danger"][data-variant="ghost"]: bg-danger-subtle on hover, bg-danger-subtle-pressed
+            // on a press (as the web's 0.5.1)
+            ButtonColors(step(Color.Transparent, c.bgDangerSubtle, c.bgDangerSubtlePressed), c.textDanger)
         }
 
         variant == QeetrixButtonVariant.Ghost -> {

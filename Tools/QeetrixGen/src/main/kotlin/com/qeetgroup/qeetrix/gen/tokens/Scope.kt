@@ -73,6 +73,13 @@ object Scope {
                 reason =
                     "A Noto stack for Indian scripts. Qeet Sans has no Indic glyphs and Android already draws them in its system Noto fonts, character by character, so nothing is bundled for it.",
             ),
+            exclude(
+                "font",
+                "family",
+                "cjk",
+                reason =
+                    "Noto Sans JP and SC with the platforms' Japanese and Chinese fonts. Android already draws Japanese and Chinese in its system Noto CJK fonts, character by character, so nothing is bundled for it.",
+            ),
             include("font", "family", "*", kind = TokenKind.FONT_FAMILY),
             include("font", "geometry", "*", kind = TokenKind.NUMBER),
             include("space", "**", kind = TokenKind.DIMENSION),

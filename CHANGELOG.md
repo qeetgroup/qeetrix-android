@@ -8,10 +8,12 @@ describes.
 
 ## [0.2.0] — 2026-11-08
 
-Additions, a minor release ([docs/releases.md](docs/releases.md)).
+Additions, a minor release ([docs/releases.md](docs/releases.md)). Built from `@qeetrix/react` 0.5.1, `@qeetrix/tokens` 0.0.15 and `@qeetrix/icons` 2.1.2.
 
 ### ✨ Added
 
+- **`QeetrixColors.bgDangerSubtlePressed`**: `color.bg.danger.subtle-pressed` (`@qeetrix/tokens` 0.0.14), `#F3DEDF` in
+  light and `#412020` in dark, the danger tint's pressed step.
 - **29 icons** in `QeetrixIconName`, for the native Qeet ID app and to carry the same 88 names as Qeetrix for iOS:
   `Archive`, `ArrowDown`, `ArrowUp`, `BellOff`, `ChevronUp`, `ChevronsUpDown`, `CirclePlus`, `Database`,
   `ExternalLink`, `FingerprintPattern`, `Hourglass`, `ImagePlus`, `Key`, `KeyRound`, `Link`, `LoaderCircle`, `LockOpen`,
@@ -63,6 +65,10 @@ Additions, a minor release ([docs/releases.md](docs/releases.md)).
 
 ### 🔄 Changed
 
+- **A ghost danger `QeetrixButton` presses in `bgDangerSubtlePressed`**, so a press no longer looks the same as a
+  hover, as on the web (`@qeetrix/react` 0.5.1). The hover keeps `bgDangerSubtle`; `textDanger` keeps 4.5:1 on both.
+- **The filled Send icon is one paper plane** (`@qeetrix/icons` 2.1.2): the fold no longer cuts through the nose,
+  so its two halves meet at one tip, round and sharp.
 - **A full-width `QeetrixButton` centres its label** on the whole button, with or without an icon, as the design
   rules now say on every platform (the bottom action bar's stacked actions, the QR scanner's fallback). An icon keeps
   its zone at the end. Where a label is too long to centre, the start gives way first, so the button's natural width
