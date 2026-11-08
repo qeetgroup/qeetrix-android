@@ -1,11 +1,10 @@
 name: CI
 
-# Pull requests are checked once, and main again after each merge; a push to develop is covered by its pull request.
-# The device tests (two emulators, the slow part) run on pull requests into main and on main; everyday pull requests
+# Pull requests are checked once; a push to develop is covered by its pull request. A merge into main isn't checked
+# again: main requires these checks and an up-to-date branch, so a merge lands exactly what its pull request tested.
+# The device tests (two emulators, the slow part) run on pull requests into main; everyday pull requests
 # into develop run the fast checks.
 on:
-  push:
-    branches: [main]
   pull_request:
   schedule:
     # Weekly: confirm the pinned upstream artifacts still match the lock.
@@ -46,7 +45,7 @@ jobs:
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$ANDROID_PLATFORM" "$ANDROID_BUILD_TOOLS" platform-tools > /dev/null
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
-          # Pull requests read the cache; only main writes it.
+          # Pull requests read the cache; only main writes it, in the weekly scheduled run.
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       # Lint, ktlint, every JVM test (behaviour, accessibility semantics, Compose UI), the generator's tests and drift
       # check, the public API check, and test coverage (fails below 92 % of lines).
@@ -87,14 +86,13 @@ jobs:
       - name: Re-fetch the pinned artifacts and compare them with the lock (network)
         run: ./gradlew -p Tools/QeetrixGen run --args="sync --root $GITHUB_WORKSPACE --check"
 
-  # On every push and pull request (and on demand): the device-only checks — Back on popups and stacked overlays,
+  # On pull requests into main (and on demand): the device-only checks — Back on popups and stacked overlays,
   # the Accessibility Test Framework over every component, number formats under Android's ICU, a long keyed list —
   # on the minimum supported API level and on API 36, the level the accessibility checks were verified to run on
   # (they are left out below it: docs/decisions.md).
   instrumented:
     name: Device tests on API ${{ matrix.api-level }}
     if: >-
-      github.event_name == 'push' ||
       (github.event_name == 'pull_request' && github.base_ref == 'main') ||
       (github.event_name == 'workflow_dispatch' && inputs.instrumented)
     runs-on: ubuntu-24.04
