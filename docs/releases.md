@@ -86,7 +86,7 @@ dependencyResolutionManagement {
 
 // app/build.gradle.kts
 dependencies {
-    implementation("com.qeetgroup:qeetrix:0.1.0")
+    implementation("com.qeetgroup:qeetrix:0.3.0")
     // Optional, from 0.3.0: every other @qeetrix/icons icon (docs/icons.md). Always the same version as qeetrix.
     implementation("com.qeetgroup:qeetrix-icons-extended:0.3.0")
 }
