@@ -33,5 +33,5 @@
 ## 🚀 Release (pull requests into `main` only)
 
 - [ ] `qeetrix.version` in `gradle.properties` is the version to release, raised on develop when the library changes.
-      The Version check fails until it's raised.
+      The Release gate fails until it's raised.
 - [ ] The CHANGELOG has an entry for that version

@@ -4,9 +4,9 @@ name: Release
 # (qeetrix-react's decision D-07), for Maven.
 #
 #   1. Raise `qeetrix.version` in gradle.properties on develop when the library changes, then open the develop → main
-#      pull request; its Version check fails until it's raised.
+#      pull request; its Release gate fails until it's raised.
 #   2. Merge to main. The gate job checks the version is new and that `maven-publish` has an approver. It runs no
-#      checks: they passed in develop's CI on this commit.
+#      checks: Verify passed on the pull request, and the tests ran locally before the push.
 #   3. The publish job waits for an approver in the `maven-publish` environment. Once approved it builds and verifies
 #      the artifacts (Scripts/release-candidate --tested), publishes with the run's own short-lived token, checks the files sent are the files verified, attests
 #      their build provenance, then pushes the vX.Y.Z tag and opens a GitHub Release.
@@ -85,7 +85,7 @@ jobs:
             exit 1
           fi
 
-      # No gate runs here: develop's CI already passed every one on this commit (main takes develop only, on an
+      # No gate runs here: Verify passed on the develop → main pull request (main takes develop only, on an
       # up-to-date branch). The publish job builds and verifies the artifacts it sends.
 
       - if: steps.version.outputs.release == 'false'
@@ -129,7 +129,7 @@ jobs:
           cache-read-only: true
 
       # Builds are not bit-for-bit reproducible across machines, so this job verifies the build it publishes: every
-      # artifact gate (AAR, publication, licences, SBOM). Lint and tests passed in develop's CI on this commit.
+      # artifact gate (AAR, publication, licences, SBOM). Lint passed in Verify; the tests ran locally before the push.
       - name: Build and verify the artifacts (publishes to build/release-candidate/maven only)
         run: Scripts/release-candidate "$VERSION" --tested
       - name: Publish to GitHub Packages

@@ -49,6 +49,6 @@
 | Sync, generate, verify tokens | `Scripts/sync-tokens`, `Scripts/generate-tokens`, `Scripts/verify-tokens` |
 | Every release gate | `Scripts/release-candidate` |
 | Check the AAR and the publication | `Scripts/verify-aar`, `Scripts/verify-publication` |
-| CI | `.github/workflows/ci.yml` (on develop: build and test; device tests on every push) |
-| Release | `.github/workflows/version.yml`, `release.yml`, `rollback.yml` |
-| Code scanning, updates | `.github/workflows/codeql.yml`, `.github/dependabot.yml` |
+| CI | `.github/workflows/ci.yml` (Verify, on pull requests into develop or main); the tests run locally, CONTRIBUTING.md |
+| Release | `.github/workflows/release-gate.yml`, `release.yml`, `sync-develop.yml`, `rollback.yml` |
+| Code scanning, updates | `.github/workflows/codeql.yml` (weekly), `.github/dependabot.yml` (monthly) |

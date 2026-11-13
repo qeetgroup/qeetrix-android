@@ -21,11 +21,11 @@ Open the repository root in Android Studio, or check that everything works from 
 ```mermaid
 flowchart LR
     A["🌿 Branch from develop"] --> B["✍️ Change<br/>with a test"]
-    B --> C["./gradlew check"]
+    B --> C["💻 The local gate"]
     C -- "draws differently?" --> D["📸 Verify or record<br/>the screenshots"]
     C --> E["📬 Pull request into develop<br/>with the template"]
     D --> E
-    E --> F["🤖 CI passes"]
+    E --> F["🤖 Verify passes"]
     F --> G["👀 Review"]
     G --> H["✅ Merge"]
 ```
@@ -37,6 +37,23 @@ flowchart LR
   structural also needs a [decision record](docs/decisions.md).
 - **Mirror cross-platform changes** (naming, conversion, scope) in qeetrix-ios, or record the difference in the
   [cross-platform contract](docs/llm/boundaries.md).
+
+## 💻 Before you push
+
+CI runs only Verify: the Gradle wrapper, the generated files, the Kotlin compile, ktlint and Android lint. The tests,
+coverage, the public API check, the release builds and the icon budget run on your machine before every push. Run them
+all, and say so in the pull request:
+
+```sh
+./gradlew check :qeetrix:koverVerifyDebug \
+  && ./gradlew :qeetrix:assembleRelease :qeetrix-icons-extended:assembleRelease :sample:assembleRelease \
+  && Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar \
+  && ./gradlew :icon-budget:assembleNoneRelease :icon-budget:assembleTwentyRelease && Scripts/icon-budget
+```
+
+A change to popups, overlays, accessibility or number formats also runs the device tests on API 29 and 36
+(`./gradlew :qeetrix:connectedDebugAndroidTest`, below); before a release, `Scripts/release-candidate` runs every
+release gate.
 
 ## ⌨️ Commands
 
@@ -57,7 +74,7 @@ flowchart LR
 | `./gradlew :qeetrix:recordRoborazziDebug` | Record the baselines. Review every image before relying on it. |
 | `./gradlew :qeetrix:apiDump` / `apiCheck` | Update or check `qeetrix/api/qeetrix.api` |
 | `./gradlew :qeetrix:dokkaGenerate` | Build the API reference into `qeetrix/build/dokka/html` |
-| `./gradlew :qeetrix:koverHtmlReportDebug` | A test-coverage report in `qeetrix/build/reports/kover/htmlDebug`. CI fails below 92 % of lines (`koverVerifyDebug`). |
+| `./gradlew :qeetrix:koverHtmlReportDebug` | A test-coverage report in `qeetrix/build/reports/kover/htmlDebug`. The local gate fails below 92 % of lines (`koverVerifyDebug`). |
 
 **Devices and releases**
 
@@ -129,7 +146,7 @@ flowchart LR
 ```
 
 - **The version is in the pull request's diff.** When the library changes, raise `qeetrix.version` on develop (the next
-  patch, or a minor or major) before the develop → main pull request; its Version check fails until it's raised. Docs,
+  patch, or a minor or major) before the develop → main pull request; its Release gate fails until it's raised. Docs,
   tests and CI changes need no new version, and merging them publishes nothing.
 - **The CHANGELOG entry** (`## [X.Y.Z] — YYYY-MM-DD`) becomes the GitHub Release's notes.
 - **A bad release** is withdrawn with **Actions › Rollback**, and the fix is a new version.

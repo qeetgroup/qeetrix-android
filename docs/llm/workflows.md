@@ -38,18 +38,18 @@ JDK 17 or newer, and the Android SDK with platform 37 (`ANDROID_HOME` or `local.
 ```text
 1  raise qeetrix.version on develop if the library changed (docs-only: no new version); pull request develop → main
 2  date the CHANGELOG entry: ## [X.Y.Z] — YYYY-MM-DD
-3  merge; release.yml checks the version (no gate runs again: they passed in develop's CI)
+3  merge; release.yml checks the version (no gate runs again: Verify passed on the pull request)
 4  approve: Actions › Release › Review deployments › Approve
 5  it builds and verifies the artifacts, publishes to GitHub Packages, then tags vX.Y.Z and opens the GitHub Release
 ```
 
 A bad release: **Actions › Rollback**, then a new patch. Details: [../releases.md](../releases.md).
 
-## When CI fails
+## When a check fails
 
 | Symptom | Usually | Do |
 |---|---|---|
-| Every test fails at once in `MavenArtifactFetcher` | Robolectric couldn't download its Android runtime | Re-run the job |
-| A device job can't start the emulator, or one dialog test times out on API 29 | A slow or stuck emulator | Re-run the failed job |
+| Every test fails at once in `MavenArtifactFetcher` | Robolectric couldn't download its Android runtime | Run the tests again |
+| The emulator won't start, or one dialog test times out on API 29 | A slow or stuck emulator | Run the device tests again |
 | `verify-tokens` fails | A generated or upstream file was edited by hand | Run `Scripts/generate-tokens` |
 | `apiCheck` fails | The public API changed | Run `apiDump` if intended, and note it in the CHANGELOG |
