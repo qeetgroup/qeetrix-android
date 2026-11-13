@@ -29,7 +29,7 @@ Each extended icon is its own class holding its drawings as compact path strings
 drawn. R8 drops every icon class an app doesn't name, so a release build grows only by the icons it uses.
 
 **Budget:** 4 KiB of DEX per extended icon an app uses. `Scripts/icon-budget` builds `:icon-budget` twice with R8 — one
-core icon, then twenty extended ones as well — and fails in CI unless R8 kept no extended icon in the first build,
+core icon, then twenty extended ones as well — and fails the local gate unless R8 kept no extended icon in the first build,
 exactly the twenty in the second, and the second grew by no more than 20 × 4 KiB. Naming
 `QeetrixIconName.extendedCatalogue` keeps every icon, so an app that draws fixed icons names them instead.
 

@@ -17,9 +17,9 @@ Everything the library is built from is pinned, checked and locked:
 flowchart LR
     N["📦 npm packages<br/>@qeetrix/tokens · react · icons"] -->|"integrity hash checked"| S["Scripts/sync-tokens"]
     S --> L[("Upstream/manifest.lock.json<br/>sha256 of every file")]
-    L --> C{"./gradlew check<br/>on every push"}
+    L --> C{"Scripts/verify-tokens<br/>in every CI run"}
     C -->|"a locked file changed"| F["❌ Build fails"]
-    W["🗓️ Weekly CI job"] -->|"re-fetches and compares"| L
+    W["🔁 Scripts/sync-tokens --check<br/>before an upstream change"] -->|"re-fetches and compares"| L
 ```
 
 - **Upstream packages** are pinned by version in `Upstream/manifest.json`. Each bundled font must also match the

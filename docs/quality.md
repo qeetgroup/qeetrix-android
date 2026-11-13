@@ -5,12 +5,14 @@ How Qeetrix for Android is checked, what it promises about its API, and what is 
 
 ## ✅ Checked automatically
 
-Every push to develop and every pull request into it runs the same gates in CI:
+The tests run on the developer's machine before every push (CONTRIBUTING.md, "Before you push"); every pull request
+runs Verify, and the develop → main pull request the Release gate:
 
 ```mermaid
 flowchart LR
-    P["📬 Push or pull request"] --> C["./gradlew check<br/>JVM tests and quality scans"]
-    P --> D["Device tests<br/>API 29 and API 36"]
+    L["💻 Local gate<br/>JVM tests, coverage, API, device tests"] --> P["📬 Pull request"]
+    P --> C["Verify<br/>lock, compile, ktlint, lint"]
+    P -->|"into main"| D["Release gate<br/>from develop, version"]
     C --> G{"All pass?"}
     D --> G
     G -->|"yes"| OK["✅ Can merge"]
@@ -27,7 +29,7 @@ flowchart LR
 | ♿ **Accessibility Test Framework** | Device tests on API 36 | Google's accessibility checks pass on every component, in light and dark |
 | 📸 **Screenshots** | `verifyRoborazziDebug`, on a maintainer's machine | Every component in light, dark, 200 % text and right to left matches its reviewed image |
 | 🔌 **Public API** | `apiCheck` | No public signature changes by accident |
-| 📊 **Test coverage** | Kover, in CI | At least 92 % of the library's lines run in tests (94.0 % on 4 November 2026). Generated token and icon data are left out. |
+| 📊 **Test coverage** | Kover, in the local gate | At least 92 % of the library's lines run in tests (94.0 % on 4 November 2026). Generated token and icon data are left out. |
 
 Every public composable has a specimen in the
 [quality catalogue](../qeetrix/src/sharedTest/kotlin/com/qeetgroup/qeetrix/quality/QualityCatalog.kt), and a test

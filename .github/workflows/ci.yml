@@ -1,29 +1,22 @@
 name: CI
 
-# On develop only: every push to it and every pull request into it. A develop → main pull request is checked by
-# develop's run on the same commit, and main isn't checked again after the merge: main requires these checks on an
-# up-to-date branch, so what's merged is exactly what passed here. The device tests (two emulators, the slow part)
-# run on every push to develop and on request; pull requests into develop run the fast checks.
+# Verify, once per change: on every pull request into develop (Dependabot's, a contributor's) and on the
+# develop → main pull request, which is what main takes. Pushes run nothing, so no commit is checked twice.
+#
+# Verify is the quick gate: the Gradle wrapper, generated files against the upstream lock, the Kotlin compile (library,
+# its tests, the extended icons and the sample), ktlint and Android lint. The JVM tests and coverage, the public API
+# check, the release builds, the package checks, the icon budget and the device tests run locally before pushing
+# (CONTRIBUTING.md, "Before you push"); the release builds and verifies the artifacts again before it publishes.
 on:
-  push:
-    branches: [develop]
   pull_request:
-    branches: [develop]
-  schedule:
-    # Weekly, on develop: confirm the pinned upstream artifacts still match the lock.
-    - cron: "0 6 * * 1"
+    branches: [develop, main]
   workflow_dispatch:
-    inputs:
-      instrumented:
-        description: Also run the instrumented tests on an emulator
-        type: boolean
-        default: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -32,14 +25,14 @@ env:
   ANDROID_BUILD_TOOLS: "build-tools;36.0.0"
 
 jobs:
-  build:
-    name: Build and test
+  verify:
+    name: Verify
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event_name == 'schedule' && 'develop' || '' }} # the scheduled run checks develop too
+          persist-credentials: false
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
@@ -50,96 +43,19 @@ jobs:
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$ANDROID_PLATFORM" "$ANDROID_BUILD_TOOLS" platform-tools > /dev/null
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
-          # Pull requests read the cache; runs on develop write it, and the weekly run writes the copy every branch reads.
-          cache-read-only: ${{ github.event_name == 'pull_request' }}
-      # Lint, ktlint, every JVM test (behaviour, accessibility semantics, Compose UI), the generator's tests and drift
-      # check, the public API check, and test coverage (fails below 92 % of lines).
-      - name: Lint and tests
-        run: ./gradlew check :qeetrix:koverVerifyDebug
-      # The sample's release build is minified as an app's would be, so R8 runs over the library.
-      - name: Build the library and the sample
-        run: ./gradlew :qeetrix:assembleRelease :qeetrix-icons-extended:assembleRelease :sample:assembleRelease :qeetrix:assembleDebugAndroidTest
-      # What an app receives: the AAR's contents, and the POM and module metadata of a local publication.
-      - name: Check the package apps receive
-        run: |
-          Scripts/verify-aar qeetrix/build/outputs/aar/qeetrix-release.aar
-          ./gradlew :qeetrix:publishReleasePublicationToReleaseCandidateRepository \
-            :qeetrix-icons-extended:publishReleasePublicationToReleaseCandidateRepository -Pqeetrix.version=0.0.0-ci
-          Scripts/verify-publication build/release-candidate/maven 0.0.0-ci qeetrix/build/outputs/aar/qeetrix-release.aar
-          Scripts/verify-publication build/release-candidate/maven 0.0.0-ci \
-            qeetrix-icons-extended/build/outputs/aar/qeetrix-icons-extended-release.aar qeetrix-icons-extended
-      - name: Extended icons cost only what an app uses (R8 build with none and with twenty)
-        run: ./gradlew :icon-budget:assembleNoneRelease :icon-budget:assembleTwentyRelease && Scripts/icon-budget
+          # CI runs only on pull requests now, so a pull request keeps its own cache for its later pushes.
+          cache-read-only: false
+      - name: Generated files and the upstream lock
+        run: Scripts/verify-tokens
+      - name: Compile (library, its tests, the extended icons and the sample)
+        run: ./gradlew :qeetrix:compileDebugUnitTestKotlin :qeetrix-icons-extended:compileDebugKotlin :sample:compileDebugKotlin
+      - name: Formatting (ktlint)
+        run: ./gradlew ktlintCheck
+      - name: Android lint
+        run: ./gradlew lint
       - name: Reports
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: reports
-          path: |
-            **/build/reports/
-            **/build/test-results/
-
-  upstream:
-    name: Pinned upstream still matches the lock
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.event_name == 'schedule' && 'develop' || '' }} # the scheduled run checks develop too
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
-        with:
-          distribution: temurin
-          java-version: "21"
-      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
-        with:
-          cache-read-only: true
-      - name: Re-fetch the pinned artifacts and compare them with the lock (network)
-        run: ./gradlew -p Tools/QeetrixGen run --args="sync --root $GITHUB_WORKSPACE --check"
-
-  # On every push to develop (and on demand): the device-only checks — Back on popups and stacked overlays,
-  # the Accessibility Test Framework over every component, number formats under Android's ICU, a long keyed list —
-  # on the minimum supported API level and on API 36, the level the accessibility checks were verified to run on
-  # (they are left out below it: docs/decisions.md).
-  instrumented:
-    name: Device tests on API ${{ matrix.api-level }}
-    if: >-
-      github.event_name == 'push' ||
-      (github.event_name == 'workflow_dispatch' && inputs.instrumented)
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        api-level: [29, 36]
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
-        with:
-          distribution: temurin
-          java-version: "21"
-      - name: Android SDK packages
-        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "$ANDROID_PLATFORM" "$ANDROID_BUILD_TOOLS" platform-tools > /dev/null
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
-        with:
-          cache-read-only: true
-      - name: connectedDebugAndroidTest
-        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          arch: x86_64
-          target: google_apis
-          disable-animations: true
-          script: ./gradlew :qeetrix:connectedDebugAndroidTest
-      - name: Instrumented-test reports
-        if: failure()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: instrumented-reports-api-${{ matrix.api-level }}
-          path: qeetrix/build/reports/androidTests/
+          path: "**/build/reports/"

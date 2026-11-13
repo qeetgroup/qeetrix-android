@@ -32,10 +32,10 @@ flowchart LR
 
 1. **Raise the version, then the pull request into `main`.** When a change ships (the library's code and resources, its
    build and dependencies, or `Upstream/`), raise `qeetrix.version` on develop: the next patch, or a minor or major.
-   The pull request's Version check fails until it's raised. A docs, tests or CI change needs no new version: merging it publishes nothing.
+   The pull request's Release gate fails until it's raised. A docs, tests or CI change needs no new version: merging it publishes nothing.
    Date the CHANGELOG entry (`## [X.Y.Z] — YYYY-MM-DD`): it becomes the GitHub Release's notes.
 2. **Merge.** `release.yml` checks the version is new and that `maven-publish` has a required reviewer. It runs no
-   checks: `main`'s protection already required CI and the device tests, on develop, on the commit merged.
+   checks: `main`'s protection required Verify and the Release gate on the pull request, and the tests ran locally.
 3. **Approve.** The publish job waits for an approver: **Actions › Release › Review deployments › Approve**.
 4. **Publish.** It builds and verifies the artifacts (`Scripts/release-candidate --tested`: the AAR, the publication,
    the licences, the SBOM), publishes with the run's own short-lived token, checks the files sent
