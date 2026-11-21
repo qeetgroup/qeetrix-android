@@ -1,5 +1,7 @@
 package com.qeetgroup.qeetrix.components.button
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
@@ -15,8 +17,10 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -35,6 +39,7 @@ import com.qeetgroup.qeetrix.theme.LocalQeetrixDensity
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -140,26 +145,81 @@ class QeetrixButtonTest {
         assertEquals(emptyList<String>(), offsets)
     }
 
-    /** button.css: block-size is size.control.* of the density. */
+    /**
+     * button.css: block-size is size.control.* of the density, and the button is laid out at that height — 44 dp for
+     * `lg` at the comfortable density, 40 dp at the default — while its touch area, which accessibility services read,
+     * is 48 dp.
+     */
     @Test
-    fun heightsFollowTheDensity() {
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun aButtonIsLaidOutAtItsDrawnHeight() {
+        var density by mutableStateOf(QeetrixDensity.Default)
         compose.setQeetrix {
-            CompositionLocalProvider(LocalQeetrixDensity provides QeetrixDensity.Comfortable) {
-                Row {
+            CompositionLocalProvider(LocalQeetrixDensity provides density) {
+                Column {
                     for (size in QeetrixButtonSize.entries) {
-                        QeetrixButton(
-                            "Go",
-                            onClick = {},
-                            size = size,
-                            modifier = Modifier.testTag(size.value),
-                        )
+                        QeetrixButton("Go", onClick = {}, size = size, modifier = Modifier.testTag(size.value), fullWidth = true)
                     }
                 }
             }
         }
-        // 32 / 36 / 44 at comfortable; the drawn button sits inside its 48 dp touch area.
-        compose.onNodeWithTag("lg").assertHeightIsAtLeast(48.dp)
-        assertEquals(44.dp, QeetrixDensity.Comfortable.sizeControlLg)
+        for (each in QeetrixDensity.entries) {
+            compose.runOnIdle { density = each }
+            val heights = listOf(each.sizeControlSm, each.sizeControlMd, each.sizeControlLg)
+            QeetrixButtonSize.entries.forEachIndexed { index, size ->
+                val laidOut =
+                    with(compose.density) {
+                        compose
+                            .onNodeWithTag(size.value)
+                            .fetchSemanticsNode()
+                            .size.height
+                            .toDp()
+                    }
+                assertEquals("$each ${size.value}", heights[index], laidOut)
+                compose.onNodeWithTag(size.value).assertTouchHeightIsEqualTo(48.dp)
+            }
+        }
+        assertEquals(listOf(44.dp, 40.dp), listOf(QeetrixDensity.Comfortable.sizeControlLg, QeetrixDensity.Default.sizeControlLg))
+    }
+
+    /**
+     * Three full-width `lg` buttons `space.gap.sm` apart — the web's `space-y-2` stack of Button size="lg" fullWidth —
+     * take the web's height: 3 × 44 + 2 × 8 dp at the comfortable density, 3 × 40 + 2 × 8 at the default.
+     */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun aStackOfFullWidthLgButtonsIsTheWebsHeight() {
+        var density by mutableStateOf(QeetrixDensity.Comfortable)
+        compose.setQeetrix {
+            CompositionLocalProvider(LocalQeetrixDensity provides density) {
+                Column(Modifier.width(328.dp).testTag("stack"), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    QeetrixButton(
+                        "Delete for everyone",
+                        onClick = {},
+                        tone = QeetrixButtonTone.Danger,
+                        size = QeetrixButtonSize.Lg,
+                        fullWidth = true,
+                    )
+                    QeetrixButton(
+                        "Delete for me",
+                        onClick = {},
+                        variant = QeetrixButtonVariant.Soft,
+                        size = QeetrixButtonSize.Lg,
+                        fullWidth = true,
+                    )
+                    QeetrixButton(
+                        "Cancel",
+                        onClick = {},
+                        variant = QeetrixButtonVariant.Ghost,
+                        size = QeetrixButtonSize.Lg,
+                        fullWidth = true,
+                    )
+                }
+            }
+        }
+        compose.onNodeWithTag("stack").assertHeightIsEqualTo(148.dp)
+        compose.runOnIdle { density = QeetrixDensity.Default }
+        compose.onNodeWithTag("stack").assertHeightIsEqualTo(136.dp)
     }
 
     @Test
@@ -176,8 +236,13 @@ class QeetrixButtonTest {
                 }
             }
         }
+        // The area that takes the taps, and that accessibility services read: at least 48 dp each way.
         for (size in QeetrixButtonSize.entries) {
-            compose.onNodeWithTag(size.value).assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+            val touch = compose.onNodeWithTag(size.value).fetchSemanticsNode().touchBoundsInRoot
+            with(compose.density) {
+                assertTrue("${size.value} ${touch.width.toDp()} wide", touch.width.toDp() >= 47.5.dp)
+                assertTrue("${size.value} ${touch.height.toDp()} tall", touch.height.toDp() >= 47.5.dp)
+            }
         }
     }
 

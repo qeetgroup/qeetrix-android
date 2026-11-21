@@ -62,7 +62,6 @@ import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
 import com.qeetgroup.qeetrix.components.spinner.QeetrixSpinner
 import com.qeetgroup.qeetrix.components.spinner.QeetrixSpinnerSize
-import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixAccessibility
 import com.qeetgroup.qeetrix.foundation.color.QeetrixColors
 import com.qeetgroup.qeetrix.foundation.elevation.QeetrixShadow
 import com.qeetgroup.qeetrix.foundation.elevation.qeetrixShadow
@@ -402,8 +401,8 @@ public fun QeetrixSnackbarHost(
  * only for a custom host or a preview.
  *
  * It is announced when it appears — at once for [QeetrixSnackbarTone.Danger], politely otherwise — as one message, and
- * offers accessibility services a dismiss action; its action and close buttons are their own controls, each with a
- * 48 dp touch area around the drawn button. With [loading], a 16 dp spinner takes the icon's place
+ * offers accessibility services a dismiss action; its action and close buttons are their own controls, each laid out
+ * at its drawn size and taking a tap within 48 dp round it. With [loading], a 16 dp spinner takes the icon's place
  * (`.qx-toast-spinner`), for work in progress ([QeetrixSnackbarHostState.promise]).
  */
 @Composable
@@ -421,9 +420,6 @@ public fun QeetrixSnackbar(
     val typography = QeetrixTheme.typography
     val shape = QeetrixShapes.Overlay // border-radius: radius.overlay
     val status = tone.color(colors)
-    val control = QeetrixTheme.density.sizeControlSm
-    // The 48 dp touch area is centred on a drawn sm button, so it spreads this far around it.
-    val spread = ((QeetrixAccessibility.MinimumTouchTarget - control) / 2).coerceAtLeast(0.dp)
     val titleStyle = typography.titleSm
     Box(
         modifier
@@ -484,7 +480,7 @@ public fun QeetrixSnackbar(
                 QeetrixButton(
                     actionLabel,
                     onClick = onAction,
-                    modifier = Modifier.drawnSize(horizontal = 0.dp, vertical = spread + ActionMargin),
+                    modifier = Modifier.blockMargin(ActionMargin),
                     variant = QeetrixButtonVariant.Ghost,
                     size = QeetrixButtonSize.Sm,
                 )
@@ -495,7 +491,6 @@ public fun QeetrixSnackbar(
                     QeetrixIconName.X,
                     stringResource(R.string.qx_dismiss),
                     onClick = onDismiss,
-                    modifier = Modifier.drawnSize(horizontal = spread, vertical = spread),
                     tone = QeetrixButtonTone.Neutral,
                     size = QeetrixButtonSize.Sm,
                 )
@@ -505,21 +500,14 @@ public fun QeetrixSnackbar(
 }
 
 /**
- * Lays out a control drawn inside the snackbar at its drawn size: its 48 dp touch area — [horizontal] and [vertical]
- * beyond the drawn button on each side — overhangs its slot instead of widening the row or the snackbar, so the
- * snackbar keeps the web's proportions and the touch area stays whole (nothing here clips).
+ * `margin-block: -[margin]`: the control takes [margin] less room above and below than it draws, so it doesn't grow
+ * the row. Its touch area, from Compose's touch-target expansion, stays whole (nothing here clips).
  */
-private fun Modifier.drawnSize(
-    horizontal: Dp,
-    vertical: Dp,
-): Modifier =
+private fun Modifier.blockMargin(margin: Dp): Modifier =
     layout { measurable, constraints ->
-        val dx = horizontal.roundToPx()
-        val dy = vertical.roundToPx()
-        val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
-        val width = (placeable.width - 2 * dx).coerceAtLeast(0)
-        val height = (placeable.height - 2 * dy).coerceAtLeast(0)
-        layout(width, height) { placeable.placeRelative(-dx, -dy) }
+        val dy = margin.roundToPx()
+        val placeable = measurable.measure(constraints.copy(minHeight = 0))
+        layout(placeable.width, (placeable.height - 2 * dy).coerceAtLeast(0)) { placeable.placeRelative(0, -dy) }
     }
 
 /** One snackbar request: what to show, how it ends (once), and a signal that restarts its time. */

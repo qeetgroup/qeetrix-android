@@ -32,7 +32,6 @@ import com.qeetgroup.qeetrix.components.input.QeetrixChoiceVariant
 import com.qeetgroup.qeetrix.components.input.QeetrixOption
 import com.qeetgroup.qeetrix.components.input.requireDistinctValues
 import com.qeetgroup.qeetrix.components.input.selectionControlEdge
-import com.qeetgroup.qeetrix.foundation.accessibility.qeetrixMinimumTouchTarget
 import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
 import com.qeetgroup.qeetrix.foundation.motion.qeetrixAnimationSpec
 import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
@@ -42,6 +41,7 @@ import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.icons.QeetrixIconShape
 import com.qeetgroup.qeetrix.internal.FocusFrame
 import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
+import com.qeetgroup.qeetrix.internal.reservedTouchArea
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
 /**
@@ -103,7 +103,11 @@ public fun QeetrixCheckbox(
 /**
  * A checkbox with no visible label, for a table row or a list item that names it — react's Checkbox with an
  * `aria-label`. Give it a name: put it in a row that is itself toggleable, or set a `contentDescription` on
- * [modifier]. The drawn box keeps its 16 dp; a 48 × 48 dp touch area is reserved around it.
+ * [modifier].
+ *
+ * It is laid out at its box's 16 × 16 dp, as on the web, as the switch without a label is. A tap anywhere within
+ * 48 × 48 dp round the box still toggles it, through Compose's touch-target expansion, which accessibility services
+ * also read as its bounds; a control closer than that shares the taps, each taking the ones nearer to it.
  */
 @Composable
 public fun QeetrixCheckbox(
@@ -123,7 +127,7 @@ public fun QeetrixCheckbox(
     Box(
         modifier
             .checkboxToggle(checked, indeterminate, onCheckedChange.takeIf { interactive }, active, source, group.error)
-            .qeetrixMinimumTouchTarget(),
+            .reservedTouchArea(),
         contentAlignment = Alignment.Center,
     ) {
         CheckboxIndicator(checked, indeterminate, active, interactive, invalid || group.invalid, source)
@@ -136,7 +140,8 @@ public fun QeetrixCheckbox(
  *
  * - Options stack ([QeetrixChoiceOrientation.Vertical], each row a 48 dp target) or wrap in a row 16 dp apart
  *   ([QeetrixChoiceOrientation.Horizontal], for short options). [QeetrixChoiceVariant.Tile] draws each option as a
- *   tile with its icon, title and description, up to [columns] across where tiles of 192 dp fit.
+ *   tile with its icon, title and description, up to [columns] across where tiles of 192 dp fit — 128 dp when the
+ *   options have no icon or description, as on the web.
  * - The [description] or the [error] follows the options; an error marks every checkbox invalid and is carried by
  *   each, so it is heard on whichever is focused. [enabled] `false` disables the group; an option with
  *   `enabled = false` cannot be changed. Options need values of their own.
@@ -173,6 +178,7 @@ public fun <T> QeetrixCheckboxGroup(
         columns = columns,
         selectable = false,
         modifier = modifier,
+        richTiles = options.any { it.icon != null || it.description != null },
     ) {
         val stretch = variant == QeetrixChoiceVariant.Default && orientation == QeetrixChoiceOrientation.Vertical
         for (option in options) {

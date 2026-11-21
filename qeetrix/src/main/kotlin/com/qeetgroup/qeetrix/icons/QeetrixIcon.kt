@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -147,15 +148,57 @@ public fun QeetrixIcon(
     tint: Color = LocalQeetrixContentColor.current.takeOrElse { QeetrixTheme.colors.iconDefault },
     mirrorInRightToLeft: Boolean = name.mirrorsInRightToLeft,
 ) {
-    val drawing = name.resolvedDrawing(shape, variant)
-    val mirrors = mirrorInRightToLeft
-    val vector = remember(drawing, stroke, mirrors) { drawing.toImageVector(stroke, mirrors) }
     Image(
-        painter = rememberVectorPainter(vector),
+        painter = rememberQeetrixIconPainter(name, shape, variant, stroke, mirrorInRightToLeft),
         contentDescription = contentDescription,
         modifier = modifier.size(size),
         colorFilter = ColorFilter.tint(tint),
     )
+}
+
+/**
+ * This icon as a 24 × 24 [ImageVector] — exactly what [QeetrixIcon] draws for the same [shape], [variant] and [stroke]:
+ * the outline where `@qeetrix/icons` draws no [variant] (and the round outline where it draws no [shape]), and
+ * [mirrorInRightToLeft] as the vector's `autoMirror`, so a painter of it turns round in a right-to-left layout. Its
+ * paths are black: tint it where it is drawn, with `ColorFilter.tint(colour)`. A new vector each call — remember it,
+ * or use [rememberQeetrixIconPainter] in a composable.
+ *
+ * @param stroke The outline stroke width in grid units ([QeetrixIconStroke]); it scales with the icon.
+ */
+public fun QeetrixIconName.imageVector(
+    shape: QeetrixIconShape = QeetrixIconShape.Sharp,
+    variant: QeetrixIconVariant = QeetrixIconVariant.Outline,
+    stroke: Float = QeetrixIconStroke.Regular,
+    mirrorInRightToLeft: Boolean = mirrorsInRightToLeft,
+): ImageVector = resolvedDrawing(shape, variant).toImageVector(stroke, mirrorInRightToLeft)
+
+/**
+ * A [Painter] for [name], remembered — the drawing [QeetrixIcon] draws ([imageVector]), to draw an icon inside a
+ * `Canvas` or any `DrawScope`: a map's markers, a chart's points, a badge on a picture, in the drawing's own order.
+ * Tint it as you draw it; it mirrors by itself in a right-to-left layout when [mirrorInRightToLeft].
+ *
+ * ```
+ * val store = rememberQeetrixIconPainter(QeetrixIconName.Store)
+ * val white = QeetrixTheme.colors.iconOnBrand
+ * Canvas(Modifier.fillMaxSize()) {
+ *     drawCircle(dot, radius = 12.dp.toPx(), center = place)
+ *     translate(place.x - 8.dp.toPx(), place.y - 8.dp.toPx()) {
+ *         with(store) { draw(Size(16.dp.toPx(), 16.dp.toPx()), colorFilter = ColorFilter.tint(white)) }
+ *     }
+ * }
+ * ```
+ */
+@Composable
+public fun rememberQeetrixIconPainter(
+    name: QeetrixIconName,
+    shape: QeetrixIconShape = QeetrixIconShape.Sharp,
+    variant: QeetrixIconVariant = QeetrixIconVariant.Outline,
+    stroke: Float = QeetrixTheme.density.iconStroke,
+    mirrorInRightToLeft: Boolean = name.mirrorsInRightToLeft,
+): Painter {
+    val vector =
+        remember(name, shape, variant, stroke, mirrorInRightToLeft) { name.imageVector(shape, variant, stroke, mirrorInRightToLeft) }
+    return rememberVectorPainter(vector)
 }
 
 /** The requested drawing, else the same shape's outline, else the round outline (which every icon has). */

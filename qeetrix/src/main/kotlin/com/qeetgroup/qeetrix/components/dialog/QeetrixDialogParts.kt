@@ -56,6 +56,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -66,7 +67,6 @@ import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
-import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixAccessibility
 import com.qeetgroup.qeetrix.foundation.elevation.QeetrixShadow
 import com.qeetgroup.qeetrix.foundation.elevation.qeetrixShadow
 import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
@@ -272,28 +272,41 @@ private fun ContentDrawScope.drawIntentLine(
 /**
  * The header of a dialog or sheet (`.qx-dialog-header`, `.qx-drawer-header`): the title in `title.md` (heading
  * geometry), a heading for accessibility services, over the description in `body.md` `color.text.subtle`,
- * `space.gap.xs` apart.
+ * `space.gap.xs` apart. A picture-led sheet's is [centred] with its title [large], in `title.lg`.
  */
 @Composable
 internal fun OverlayHeader(
     title: String,
     description: String?,
     modifier: Modifier = Modifier,
+    centred: Boolean = false,
+    large: Boolean = false,
 ) {
     val colors = QeetrixTheme.colors
     val typography = QeetrixTheme.typography
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs)) {
+    val align = if (centred) TextAlign.Center else TextAlign.Unspecified
+    Column(
+        modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs),
+        horizontalAlignment = if (centred) Alignment.CenterHorizontally else Alignment.Start,
+    ) {
         BasicText(
             title,
             Modifier.semantics {
                 heading()
             },
-            style = typography.titleMd.copy(color = colors.textDefault).labelDirection(alignToLayout = true),
+            style =
+                (if (large) typography.titleLg else typography.titleMd)
+                    .copy(color = colors.textDefault, textAlign = align)
+                    .labelDirection(alignToLayout = true),
         )
         if (description !=
             null
         ) {
-            BasicText(description, style = typography.bodyMd.copy(color = colors.textSubtle).labelDirection(alignToLayout = true))
+            BasicText(
+                description,
+                style = typography.bodyMd.copy(color = colors.textSubtle, textAlign = align).labelDirection(alignToLayout = true),
+            )
         }
     }
 }
@@ -352,7 +365,7 @@ internal fun OverlayFooter(
 /**
  * The close button of a dialog or sheet (`.qx-dialog-close`, `.qx-drawer-close`): a neutral ghost `sm` icon
  * button with the x, named [label] ("Close", `qx_close`, by default). Aligned to its parent's top end, the drawn
- * button sits [top] and [end] from those edges, as on the web; its 48 dp touch area spreads around it, and may
+ * button sits [top] and [end] from those edges, as on the web; it takes a tap within 48 dp round it, which may
  * reach past them.
  */
 @Composable
@@ -363,14 +376,12 @@ internal fun OverlayClose(
     end: Dp,
     label: String = stringResource(R.string.qx_close),
 ) {
-    // The touch area is centred on the drawn button, so it starts half the difference further out. Offsets follow the
-    // layout direction: a negative x moves it in from the end edge, on either side.
-    val spread = ((QeetrixAccessibility.MinimumTouchTarget - QeetrixTheme.density.sizeControlSm) / 2).coerceAtLeast(0.dp)
+    // Offsets follow the layout direction: a negative x moves it in from the end edge, on either side.
     QeetrixIconButton(
         QeetrixIconName.X,
         label,
         onClick = onClose,
-        modifier = modifier.offset(x = spread - end, y = top - spread),
+        modifier = modifier.offset(x = -end, y = top),
         tone = QeetrixButtonTone.Neutral,
         size = QeetrixButtonSize.Sm,
     )

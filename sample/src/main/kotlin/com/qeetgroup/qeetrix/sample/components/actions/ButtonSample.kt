@@ -9,13 +9,20 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
+import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
+import com.qeetgroup.qeetrix.icons.QeetrixIcon
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.icons.QeetrixIconVariant
+import com.qeetgroup.qeetrix.icons.extended.Phone
 import com.qeetgroup.qeetrix.sample.SampleFlow
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
@@ -68,7 +75,7 @@ fun ButtonSample() {
             }
             SampleNote(
                 "Heights from the density: size.control.sm, md and lg. A button that submits a form or sits beside fields " +
-                    "is lg, the field height. Every size keeps a 48 × 48 dp touch area.",
+                    "is lg, the field height. Each is laid out at its drawn height and takes a tap within 48 × 48 dp round it.",
             )
         }
         SampleSection("A trailing icon") {
@@ -80,6 +87,28 @@ fun ButtonSample() {
             SampleNote(
                 "Label first, icon last: the icon sits in its own zone behind a short rule as tall as the icon. Icons are " +
                     "decorative — the label names the action — and Send mirrors right to left.",
+            )
+        }
+        SampleSection("An icon of your own") {
+            QeetrixButton(
+                "Hang up and report",
+                onClick = {},
+                variant = QeetrixButtonVariant.Soft,
+                tone = QeetrixButtonTone.Neutral,
+                size = QeetrixButtonSize.Lg,
+                fullWidth = true,
+            ) {
+                QeetrixIcon(
+                    QeetrixIconName.Phone,
+                    null,
+                    Modifier.rotate(135f),
+                    size = QeetrixSize.IconMd,
+                    variant = QeetrixIconVariant.Filled,
+                )
+            }
+            SampleNote(
+                "The call-end sign is the phone, filled and turned 135°: any drawing goes in the zone, sized and coloured as a " +
+                    "named icon is. Icon buttons take one too.",
             )
         }
         SampleSection("Loading") {
@@ -106,7 +135,25 @@ fun ButtonSample() {
         }
         SampleSection("Full width") {
             QeetrixButton("Save details", onClick = {}, size = QeetrixButtonSize.Lg, icon = QeetrixIconName.Check, fullWidth = true)
-            SampleNote("For forms and phones: the label stays at the start and the icon at the end.")
+            SampleNote("For forms and phones: the label is centred on the button and the icon keeps its zone at the end.")
+            Column(verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapSm)) {
+                QeetrixButton(
+                    "Delete for everyone",
+                    onClick = {},
+                    tone = QeetrixButtonTone.Danger,
+                    size = QeetrixButtonSize.Lg,
+                    fullWidth = true,
+                )
+                QeetrixButton(
+                    "Delete for me",
+                    onClick = {},
+                    variant = QeetrixButtonVariant.Soft,
+                    size = QeetrixButtonSize.Lg,
+                    fullWidth = true,
+                )
+                QeetrixButton("Cancel", onClick = {}, variant = QeetrixButtonVariant.Ghost, size = QeetrixButtonSize.Lg, fullWidth = true)
+            }
+            SampleNote("A sheet's stack of lg buttons, space.gap.sm apart as on the web: their touch areas don't overlap.")
         }
         SampleSection("Disabled") {
             SampleFlow {

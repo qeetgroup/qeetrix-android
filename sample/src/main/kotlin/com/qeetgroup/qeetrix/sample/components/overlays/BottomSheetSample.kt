@@ -2,16 +2,21 @@ package com.qeetgroup.qeetrix.sample.components.overlays
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
+import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatar
+import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatarSize
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.drawer.QeetrixActionSheet
 import com.qeetgroup.qeetrix.components.drawer.QeetrixBottomSheet
+import com.qeetgroup.qeetrix.components.drawer.QeetrixBottomSheetSurface
 import com.qeetgroup.qeetrix.components.drawer.QeetrixSheetAction
 import com.qeetgroup.qeetrix.components.drawer.QeetrixSheetActionSeparator
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuItemTone
@@ -28,7 +33,7 @@ import com.qeetgroup.qeetrix.sample.SampleSection
 
 private val Statuses = listOf("All invoices", "Overdue", "Paid", "Drafts")
 
-/** Bottom sheets: filters with a ruled footer, a long sheet that opens half-way, one only its actions close, and an action sheet. */
+/** Bottom sheets: filters with a ruled footer, a long sheet that opens half-way, one only its actions close, one led by a picture, and an action sheet. */
 @Composable
 fun BottomSheetSample() {
     SamplePage {
@@ -105,6 +110,36 @@ fun BottomSheetSample() {
                 "Not dismissible: no close button, and swiping down or tapping outside does nothing. Back still leaves, so the " +
                     "sheet is never a trap.",
             )
+        }
+        SampleSection("Led by a picture") {
+            var open by rememberSaveable { mutableStateOf(false) }
+            val faces: @Composable () -> Unit = {
+                Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
+                    for (name in listOf("Asha Rao", "Ravi Kumar", "Meera Iyer")) QeetrixAvatar(name, size = QeetrixAvatarSize.Xl)
+                }
+            }
+            val actions: @Composable () -> Unit = {
+                QeetrixButton("Not now", onClick = { open = false }, variant = QeetrixButtonVariant.Ghost)
+                QeetrixButton("Allow contacts", onClick = { open = false })
+            }
+            val words = "We check your contacts against Qeet Circle, on this phone. Nothing is uploaded."
+            QeetrixButton("Find people", onClick = { open = true }, variant = QeetrixButtonVariant.Soft)
+            QeetrixBottomSheet(
+                open = open,
+                onOpenChange = { open = it },
+                title = "Find people you know",
+                description = words,
+                footer = actions,
+                picture = faces,
+            ) { QeetrixText("You can turn this off in Settings.", size = QeetrixTextSize.Sm, tone = QeetrixTextTone.Subtle) }
+            SampleNote(
+                "The picture, then the title and description centred; no ruled header or close button — the scrim, Back and a swipe close it.",
+            )
+            // The same sheet drawn in place, as a screen's picture of its open state.
+            QeetrixBottomSheetSurface("Find people you know", description = words, footer = actions, picture = faces) {
+                QeetrixText("You can turn this off in Settings.", size = QeetrixTextSize.Sm, tone = QeetrixTextTone.Subtle)
+            }
+            SampleNote("QeetrixBottomSheetSurface draws the open sheet inside a screen or a preview, with no window.")
         }
         SampleSection("Action sheet") {
             var open by rememberSaveable { mutableStateOf(false) }

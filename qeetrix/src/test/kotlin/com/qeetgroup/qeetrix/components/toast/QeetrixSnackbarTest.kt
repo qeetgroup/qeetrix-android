@@ -13,6 +13,8 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertTouchHeightIsEqualTo
+import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -101,15 +103,15 @@ class QeetrixSnackbarTest {
         compose.runOnIdle { assertEquals(listOf(QeetrixSnackbarResult.Dismissed, QeetrixSnackbarResult.Dismissed), results) }
     }
 
-    /** Real layout: the buttons keep 48 dp touch areas while the snackbar keeps the web's height. */
+    /** Real layout: the buttons are laid out at their drawn size with 48 dp touch areas, and the snackbar keeps the web's height. */
     @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun itsButtonsKeep48DpTouchAreasWithoutGrowingIt() {
         compose.setQeetrix {
             QeetrixSnackbar("Archived", Modifier.testTag("snackbar"), actionLabel = "Undo", onAction = {}, onDismiss = {})
         }
-        compose.onNodeWithContentDescription("Dismiss").assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
-        compose.onNodeWithText("Undo").assertHeightIsAtLeast(48.dp)
+        compose.onNodeWithContentDescription("Dismiss").assertTouchHeightIsEqualTo(48.dp).assertTouchWidthIsEqualTo(48.dp)
+        compose.onNodeWithText("Undo").assertTouchHeightIsEqualTo(48.dp)
         // padding 12 + the close button's 28 + 12: toast.css's height for a one-line toast.
         compose.onNodeWithTag("snackbar").assertHeightIsEqualTo(52.dp)
     }

@@ -15,6 +15,8 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertTouchHeightIsEqualTo
+import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
@@ -91,6 +93,10 @@ class QeetrixCheckboxTest {
         assertEquals(0, changes)
     }
 
+    /**
+     * The row reserves its 48 dp; the bare box is laid out at its 16 × 16 dp, as the bare switch is, with a 48 × 48 dp
+     * touch area round it that accessibility services read as its bounds.
+     */
     @Test
     fun theRowAndTheBareBoxAreFullTouchTargets() {
         compose.setQeetrix {
@@ -100,7 +106,10 @@ class QeetrixCheckboxTest {
             }
         }
         compose.onNodeWithText("Email").assertHeightIsAtLeast(48.dp)
-        compose.onNodeWithTag("bare").assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+        val laidOut = compose.onNodeWithTag("bare").fetchSemanticsNode().size
+        assertEquals(16.dp, with(compose.density) { laidOut.width.toDp() })
+        assertEquals(16.dp, with(compose.density) { laidOut.height.toDp() })
+        compose.onNodeWithTag("bare").assertTouchWidthIsEqualTo(48.dp).assertTouchHeightIsEqualTo(48.dp)
     }
 
     @Test

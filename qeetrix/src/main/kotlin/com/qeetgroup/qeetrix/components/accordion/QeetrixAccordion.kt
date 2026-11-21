@@ -33,11 +33,14 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -125,6 +128,10 @@ public fun <T> QeetrixAccordion(
  * - **[description]** is a short summary under the title in the trigger — today's choice while closed ("6 digits ·
  *   every 30 seconds · SHA-1") — in `body.sm`, `color.text.subtle`, read with the title and the state; the
  *   chevron stays on the title's first line.
+ * - **[titleContent]** draws the trigger's title — react's AccordionItem with a node for its `title`: a compact list's
+ *   `body.md` title with its purpose under it in `body.sm`, say. It takes the title's place, in the trigger's colour
+ *   ([LocalQeetrixContentColor]), with the chevron centred on the trigger, as on the web. Accessibility services
+ *   still read [title] (and [description], if any) with the state; the drawing itself is not read.
  * - **The panel** opens and closes by height over `motion.duration.normal` with `motion.easing.standard` (at once
  *   under reduced motion), 16 dp of space below its content, which is `body.md` in `color.text.default` —
  *   [com.qeetgroup.qeetrix.components.typography.QeetrixText]'s default. A closed panel leaves the composition: keep
@@ -139,6 +146,7 @@ public fun <T> QeetrixAccordionItem(
     description: String? = null,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
+    titleContent: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     val accordion = checkNotNull(LocalAccordion.current) { "A QeetrixAccordionItem goes inside a QeetrixAccordion." }
@@ -203,7 +211,19 @@ public fun <T> QeetrixAccordionItem(
                     tint = if (active) colors.iconSubtle else colors.iconDisabled,
                 )
             }
-            if (description == null) {
+            if (titleContent != null) {
+                // .qx-accordion-trigger { align-items: center }: the chevron centred on the trigger, whatever the title.
+                val read = if (description != null) "$title, $description" else title
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .padding(vertical = QeetrixSpace.GapXs)
+                        .clearAndSetSemantics { text = AnnotatedString(read) },
+                ) {
+                    CompositionLocalProvider(LocalQeetrixContentColor provides titleStyle.color) { titleContent() }
+                }
+                chevron(Modifier)
+            } else if (description == null) {
                 BasicText(title, Modifier.weight(1f), style = titleStyle)
                 chevron(Modifier)
             } else {
@@ -233,6 +253,19 @@ public fun <T> QeetrixAccordionItem(
     }
 }
 
+/** 0.3.0's signature without `titleContent`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun <T> QeetrixAccordionItem(
+    value: T,
+    title: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit,
+): Unit = QeetrixAccordionItem(value, title, modifier, description, enabled, interactionSource, titleContent = null, content)
+
 /** 0.1.0's signature without `description`, kept so apps compiled against it still link. */
 @Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @Composable
@@ -243,7 +276,7 @@ public fun <T> QeetrixAccordionItem(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-): Unit = QeetrixAccordionItem(value, title, modifier, null, enabled, interactionSource, content)
+): Unit = QeetrixAccordionItem(value, title, modifier, null, enabled, interactionSource, titleContent = null, content)
 
 /**
  * The trigger of a one-section fold — `@qeetrix/react`'s CollapsibleTrigger rendering a Button with a

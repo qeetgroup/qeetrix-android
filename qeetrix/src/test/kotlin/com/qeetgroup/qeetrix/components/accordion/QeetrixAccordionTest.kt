@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -15,12 +17,15 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.setQeetrix
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextWeight
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -88,6 +93,47 @@ class QeetrixAccordionTest {
         assertEquals(title.left, summary.left)
         assertEquals(title.bottom, summary.top)
         node.assertHeightIsAtLeast(48.dp)
+    }
+
+    /**
+     * An item can draw its own title — react's AccordionItem with a node: a body.md title with its purpose in body.sm
+     * under it — and the chevron is centred on the trigger, as on the web; accessibility is as for a text title: one
+     * heading button read with its title and state, with expand and collapse actions, and nothing of the drawing.
+     */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun anItemsOwnTitleIsDrawnWithTheChevronCentred() {
+        var open by mutableStateOf(listOf<String>())
+        compose.setQeetrix {
+            QeetrixAccordion(open, { open = it }) {
+                QeetrixAccordionItem(
+                    "contacts",
+                    "Your contacts, to find people you know",
+                    titleContent = {
+                        Column(Modifier.testTag("title")) {
+                            QeetrixText("Your contacts", weight = QeetrixTextWeight.Semibold)
+                            QeetrixText("To find people you know", size = QeetrixTextSize.Sm)
+                        }
+                    },
+                ) { QeetrixText("Only phone numbers, never names.") }
+            }
+        }
+        val node = compose.onNode(hasText("Your contacts, to find people you know") and isHeading())
+        node
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Collapsed"))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Expand))
+        // The drawing isn't read: the merged trigger has only the plain title.
+        compose.onNodeWithText("To find people you know").assertDoesNotExist()
+        // Two lines in a trigger at least 48 dp tall, whose row centres its content — the title and the chevron — on
+        // its height.
+        val trigger = node.getUnclippedBoundsInRoot()
+        val title = compose.onNodeWithTag("title", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertTrue("two lines", title.bottom - title.top > 30.dp)
+        assertTrue("a 48 dp target", trigger.bottom - trigger.top >= 48.dp)
+        assertEquals(((trigger.top + trigger.bottom) / 2).value, ((title.top + title.bottom) / 2).value, 0.5f)
+        node.performSemanticsAction(SemanticsActions.Expand)
+        assertEquals(listOf("contacts"), open)
     }
 
     @Test

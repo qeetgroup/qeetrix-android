@@ -1,12 +1,19 @@
 package com.qeetgroup.qeetrix.components.input
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
+import com.qeetgroup.qeetrix.screenshot.ScreenshotConfig
 import com.qeetgroup.qeetrix.screenshot.ScreenshotStack
+import com.qeetgroup.qeetrix.screenshot.captureQeetrix
 import com.qeetgroup.qeetrix.screenshot.captureStates
 import com.qeetgroup.qeetrix.theme.LocalQeetrixDensity
 import org.junit.Test
@@ -20,6 +27,43 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = SCREENSHOT_QUALIFIERS)
 class QeetrixTextFieldScreenshotTest {
+    /**
+     * `large_<config>.png`: the large field of a one-value sign-up step at the comfortable density — a phone number with
+     * its +91 affix, empty then filled — and a name with its help text, beside a default field for comparison.
+     */
+    @Test
+    fun large() {
+        for (config in ScreenshotConfig.entries) {
+            captureQeetrix("textfield", "large", config) {
+                CompositionLocalProvider(LocalQeetrixDensity provides QeetrixDensity.Comfortable) {
+                    Column(Modifier.width(328.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        QeetrixTextField(
+                            TextFieldState(),
+                            label = "Phone number",
+                            placeholder = "10-digit number",
+                            startAdornment = { QeetrixText("🇮🇳 +91") },
+                            size = QeetrixTextFieldSize.Lg,
+                        )
+                        QeetrixTextField(
+                            TextFieldState("98765 43210"),
+                            label = "Phone number",
+                            startAdornment = { QeetrixText("🇮🇳 +91") },
+                            description = "We'll send a code to it.",
+                            size = QeetrixTextFieldSize.Lg,
+                        )
+                        QeetrixTextField(
+                            TextFieldState("Asha Rao"),
+                            label = "Your name",
+                            error = "Enter your name as people know it.",
+                            size = QeetrixTextFieldSize.Lg,
+                        )
+                        QeetrixTextField(TextFieldState("Asha Rao"), label = "Your name (default size)")
+                    }
+                }
+            }
+        }
+    }
+
     @Test
     fun states() =
         captureStates("textfield") {

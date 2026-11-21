@@ -35,6 +35,7 @@ import com.qeetgroup.qeetrix.sample.components.forms.FormSample
 import com.qeetgroup.qeetrix.sample.components.forms.NumberFieldSample
 import com.qeetgroup.qeetrix.sample.components.forms.OTPInputSample
 import com.qeetgroup.qeetrix.sample.components.forms.PasswordInputSample
+import com.qeetgroup.qeetrix.sample.components.forms.PictureChoiceSample
 import com.qeetgroup.qeetrix.sample.components.forms.RadioGroupSample
 import com.qeetgroup.qeetrix.sample.components.forms.SearchFieldSample
 import com.qeetgroup.qeetrix.sample.components.forms.SegmentedControlSample
@@ -104,6 +105,7 @@ val SampleCatalog: List<SampleEntry> =
         SampleEntry("otp-input", "OTP input", SampleCategory.Forms) { OTPInputSample() },
         SampleEntry("checkbox", "Checkbox", SampleCategory.Forms) { CheckboxSample() },
         SampleEntry("radio-group", "Radio group", SampleCategory.Forms) { RadioGroupSample() },
+        SampleEntry("picture-choice", "Picture choice", SampleCategory.Forms) { PictureChoiceSample() },
         SampleEntry("select", "Select", SampleCategory.Forms) { SelectSample() },
         SampleEntry("number-field", "Number field", SampleCategory.Forms) { NumberFieldSample() },
         SampleEntry("form", "Form", SampleCategory.Forms) { FormSample() },

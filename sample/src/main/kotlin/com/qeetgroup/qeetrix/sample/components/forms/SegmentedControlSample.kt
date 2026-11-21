@@ -15,7 +15,7 @@ import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
 import com.qeetgroup.qeetrix.sample.SampleSection
 
-/** The segmented control: a filter, options with icons, the three sizes, and disabled. */
+/** The segmented control: a filter, options with icons, the three sizes, full width, and disabled. */
 @Composable
 fun SegmentedControlSample() {
     SamplePage {
@@ -51,6 +51,19 @@ fun SegmentedControlSample() {
                 )
             }
             SampleNote("Each segment is a 48 dp touch target, whatever the size drawn.")
+        }
+        SampleSection("Across the field") {
+            var who by rememberSaveable { mutableStateOf("contacts") }
+            QeetrixSegmentedControl(
+                who,
+                { who = it },
+                listOf(QeetrixOption("everyone", "Everyone"), QeetrixOption("contacts", "My contacts"), QeetrixOption("nobody", "Nobody")),
+                size = QeetrixButtonSize.Sm,
+                fullWidth = true,
+            )
+            SampleNote(
+                "fullWidth: the strip fills its row and the segments share it equally; a label too long for its share ends in an ellipsis.",
+            )
         }
         SampleSection("Disabled") {
             QeetrixSegmentedControl("light", {}, listOf(QeetrixOption("light", "Light"), QeetrixOption("dark", "Dark")), enabled = false)

@@ -75,6 +75,11 @@ public object QeetrixFocus {
  * changing how its content is drawn: the content is centred in the larger box. Put it after the
  * modifier that handles input (`Modifier.clickable { }.qeetrixMinimumTouchTarget()`), so the
  * enlarged box is the one that receives touches.
+ *
+ * Qeetrix's buttons, icon buttons and bare switch are laid out at their drawn size and take the taps round them
+ * through Compose's touch-target expansion. Where they sit edge to edge, in a toolbar of your own, pass this as their
+ * `modifier` to reserve each one's 48 dp in the layout, so that no two share a tap:
+ * `QeetrixIconButton(…, modifier = Modifier.qeetrixMinimumTouchTarget())`.
  */
 public fun Modifier.qeetrixMinimumTouchTarget(): Modifier =
     layout { measurable, constraints ->

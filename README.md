@@ -60,8 +60,8 @@ maven {
 }
 
 // app/build.gradle.kts
-implementation("com.qeetgroup:qeetrix:0.3.0")
-implementation("com.qeetgroup:qeetrix-icons-extended:0.3.0") // optional: every other icon; R8 keeps only those used
+implementation("com.qeetgroup:qeetrix:0.4.0")
+implementation("com.qeetgroup:qeetrix-icons-extended:0.4.0") // optional: every other icon; R8 keeps only those used
 ```
 
 Wrap your UI in `QeetrixTheme` (it follows the device's light or dark setting) and build from the components. The app

@@ -21,8 +21,10 @@ import com.qeetgroup.qeetrix.icons.QeetrixIconName
  * while it has keyboard focus, and for 1.5 s after a long press — so sighted people can learn what an icon does.
  *
  * [QeetrixButtonVariant.Ghost] by default, as on the web; utility actions in toolbars and headers take
- * [QeetrixButtonTone.Neutral], so their icons stay neutral. The square is the control height of [size]; a
- * 48 × 48 dp touch area is reserved around it.
+ * [QeetrixButtonTone.Neutral], so their icons stay neutral. The square is the control height of [size], and it is
+ * laid out at that size, as on the web; a tap within 48 × 48 dp round it still reaches it, as for [QeetrixButton].
+ * Icon buttons side by side share the taps between them unless their centres are 48 dp apart: in a toolbar of your
+ * own, give each `Modifier.qeetrixMinimumTouchTarget()` on [modifier] (QeetrixTopAppBar does this for its icons).
  *
  * ```
  * QeetrixIconButton(QeetrixIconName.X, contentDescription = "Close", onClick = ::dismiss, tone = QeetrixButtonTone.Neutral)
@@ -63,6 +65,56 @@ public fun QeetrixIconButton(
     ) { color ->
         ZoneContent(icon, loading, metrics, color, iconMirrorsInRightToLeft)
         // IconButton's tooltip: its name on long press, hover or keyboard focus, anchored to this button.
+        if (tooltip) TooltipAnchor(contentDescription, tooltipState, source)
+    }
+}
+
+/**
+ * An icon button whose icon is your own drawing — `@qeetrix/react`'s IconButton with a component for its icon: a rotated
+ * icon, a mark of your own. [icon] gets the square exactly as a named icon does: a box of the icon size for [size],
+ * centred, in the button's content colour ([com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor], which
+ * [com.qeetgroup.qeetrix.icons.QeetrixIcon] tints with by default); while [loading] the spinner takes its place.
+ * [contentDescription] names it, as for the other [QeetrixIconButton], and shows in the tooltip.
+ *
+ * ```
+ * QeetrixIconButton("End call", onClick = ::hangUp, variant = QeetrixButtonVariant.Solid, tone = QeetrixButtonTone.Danger) {
+ *     QeetrixIcon(QeetrixIconName.Phone, null, Modifier.rotate(135f), size = QeetrixSize.IconSm, variant = QeetrixIconVariant.Filled)
+ * }
+ * ```
+ */
+@Composable
+public fun QeetrixIconButton(
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    variant: QeetrixButtonVariant = QeetrixButtonVariant.Ghost,
+    tone: QeetrixButtonTone = QeetrixButtonTone.Brand,
+    size: QeetrixButtonSize = QeetrixButtonSize.Md,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+    interactionSource: MutableInteractionSource? = null,
+    tooltip: Boolean = true,
+    icon: @Composable () -> Unit,
+) {
+    val metrics = buttonMetrics(size)
+    val source = interactionSource ?: remember { MutableInteractionSource() }
+    val tooltipState = rememberTooltipState()
+    ButtonFrame(
+        onClick = onClick,
+        onLongClick = if (tooltip) ({ tooltipState.pressed = true }) else null,
+        modifier = modifier,
+        variant = variant,
+        tone = tone,
+        metrics = metrics,
+        square = true,
+        enabled = enabled,
+        loading = loading,
+        interactionSource = source,
+        horizontalArrangement = Arrangement.Center,
+        startPadding = 0.dp,
+        semantics = { this.contentDescription = contentDescription },
+    ) { color ->
+        if (loading) ZoneContent(null, loading = true, metrics = metrics, color = color) else CustomIcon(metrics, color, icon)
         if (tooltip) TooltipAnchor(contentDescription, tooltipState, source)
     }
 }

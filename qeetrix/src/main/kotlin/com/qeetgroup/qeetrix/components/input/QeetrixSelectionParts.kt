@@ -28,9 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -50,6 +54,7 @@ import com.qeetgroup.qeetrix.internal.QeetrixTextWeight
 import com.qeetgroup.qeetrix.internal.firstLineHeight
 import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
+import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import kotlin.math.max
 import kotlin.math.min
@@ -117,10 +122,11 @@ internal fun ChoiceRow(
     chosen: Boolean,
     source: MutableInteractionSource,
     modifier: Modifier,
+    labelContent: (@Composable () -> Unit)? = null,
     control: @Composable () -> Unit,
 ) {
     if (LocalChoiceVariant.current == QeetrixChoiceVariant.Tile) {
-        ChoiceTile(label, description, icon, enabled, chosen, source, modifier, control)
+        ChoiceTile(label, description, icon, enabled, chosen, source, modifier, labelContent, control)
         return
     }
     val colors = QeetrixTheme.colors
@@ -151,7 +157,11 @@ internal fun ChoiceRow(
                         )
                     }
                 }
-                BasicText(label, Modifier.weight(1f, fill = false), style = labelStyle.labelDirection(alignToLayout = true))
+                if (labelContent != null) {
+                    ChoiceLabelContent(label, labelStyle.color, Modifier.weight(1f, fill = false), labelContent)
+                } else {
+                    BasicText(label, Modifier.weight(1f, fill = false), style = labelStyle.labelDirection(alignToLayout = true))
+                }
             }
             if (description != null) {
                 BasicText(
@@ -186,6 +196,7 @@ private fun ChoiceTile(
     chosen: Boolean,
     source: MutableInteractionSource,
     modifier: Modifier,
+    labelContent: (@Composable () -> Unit)?,
     control: @Composable () -> Unit,
 ) {
     val colors = QeetrixTheme.colors
@@ -249,7 +260,11 @@ private fun ChoiceTile(
                         )
                     }
                 }
-                BasicText(label, Modifier.weight(1f), style = titleStyle.labelDirection(alignToLayout = true))
+                if (labelContent != null) {
+                    ChoiceLabelContent(label, titleStyle.color, Modifier.weight(1f), labelContent)
+                } else {
+                    BasicText(label, Modifier.weight(1f), style = titleStyle.labelDirection(alignToLayout = true))
+                }
                 Box(Modifier.height(line), contentAlignment = Alignment.Center) { control() }
             }
             if (description != null) {
@@ -272,8 +287,28 @@ private fun ChoiceTile(
 }
 
 /**
+ * An option's own label content (react's Radio with a node for its `label`), drawn in the title's place in the
+ * label's colour ([LocalQeetrixContentColor]) and hidden from accessibility services, which read the option's plain
+ * [label] instead, so the option keeps one name however its title is drawn.
+ */
+@Composable
+private fun ChoiceLabelContent(
+    label: String,
+    color: Color,
+    modifier: Modifier,
+    content: @Composable () -> Unit,
+) {
+    Box(modifier.clearAndSetSemantics { text = AnnotatedString(label) }) {
+        CompositionLocalProvider(LocalQeetrixContentColor provides color) { content() }
+    }
+}
+
+/**
  * A question with options (react's `ChoiceGroup`): the question in the field-label style (`label.sm`,
  * `color.text.subtle`) as a heading, the options, then the description or the error — all `space.gap.xs` apart.
+ * With [hideLabel] the question is not drawn — react's label in a VisuallyHidden, for a group under a screen heading
+ * that already asks it — and the group itself carries it as its name and heading for accessibility services, read
+ * before the options.
  * Options stack ([QeetrixChoiceOrientation.Vertical]), wrap in a row `space.gap.lg` apart
  * ([QeetrixChoiceOrientation.Horizontal]), or fill a grid of tiles ([QeetrixChoiceVariant.Tile]). Each option
  * reads the group's state from [LocalFieldGroup]: enabled, invalid (its border turns `color.border.danger`) and the
@@ -291,13 +326,34 @@ internal fun ChoiceGroup(
     columns: Int,
     selectable: Boolean,
     modifier: Modifier,
+    hideLabel: Boolean = false,
+    richTiles: Boolean = true,
     options: @Composable () -> Unit,
 ) {
     require(columns in 1..MAX_COLUMNS) { "columns ($columns) must be between 1 and $MAX_COLUMNS." }
     val group = LocalFieldGroup.current
     val active = enabled && group.enabled
-    Column(modifier.semantics { isTraversalGroup = true }, verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs)) {
-        FieldLabel(label, optional = false, required = required, enabled = active, modifier = Modifier.semantics { heading() })
+    val name = accessibleLabel(label, required = required, optional = false)
+    Column(
+        modifier.semantics {
+            isTraversalGroup = true
+            if (hideLabel) {
+                // Not drawn, still the group's question: TalkBack reads it, as a heading, before the options.
+                contentDescription = name
+                heading()
+            }
+        },
+        verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs),
+    ) {
+        if (!hideLabel) {
+            FieldLabel(
+                label,
+                optional = false,
+                required = required,
+                enabled = active,
+                modifier = Modifier.semantics { heading() },
+            )
+        }
         val set = if (selectable) Modifier.selectableGroup() else Modifier
         CompositionLocalProvider(
             LocalFieldGroup provides FieldGroup(active, invalid = error != null, error = error),
@@ -305,7 +361,7 @@ internal fun ChoiceGroup(
         ) {
             when {
                 variant == QeetrixChoiceVariant.Tile -> {
-                    TileGrid(columns, set) { options() }
+                    TileGrid(columns, if (richTiles) TILE_MIN_WIDTH else SHORT_TILE_MIN_WIDTH, set) { options() }
                 }
 
                 orientation == QeetrixChoiceOrientation.Horizontal -> {
@@ -324,20 +380,22 @@ internal fun ChoiceGroup(
 }
 
 /**
- * The tile grid: `repeat(auto-fill, minmax(max(12rem, (100% − (columns − 1) × gap) / columns), 1fr))` with
- * `space.gap.sm` gaps — as many columns as fit tiles of at least 192 dp, up to [columns] — and every tile in a row
- * as tall as the row, as grid items stretch.
+ * The tile grid: `repeat(auto-fill, minmax(max(--qx-choice-tile-min, (100% − (columns − 1) × gap) / columns), 1fr))`
+ * with `space.gap.sm` gaps — as many columns as fit tiles of at least [minWidth], up to [columns] — and every tile in a
+ * row as tall as the row, as grid items stretch. [minWidth] is 128 dp for short choices on their own (a language, a
+ * size), so two fit a row on a phone, and 192 dp once any option has an icon or a description.
  */
 @Composable
 private fun TileGrid(
     columns: Int,
+    minWidth: Dp,
     modifier: Modifier,
     content: @Composable () -> Unit,
 ) {
     Layout(content, modifier.fillMaxWidth()) { measurables, constraints ->
         val gap = QeetrixSpace.GapSm.roundToPx()
         val width = constraints.maxWidth
-        val track = max(TILE_MIN_WIDTH.roundToPx(), (width - (columns - 1) * gap) / columns)
+        val track = max(minWidth.roundToPx(), (width - (columns - 1) * gap) / columns)
         val count = max(1, min(columns, (width + gap) / (track + gap)))
         val cell = (width - (count - 1) * gap) / count
         val rows = measurables.chunked(count)
@@ -363,8 +421,14 @@ private val TILE_ICON_BOX = 36.dp
 /** The control on a tile, `16px` in the description's end padding. */
 private val TILE_CONTROL = 16.dp
 
-/** `minmax(max(12rem, …))`: a tile is at least 192 dp wide. */
+/**
+ * field.css `--qx-choice-tile-min: 12rem` where any option has an icon or a description
+ * (`:has(.qx-choice-icon, .qx-choice-description)`): such a tile is at least 192 dp wide.
+ */
 private val TILE_MIN_WIDTH = 192.dp
+
+/** field.css `--qx-choice-tile-min: 8rem`: a short choice's tile, its label alone, is at least 128 dp wide. */
+private val SHORT_TILE_MIN_WIDTH = 128.dp
 
 /** checkbox.tsx / radio.tsx `columns?: 1 | 2 | 3 | 4`. */
 private const val MAX_COLUMNS = 4

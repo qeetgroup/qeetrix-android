@@ -1,5 +1,6 @@
 package com.qeetgroup.qeetrix.sample.components.layout
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,7 +11,11 @@ import com.qeetgroup.qeetrix.components.accordion.QeetrixAccordion
 import com.qeetgroup.qeetrix.components.accordion.QeetrixAccordionItem
 import com.qeetgroup.qeetrix.components.accordion.QeetrixCollapsiblePanel
 import com.qeetgroup.qeetrix.components.accordion.QeetrixCollapsibleTrigger
+import com.qeetgroup.qeetrix.components.card.QeetrixCard
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
+import com.qeetgroup.qeetrix.components.typography.QeetrixTextWeight
 import com.qeetgroup.qeetrix.sample.SampleNote
 import com.qeetgroup.qeetrix.sample.SamplePage
 import com.qeetgroup.qeetrix.sample.SamplePreview
@@ -25,7 +30,7 @@ private enum class FaqTopic(
     Cancel("How do I cancel?", "From Settings › Plan. Your workspace stays readable for 30 days after cancelling."),
 }
 
-/** Sections that show and hide: one open at a time, several at once, a disabled section, and a one-section fold. */
+/** Sections that show and hide: one open at a time, several at once, a disabled section, a compact list, and a one-section fold. */
 @Composable
 fun AccordionSample() {
     SamplePage {
@@ -52,6 +57,37 @@ fun AccordionSample() {
                 QeetrixAccordionItem("export", "Data export", enabled = false) {}
             }
             SampleNote("Open: ${open.joinToString()}. Data export is disabled, for workspace owners only.")
+        }
+        SampleSection("A compact list in a card") {
+            var open by rememberSaveable { mutableStateOf(listOf<String>()) }
+            val collected =
+                listOf(
+                    Triple("phone", "Your phone number", "To sign you in and keep your account yours"),
+                    Triple("contacts", "Your contacts", "To find people you know who use the app"),
+                    Triple("photo", "Your profile photo", "So the people you talk to can see it's you"),
+                    Triple("device", "This phone's details", "To keep your messages safe on it"),
+                    Triple("usage", "How you use the app", "Only if you turn it on, to fix problems"),
+                )
+            QeetrixCard(title = "What we collect, and why") {
+                QeetrixAccordion(value = open, onValueChange = { open = it }) {
+                    for ((id, title, purpose) in collected) {
+                        QeetrixAccordionItem(
+                            id,
+                            "$title, $purpose",
+                            titleContent = {
+                                Column {
+                                    QeetrixText(title, weight = QeetrixTextWeight.Semibold)
+                                    QeetrixText(purpose, size = QeetrixTextSize.Sm, tone = QeetrixTextTone.Subtle)
+                                }
+                            },
+                        ) { QeetrixText("We keep it only while your account is open, and you can delete it from Settings.") }
+                    }
+                }
+            }
+            SampleNote(
+                "Each item draws its own title, a body.md title over its purpose in body.sm, the chevron centred on both. " +
+                    "TalkBack reads the plain title, \"Your contacts, To find people you know…\", with Expanded or Collapsed.",
+            )
         }
         SampleSection("Collapsible") {
             var advanced by rememberSaveable { mutableStateOf(false) }

@@ -21,12 +21,17 @@ import androidx.compose.ui.test.tryPerformAccessibilityChecks
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
+import com.google.android.apps.common.testing.accessibility.framework.AccessibilityViewCheckResult
+import com.google.android.apps.common.testing.accessibility.framework.checks.TouchTargetSizeCheck
+import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 import com.qeetgroup.qeetrix.quality.LocalizedCatalog
 import com.qeetgroup.qeetrix.quality.OverlayCatalog
 import com.qeetgroup.qeetrix.quality.QualityCatalog
 import com.qeetgroup.qeetrix.quality.QualitySpecimen
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import com.qeetgroup.qeetrix.theme.QeetrixThemeMode
+import org.hamcrest.Description
+import org.hamcrest.TypeSafeMatcher
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -39,7 +44,8 @@ import org.junit.runner.RunWith
  * as Phase 6 found, on API 29, where a deliberately bad button passes. So the tests run only from the API level the
  * checks were verified on, and each first proves on that known problem that they run. Below it the runner leaves
  * them out: an assumption failure would count as a failure in Android's device reports, and a pass would mean
- * nothing. Every result is reported before the test fails. Run with `./gradlew :qeetrix:connectedDebugAndroidTest`.
+ * nothing. Every result is reported before the test fails. The touch-target size check is set aside only on the
+ * specimens in [SharedTouchAreas]. Run with `./gradlew :qeetrix:connectedDebugAndroidTest`.
  */
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = VERIFIED_API)
@@ -65,9 +71,29 @@ class QeetrixAccessibilityDeviceTest {
         assertChecksAreLive { specimen = it }
     }
 
+    /** The specimen the checks are on, for [SharedTouchAreas]. */
+    private var checking = ""
+
+    /**
+     * Every check, but for the touch-target size reports on the specimens in [SharedTouchAreas]: there Compose trims the
+     * bounds it reports to accessibility services where a neighbour's touch area or text overlaps, at the web's
+     * spacing, while each control still takes taps over a whole 48 dp area (`LayoutQualityTest` checks that area).
+     */
+    private val validator =
+        AccessibilityValidator().setRunChecksFromRootView(true).setSuppressingResultMatcher(
+            object : TypeSafeMatcher<AccessibilityViewCheckResult>() {
+                override fun describeTo(description: Description) {
+                    description.appendText("a touch area that overlaps a neighbour's at the web's spacing")
+                }
+
+                override fun matchesSafely(result: AccessibilityViewCheckResult): Boolean =
+                    checking in SharedTouchAreas && result.sourceCheckClass == TouchTargetSizeCheck::class.java
+            },
+        )
+
     @Test
     fun everySpecimenPassesTheAccessibilityTestFramework() {
-        compose.enableAccessibilityChecks()
+        compose.enableAccessibilityChecks(validator)
         var specimen by mutableStateOf(QualityCatalog.first())
         var mode by mutableStateOf(QeetrixThemeMode.Light)
         compose.setContent {
@@ -85,6 +111,7 @@ class QeetrixAccessibilityDeviceTest {
                     mode = theme
                 }
                 compose.waitForIdle()
+                checking = each.name
                 try {
                     compose.onRoot().tryPerformAccessibilityChecks()
                 } catch (failure: Throwable) {
@@ -128,6 +155,15 @@ class QeetrixAccessibilityDeviceTest {
         assertTrue(failures.joinToString("\n", prefix = "${failures.size} windows with findings:\n"), failures.isEmpty())
     }
 }
+
+/**
+ * Specimens whose controls sit at the web's spacing, closer than 48 dp centre to centre, so neighbouring touch areas
+ * overlap (the owner's decision, 21 November 2026) and Compose reports trimmed bounds that the touch-target size check
+ * flags: buttons stacked 8 dp apart, icon buttons stacked flush, a collapsible trigger with its panel right under it, the
+ * QR scanner's torch 12 dp above its fallback, and the attachment picker's hint 4 dp under its buttons. Only that check
+ * is set aside for them; every other check runs.
+ */
+private val SharedTouchAreas = setOf("button", "icon-button", "accordion", "qr-scanner", "file-upload")
 
 /** The API level the checks were verified to run on (Phase 6, an API 36 emulator; on API 29 they do not run). */
 private const val VERIFIED_API = 36
