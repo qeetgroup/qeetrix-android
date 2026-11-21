@@ -37,7 +37,7 @@ import com.qeetgroup.qeetrix.theme.QeetrixTheme
  * **Camera** and **Files**, each shown when the app gives its action, then [hint] ("PDF or PNG, up to 10 MB", from
  * [QeetrixFileLimits.hint]). Qeetrix asks for no permission and launches nothing itself: the app keeps its
  * `ActivityResultLauncher`s (`PickVisualMedia`, `TakePicture`, `OpenDocument`) and passes what they return to a list
- * of [QeetrixFileRow]s. The actions are soft, neutral, 48 dp buttons that wrap onto more lines at large text.
+ * of [QeetrixFileRow]s. The actions are soft, neutral `md` buttons that wrap onto more lines at large text.
  *
  * ```
  * QeetrixAttachmentPicker(

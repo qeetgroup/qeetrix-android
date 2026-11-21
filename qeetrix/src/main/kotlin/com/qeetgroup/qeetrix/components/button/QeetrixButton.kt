@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +27,7 @@ import com.qeetgroup.qeetrix.icons.QeetrixIconShape
 import com.qeetgroup.qeetrix.internal.QeetrixSpinnerRing
 import com.qeetgroup.qeetrix.internal.atAlpha
 import com.qeetgroup.qeetrix.internal.labelDirection
+import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 
 /**
  * Emphasis (`value` is `@qeetrix/react`'s `variant`). A region has at most one [Solid] and one [Soft]
@@ -90,8 +93,12 @@ public enum class QeetrixButtonSize(
  *   keeps its zone at the end, and the start keeps as much room as the zone takes, so the label is centred
  *   with or without one.
  *
- * The drawn button keeps the web's size; a 48 × 48 dp touch area is reserved around it. Text follows the
- * font scale and the button grows with it rather than clipping.
+ * **Laid out at the web's size**, so a stack of full-width `lg` buttons 8 dp apart is 8 dp apart here too. A tap
+ * anywhere within 48 × 48 dp round a button drawn smaller still reaches it, through Compose's touch-target
+ * expansion, which accessibility services also read as its bounds. Where neighbours sit closer than that, as at the
+ * web's spacing, their areas overlap and Compose sends a tap there to the nearer one; where each needs a whole 48 dp, as
+ * icons edge to edge in a toolbar, reserve it in the layout with `Modifier.qeetrixMinimumTouchTarget()` on [modifier].
+ * Text follows the font scale and the button grows with it rather than clipping.
  *
  * ```
  * QeetrixButton("Create invoice", onClick = ::create, icon = QeetrixIconName.Plus)
@@ -116,8 +123,76 @@ public fun QeetrixButton(
     interactionSource: MutableInteractionSource? = null,
     iconMirrorsInRightToLeft: Boolean = icon?.mirrorsInRightToLeft ?: false,
 ) {
+    ButtonBody(text, onClick, modifier, variant, tone, size, loading, fullWidth, enabled, interactionSource, icon != null || loading) {
+        metrics,
+        color,
+        ->
+        ZoneContent(icon, loading, metrics, color, iconMirrorsInRightToLeft)
+    }
+}
+
+/**
+ * A button whose icon is your own drawing — `@qeetrix/react`'s Button with a component for its `icon`: a rotated icon
+ * (the call-end sign is the phone, filled and turned 135°), a mark of your own. [icon] gets the zone exactly as a named
+ * icon does: a box of the icon size for [size] (16 dp, 20 dp at `Lg`) behind the 55 % rule with the zone's padding, the
+ * label's colour through [LocalQeetrixContentColor] (which [QeetrixIcon] tints with by default) and the full-width
+ * centring. While [loading] the spinner takes its place. Everything else is the other [QeetrixButton]'s.
+ *
+ * ```
+ * QeetrixButton("Hang up and report", onClick = ::hangUp, variant = QeetrixButtonVariant.Soft,
+ *     tone = QeetrixButtonTone.Neutral, size = QeetrixButtonSize.Lg, fullWidth = true) {
+ *     QeetrixIcon(QeetrixIconName.Phone, null, Modifier.rotate(135f), size = QeetrixSize.IconMd, variant = QeetrixIconVariant.Filled)
+ * }
+ * ```
+ */
+@Composable
+public fun QeetrixButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    variant: QeetrixButtonVariant = QeetrixButtonVariant.Solid,
+    tone: QeetrixButtonTone = QeetrixButtonTone.Brand,
+    size: QeetrixButtonSize = QeetrixButtonSize.Md,
+    loading: Boolean = false,
+    fullWidth: Boolean = false,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
+    icon: @Composable () -> Unit,
+) {
+    ButtonBody(
+        text,
+        onClick,
+        modifier,
+        variant,
+        tone,
+        size,
+        loading,
+        fullWidth,
+        enabled,
+        interactionSource,
+        zone = true,
+    ) { metrics, color ->
+        if (loading) ZoneContent(null, loading = true, metrics = metrics, color = color) else CustomIcon(metrics, color, icon)
+    }
+}
+
+/** The label and, with a [zone], the icon zone holding [zoneContent]: what both [QeetrixButton]s draw. */
+@Composable
+private fun ButtonBody(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier,
+    variant: QeetrixButtonVariant,
+    tone: QeetrixButtonTone,
+    size: QeetrixButtonSize,
+    loading: Boolean,
+    fullWidth: Boolean,
+    enabled: Boolean,
+    interactionSource: MutableInteractionSource?,
+    zone: Boolean,
+    zoneContent: @Composable (metrics: ButtonMetrics, color: Color) -> Unit,
+) {
     val metrics = buttonMetrics(size)
-    val zone = icon != null || loading
     // A full-width label is centred on the whole button: half of what the end's span (the gap, the rule, the zone's
     // padding on both sides and the icon) takes beyond the start's padding, towards the end of the label's box.
     val shift =
@@ -155,7 +230,7 @@ public fun QeetrixButton(
             softWrap = false,
             overflow = TextOverflow.Ellipsis,
         )
-        if (zone) IconZone(metrics, color) { ZoneContent(icon, loading, metrics, color, iconMirrorsInRightToLeft) }
+        if (zone) IconZone(metrics, color) { zoneContent(metrics, color) }
     }
 }
 
@@ -195,6 +270,21 @@ internal fun ZoneContent(
             tint = color,
             mirrorInRightToLeft = mirror,
         )
+    }
+}
+
+/**
+ * Your own icon in a button's place for one (react's Button with a component for its `icon`): a box of the size's icon
+ * size, centred, with the label's colour as the content colour.
+ */
+@Composable
+internal fun CustomIcon(
+    metrics: ButtonMetrics,
+    color: Color,
+    icon: @Composable () -> Unit,
+) {
+    Box(Modifier.size(metrics.iconSize), contentAlignment = Alignment.Center) {
+        CompositionLocalProvider(LocalQeetrixContentColor provides color) { icon() }
     }
 }
 

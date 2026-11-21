@@ -61,6 +61,22 @@ class Reports(
         out.appendLine("|:--|:--|")
         for (token in model.included) out.appendLine("| `${token.dotted}` | `${TokenEmitter.publicAccessor(model, token)}` |")
         out.appendLine()
+        out.appendLine("## Colour resources")
+        out.appendLine()
+        out.appendLine(
+            "The roles an app's XML themes need before Compose draws — `android:windowBackground`, the splash screen's " +
+                "`windowSplashScreenBackground` — are also Android colour resources, light in `values` and dark in `values-night`, " +
+                "from the same tokens. Everything else is drawn in Compose.",
+        )
+        out.appendLine()
+        out.appendLine("| Token | Resource | Light | Dark |")
+        out.appendLine("|:--|:--|:--|:--|")
+        for (role in ColorResourceEmitter.ROLES) {
+            val token = model.included.first { it.dotted == role }
+            val (light, dark) = model.themes.map { (token.themes.getValue(it) as TokenValue.Color).color.hex }
+            out.appendLine("| `$role` | `@color/${ColorResourceEmitter.resourceName(role)}` | `$light` | `$dark` |")
+        }
+        out.appendLine()
         out.appendLine("## Not generated")
         out.appendLine()
         out.appendLine("| Reason | Tokens | Examples |")

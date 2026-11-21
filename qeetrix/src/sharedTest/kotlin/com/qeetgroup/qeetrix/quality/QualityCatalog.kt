@@ -88,6 +88,7 @@ import com.qeetgroup.qeetrix.components.drawer.ActionSheetScopeImpl
 import com.qeetgroup.qeetrix.components.drawer.DragHandle
 import com.qeetgroup.qeetrix.components.drawer.QeetrixActionSheet
 import com.qeetgroup.qeetrix.components.drawer.QeetrixBottomSheet
+import com.qeetgroup.qeetrix.components.drawer.QeetrixBottomSheetSurface
 import com.qeetgroup.qeetrix.components.drawer.QeetrixSheetAction
 import com.qeetgroup.qeetrix.components.drawer.QeetrixSheetActionSeparator
 import com.qeetgroup.qeetrix.components.drawer.QeetrixSideSheet
@@ -155,6 +156,9 @@ import com.qeetgroup.qeetrix.components.passwordinput.QeetrixPasswordAutoComplet
 import com.qeetgroup.qeetrix.components.passwordinput.QeetrixPasswordInput
 import com.qeetgroup.qeetrix.components.permission.QeetrixPermission
 import com.qeetgroup.qeetrix.components.permission.QeetrixPermissionPrimer
+import com.qeetgroup.qeetrix.components.picturechoice.QeetrixPictureChoiceGroup
+import com.qeetgroup.qeetrix.components.picturechoice.QeetrixPictureChoiceShape
+import com.qeetgroup.qeetrix.components.picturechoice.QeetrixPictureChoiceSize
 import com.qeetgroup.qeetrix.components.progress.QeetrixMeter
 import com.qeetgroup.qeetrix.components.progress.QeetrixMeterTone
 import com.qeetgroup.qeetrix.components.progress.QeetrixProgress
@@ -431,6 +435,72 @@ internal val QualityCatalog: List<QualitySpecimen> =
                     ),
                     label = "Sign-in methods",
                     variant = QeetrixChoiceVariant.Tile,
+                )
+            }
+        },
+        QualitySpecimen("picture-choice") {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                val tones =
+                    listOf(
+                        QeetrixTheme.colors.datavizCategorical1,
+                        QeetrixTheme.colors.datavizCategorical2,
+                        QeetrixTheme.colors.surfaceDefault,
+                    )
+                QeetrixPictureChoiceGroup(
+                    1,
+                    {},
+                    listOf(QeetrixOption(0, "Ember"), QeetrixOption(1, "Teal"), QeetrixOption(2, "White")),
+                    contentDescription = "Background",
+                    shape = QeetrixPictureChoiceShape.Square,
+                ) { option -> Box(Modifier.fillMaxSize().background(tones[option.value])) }
+                QeetrixPictureChoiceGroup(
+                    "asha",
+                    {},
+                    listOf(
+                        QeetrixOption("asha", "Asha Rao"),
+                        QeetrixOption("ravi", "Ravi Kumar"),
+                        QeetrixOption("meera", "Meera Iyer"),
+                        QeetrixOption("arjun", "Arjun Nair"),
+                        QeetrixOption("kavya", "Kavya Shah", enabled = false),
+                    ),
+                    contentDescription = "Avatar",
+                    columns = 4,
+                ) { option -> QeetrixAvatar(option.label, size = QeetrixAvatarSize.Xl) }
+                QeetrixPictureChoiceGroup(
+                    "a",
+                    {},
+                    listOf(QeetrixOption("a", "Sticker A"), QeetrixOption("b", "Sticker B")),
+                    contentDescription = "Sticker",
+                    size = QeetrixPictureChoiceSize.Lg,
+                ) {}
+            }
+        },
+        QualitySpecimen("picture-choice-small") {
+            // 36 dp swatches (sm), 12 dp apart: each takes a 48 dp tap through touch-target expansion.
+            val tones =
+                listOf(QeetrixTheme.colors.datavizCategorical1, QeetrixTheme.colors.datavizCategorical3, QeetrixTheme.colors.surfaceDefault)
+            QeetrixPictureChoiceGroup(
+                0,
+                {},
+                listOf(QeetrixOption(0, "Ember"), QeetrixOption(1, "Indigo"), QeetrixOption(2, "White")),
+                contentDescription = "Background",
+                size = QeetrixPictureChoiceSize.Sm,
+            ) { option -> Box(Modifier.fillMaxSize().background(tones[option.value])) }
+        },
+        QualitySpecimen("radio-group-hidden-label") {
+            // Under a screen heading that asks the question: the group's label named for accessibility only.
+            Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                QeetrixHeading("This phone has a different SIM", level = 1, size = QeetrixHeadingSize.TitleLg)
+                QeetrixRadioGroup(
+                    "back",
+                    {},
+                    listOf(
+                        QeetrixOption("back", "I'll put the Jio SIM back", "Your account stays on 98765 43210."),
+                        QeetrixOption("move", "Move my account to this SIM", "We'll send a code to the new number."),
+                    ),
+                    label = "This phone has a different SIM",
+                    variant = QeetrixChoiceVariant.Tile,
+                    hideLabel = true,
                 )
             }
         },
@@ -1085,6 +1155,22 @@ internal val QualityCatalog: List<QualitySpecimen> =
                 ) { QeetrixCheckbox(true, {}, label = "Overdue") }
             }
         },
+        QualitySpecimen("bottom-sheet-picture") {
+            // The public in-place surface of a picture-led sheet: a picture, a centred title, no rule or close button.
+            QeetrixBottomSheetSurface(
+                title = "Find people you know",
+                description = "We check your contacts against Qeet Circle, on this phone. Nothing is uploaded.",
+                footer = {
+                    QeetrixButton("Not now", onClick = {}, variant = QeetrixButtonVariant.Ghost)
+                    QeetrixButton("Allow contacts", onClick = {})
+                },
+                picture = {
+                    Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
+                        for (name in listOf("Asha Rao", "Ravi Kumar", "Meera Iyer")) QeetrixAvatar(name, size = QeetrixAvatarSize.Xl)
+                    }
+                },
+            ) { QeetrixText("You can turn this off in Settings.", size = QeetrixTextSize.Sm, tone = QeetrixTextTone.Subtle) }
+        },
         QualitySpecimen("action-sheet") {
             // QeetrixActionSheet's handle and parts, drawn in place: the sheet is a window of its own.
             Column(Modifier.fillMaxWidth().background(QeetrixTheme.colors.surfaceOverlay)) {
@@ -1338,6 +1424,14 @@ internal val QualityCatalog: List<QualitySpecimen> =
                 QeetrixSlider(40f, {}, label = "Volume", step = 5f, minLabel = "Quiet", maxLabel = "Loud")
                 QeetrixRangeSlider(2000f..18000f, {}, label = "Budget", valueRange = 0f..50000f, step = 500f)
                 QeetrixSlider(20f, {}, label = "Disabled", enabled = false)
+            }
+        },
+        QualitySpecimen("slider-bare") {
+            // A slider named for accessibility only, in a row between two icons, as a photo's zoom.
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                QeetrixIcon(QeetrixIconName.Minus, contentDescription = null, tint = QeetrixTheme.colors.iconSubtle)
+                QeetrixSlider(2f, {}, Modifier.weight(1f).semantics { contentDescription = "Zoom" }, valueRange = 1f..4f, step = 0.5f)
+                QeetrixIcon(QeetrixIconName.Plus, contentDescription = null, tint = QeetrixTheme.colors.iconSubtle)
             }
         },
         QualitySpecimen("date-field") {

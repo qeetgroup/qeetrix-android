@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -31,6 +32,7 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
@@ -56,12 +58,16 @@ import com.qeetgroup.qeetrix.theme.QeetrixTheme
  * ThemeSwitcher uses it: filters (All, Pending) and short settings (Light, Dark, System).
  *
  * - **Look**: a strip with a 1 dp `color.border.strong` edge and `radius.control` corners, the segments split by 1 dp
- *   rules, each `size.control.*` tall less the edges, `label.md` (`label.sm` at `Sm`), 12 dp inline padding (8 at
- *   `Sm`, 16 at `Lg`). Rest `color.text.subtle`; hover `color.bg.neutral.subtle` with `color.text.default`; chosen
+ *   rules, each `size.control.*` tall less the edges, `label.md` with 12 dp inline padding at every size — the group's
+ *   [size] sets only the height, as the web's toggles keep their own size inside a group. Rest `color.text.subtle`;
+ *   hover `color.bg.neutral.subtle` with `color.text.default`; chosen
  *   `color.bg.neutral.bold` with `color.text.inverse`; disabled `color.text.disabled`. An option's `icon` (16 dp, sharp)
  *   comes before its label. Colours change in `motion.duration.fast`.
  * - **Touch**: each segment is a 48 dp touch target with the strip drawn at `size.control.*` in its middle; the strip
  *   is as wide as its segments.
+ * - **[fullWidth]**: the strip fills its container and every segment takes an equal share, its label centred and
+ *   ending in an ellipsis when the share is too narrow — a picker across a phone's field (toggle.css
+ *   `[data-full-width]`).
  * - **Accessibility**: a group of radio buttons, each read with its label and whether it is chosen; a choice plays
  *   [QeetrixHapticRole.Selection].
  *
@@ -77,6 +83,7 @@ public fun <T> QeetrixSegmentedControl(
     modifier: Modifier = Modifier,
     size: QeetrixButtonSize = QeetrixButtonSize.Md,
     enabled: Boolean = true,
+    fullWidth: Boolean = false,
 ) {
     val colors = QeetrixTheme.colors
     val density = QeetrixTheme.density
@@ -88,18 +95,17 @@ public fun <T> QeetrixSegmentedControl(
             QeetrixButtonSize.Md -> density.sizeControlMd
             QeetrixButtonSize.Lg -> density.sizeControlLg
         }
-    val padding =
-        when (size) {
-            QeetrixButtonSize.Sm -> 8.dp
-            QeetrixButtonSize.Md -> 12.dp
-            QeetrixButtonSize.Lg -> 16.dp
-        }
-    val label = if (size == QeetrixButtonSize.Sm) QeetrixTheme.typography.labelSm else QeetrixTheme.typography.labelMd
+    // .qx-toggle: padding-inline 12px and label.md. Inside a group each toggle keeps its own (md) size; the group's
+    // [data-size] sets only the block-size.
+    val padding = 12.dp
+    val label = QeetrixTheme.typography.labelMd
     // The drawn strip: size.control.* tall (taller only if the label's line is), centred in each segment's 48 dp target.
     val band = maxOf(control, firstLineHeight(label))
     val edge = colors.borderStrong
     Row(
         modifier
+            // [data-full-width]: inline-size 100%
+            .then(if (fullWidth) Modifier.fillMaxWidth() else Modifier)
             .height(IntrinsicSize.Min)
             .selectableGroup()
             .drawWithContent {
@@ -150,6 +156,8 @@ public fun <T> QeetrixSegmentedControl(
                 }
             Row(
                 Modifier
+                    // [data-full-width] > .qx-toggle: flex 1 1 0, min-inline-size 0 — an equal share each
+                    .then(if (fullWidth) Modifier.weight(1f) else Modifier)
                     .fillMaxHeight()
                     .heightIn(min = QeetrixAccessibility.MinimumTouchTarget)
                     .widthIn(min = QeetrixAccessibility.MinimumTouchTarget)
@@ -183,11 +191,31 @@ public fun <T> QeetrixSegmentedControl(
                         tint = content,
                     )
                 }
-                BasicText(option.label, style = label.copy(color = content).labelDirection(), maxLines = 1, softWrap = false)
+                // [data-full-width] .qx-toggle-label: cut with an ellipsis when longer than its share
+                BasicText(
+                    option.label,
+                    if (fullWidth) Modifier.weight(1f, fill = false) else Modifier,
+                    style = label.copy(color = content).labelDirection(),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = if (fullWidth) TextOverflow.Ellipsis else TextOverflow.Clip,
+                )
             }
         }
     }
 }
+
+/** 0.3.0's signature without `fullWidth`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun <T> QeetrixSegmentedControl(
+    value: T,
+    onValueChange: (T) -> Unit,
+    options: List<QeetrixOption<T>>,
+    modifier: Modifier = Modifier,
+    size: QeetrixButtonSize = QeetrixButtonSize.Md,
+    enabled: Boolean = true,
+): Unit = QeetrixSegmentedControl(value, onValueChange, options, modifier, size, enabled, fullWidth = false)
 
 /** Keyboard focus: the 2 dp Ember frame inside the segment's drawn band (`.qx-toggle:focus-visible`, offset inward). */
 @Composable

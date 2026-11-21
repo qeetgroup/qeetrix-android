@@ -12,7 +12,7 @@ direction. qeetrix-ios carries the same names at the same `@qeetrix/icons` versi
 | `com.qeetgroup:qeetrix-icons-extended` (optional) | The other 1,763 | `QeetrixIconName.AlarmClock`, imported from `com.qeetgroup.qeetrix.icons.extended` |
 
 ```kotlin
-implementation("com.qeetgroup:qeetrix-icons-extended:0.3.0") // always the same version as com.qeetgroup:qeetrix
+implementation("com.qeetgroup:qeetrix-icons-extended:0.4.0") // always the same version as com.qeetgroup:qeetrix
 
 QeetrixButton("Scan", onClick = ::scan, icon = QeetrixIconName.QrCode)       // core
 QeetrixEmptyState(icon = QeetrixIconName.AlarmClock, title = "No reminders") // extended
@@ -22,6 +22,28 @@ Every component that takes an icon takes either kind: both are `QeetrixIconName`
 `value`s (`"alarm-clock"`) are; match them with `==`, or a `when` with an `else` branch, since the catalogue grows with
 `@qeetrix/icons`. `QeetrixIconName.catalogue` lists the core icons and `QeetrixIconName.extendedCatalogue` the
 extended ones, for an icon picker or a gallery such as the sample's Icons page.
+
+## 🎨 Drawing an icon yourself
+
+`QeetrixIcon` is the composable. To draw an icon inside a `Canvas` or any `DrawScope` — a map's markers, a chart's
+points, a badge on a picture, ordered among the drawing's own layers — take its painter, or its vector:
+
+```kotlin
+val store = rememberQeetrixIconPainter(QeetrixIconName.Store, shape = QeetrixIconShape.Sharp)
+val white = QeetrixTheme.colors.iconOnBrand
+Canvas(Modifier.fillMaxSize()) {
+    drawCircle(dot, radius = 12.dp.toPx(), center = place)
+    translate(place.x - 8.dp.toPx(), place.y - 8.dp.toPx()) {
+        with(store) { draw(Size(16.dp.toPx(), 16.dp.toPx()), colorFilter = ColorFilter.tint(white)) }
+    }
+}
+
+val vector: ImageVector = QeetrixIconName.Send.imageVector(variant = QeetrixIconVariant.Filled) // outside composition
+```
+
+Both draw exactly what `QeetrixIcon` draws for the same name, shape, variant and stroke: the outline where upstream
+draws no filled version, and the mirrored drawing in right to left where the icon points the reading way. Their paths
+are black; tint them with `ColorFilter.tint` as you draw. Core and extended icons alike.
 
 ## 📏 What an app pays
 

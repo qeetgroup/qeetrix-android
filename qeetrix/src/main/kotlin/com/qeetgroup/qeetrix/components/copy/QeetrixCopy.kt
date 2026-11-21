@@ -50,7 +50,6 @@ import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.ZoneContent
 import com.qeetgroup.qeetrix.components.button.buttonMetrics
-import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixAccessibility
 import com.qeetgroup.qeetrix.foundation.haptics.QeetrixHapticRole
 import com.qeetgroup.qeetrix.foundation.haptics.rememberQeetrixHaptics
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
@@ -527,9 +526,9 @@ public fun QeetrixCopyField(
         androidx.compose.foundation.layout.BoxWithConstraints(modifier.fillMaxWidth().padding(vertical = QeetrixSpace.GapSm)) {
             val labelWidth = maxOf(ROW_LABEL_MIN, maxWidth * ROW_LABEL_SHARE)
             Row(horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapMd)) {
-                // align-items: baseline — the label is centred on the value's first 48 dp, beside the Copy button's target.
+                // align-items: baseline — the label is centred on the value's first line, as tall as the Copy button.
                 androidx.compose.foundation.layout.Box(
-                    Modifier.width(labelWidth).heightIn(min = QeetrixAccessibility.MinimumTouchTarget),
+                    Modifier.width(labelWidth).heightIn(min = QeetrixTheme.density.sizeControlMd),
                     contentAlignment = Alignment.CenterStart,
                 ) { labelText(Modifier) }
                 Column(Modifier.weight(1f)) {

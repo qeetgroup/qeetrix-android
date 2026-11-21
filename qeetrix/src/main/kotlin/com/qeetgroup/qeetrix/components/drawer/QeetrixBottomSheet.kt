@@ -1,6 +1,7 @@
 package com.qeetgroup.qeetrix.components.drawer
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -23,6 +25,8 @@ import com.qeetgroup.qeetrix.components.dialog.OverlayClose
 import com.qeetgroup.qeetrix.components.dialog.OverlayFooter
 import com.qeetgroup.qeetrix.components.dialog.OverlayHeader
 import com.qeetgroup.qeetrix.components.separator.QeetrixSeparator
+import com.qeetgroup.qeetrix.foundation.elevation.QeetrixShadow
+import com.qeetgroup.qeetrix.foundation.elevation.qeetrixShadow
 import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
@@ -95,6 +99,12 @@ public enum class QeetrixSheetSize(
  * }
  * ```
  *
+ * - **[picture]** makes a picture-led sheet — an illustration or the faces of people over "Find people you know": the
+ *   picture centred at the top, the title in `title.lg` and the description centred under it, no ruled header and no close button (the
+ *   scrim, Back and a swipe still close it), then the content and the footer as usual.
+ * - **In place**: [QeetrixBottomSheetSurface] draws the same surface inside a screen, for a preview, a screenshot or a
+ *   screen's picture of its open state.
+ *
  * @param title Names the sheet: its heading and its pane title, announced as it opens.
  * @param footerStart A quiet link or a one-line summary at the footer's start, the actions staying at its end;
  *   it takes its own line when there is no room. It inherits `color.text.subtle`; draw text in it at
@@ -112,6 +122,7 @@ public fun QeetrixBottomSheet(
     partiallyExpandable: Boolean = false,
     footerStart: (@Composable () -> Unit)? = null,
     footer: (@Composable () -> Unit)? = null,
+    picture: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     SheetWindow(
@@ -125,7 +136,72 @@ public fun QeetrixBottomSheet(
         modifier = modifier,
     ) { onClose ->
         DragHandle()
-        SheetLayout(title, description, onClose, footerStart, footer, Modifier.weight(1f, fill = false), content = content)
+        SheetLayout(
+            title,
+            description,
+            if (picture != null) null else onClose,
+            footerStart,
+            footer,
+            Modifier.weight(1f, fill = false),
+            picture = picture,
+            content = content,
+        )
+    }
+}
+
+/** 0.3.0's signature without `picture`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun QeetrixBottomSheet(
+    open: Boolean,
+    onOpenChange: (Boolean) -> Unit,
+    title: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    size: QeetrixSheetSize = QeetrixSheetSize.Md,
+    dismissible: Boolean = true,
+    partiallyExpandable: Boolean = false,
+    footerStart: (@Composable () -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
+): Unit =
+    QeetrixBottomSheet(
+        open,
+        onOpenChange,
+        title,
+        modifier,
+        description,
+        size,
+        dismissible,
+        partiallyExpandable,
+        footerStart,
+        footer,
+        picture = null,
+        content = content,
+    )
+
+/**
+ * A bottom sheet's surface drawn in place, without its window — for a preview, a screenshot or a screen that shows its
+ * "sheet open" state as part of itself: the same parts and tokens as [QeetrixBottomSheet] (`color.surface.overlay`
+ * under `shadow.modal`, the handle, the ruled header or the [picture]-led one, the body and the ruled footer) at its
+ * content's height. It doesn't move, scrim the screen or handle Back: draw `QeetrixTheme.colors.overlayScrim` behind it
+ * yourself where the open state needs it. [onClose] draws the close button (never with a [picture]). It is named by
+ * [title], as the sheet's pane.
+ */
+@Composable
+public fun QeetrixBottomSheetSurface(
+    title: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    onClose: (() -> Unit)? = null,
+    footerStart: (@Composable () -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
+    picture: (@Composable () -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(modifier.fillMaxWidth().qeetrixShadow(QeetrixShadow.Modal, RectangleShape, QeetrixTheme.colors.surfaceOverlay)) {
+        DragHandle()
+        SheetLayout(title, description, if (picture != null) null else onClose, footerStart, footer, picture = picture, content = content)
     }
 }
 
@@ -145,6 +221,7 @@ internal fun SheetLayout(
     modifier: Modifier = Modifier,
     handle: Boolean = true,
     bodyPadding: PaddingValues = PaddingValues(QeetrixSpace.InsetXl),
+    picture: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val colors = QeetrixTheme.colors
@@ -152,19 +229,34 @@ internal fun SheetLayout(
     CompositionLocalProvider(LocalQeetrixContentColor provides colors.textDefault) {
         Box(modifier.fillMaxWidth().semantics { paneTitle = title }) {
             Column(if (handle) Modifier.fillMaxWidth() else Modifier.fillMaxSize()) {
-                // .qx-drawer-header: padding space.inset.xl, padding-inline-end 56px beside the close button
-                OverlayHeader(
-                    title,
-                    description,
-                    Modifier.padding(
-                        start = QeetrixSpace.InsetXl,
-                        top = QeetrixSpace.InsetXl - handleRow,
-                        end = if (onClose != null) CloseRoom else QeetrixSpace.InsetXl,
-                        bottom = QeetrixSpace.InsetXl,
-                    ),
-                )
-                // border-block-end: border.width.default solid color.border.subtle
-                QeetrixSeparator()
+                if (picture != null) {
+                    // Picture-led: the picture centred, then the title and description centred under it, space.gap.lg
+                    // apart, with the header's space.inset.xl round them and no rule; the body follows.
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = QeetrixSpace.InsetXl, top = QeetrixSpace.InsetXl - handleRow, end = QeetrixSpace.InsetXl),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapLg),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) { picture() }
+                        OverlayHeader(title, description, centred = true, large = true)
+                    }
+                } else {
+                    // .qx-drawer-header: padding space.inset.xl, padding-inline-end 56px beside the close button
+                    OverlayHeader(
+                        title,
+                        description,
+                        Modifier.padding(
+                            start = QeetrixSpace.InsetXl,
+                            top = QeetrixSpace.InsetXl - handleRow,
+                            end = if (onClose != null) CloseRoom else QeetrixSpace.InsetXl,
+                            bottom = QeetrixSpace.InsetXl,
+                        ),
+                    )
+                    // border-block-end: border.width.default solid color.border.subtle
+                    QeetrixSeparator()
+                }
                 // .qx-drawer-body: flex 1, overflow-y auto, padding space.inset.xl
                 Column(
                     Modifier

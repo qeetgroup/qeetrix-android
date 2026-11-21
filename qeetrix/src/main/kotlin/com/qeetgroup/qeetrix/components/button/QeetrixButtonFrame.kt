@@ -29,13 +29,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.R
-import com.qeetgroup.qeetrix.foundation.accessibility.qeetrixMinimumTouchTarget
 import com.qeetgroup.qeetrix.foundation.motion.QeetrixMotion
 import com.qeetgroup.qeetrix.foundation.motion.qeetrixAnimationSpec
 import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
 import com.qeetgroup.qeetrix.internal.FocusFrame
+import com.qeetgroup.qeetrix.internal.LocalReservesTouchArea
 import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
+import com.qeetgroup.qeetrix.internal.reservedTouchArea
 import com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
@@ -162,8 +163,10 @@ internal fun buttonColors(
  * disabled colours and stays focusable, so the reason it is disabled can be read; loading keeps its
  * colours, ignores activation, keeps focus and reports a busy state.
  *
- * The drawn control keeps the web's size; [qeetrixMinimumTouchTarget] reserves a 48 × 48 dp touch area
- * around it, as Android requires.
+ * It is laid out at the web's size, so it sits where the web puts it, and takes a tap anywhere within 48 × 48 dp round
+ * the drawing through Compose's touch-target expansion (Android's minimum, which accessibility services read as its
+ * bounds too). Where Qeetrix puts buttons edge to edge ([LocalReservesTouchArea]) it keeps the 48 dp in the layout
+ * instead.
  */
 @Composable
 internal fun ButtonFrame(
@@ -208,7 +211,7 @@ internal fun ButtonFrame(
                 .semantics {
                     semantics()
                     if (loading) stateDescription = busy
-                }.qeetrixMinimumTouchTarget()
+                }.reservedTouchArea()
                 .qeetrixFocusFrame(source, shape, FocusFrame.InsideWithGap)
                 .background(background, shape)
                 .then(

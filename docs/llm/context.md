@@ -6,7 +6,7 @@
 ## Identity
 
 `com.qeetgroup:qeetrix` — Qeet Group's design system for Jetpack Compose: the Qeetrix tokens, light and dark themes,
-fonts, icons and 66 components, as native Android. Kotlin 2.4.21, Compose BOM 2026.09.00, AGP 9.5.0, Gradle 9.8.2,
+fonts, icons and 67 components, as native Android. Kotlin 2.4.21, Compose BOM 2026.09.00, AGP 9.5.0, Gradle 9.8.2,
 minimum SDK 29, compile SDK 37. MIT-licensed. Published to **GitHub Packages**.
 
 **Status:** `0.1.0` released on 4 November 2026, to GitHub Packages (tag `v0.1.0`).
@@ -32,7 +32,7 @@ qeet-context (L0)  →  Qeetrix design system  →  @qeetrix/tokens · @qeetrix/
 
 ## Key numbers
 
-66 components · 109 colour roles · 18 text roles · 1,863 icons (100 core, 1,763 in qeetrix-icons-extended) · 94.0 % line coverage (CI minimum 92 %) · 263 screenshots.
+67 components · 109 colour roles · 18 text roles · 1,863 icons (100 core, 1,763 in qeetrix-icons-extended) · 94.0 % line coverage (CI minimum 92 %) · 263 screenshots.
 
 ## Where to read next
 

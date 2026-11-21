@@ -23,7 +23,7 @@ flowchart LR
 |:--|:--|:--|
 | 🧪 **Behaviour and semantics** | `./gradlew check` (Robolectric, Compose UI Test) | Each component's states, and the names, roles, states and actions TalkBack reads |
 | 🌗 **Contrast** | `ComponentContrastTest` | Every colour pair a component draws meets WCAG, in light and dark |
-| 👉 **Touch targets** | The quality scans | Every control has 48 dp to tap. Five small-by-design controls take a tap outside their drawing (`TouchLandingTest`). |
+| 👉 **Touch targets** | The quality scans | Every control has 48 dp to tap: its laid-out bounds, grown to 48 dp by Compose's touch-target expansion where it is drawn smaller, and not cut under 48 dp by a clipping ancestor or the window's edge. Neighbours' areas may overlap at the web's spacing; Compose sends a tap there to the nearer one. Where a tap lands near each small control is tested (`TouchLandingTest`). |
 | 🔠 **Text clipping** | `LayoutQualityTest` | No text is cut at 200 % text or in right to left |
 | 🎞️ **Reduced motion** | The quality scans | Nothing moves when Remove animations is on |
 | ♿ **Accessibility Test Framework** | Device tests on API 36 | Google's accessibility checks pass on every component, in light and dark |

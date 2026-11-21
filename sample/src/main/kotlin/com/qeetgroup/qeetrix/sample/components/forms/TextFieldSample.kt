@@ -18,6 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.input.QeetrixTextField
+import com.qeetgroup.qeetrix.components.input.QeetrixTextFieldSize
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SampleNote
@@ -87,6 +88,23 @@ fun TextFieldSample() {
                 onKeyboardAction = { submitted = amount.text.toString() },
             )
             SampleNote(if (submitted.isEmpty()) "Press the keyboard's done key." else "Entered ₹$submitted.")
+        }
+        SampleSection("One value, large") {
+            val phone = rememberTextFieldState()
+            QeetrixTextField(
+                phone,
+                label = "Phone number",
+                placeholder = "10-digit number",
+                description = "We'll send a code to it.",
+                startAdornment = { QeetrixText("🇮🇳 +91") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                contentType = ContentType.PhoneNumber,
+                size = QeetrixTextFieldSize.Lg,
+            )
+            SampleNote(
+                "For the one value a sign-up step asks for: 16 dp taller, the value at title.lg's size in regular weight " +
+                    "with tabular figures. Sign-in's email and password stay at the default size.",
+            )
         }
         SampleSection("Read-only and disabled") {
             QeetrixTextField(rememberTextFieldState("QX-2041"), label = "Order number", readOnly = true)

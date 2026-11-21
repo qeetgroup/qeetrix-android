@@ -1,15 +1,18 @@
 package com.qeetgroup.qeetrix.sample.components.actions
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonTone
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
+import com.qeetgroup.qeetrix.foundation.accessibility.qeetrixMinimumTouchTarget
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.sample.SampleFlow
 import com.qeetgroup.qeetrix.sample.SampleNote
@@ -38,18 +41,18 @@ fun IconButtonSample() {
             SampleNote("Ghost is the default; a solid or soft icon button counts towards the region's one solid and one soft.")
         }
         SampleSection("A toolbar") {
-            SampleFlow {
-                QeetrixIconButton(QeetrixIconName.Search, contentDescription = "Search", onClick = {}, tone = QeetrixButtonTone.Neutral)
-                QeetrixIconButton(QeetrixIconName.RefreshCw, contentDescription = "Refresh", onClick = {}, tone = QeetrixButtonTone.Neutral)
-                QeetrixIconButton(QeetrixIconName.Settings, contentDescription = "Settings", onClick = {}, tone = QeetrixButtonTone.Neutral)
-                QeetrixIconButton(
-                    QeetrixIconName.Trash,
-                    contentDescription = "Delete invoice",
-                    onClick = {},
-                    tone = QeetrixButtonTone.Danger,
-                )
+            // Edge to edge, each keeps its 48 dp touch area in the layout, as the top app bar's icons do.
+            val slot = Modifier.qeetrixMinimumTouchTarget()
+            Row {
+                QeetrixIconButton(QeetrixIconName.Search, "Search", onClick = {}, modifier = slot, tone = QeetrixButtonTone.Neutral)
+                QeetrixIconButton(QeetrixIconName.RefreshCw, "Refresh", onClick = {}, modifier = slot, tone = QeetrixButtonTone.Neutral)
+                QeetrixIconButton(QeetrixIconName.Settings, "Settings", onClick = {}, modifier = slot, tone = QeetrixButtonTone.Neutral)
+                QeetrixIconButton(QeetrixIconName.Trash, "Delete invoice", onClick = {}, modifier = slot, tone = QeetrixButtonTone.Danger)
             }
-            SampleNote("Utility actions take the neutral tone, so their icons stay neutral; Ember is kept for meaning.")
+            SampleNote(
+                "Utility actions take the neutral tone, so their icons stay neutral; Ember is kept for meaning. Side by side, " +
+                    "each reserves its 48 dp with Modifier.qeetrixMinimumTouchTarget(), so no two share a tap.",
+            )
         }
         SampleSection("Sizes") {
             SampleFlow {
@@ -63,7 +66,10 @@ fun IconButtonSample() {
                     )
                 }
             }
-            SampleNote("A square of the control height: size.control.sm, md and lg. Each keeps a 48 × 48 dp touch area.")
+            SampleNote(
+                "A square of the control height: size.control.sm, md and lg, laid out at that size. Each takes a tap within " +
+                    "48 × 48 dp round it, so icon buttons side by side sit 48 dp apart, centre to centre, or share the taps.",
+            )
         }
         SampleSection("States") {
             var muted by remember { mutableStateOf(false) }

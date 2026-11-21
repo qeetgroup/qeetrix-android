@@ -30,7 +30,6 @@ import com.qeetgroup.qeetrix.components.input.ChoiceKind
 import com.qeetgroup.qeetrix.components.input.ChoiceRow
 import com.qeetgroup.qeetrix.components.input.LocalFieldGroup
 import com.qeetgroup.qeetrix.components.input.selectionControlEdge
-import com.qeetgroup.qeetrix.foundation.accessibility.qeetrixMinimumTouchTarget
 import com.qeetgroup.qeetrix.foundation.color.QeetrixColors
 import com.qeetgroup.qeetrix.foundation.haptics.QeetrixHapticRole
 import com.qeetgroup.qeetrix.foundation.haptics.QeetrixHaptics
@@ -42,6 +41,7 @@ import com.qeetgroup.qeetrix.foundation.shape.QeetrixShapes
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
 import com.qeetgroup.qeetrix.internal.FocusFrame
 import com.qeetgroup.qeetrix.internal.qeetrixFocusFrame
+import com.qeetgroup.qeetrix.internal.reservedTouchArea
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 
 /**
@@ -100,8 +100,12 @@ public fun QeetrixSwitch(
 
 /**
  * A switch with no visible label — react's Switch with an `aria-label`. Give it a name: put it in a row that is
- * itself `toggleable`, or set a `contentDescription` on [modifier]. The drawn track keeps its 32 × 18 dp; a
- * 48 × 48 dp touch area is reserved around it.
+ * itself `toggleable`, or set a `contentDescription` on [modifier].
+ *
+ * It is laid out at its track's 32 × 18 dp, as on the web, so at the end of a settings row it sits where the web
+ * draws it and adds no height to a one-line row. A tap anywhere within 48 × 48 dp round the track still toggles it,
+ * through Compose's touch-target expansion, which accessibility services also read as its bounds; where another control
+ * sits closer, the two areas overlap and Compose sends a tap there to the nearer one.
  */
 @Composable
 public fun QeetrixSwitch(
@@ -121,7 +125,7 @@ public fun QeetrixSwitch(
     Box(
         modifier
             .switchToggle(checked, onCheckedChange.takeIf { interactive }?.felt(haptics), active, source, group.error)
-            .qeetrixMinimumTouchTarget(),
+            .reservedTouchArea(),
         contentAlignment = Alignment.Center,
     ) {
         SwitchTrack(checked, active, interactive, invalid || group.invalid, source)

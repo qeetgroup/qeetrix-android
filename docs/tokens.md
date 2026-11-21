@@ -217,6 +217,18 @@ every value, with the DTCG token it came from, is in [token-values.json](token-v
 | `size.row` | `QeetrixTheme.density.sizeRow (QeetrixDensity)` |
 | `space.form.gap` | `QeetrixTheme.density.spaceFormGap (QeetrixDensity)` |
 
+## Colour resources
+
+The roles an app's XML themes need before Compose draws — `android:windowBackground`, the splash screen's `windowSplashScreenBackground` — are also Android colour resources, light in `values` and dark in `values-night`, from the same tokens. Everything else is drawn in Compose.
+
+| Token | Resource | Light | Dark |
+|:--|:--|:--|:--|
+| `color.surface.canvas` | `@color/qx_surface_canvas` | `#FBFAF9` | `#0E0D0D` |
+| `color.surface.default` | `@color/qx_surface_default` | `#FFFFFF` | `#131312` |
+| `color.surface.raised` | `@color/qx_surface_raised` | `#FFFFFF` | `#191818` |
+| `color.text.default` | `@color/qx_text_default` | `#0E0D0D` | `#F3F1EF` |
+| `color.bg.brand.bold` | `@color/qx_bg_brand_bold` | `#D04800` | `#D04800` |
+
 ## Not generated
 
 | Reason | Tokens | Examples |

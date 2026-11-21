@@ -1,8 +1,11 @@
 package com.qeetgroup.qeetrix.quality
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -12,6 +15,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.toRect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.SemanticsActions
@@ -27,6 +35,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
+import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixAccessibility
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -59,29 +69,69 @@ class LayoutQualityTest {
         }
 
     /**
-     * Every control reserves a 48 × 48 dp touch area in layout (ADR 0010) — measured on the node's laid-out size,
-     * not on Compose's hit-test expansion, which a neighbouring control hit first can take away, nor on its bounds in
-     * the window, which a scrolling list cuts down to what shows. The controls drawn smaller inside another control are
-     * listed in [SmallByDesign], each with its own test of where a touch lands (`TouchLandingTest`); the ones that are
-     * findings, in [SmallFindings].
+     * Every control has a 48 × 48 dp touch area (ADR 0010): the area Compose sends its taps to — its laid-out bounds,
+     * grown to 48 dp each way by touch-target expansion where it is drawn smaller, cut by any clipping ancestor and by the
+     * window's edge. A control whose area is cut under 48 dp, or
+     * falls off the window, is reported. Neighbours' areas may overlap (Compose sends a tap there to the nearer one), so
+     * overlap is not checked. A control a scrolling list has partly scrolled away is not measured. The ones that are by
+     * design are listed in [SmallByDesign], each with its own test of where a touch lands (`TouchLandingTest`); the
+     * ones that are findings, in [SmallFindings].
      */
     @Test
-    fun everyControlReservesA48DpTouchArea() {
+    fun everyControlHasA48DpTouchArea() {
         var specimen by mutableStateOf(QualityCatalog.first())
         compose.setContent { QeetrixTheme { Box(Modifier.padding(16.dp)) { specimen.content() } } }
         val small = mutableListOf<String>()
         for (each in QualityCatalog + LocalizedCatalog + OverlayCatalog) {
             compose.runOnIdle { specimen = each }
             compose.waitForIdle()
-            for (node in compose.onAllNodes(actionable).fetchSemanticsNodes()) {
-                val (width, height) = with(compose.density) { node.size.width.toDp() to node.size.height.toDp() }
-                if (width < 47.5.dp || height < 47.5.dp) {
-                    small += "${each.name}: ${node.describe()}"
-                    println("TOUCH ${each.name}: ${node.describe()} is $width × $height")
-                }
+            for ((node, area) in smallTouchAreas(compose.onAllNodes(actionable).fetchSemanticsNodes())) {
+                small += "${each.name}: ${node.describe()}"
+                println("TOUCH ${each.name}: ${node.describe()} has ${area.width} × ${area.height} px to tap")
             }
         }
         assertEquals((SmallByDesign + SmallFindings.keys).sorted(), small.distinct().sorted())
+    }
+
+    /**
+     * The controls among [nodes] whose touch area is under 48 dp in either direction, with that area: the laid-out
+     * bounds grown to 48 dp each way, centred, as Compose's touch-target expansion grows them, then cut by the window and
+     * by every ancestor that clips its content and is itself at least 48 dp each way (a clip Compose's hit test doesn't
+     * reach past; a smaller one it does). Controls partly scrolled out of view are left out.
+     */
+    private fun smallTouchAreas(nodes: List<SemanticsNode>): List<Pair<SemanticsNode, Rect>> {
+        val target = with(compose.density) { QeetrixAccessibility.MinimumTouchTarget.toPx() }
+        val minimum = with(compose.density) { (QeetrixAccessibility.MinimumTouchTarget - 0.5.dp).toPx() }
+        return nodes.mapNotNull { node ->
+            val laidOut = Rect(node.positionInRoot, node.size.toSize())
+            val shown = node.boundsInRoot
+            // Partly scrolled away by a list: its area is the list's business, not the control's.
+            if (shown.width < laidOut.width - 1f || shown.height < laidOut.height - 1f) return@mapNotNull null
+            val grow = { length: Float -> ((target - length) / 2).coerceAtLeast(0f) }
+            var area =
+                Rect(
+                    laidOut.left - grow(laidOut.width),
+                    laidOut.top - grow(laidOut.height),
+                    laidOut.right + grow(laidOut.width),
+                    laidOut.bottom + grow(laidOut.height),
+                ).intersect(
+                    node.layoutInfo.coordinates
+                        .findRootCoordinates()
+                        .size
+                        .toSize()
+                        .toRect(),
+                )
+            var ancestor = node.layoutInfo.parentInfo
+            while (ancestor != null) {
+                for (info in ancestor.getModifierInfo()) {
+                    val clips = "clip=true" in info.modifier.toString()
+                    val big = info.coordinates.size.width >= target && info.coordinates.size.height >= target
+                    if (clips && big) area = area.intersect(info.coordinates.boundsInRoot())
+                }
+                ancestor = ancestor.parentInfo
+            }
+            if (area.width >= minimum && area.height >= minimum) null else node to area
+        }
     }
 
     @Test
@@ -160,6 +210,31 @@ class LayoutQualityTest {
         assertEquals(found.joinToString("\n"), 2, found.size)
     }
 
+    /**
+     * The touch scan catches a 24 dp control at the window's corner, whose 48 dp area falls off the window, and one at a
+     * clipping box's corner, whose area the box cuts; it passes two 24 dp controls 8 dp apart, whose areas overlap but
+     * are each 48 dp.
+     */
+    @Test
+    fun theTouchScanCatchesCutAreasButNotOverlap() {
+        compose.setContent {
+            QeetrixTheme {
+                Box(Modifier.size(360.dp, 600.dp)) {
+                    Box(Modifier.size(24.dp).clickable {}.semantics { contentDescription = "Corner" })
+                    Box(Modifier.offset(100.dp, 100.dp).size(200.dp, 100.dp).clipToBounds()) {
+                        Box(Modifier.size(24.dp).clickable {}.semantics { contentDescription = "Clipped" })
+                    }
+                    Row(Modifier.offset(100.dp, 300.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Box(Modifier.size(24.dp).clickable {}.semantics { contentDescription = "First" })
+                        Box(Modifier.size(24.dp).clickable {}.semantics { contentDescription = "Second" })
+                    }
+                }
+            }
+        }
+        val found = smallTouchAreas(compose.onAllNodes(actionable).fetchSemanticsNodes()).map { it.first.describe() }
+        assertEquals(listOf("Corner", "Clipped"), found)
+    }
+
     /** The recorded clipping findings the scans have come across. */
     private val findingsSeen = mutableSetOf<String>()
 
@@ -212,39 +287,12 @@ class LayoutQualityTest {
 private val CompactWidth = 328.dp
 
 /**
- * Controls drawn smaller than 48 dp inside or beside another control, at the web's size, which take touches within
- * 48 dp through Compose's hit-test expansion — each proven by `TouchLandingTest`: the tools inside a field (28 dp),
- * a number field's steppers (28 × 40 dp), a chip's remove button (28 dp), tabs, drawn `size.control.lg` tall in a
- * 48 dp band, and links in text, a line tall so the sentence keeps its spacing.
+ * Controls whose touch area is cut under 48 dp by design, each with a test of where a tap beside it lands
+ * (`TouchLandingTest`). None: every control laid out under 48 dp — a field's tools, a number field's steppers, a chip's
+ * remove button, tabs in their band, links in text, buttons, icon buttons, the bare switch, checkbox and slider — takes
+ * a whole 48 dp area through touch-target expansion, overlapping a neighbour's where they sit closer than that.
  */
-private val SmallByDesign: List<String> =
-    listOf(
-        "chip: Button / Remove Owner: Ada",
-        "number-field: Button / Decrease",
-        "number-field: Button / Increase",
-        "password-input: Button / Show password",
-        "search-field: Button / Clear search",
-        "text-field: Button / About Amount",
-        "field: Button / About Notifications",
-        "tabs: Tab / Overview",
-        "tabs: Tab / Activity, 12",
-        "tabs: Tab / Failures, 3",
-        "tabs: Tab / Section 1",
-        "tabs: Tab / Section 2",
-        "tabs: Tab / Section 3",
-        "tabs: Tab / Section 4",
-        "tabs: Tab / Section 5",
-        "tabs: Tab / Section 6",
-        "tabs: Tab / Section 7",
-        "arabic: Tab / النشاط",
-        "arabic: Tab / نظرة عامة",
-        "pseudo-expanded: Tab / [Åçtîvîtý on]",
-        "pseudo-expanded: Tab / [Övérvîéw on]",
-        "top-app-bar-large: Tab / All",
-        "top-app-bar-large: Tab / Invited",
-        "text: Link in Using Qeet ID? Link this phone",
-        "text: Link in Forgot your password?",
-    )
+private val SmallByDesign: List<String> = emptyList()
 
 /**
  * Controls under 48 dp that are recorded findings, not by design, each excluded here by name until the component

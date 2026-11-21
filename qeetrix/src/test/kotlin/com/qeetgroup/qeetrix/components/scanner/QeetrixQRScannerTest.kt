@@ -156,11 +156,12 @@ class QeetrixQRScannerTest {
         }
         val fallback = compose.onNodeWithText("Type the key instead").getBoundsInRoot()
         val torch = compose.onNodeWithContentDescription("Turn on the torch").getBoundsInRoot()
-        // One row, inside the controls' inset.lg (16 dp) padding, gap.sm (8 dp) apart.
+        // One row, inside the controls' inset.lg (16 dp) padding, gap.sm (8 dp) apart; the torch laid out at its drawn
+        // size.control.md square.
         assertEquals(fallback.top, torch.top)
         assertEquals(16.dp, fallback.left)
         assertEquals(320.dp - 16.dp, torch.right)
-        assertEquals(48.dp, torch.right - torch.left)
+        assertEquals(32.dp, torch.right - torch.left)
         assertEquals(torch.left - 8.dp, fallback.right)
     }
 

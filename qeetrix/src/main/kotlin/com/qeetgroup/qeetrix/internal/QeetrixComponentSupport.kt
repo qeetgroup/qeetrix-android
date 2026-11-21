@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import com.qeetgroup.qeetrix.foundation.accessibility.QeetrixFocus
+import com.qeetgroup.qeetrix.foundation.accessibility.qeetrixMinimumTouchTarget
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import com.qeetgroup.qeetrix.tokens.generated.QeetrixTypographyTokens
@@ -37,6 +39,19 @@ internal object QeetrixTextWeight {
     val Medium: FontWeight = FontWeight(QeetrixTypographyTokens.LabelMd.weight)
     val Semibold: FontWeight = FontWeight(QeetrixTypographyTokens.TitleMd.weight)
 }
+
+/**
+ * Whether buttons, icon buttons, the bare switch and the bare checkbox keep their 48 dp touch area in the layout here
+ * ([qeetrixMinimumTouchTarget]) instead of being laid out at their drawn size, with Compose's touch-target expansion
+ * taking the taps round them. True only where Qeetrix puts controls edge to edge, so that expanded areas would meet and
+ * share their taps: the top app bar's navigation icon and actions, and the full-screen form's bar.
+ */
+internal val LocalReservesTouchArea = staticCompositionLocalOf { false }
+
+/** [qeetrixMinimumTouchTarget] where [LocalReservesTouchArea] asks for it; otherwise nothing. */
+@Composable
+@ReadOnlyComposable
+internal fun Modifier.reservedTouchArea(): Modifier = if (LocalReservesTouchArea.current) qeetrixMinimumTouchTarget() else this
 
 /** Whether the window is at least [breakpoint] wide — the web's `@media (--qx-viewport-*)`, in dp. */
 @Composable

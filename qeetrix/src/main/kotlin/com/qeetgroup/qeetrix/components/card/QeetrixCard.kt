@@ -159,9 +159,9 @@ private fun CardSurface(
  * (`space.inset.lg`) and `space.gap.md` between. Its 1 dp `color.border.default` rule is drawn by the body
  * ([CardBody]), so it is there only when a body with content follows.
  *
- * The actions are centred on the title's first line and may reach 12 dp into the padding above and below
- * without growing the header: the web's `margin-block: -4px`, plus the 8 dp of the 48 dp touch area Android
- * reserves round a 32 dp control. So a `md` button sits as it does on the web, beside a one-line title.
+ * The actions are centred on the title's first line and may reach 4 dp into the padding above and below without
+ * growing the header (the web's `margin-block: -4px`), so a `md` button sits as it does on the web, beside a one-line
+ * title.
  */
 @Composable
 private fun CardHeader(
@@ -224,11 +224,8 @@ private fun CardHeader(
     }
 }
 
-/** What a 48 dp touch area adds on each side of a 32 dp (`md`) control. */
-private val TOUCH_SLACK = 8.dp
-
-/** `.qx-card-actions margin-block: -4px`, plus the 8 dp a 48 dp touch area adds round a 32 dp control. */
-private val ACTIONS_BLEED = 4.dp + TOUCH_SLACK
+/** `.qx-card-actions margin-block: -4px`. */
+private val ACTIONS_BLEED = 4.dp
 
 /**
  * `.qx-card-body`: `space.inset.lg` round its children, stacked as blocks. A child that marks itself with
@@ -298,9 +295,8 @@ private fun CardBody(
 }
 
 /**
- * `.qx-card-footer`: end-aligned, wrapping actions `space.gap.sm` apart, on `space.inset.lg` under a 1 dp rule. Its
- * buttons reserve 48 dp touch areas, 8 dp more than a `md` button's drawn 32 dp on each side, so the footer pads
- * those 8 dp less above and below: the drawn buttons sit 16 dp from the rule and the edge, as on the web.
+ * `.qx-card-footer`: end-aligned, wrapping actions `space.gap.sm` apart, on `space.inset.lg` under a 1 dp rule, so the
+ * drawn buttons sit 16 dp from the rule and the edge, as on the web.
  */
 @Composable
 private fun CardFooter(footer: @Composable () -> Unit) {
@@ -314,8 +310,8 @@ private fun CardFooter(footer: @Composable () -> Unit) {
             }.padding(
                 start = QeetrixSpace.InsetLg,
                 end = QeetrixSpace.InsetLg,
-                top = QeetrixSpace.InsetLg - TOUCH_SLACK + QeetrixBorder.WidthDefault,
-                bottom = QeetrixSpace.InsetLg - TOUCH_SLACK,
+                top = QeetrixSpace.InsetLg + QeetrixBorder.WidthDefault,
+                bottom = QeetrixSpace.InsetLg,
             ),
         content = footer,
     )

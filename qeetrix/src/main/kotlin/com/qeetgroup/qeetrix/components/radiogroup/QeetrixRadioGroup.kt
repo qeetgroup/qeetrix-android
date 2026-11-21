@@ -50,7 +50,17 @@ import com.qeetgroup.qeetrix.theme.QeetrixTheme
  *   their own; an option with `enabled = false` cannot be chosen; [readOnly] shows the choice without changing it.
  * - **Layout.** Options stack ([QeetrixChoiceOrientation.Vertical], each row a 48 dp target) or wrap in a row 16 dp
  *   apart ([QeetrixChoiceOrientation.Horizontal]). [QeetrixChoiceVariant.Tile] draws tiles — icon, title, description,
- *   the radio at the end — up to [columns] across where tiles of 192 dp fit (07-components.md, Choice tiles).
+ *   the radio at the end — up to [columns] across, as many as fit tiles of 192 dp, or of 128 dp when the options are
+ *   short choices on their own with no icon or description (a language, a size), so `columns = 2` keeps two a row on a
+ *   phone (07-components.md, Choice tiles). Tiles in a row share its width equally and are as tall as the tallest.
+ * - **[hideLabel]** leaves the question undrawn — react's label in a VisuallyHidden — for a group right under a screen
+ *   heading that already asks it: the options (and the description or error) alone, in every orientation and
+ *   variant. The [label] still names the group and is read as its heading, before the options.
+ * - **[optionLabel]** draws each option's title — react's Radio with a node for its `label`: a language in its own
+ *   script at a larger size, a picture beside the title, a badge after it — in the row's or the tile's place for the
+ *   title, the radio on its first line and the description under it, in the label's colour
+ *   ([com.qeetgroup.qeetrix.theme.LocalQeetrixContentColor]). Accessibility services still read the option's plain
+ *   `label`, so write the whole name there ("My contacts, recommended").
  * - **Accessibility.** A selectable group under its question (a heading); each option is a radio button read
  *   with its description and "selected" or "not selected". The [description] or the [error] follows the options;
  *   the error is carried by every option, so it is heard on whichever is focused. A [required] group says so.
@@ -78,6 +88,8 @@ public fun <T> QeetrixRadioGroup(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     required: Boolean = false,
+    hideLabel: Boolean = false,
+    optionLabel: (@Composable (option: QeetrixOption<T>) -> Unit)? = null,
 ) {
     requireDistinctValues(options)
     ChoiceGroup(
@@ -91,6 +103,8 @@ public fun <T> QeetrixRadioGroup(
         columns = columns,
         selectable = true,
         modifier = modifier,
+        hideLabel = hideLabel,
+        richTiles = options.any { it.icon != null || it.description != null },
     ) {
         val group = LocalFieldGroup.current
         val stretch = variant == QeetrixChoiceVariant.Default && orientation == QeetrixChoiceOrientation.Vertical
@@ -107,6 +121,7 @@ public fun <T> QeetrixRadioGroup(
                     enabled = active,
                     chosen = selected,
                     source = source,
+                    labelContent = optionLabel?.let { draw -> { draw(option) } },
                     modifier =
                         Modifier
                             .then(if (stretch) Modifier.fillMaxWidth() else Modifier)
@@ -125,6 +140,41 @@ public fun <T> QeetrixRadioGroup(
         }
     }
 }
+
+/** 0.3.0's signature without `hideLabel`, kept so apps compiled against it still link. */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun <T> QeetrixRadioGroup(
+    value: T,
+    onValueChange: (T) -> Unit,
+    options: List<QeetrixOption<T>>,
+    label: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    error: String? = null,
+    orientation: QeetrixChoiceOrientation = QeetrixChoiceOrientation.Vertical,
+    variant: QeetrixChoiceVariant = QeetrixChoiceVariant.Default,
+    columns: Int = 1,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    required: Boolean = false,
+): Unit =
+    QeetrixRadioGroup(
+        value,
+        onValueChange,
+        options,
+        label,
+        modifier,
+        description,
+        error,
+        orientation,
+        variant,
+        columns,
+        enabled,
+        readOnly,
+        required,
+        hideLabel = false,
+    )
 
 /**
  * The circle (radio.css `.qx-radio`, in its cascade order): a 1 dp `color.border.strong` edge on `color.bg.input`;

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,7 @@ import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.foundation.typography.QeetrixTextRole
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.internal.LocalReservesTouchArea
 import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import kotlin.math.roundToInt
@@ -63,6 +65,8 @@ import kotlin.math.roundToInt
  *   phone's 16 dp gutter (`space.inset.lg`). At least `size.control.lg` + 16 dp tall (56 dp at the default density),
  *   growing with the text size; the title and description keep to one line each and end in an ellipsis, and
  *   accessibility services read them in full.
+ * - **Touch.** Its navigation icon and actions sit edge to edge, so each keeps a 48 × 48 dp touch area in the bar's
+ *   layout, as Android's app bars do; elsewhere a Qeetrix button is laid out at its drawn size.
  * - **Presentation only.** The bar draws what it is given; it keeps no navigation state and adds no back button by
  *   itself. System Back keeps working whether or not it shows one — the app's navigation handles it.
  * - **Edge to edge.** [windowInsets] (by default the top and horizontal safe-drawing insets) keeps the content clear
@@ -125,58 +129,61 @@ public fun QeetrixTopAppBar(
             }.windowInsetsPadding(windowInsets)
             .padding(bottom = QeetrixBorder.WidthDefault),
     ) {
-        Row(
-            Modifier
-                // .qx-top-bar block-size: calc(size.control.lg + 16px), the app chrome's height
-                .heightIn(min = QeetrixTheme.density.sizeControlLg + BAR_EXTRA)
-                .padding(
-                    // --qx-page-gutter below 840 px: space.inset.lg; beside a 48 dp button, the 8 dp of its touch area
-                    // round a 32 dp square already stand in for most of it.
-                    start = if (navigationIcon != null) QeetrixSpace.InsetXs else QeetrixSpace.InsetLg,
-                    end = if (actions != null) QeetrixSpace.InsetXs else QeetrixSpace.InsetLg,
-                ),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            navigationIcon?.invoke()
-            // .qx-page-header-titles: a column, space.gap.xs apart; one heading with its description. With a large
-            // title, the bar's own title fades in as the large one collapses.
-            Column(
+        // The icons sit edge to edge, so each keeps its 48 dp touch area in the layout and none shares its taps.
+        CompositionLocalProvider(LocalReservesTouchArea provides true) {
+            Row(
                 Modifier
-                    .weight(1f)
-                    .padding(start = if (navigationIcon != null) QeetrixSpace.InsetXs else 0.dp, end = QeetrixSpace.InsetXs)
-                    .padding(vertical = QeetrixSpace.GapSm)
-                    .graphicsLayer { alpha = if (large) ((collapsed - 0.5f) * 2f).coerceIn(0f, 1f) else 1f }
-                    .then(
-                        if (large &&
-                            collapsed < 0.5f
-                        ) {
-                            Modifier.clearAndSetSemantics {}
-                        } else {
-                            // Without a title the caption is read as text, not as the screen's heading.
-                            Modifier.semantics(mergeDescendants = true) { if (title != null) heading() }
-                        },
+                    // .qx-top-bar block-size: calc(size.control.lg + 16px), the app chrome's height
+                    .heightIn(min = QeetrixTheme.density.sizeControlLg + BAR_EXTRA)
+                    .padding(
+                        // --qx-page-gutter below 840 px: space.inset.lg; beside a 48 dp button, the 8 dp of its touch area
+                        // round a 32 dp square already stand in for most of it.
+                        start = if (navigationIcon != null) QeetrixSpace.InsetXs else QeetrixSpace.InsetLg,
+                        end = if (actions != null) QeetrixSpace.InsetXs else QeetrixSpace.InsetLg,
                     ),
-                verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (title != null) TitleRow(title, counted, status, typography.titleLg)
-                if (description != null && !large) {
-                    BasicText(
-                        description,
-                        // .qx-page-header-description; without a title, a caption in body.sm
-                        style =
-                            (if (title == null) typography.bodySm else typography.bodyMd)
-                                .copy(color = colors.textSubtle)
-                                .labelDirection(alignToLayout = true),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                navigationIcon?.invoke()
+                // .qx-page-header-titles: a column, space.gap.xs apart; one heading with its description. With a large
+                // title, the bar's own title fades in as the large one collapses.
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .padding(start = if (navigationIcon != null) QeetrixSpace.InsetXs else 0.dp, end = QeetrixSpace.InsetXs)
+                        .padding(vertical = QeetrixSpace.GapSm)
+                        .graphicsLayer { alpha = if (large) ((collapsed - 0.5f) * 2f).coerceIn(0f, 1f) else 1f }
+                        .then(
+                            if (large &&
+                                collapsed < 0.5f
+                            ) {
+                                Modifier.clearAndSetSemantics {}
+                            } else {
+                                // Without a title the caption is read as text, not as the screen's heading.
+                                Modifier.semantics(mergeDescendants = true) { if (title != null) heading() }
+                            },
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs),
+                ) {
+                    if (title != null) TitleRow(title, counted, status, typography.titleLg)
+                    if (description != null && !large) {
+                        BasicText(
+                            description,
+                            // .qx-page-header-description; without a title, a caption in body.sm
+                            style =
+                                (if (title == null) typography.bodySm else typography.bodyMd)
+                                    .copy(color = colors.textSubtle)
+                                    .labelDirection(alignToLayout = true),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
-            }
-            // .qx-page-header-actions: centred; their 48 dp touch areas space the buttons.
-            if (actions !=
-                null
-            ) {
-                Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically, content = actions)
+                // .qx-page-header-actions: centred; their 48 dp touch areas space the buttons.
+                if (actions !=
+                    null
+                ) {
+                    Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically, content = actions)
+                }
             }
         }
         if (large) {

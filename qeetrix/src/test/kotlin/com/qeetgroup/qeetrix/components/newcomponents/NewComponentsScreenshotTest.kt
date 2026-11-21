@@ -52,6 +52,10 @@ class NewComponentsScreenshotTest {
 
     @Test fun slider() = capture("slider")
 
+    @Test fun sliderBare() = capture("slider-bare")
+
+    @Test fun pictureChoice() = capture("picture-choice")
+
     @Test fun dateField() = capture("date-field")
 
     @Test fun fileUpload() = capture("file-upload")

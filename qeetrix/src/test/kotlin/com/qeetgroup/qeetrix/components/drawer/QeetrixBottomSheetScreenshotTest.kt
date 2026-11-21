@@ -3,9 +3,14 @@ package com.qeetgroup.qeetrix.components.drawer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatar
+import com.qeetgroup.qeetrix.components.avatar.QeetrixAvatarSize
 import com.qeetgroup.qeetrix.components.button.QeetrixButton
 import com.qeetgroup.qeetrix.components.button.QeetrixButtonVariant
 import com.qeetgroup.qeetrix.components.dropdownmenu.QeetrixMenuItemTone
@@ -15,7 +20,9 @@ import com.qeetgroup.qeetrix.components.typography.QeetrixTextTone
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.screenshot.SCREENSHOT_QUALIFIERS
+import com.qeetgroup.qeetrix.screenshot.ScreenshotConfig
 import com.qeetgroup.qeetrix.screenshot.ScreenshotStack
+import com.qeetgroup.qeetrix.screenshot.captureQeetrix
 import com.qeetgroup.qeetrix.screenshot.captureStates
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.junit.Test
@@ -33,6 +40,33 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = SCREENSHOT_QUALIFIERS)
 class QeetrixBottomSheetScreenshotTest {
+    /**
+     * `picture_<config>.png`: a picture-led sheet drawn in place by the public [QeetrixBottomSheetSurface] — three
+     * people's faces centred over "Find people you know", the description centred, no rule or close button, then the
+     * content and the ruled footer.
+     */
+    @Test
+    fun picture() {
+        for (config in ScreenshotConfig.entries) {
+            captureQeetrix("bottomsheet", "picture", config) {
+                QeetrixBottomSheetSurface(
+                    title = "Find people you know",
+                    modifier = Modifier.width(360.dp),
+                    description = "We check your contacts against Qeet Circle, on this phone. Nothing is uploaded.",
+                    footer = {
+                        QeetrixButton("Not now", onClick = {}, variant = QeetrixButtonVariant.Ghost)
+                        QeetrixButton("Allow contacts", onClick = {})
+                    },
+                    picture = {
+                        Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
+                            for (name in listOf("Asha Rao", "Ravi Kumar", "Meera Iyer")) QeetrixAvatar(name, size = QeetrixAvatarSize.Xl)
+                        }
+                    },
+                ) { QeetrixText("You can turn this off in Settings.", size = QeetrixTextSize.Sm, tone = QeetrixTextTone.Subtle) }
+            }
+        }
+    }
+
     @Test
     fun states() =
         captureStates("bottomsheet") {

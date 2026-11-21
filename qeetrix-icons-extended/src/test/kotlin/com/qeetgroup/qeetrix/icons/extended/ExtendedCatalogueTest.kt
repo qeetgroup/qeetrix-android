@@ -6,6 +6,7 @@ import com.qeetgroup.qeetrix.icons.QeetrixIcon
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.icons.QeetrixIconShape
 import com.qeetgroup.qeetrix.icons.QeetrixIconVariant
+import com.qeetgroup.qeetrix.icons.imageVector
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.json.JSONArray
 import org.junit.Assert.assertEquals
@@ -72,6 +73,15 @@ class ExtendedCatalogueTest {
         assertFalse(QeetrixIconName.AlarmClock.mirrorsInRightToLeft)
         // A directional icon outside the core set mirrors, as on the web.
         assertTrue(QeetrixIconName.extendedCatalogue.single { it.value == "log-out" }.mirrorsInRightToLeft)
+    }
+
+    /** An extended icon has the same public drawing as a core one: a 24-unit vector with its paths, mirroring as upstream says. */
+    @Test
+    fun anExtendedIconHasAVector() {
+        val alarm = QeetrixIconName.AlarmClock.imageVector()
+        assertEquals(24f, alarm.viewportWidth)
+        assertTrue(alarm.root.iterator().hasNext())
+        assertEquals(QeetrixIconName.AlarmClock.mirrorsInRightToLeft, alarm.autoMirror)
     }
 
     /** Draws every drawing once, so each decodes: a malformed one would throw here, not in an app. */

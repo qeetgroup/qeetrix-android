@@ -1,15 +1,21 @@
 package com.qeetgroup.qeetrix.quality
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsOff
@@ -29,6 +35,10 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.qeetgroup.qeetrix.components.badge.QeetrixChip
+import com.qeetgroup.qeetrix.components.button.QeetrixButton
+import com.qeetgroup.qeetrix.components.button.QeetrixButtonSize
+import com.qeetgroup.qeetrix.components.button.QeetrixIconButton
+import com.qeetgroup.qeetrix.components.checkbox.QeetrixCheckbox
 import com.qeetgroup.qeetrix.components.input.QeetrixField
 import com.qeetgroup.qeetrix.components.input.QeetrixSearchField
 import com.qeetgroup.qeetrix.components.input.QeetrixTextField
@@ -41,6 +51,9 @@ import com.qeetgroup.qeetrix.components.toast.QeetrixSnackbar
 import com.qeetgroup.qeetrix.components.typography.QeetrixText
 import com.qeetgroup.qeetrix.components.typography.QeetrixTextSize
 import com.qeetgroup.qeetrix.components.typography.qeetrixLink
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity
+import com.qeetgroup.qeetrix.icons.QeetrixIconName
+import com.qeetgroup.qeetrix.theme.LocalQeetrixDensity
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -50,10 +63,10 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Where a touch lands near the controls that are drawn smaller than 48 dp inside or beside another control
- * (`LayoutQualityTest` lists them): a tap within the 48 dp target around each, outside what is drawn, must
- * reach it rather than the control around it. And the negative control: a tap further out reaches the control
- * around it instead.
+ * Where a touch lands near the controls laid out smaller than 48 dp — inside or beside another control, and buttons,
+ * icon buttons, the bare switch and the bare checkbox laid out at their drawn size: a tap
+ * within the 48 dp target around each, outside what is drawn, must reach it rather than the control around it. And
+ * the negative control: a tap further out reaches the control around it instead.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -207,6 +220,97 @@ class TouchLandingTest {
         }
         tapNear(compose.onNode(hasClickAction()), dx = 0.dp, dy = 14.dp)
         compose.runOnIdle { assertEquals(1, followed) }
+    }
+
+    /**
+     * The bare switch is laid out at its 32 × 18 dp track at the end of a settings row: a tap 22 dp beside and 22 dp
+     * above or below its centre, near each corner of the 48 dp area round it, still toggles it; one 26 dp out does not.
+     */
+    @Test
+    fun theBareSwitchTakesTapsWithin48DpOfItsTrack() {
+        var on by mutableStateOf(false)
+        compose.setContent {
+            QeetrixTheme {
+                Row(Modifier.width(320.dp).padding(32.dp), verticalAlignment = Alignment.CenterVertically) {
+                    QeetrixText("Read receipts", Modifier.weight(1f))
+                    QeetrixSwitch(on, { on = it }, Modifier.semantics { contentDescription = "Read receipts" })
+                }
+            }
+        }
+        val switch = compose.onNodeWithContentDescription("Read receipts")
+        tapNear(switch, dx = 22.dp, dy = (-22).dp)
+        compose.runOnIdle { assertEquals(true, on) }
+        tapNear(switch, dx = (-22).dp, dy = 22.dp)
+        compose.runOnIdle { assertEquals(false, on) }
+        tapNear(switch, dx = (-26).dp, dy = 0.dp)
+        compose.runOnIdle { assertEquals(false, on) }
+    }
+
+    /**
+     * Two `md` buttons stacked the web's 8 dp apart: their 48 dp touch areas overlap by 8 dp, and Compose sends a tap
+     * there to the nearer button — 3 dp under the first goes to it, 3 dp over the second to that one.
+     */
+    @Test
+    fun aTapBetweenStackedButtonsGoesToTheNearerOne() {
+        val taps = mutableListOf<String>()
+        compose.setContent {
+            QeetrixTheme {
+                Column(Modifier.width(320.dp).padding(32.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    QeetrixButton("Delete for me", onClick = { taps += "first" }, fullWidth = true)
+                    QeetrixButton("Cancel", onClick = { taps += "second" }, fullWidth = true)
+                }
+            }
+        }
+        // md is 32 dp: the centre is 16 dp from each edge.
+        tapNear(compose.onNodeWithText("Delete for me"), dx = 0.dp, dy = 19.dp)
+        tapNear(compose.onNodeWithText("Cancel"), dx = 0.dp, dy = (-19).dp)
+        compose.runOnIdle { assertEquals(listOf("first", "second"), taps) }
+    }
+
+    /** The bare checkbox is laid out at its 16 dp box: taps 22 dp beside and above its centre toggle it; 26 dp out does not. */
+    @Test
+    fun theBareCheckboxTakesTapsWithin48DpOfItsBox() {
+        var on by mutableStateOf(false)
+        compose.setContent {
+            QeetrixTheme {
+                Box(Modifier.padding(48.dp)) {
+                    QeetrixCheckbox(on, { on = it }, Modifier.semantics { contentDescription = "Select invoice" })
+                }
+            }
+        }
+        val box = compose.onNodeWithContentDescription("Select invoice")
+        tapNear(box, dx = 22.dp, dy = (-22).dp)
+        compose.runOnIdle { assertEquals(true, on) }
+        tapNear(box, dx = (-22).dp, dy = 0.dp)
+        compose.runOnIdle { assertEquals(false, on) }
+        tapNear(box, dx = 26.dp, dy = 0.dp)
+        compose.runOnIdle { assertEquals(false, on) }
+    }
+
+    /**
+     * Buttons are laid out at their drawn size: a tap 1.5 dp above a 44 dp full-width `lg` button (the comfortable
+     * density) and 22 dp beside a 32 dp icon button still activates it.
+     */
+    @Test
+    fun buttonsTakeTapsWithin48Dp() {
+        var continued = 0
+        var closed = 0
+        compose.setContent {
+            QeetrixTheme {
+                CompositionLocalProvider(LocalQeetrixDensity provides QeetrixDensity.Comfortable) {
+                    Column(Modifier.width(320.dp).padding(32.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
+                        QeetrixButton("Continue", onClick = { continued++ }, size = QeetrixButtonSize.Lg, fullWidth = true)
+                        QeetrixIconButton(QeetrixIconName.X, "Close", onClick = { closed++ })
+                    }
+                }
+            }
+        }
+        tapNear(compose.onNodeWithText("Continue"), dx = 0.dp, dy = (-23.5).dp)
+        tapNear(compose.onNodeWithContentDescription("Close"), dx = 22.dp, dy = 0.dp)
+        compose.runOnIdle {
+            assertEquals(1, continued)
+            assertEquals(1, closed)
+        }
     }
 
     /** The negative control: a tap 30 dp from the clear button's centre, past its 48 dp target, does not clear. */

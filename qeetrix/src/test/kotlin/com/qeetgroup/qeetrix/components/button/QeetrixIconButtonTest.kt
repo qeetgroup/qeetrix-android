@@ -9,6 +9,9 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTouchHeightIsEqualTo
+import androidx.compose.ui.test.assertTouchWidthIsEqualTo
+import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -36,7 +39,7 @@ class QeetrixIconButtonTest {
         compose
             .onNodeWithContentDescription("Close")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
-            .assertHeightIsAtLeast(48.dp)
+            .assertTouchHeightIsEqualTo(48.dp)
             .performClick()
         assertEquals(1, clicks)
     }
@@ -73,8 +76,12 @@ class QeetrixIconButtonTest {
     @Test
     fun itIsGhostAndSquareByDefault() {
         compose.setQeetrix { QeetrixIconButton(QeetrixIconName.X, contentDescription = "Close", onClick = {}) }
-        // .qx-icon-button: a size.control.md square (32 dp at the default density) inside a 48 dp touch area.
-        compose.onNodeWithContentDescription("Close").assertHeightIsAtLeast(48.dp)
+        // .qx-icon-button: laid out as a size.control.md square (32 dp at the default density), with a 48 dp touch area
+        // round it, which accessibility services read as its bounds.
+        val laidOut = compose.onNodeWithContentDescription("Close").fetchSemanticsNode().size
+        assertEquals(32.dp, with(compose.density) { laidOut.width.toDp() })
+        assertEquals(32.dp, with(compose.density) { laidOut.height.toDp() })
+        compose.onNodeWithContentDescription("Close").assertTouchHeightIsEqualTo(48.dp).assertTouchWidthIsEqualTo(48.dp)
         assertEquals(32.dp, com.qeetgroup.qeetrix.foundation.sizing.QeetrixDensity.Default.sizeControlMd)
     }
 }

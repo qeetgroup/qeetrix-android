@@ -69,6 +69,7 @@
       "experimental/otp-input",
       "experimental/page-header",
       "experimental/password-input",
+      "experimental/picture-choice",
       "experimental/qr-code",
       "experimental/range-calendar",
       "experimental/relative-time",

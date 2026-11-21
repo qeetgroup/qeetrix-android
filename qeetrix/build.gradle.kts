@@ -145,7 +145,7 @@ dependencies {
 }
 
 // Test coverage (Kover) of the JVM tests, debug variant: `./gradlew :qeetrix:koverHtmlReportDebug` for a report,
-// `:qeetrix:koverVerifyDebug` (in CI) fails below the minimum (docs/quality.md). Generated token and icon
+// `:qeetrix:koverVerifyDebug` (in the local gate) fails below the minimum (docs/quality.md). Generated token and icon
 // data, and the classes the Compose compiler writes, are not code anyone writes tests for.
 kover {
     reports {

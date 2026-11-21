@@ -1,5 +1,6 @@
 package com.qeetgroup.qeetrix.gen
 
+import com.qeetgroup.qeetrix.gen.emit.ColorResourceEmitter
 import com.qeetgroup.qeetrix.gen.emit.ComponentTokenEmitter
 import com.qeetgroup.qeetrix.gen.emit.FontSpec
 import com.qeetgroup.qeetrix.gen.emit.IconEmitter
@@ -113,6 +114,7 @@ class Generator(
 
         val outputs = sortedMapOf<String, String>()
         outputs += TokenEmitter(model, provenance, fonts).files()
+        outputs += ColorResourceEmitter(model, provenance).files()
         outputs += ComponentTokenEmitter(model, provenance).files()
         outputs += IconEmitter(coreIcons, extendedIcons, provenance).files()
         outputs += Reports(model, provenance).files()

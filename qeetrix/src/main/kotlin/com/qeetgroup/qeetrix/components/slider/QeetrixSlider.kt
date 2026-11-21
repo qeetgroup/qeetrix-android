@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Dp
@@ -53,6 +54,7 @@ import com.qeetgroup.qeetrix.foundation.haptics.QeetrixHapticRole
 import com.qeetgroup.qeetrix.foundation.haptics.rememberQeetrixHaptics
 import com.qeetgroup.qeetrix.foundation.shape.QeetrixRadius
 import com.qeetgroup.qeetrix.foundation.sizing.QeetrixBorder
+import com.qeetgroup.qeetrix.foundation.sizing.QeetrixSize
 import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
@@ -100,6 +102,49 @@ public fun QeetrixSlider(
             enabled = enabled,
             names = listOf(label),
             write = write,
+        )
+    }
+}
+
+/**
+ * A slider with no visible label — `@qeetrix/react`'s Slider with only an `aria-label`: the control alone, for a slider
+ * in a row of its own between two icons (a photo's zoom, a text size). It is laid out at the web's control height,
+ * `size.target.min` (24 dp), as buttons and the switch without a label are, and takes a touch anywhere in the 48 dp
+ * band centred on the track through Compose's touch-target expansion. Give it a name with a `contentDescription` on [modifier], as for a [com.qeetgroup.qeetrix.components.switchcontrol.QeetrixSwitch]
+ * without a label: accessibility services read that name with the value [format] writes, and their adjust gestures
+ * step it. Everything else is the labelled slider's: [step], [valueRange], dragging, tapping, the keys and the haptics.
+ *
+ * ```
+ * Row(verticalAlignment = Alignment.CenterVertically) {
+ *     QeetrixIcon(QeetrixIconName.Minus, contentDescription = null)
+ *     QeetrixSlider(zoom, { zoom = it }, Modifier.weight(1f).semantics { contentDescription = "Zoom" }, valueRange = 1f..4f)
+ *     QeetrixIcon(QeetrixIconName.Plus, contentDescription = null)
+ * }
+ * ```
+ */
+@Composable
+public fun QeetrixSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..100f,
+    step: Float? = null,
+    enabled: Boolean = true,
+    format: ((Float) -> String)? = null,
+) {
+    val locale = LocalConfiguration.current.locales[0]
+    val write = format ?: { v: Float -> QeetrixFormat.number(v, locale, maximumFractionDigits = if (step != null && step >= 1f) 0 else 2) }
+    // One element: the name on [modifier], the thumb's value and its adjust actions.
+    androidx.compose.foundation.layout.Box(modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
+        SliderControl(
+            values = listOf(value),
+            onChange = { _, v -> onValueChange(v) },
+            valueRange = valueRange,
+            step = step,
+            enabled = enabled,
+            names = listOf(null),
+            write = write,
+            height = QeetrixSize.TargetMin,
         )
     }
 }
@@ -202,8 +247,9 @@ private fun SliderControl(
     valueRange: ClosedFloatingPointRange<Float>,
     step: Float?,
     enabled: Boolean,
-    names: List<String>,
+    names: List<String?>,
     write: (Float) -> String,
+    height: Dp = QeetrixAccessibility.MinimumTouchTarget,
 ) {
     require(valueRange.endInclusive > valueRange.start) { "A slider's range must not be empty." }
     require(step == null || step > 0f) { "A slider's step is above zero." }
@@ -235,11 +281,12 @@ private fun SliderControl(
         }
     }
     val keyStep = step ?: (span / 100f)
-    // .qx-slider-control: block-size size.target.min (here 48 dp), padding-inline 8px
+    // .qx-slider-control: block-size size.target.min (48 dp under a label, which reserves the touch height; 24 dp
+    // without one, the touch height then Compose's expansion round it), padding-inline 8px
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
-            .height(QeetrixAccessibility.MinimumTouchTarget)
+            .height(height)
             .padding(horizontal = THUMB_HALF)
             .then(
                 if (!enabled) {
@@ -275,7 +322,7 @@ private fun SliderControl(
         val shares = values.map { ((it - valueRange.start) / span).coerceIn(0f, 1f) }
         val track = colors.borderDefault
         val indicator = if (enabled) colors.bgBrandBold else colors.bgDisabled
-        Canvas(Modifier.fillMaxWidth().height(QeetrixAccessibility.MinimumTouchTarget)) {
+        Canvas(Modifier.fillMaxWidth().height(height)) {
             val y = size.height / 2
             val thickness = TRACK.toPx()
             // .qx-slider-track: 4 dp of border.default
@@ -300,6 +347,8 @@ private fun SliderControl(
                 onStep = { delta -> move(index, v + delta) },
                 keyStep = keyStep,
                 largeStep = span / 10f,
+                // The thumb's 48 dp box stays centred on the track, reaching past a shorter control.
+                lift = (TOUCH - height) / 2,
             )
         }
     }
@@ -311,7 +360,7 @@ private fun Thumb(
     width: Dp,
     rtl: Boolean,
     enabled: Boolean,
-    name: String,
+    name: String?,
     written: String,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
@@ -319,6 +368,7 @@ private fun Thumb(
     onStep: (Float) -> Unit,
     keyStep: Float,
     largeStep: Float,
+    lift: Dp = 0.dp,
 ) {
     val colors = QeetrixTheme.colors
     val source = remember { MutableInteractionSource() }
@@ -331,10 +381,10 @@ private fun Thumb(
     val x = width * share - TOUCH / 2
     androidx.compose.foundation.layout.Box(
         Modifier
-            .offset { IntOffset(x.roundToPx(), 0) }
+            .offset { IntOffset(x.roundToPx(), -lift.roundToPx()) }
             .size(TOUCH)
             .clearAndSetSemantics {
-                contentDescription = name
+                if (name != null) contentDescription = name
                 stateDescription = written
                 progressBarRangeInfo = ProgressBarRangeInfo(value, valueRange)
                 if (enabled) {

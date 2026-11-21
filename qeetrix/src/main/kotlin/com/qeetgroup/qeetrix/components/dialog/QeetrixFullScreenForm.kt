@@ -21,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -50,6 +51,7 @@ import com.qeetgroup.qeetrix.foundation.spacing.QeetrixSpace
 import com.qeetgroup.qeetrix.icons.QeetrixIconName
 import com.qeetgroup.qeetrix.internal.DialogScrimOnly
 import com.qeetgroup.qeetrix.internal.DialogSystemBars
+import com.qeetgroup.qeetrix.internal.LocalReservesTouchArea
 import com.qeetgroup.qeetrix.internal.labelDirection
 import com.qeetgroup.qeetrix.internal.windowAtLeast
 import com.qeetgroup.qeetrix.theme.QeetrixTheme
@@ -120,40 +122,43 @@ public fun QeetrixFullScreenForm(
                     .windowInsetsPadding(if (sheet) WindowInsets.ime else WindowInsets.safeDrawing.union(WindowInsets.ime)),
             ) {
                 val rule = colors.borderDefault
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            val width = QeetrixBorder.WidthDefault.toPx()
-                            drawRect(rule, Offset(0f, size.height - width), Size(size.width, width))
-                        }.heightIn(min = QeetrixTheme.density.sizeControlLg + BAR_EXTRA)
-                        .padding(horizontal = QeetrixSpace.InsetXs),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs),
-                ) {
-                    QeetrixIconButton(
-                        QeetrixIconName.X,
-                        stringResource(R.string.qx_close),
-                        onClick = close,
-                        tone = QeetrixButtonTone.Neutral,
-                    )
-                    BasicText(
-                        title,
-                        Modifier.weight(1f).semantics { heading() },
-                        style =
-                            QeetrixTheme.typography.titleLg
-                                .copy(color = colors.textDefault)
-                                .labelDirection(alignToLayout = true),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    QeetrixButton(
-                        confirmLabel,
-                        onClick = onConfirm,
-                        size = QeetrixButtonSize.Sm,
-                        enabled = confirmEnabled,
-                        modifier = Modifier.padding(end = QeetrixSpace.InsetXs),
-                    )
+                // An app bar: its close and confirm buttons keep their 48 dp touch areas in the layout, as the top app bar's.
+                CompositionLocalProvider(LocalReservesTouchArea provides true) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .drawBehind {
+                                val width = QeetrixBorder.WidthDefault.toPx()
+                                drawRect(rule, Offset(0f, size.height - width), Size(size.width, width))
+                            }.heightIn(min = QeetrixTheme.density.sizeControlLg + BAR_EXTRA)
+                            .padding(horizontal = QeetrixSpace.InsetXs),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(QeetrixSpace.GapXs),
+                    ) {
+                        QeetrixIconButton(
+                            QeetrixIconName.X,
+                            stringResource(R.string.qx_close),
+                            onClick = close,
+                            tone = QeetrixButtonTone.Neutral,
+                        )
+                        BasicText(
+                            title,
+                            Modifier.weight(1f).semantics { heading() },
+                            style =
+                                QeetrixTheme.typography.titleLg
+                                    .copy(color = colors.textDefault)
+                                    .labelDirection(alignToLayout = true),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        QeetrixButton(
+                            confirmLabel,
+                            onClick = onConfirm,
+                            size = QeetrixButtonSize.Sm,
+                            enabled = confirmEnabled,
+                            modifier = Modifier.padding(end = QeetrixSpace.InsetXs),
+                        )
+                    }
                 }
                 Column(
                     Modifier

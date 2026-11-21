@@ -23,6 +23,7 @@ Every component in Qeetrix for Android, and its `@qeetrix/react` counterpart. Ea
 | Forms & inputs | Permission primer | `QeetrixPermissionPrimer` | `permission` | none |
 | Forms & inputs | QR scanner | `QeetrixQRScanner` | `scanner` | none |
 | Forms & inputs | Radio group | `QeetrixRadioGroup` | `radiogroup` | RadioGroup, Radio |
+| Forms & inputs | Picture choice | `QeetrixPictureChoiceGroup` | `picturechoice` | PictureChoiceGroup, PictureChoice (experimental) |
 | Forms & inputs | Search field | `QeetrixSearchField` | `input` | SearchField (experimental) |
 | Forms & inputs | Select | `QeetrixSelect`, `QeetrixMultiSelect`, `QeetrixOption`, `QeetrixOptionGroup` | `select`; the options `input` | Select (its `items` and groups; `multiple`) |
 | Forms & inputs | Searchable select | `QeetrixSearchableSelect`, `QeetrixSearchableMultiSelect` | `select` | Combobox, as a sheet with search |
@@ -57,7 +58,7 @@ Every component in Qeetrix for Android, and its `@qeetrix/react` counterpart. Ea
 | Overlays | Alert dialog | `QeetrixAlertDialog`, `QeetrixDialogAction` | `dialog` | Dialog with `intent="danger"` or `"warning"` |
 | Overlays | Confirmation dialog | `QeetrixConfirmationDialog` | `dialog` | Dialog with Cancel and a confirming Button |
 | Overlays | Dialog | `QeetrixDialog` | `dialog` | Dialog, DialogContent, DialogBody, DialogFooter |
-| Overlays | Bottom sheet | `QeetrixBottomSheet` | `drawer` | Drawer, as a bottom sheet |
+| Overlays | Bottom sheet | `QeetrixBottomSheet`, `QeetrixBottomSheetSurface` (in place) | `drawer` | Drawer, as a bottom sheet |
 | Overlays | Action sheet | `QeetrixActionSheet`, `QeetrixSheetAction`, `QeetrixSheetActionSeparator` | `drawer` | none (a phone's form of a Menu) |
 | Overlays | Side sheet | `QeetrixSideSheet` | `drawer` | Drawer, at the side (a bottom sheet on a phone) |
 | Overlays | Full-screen form | `QeetrixFullScreenForm` | `dialog` | none (Dialog's `fullscreen` size is the nearest) |
@@ -88,7 +89,9 @@ Not built, by decision: a navigation drawer, a popover, a toast, a data table an
   4 dp top corners and the `size.control.lg` height; the label sits above in `label.sm` / `color.text.subtle`,
   "(optional)" rather than an asterisk; the help text sits below, and an error replaces it while it shows.
 - **Actions** (§7): label first, icon last in its own zone; at most one solid and one soft button per region, every
-  other action ghost; a destructive confirmation replaces the primary.
+  other action ghost; a destructive confirmation replaces the primary. The zone takes a `QeetrixIconName` or, through
+  the `QeetrixButton` and `QeetrixIconButton` overloads with a trailing `icon` slot, a drawing of your own (a rotated
+  icon such as the call-end sign), sized, padded and coloured as a named icon is.
 - **Focus** (§10): keyboard focus draws the 2 dp Ember frame (`focus.ring.width`, `color.border.focus`), never
   removed or replaced by colour — inside buttons with a 1 dp surface gap, inside fields in place of the bottom
   line, 2 dp outside checkboxes, radios, switches and chips, inside rows and in a scrolling tab list. In touch mode
@@ -101,11 +104,16 @@ Not built, by decision: a navigation drawer, a popover, a toast, a data table an
   shadows — `shadow.overlay` for menus, the select list and snackbars, `shadow.modal` for dialogs.
 - **Icons** (§16): sharp outline on controls, round in navigation, filled only for a current or selected state;
   16 dp inside controls, 20 dp standalone, 24 dp in empty states; stroke 2, 1.5 at the compact density.
-- **Touch.** Every control reserves a 48 × 48 dp touch area around the web-sized drawing. The few drawn smaller
-  where a reserved area would move the layout — a field's show-password, clear and help buttons, a chip's remove
-  button, the accordion's trigger — take a tap within 48 dp through Compose's touch-target expansion instead; the
-  number field's steppers are field-tall targets, with Decrease and Increase actions on the field as the accessible
-  path ([quality.md](quality.md)).
+- **Touch.** Every control has a 48 × 48 dp touch area round the web-sized drawing. Rows, tiles, chips, labelled
+  checkboxes and switches, tabs and menu items reserve it in the layout. Buttons, icon buttons, the bare switch, the
+  bare checkbox and the slider without a label are laid out at their drawn size, as on the web — so a stack of buttons
+  8 dp apart is 8 dp apart, and a switch at a row's end adds no height — and take a tap within 48 dp through Compose's
+  touch-target expansion, as a field's show-password, clear and help buttons and a chip's remove button do;
+  accessibility services read that 48 dp area as their bounds. Where controls sit closer than 48 dp centre to centre,
+  at the web's spacing, their areas overlap and Compose sends a tap there to the nearer one. The top app bar and the
+  full-screen form's bar, whose icons sit edge to edge, keep each one's 48 dp in the layout
+  (`Modifier.qeetrixMinimumTouchTarget()` does the same in an app's own toolbar). The number field's steppers are
+  field-tall targets, with Decrease and Increase actions on the field as the accessible path ([quality.md](quality.md)).
 - **Feedback.** No ripple: pressed and hovered states are the web's `-hover` and `-pressed` colour steps, in
   `motion.duration.fast`; nothing scales or bounces (§18).
 - **Text** is in sp and follows the font scale; containers grow rather than clip.

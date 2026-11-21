@@ -6,6 +6,87 @@ describes.
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-11-21
+
+Additions, a minor release ([docs/releases.md](docs/releases.md)). Built from `@qeetrix/react` 0.5.1,
+`@qeetrix/tokens` 0.0.15 and `@qeetrix/icons` 2.1.2. Every 0.3.0 signature stays for compiled apps.
+
+### ✨ Added
+
+- **`QeetrixSlider` without a label** — `@qeetrix/react`'s Slider with only an `aria-label`: the control alone, laid
+  out at the web's 24 dp (`size.target.min`) with a tap anywhere in the 48 dp band round its track, for a slider in a
+  row between two icons. Name it with a `contentDescription` on its `modifier`, as the switch without a label: TalkBack
+  reads the name with the value and its adjust gestures step it.
+- **`QeetrixRadioGroup(hideLabel = true)`** — `@qeetrix/react`'s RadioGroup with its label in a VisuallyHidden: the
+  options alone, in every orientation and variant, for a group right under a screen heading that already asks the
+  question. The label still names the group and is read as its heading before the options. The 0.3.0 signature stays
+  for compiled apps.
+- **`QeetrixRadioGroup(optionLabel = { option -> … })`** — `@qeetrix/react`'s Radio with a node for its label: each
+  option draws its own title in the row's or the tile's place (a language in its own script, a picture beside the
+  title, a badge after it), the radio on its first line and the description under it, in the label's colour
+  (`LocalQeetrixContentColor`). TalkBack still reads the option's plain `label`, its description and its state.
+- **`QeetrixPictureChoiceGroup`** — `@qeetrix/react`'s PictureChoiceGroup (experimental): one choice among pictures —
+  an avatar, a background tone, a sticker — each a `QeetrixOption` drawn by the `picture` slot in a round or square
+  frame at 36 (`Sm`, for swatches, with a 16 dp tick), 48 (`Md`, the default) or 64 dp (`Lg`), in a wrapping row or a
+  grid of `columns`. The chosen one has a 2 dp `color.border.brand` ring
+  set off by the surface and a tick at its top end corner; TalkBack reads each as a radio button by its label, in a
+  group named by `contentDescription`. picture-choice.css is now pinned (`experimental/picture-choice`).
+- **`QeetrixSegmentedControl(fullWidth = true)`** — toggle.css's `[data-full-width]`: the strip fills its container
+  and every segment takes an equal share, its label centred and ending in an ellipsis when the share is too narrow.
+  The 0.3.0 signature stays for compiled apps.
+- **`QeetrixAccordionItem(titleContent = { … })`** — react's AccordionItem with a node for its `title`: the item draws
+  its own title (a compact list's `body.md` title with its purpose in `body.sm` under it), with the chevron centred on
+  the trigger as on the web. The trigger stays one heading button read with the plain `title` and its state. The
+  0.3.0 signature stays for compiled apps.
+- **`rememberQeetrixIconPainter(name, shape, variant, stroke, mirrorInRightToLeft)`** and
+  **`QeetrixIconName.imageVector(…)`**: an icon, core or extended, as a `Painter` or an `ImageVector`, to draw inside a
+  `Canvas` or any `DrawScope` (map markers, chart points). They draw exactly what `QeetrixIcon` draws — the same
+  fallback when a variant isn't drawn and the same right-to-left mirroring — tinted with a `ColorFilter` where drawn
+  ([docs/icons.md](docs/icons.md)). `QeetrixIcon` now draws through the same painter.
+- **`QeetrixButton(…) { icon }` and `QeetrixIconButton(contentDescription, onClick, …) { icon }`** — `@qeetrix/react`'s
+  Button and IconButton with a component for the icon: your own drawing (the call-end sign is the phone, filled and
+  turned 135°) gets the zone a named icon gets — the icon size for the button's size, the zone's padding and 55 % rule,
+  the label's colour through `LocalQeetrixContentColor`, full-width centring — and the spinner takes its place while
+  loading.
+- **Colour resources for XML themes**: `@color/qx_surface_canvas`, `qx_surface_default`, `qx_surface_raised`,
+  `qx_text_default` and `qx_bg_brand_bold`, light in `values` and dark in `values-night`, generated from the same
+  `@qeetrix/tokens` as `QeetrixTheme.colors` and equal to them, so a window background or the system splash screen
+  (`android:windowBackground`, `windowSplashScreenBackground`) follows Qeetrix with no hex
+  ([docs/tokens.md](docs/tokens.md)). The AAR now carries `res/values-night`.
+- **A picture-led `QeetrixBottomSheet(picture = { … })`**: the picture centred at the top, the title in `title.lg` and
+  the description centred under it, no ruled header or close button (the scrim, Back and a swipe still close it), then the content and
+  footer as usual. The 0.3.0 signature stays for compiled apps.
+- **`QeetrixBottomSheetSurface`**: the bottom sheet's surface drawn in place — handle, header or picture, body and
+  footer, `color.surface.overlay` under `shadow.modal` — for previews, screenshots and a screen's picture of its open
+  state, without a window.
+- **`QeetrixTextField(size = QeetrixTextFieldSize.Lg)`** — `@qeetrix/react`'s Input `size="lg"`, for the one value a
+  sign-up or verification step asks for (a phone number, a name, a date of birth): `size.control.lg` + 16 dp tall (56 dp
+  at the default density, 60 dp at the comfortable, as the large OTP input), the value at `title.lg`'s size in regular
+  weight with tabular figures and the body's letterforms, the placeholder in `body.md`; the label, help text, error and
+  adornments line up as at the default size. Sign-in's email and password stay `Md`. Its 0.2.0 signature stays for
+  compiled apps.
+
+### 🔄 Changed
+
+- **`QeetrixSegmentedControl` draws `label.md` with 12 dp padding at every size**, as the web's toggles keep their own
+  size inside a group: `Sm` and `Lg` change only the strip's height now (`Sm` was `label.sm` with 8 dp, `Lg` 16 dp).
+- **Choice tiles of short choices are at least 128 dp wide**, not 192 dp, as `@qeetrix/react`'s field.css
+  (`--qx-choice-tile-min`): when no option of a `QeetrixRadioGroup` or `QeetrixCheckboxGroup` has an icon or a
+  description, `columns = 2` keeps two equal tiles a row in a phone's 328 dp column, 8 dp apart. Tiles with an icon or
+  a description keep the 192 dp minimum, so they still take fewer columns where there isn't room.
+- **Buttons, icon buttons, the bare switch and the bare checkbox are laid out at their drawn size**, as on the web,
+  instead of reserving 48 × 48 dp in the layout. A `QeetrixButton(size = Lg)` takes 44 dp at the comfortable density
+  (40 dp at the default), so a stack of full-width buttons 8 dp apart is 8 dp apart; a `QeetrixSwitch` without a label
+  takes its track's 32 × 18 dp and a `QeetrixCheckbox` without one its 16 dp box, so a one-line settings row keeps the
+  web's height. Each still takes a tap anywhere within 48 dp through Compose's touch-target expansion, which TalkBack and
+  the Accessibility Test Framework read as its bounds; the focus frame is unchanged. Screens drawn round the old 48 dp
+  boxes move: a footer, a stack or a card's actions sit where the web puts them, and a copy field, a file row, an alert
+  and a dialog's close button lose the extra height.
+  - Controls closer than 48 dp centre to centre, as at the web's spacing, have overlapping touch areas, and Compose
+    sends a tap in the overlap to the nearer one. The top app bar and the full-screen form's bar keep each icon's 48 dp in
+    the layout, as their icons sit edge to edge. In a toolbar of your own, pass `Modifier.qeetrixMinimumTouchTarget()` to
+    each icon button to do the same.
+
 ## [0.3.0] — 2026-11-08
 
 A source-breaking change, which before 1.0 takes a minor release ([docs/releases.md](docs/releases.md)). Built from
@@ -211,6 +292,8 @@ Neither candidate was published.
 
 The phase-by-phase notes from before 4 November 2026 are in the git history (`git log -p -- CHANGELOG.md`).
 
-[Unreleased]: https://github.com/qeetgroup/qeetrix-android/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/qeetgroup/qeetrix-android/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.4.0
+[0.3.0]: https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.3.0
 [0.2.0]: https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.2.0
 [0.1.0]: https://github.com/qeetgroup/qeetrix-android/releases/tag/v0.1.0
